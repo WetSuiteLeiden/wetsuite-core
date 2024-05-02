@@ -1,0 +1,62 @@
+#!/usr/bin/python3
+''' Given a path to a LocalKV or MsgPackKV style database, and a key in it, prints out the value.
+
+    Note that this is only for debug, e.g. in that it may transform the output value to do so.
+'''
+import sys
+import os
+import pprint
+
+import wetsuite.helpers.localdata
+import wetsuite.helpers.etree
+
+def main():
+    ' see module docstring '
+    if len(sys.argv) != 3:
+        sys.stderr.write( "This script takes a path and a single key\n")
+        sys.exit(-1)
+    else:
+        path, key = sys.argv[1:]
+        path = os.path.abspath( path ) # mostly to avoid localdata.resolve_path interpretation
+
+        if not os.path.exists( path ):
+            print( 'Specified path not found: %r'%path )
+            sys.exit(-2)
+
+        if not wetsuite.helpers.localdata.is_file_a_store( path ):
+            print( 'Specified path does not seem to be an SQLite file created by us: %r'%path )
+            sys.exit(-3)
+
+        # the types are not actually used because we don't use put()
+        store = wetsuite.helpers.localdata.LocalKV(path, None, None, read_only=True)
+
+        # CONSIDER: deal with msgpack more cleanly
+        if store._get_meta('valtype', missing_as_none=True) == 'msgpack':
+            store.close()
+            store = wetsuite.helpers.localdata.MsgpackKV(path, str, read_only=True)
+
+        val = store.get( key )
+        store.close()
+
+        if isinstance(val, bytes):
+            # CONSIDER: that this is probably not safe
+            # CONSIDER: detecting and highlighting types like XML, PDF
+            # CONSIDER: only doing that if you specifically ask for it, so that it can be unambiguous we're changing it while we're printing
+            if b'<?xml' in val[:10]:
+                tree = wetsuite.helpers.etree.fromstring(val)
+                bytemsg = wetsuite.helpers.etree.debug_pretty(tree).encode('utf8')
+            else:
+                bytemsg = val
+        elif isinstance(val, str):
+            bytemsg = wetsuite.helpers.shellcolor.magenta( val ).encode('utf8')
+        elif isinstance(val, dict): # assumes msgpackkv used as such
+            bytemsg = wetsuite.helpers.shellcolor.magenta( pprint.pformat(val )).encode('utf8')
+        else:
+            bytemsg = wetsuite.helpers.shellcolor.magenta( str(val) ).encode('utf8')
+
+        sys.stdout.buffer.write( bytemsg )
+        sys.stdout.write( '\n' )
+
+
+if __name__ == '__main__':
+    main()

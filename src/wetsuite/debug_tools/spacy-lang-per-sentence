@@ -1,0 +1,27 @@
+#!/usr/bin/python3
+
+import sys, time
+import helpers_spacy
+
+#text = sys.stdin.read()
+
+text = """
+Leicester Abbey (de abdij van Leicester), ook wel de Abbey of Saint Mary de Pratis, was een abdij, gelegen ongeveer 2 kilometer ten noorden van de stad Leicester. Tegenwoordig resteert slechts een ruïne, die gelegen is in een stadspark van Leicester. 
+
+Leicester Abbey – ruiny klasztoru opactwa Santa Maria de Pratis założonego w pierwszej połowie XII wieku w mieście Leicester w Wielkiej Brytanii. Opactwo zgromadzenia Augustynian było jednym z największych w Anglii. Klasztor został założony w 1143 roku przez Roberta de Beaumont jako wspólnota augustynianów. Opactwo trwało do końca 1520 roku, ostatecznie zamknięte w 1538 r. przez Henryka VIII. 
+
+Лестерское аббатство Святой Марии (англ. Leicester of Saint Mary de Pratis) — средневековый монастырь на территории графства Лестершир, в настоящее время — руины. Находится примерно в двух километрах севернее Лестера среди лугов на западном берегу реки Соар. Аббатство является частью Абби-парка. 
+
+The Abbey of Saint Mary de Pratis, more commonly known as Leicester Abbey, was an Augustinian religious house in the city of Leicester, in the East Midlands of England. The abbey was founded in the 12th century by the Robert de Beaumont, 2nd Earl of Leicester, and grew to become the wealthiest religious establishment within Leicestershire.
+"""
+
+doc = helpers_spacy.sentence_split(text)
+
+for sent_span in doc.sents:
+    sent_text = sent_span.text.strip()
+    start = time.time()
+    lang, score = helpers_spacy.detect_language( sent_text )
+    took = time.time() - start
+    print("SENTENCE / %3s in %.2fms / %s"%(lang, 1000.*took, sent_text))
+
+

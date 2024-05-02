@@ -1,0 +1,24 @@
+#!/usr/bin/python3
+''' Given one or more paths to a LocalKV style database,
+    prints out how much space you might hope to gain from a kv-vacuum
+'''
+
+import sys, os
+import wetsuite.helpers.localdata
+
+if __name__ == '__main__':
+
+    for path in sys.argv[1:]:
+
+        if not os.path.exists( path ):
+            print( 'Specified path not found: %r'%path )
+            continue
+
+        if not wetsuite.helpers.localdata.is_file_a_store( path ):
+            print( 'Specified path does not seem to be an SQLite file created by us: %r'%path )
+            continue
+
+        # the types are not actually used because we don't write
+        store = wetsuite.helpers.localdata.LocalKV(path, None,None, read_only=True) 
+        print( store.estimate_waste(), path )
+        store.close()

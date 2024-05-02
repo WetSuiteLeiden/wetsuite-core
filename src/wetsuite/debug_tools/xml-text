@@ -1,0 +1,47 @@
+#!/usr/bin/python3
+''' Walks through XML and outputs all text node contents.
+
+    Quick and dirty way to get some text from relatively-plain-document XML, 
+    when you do not yet have code specific to the schema.
+'''
+import collections, argparse
+from wetsuite.helpers import etree
+
+if __name__ == '__main__':
+    parser = argparse.ArgumentParser()
+    parser.add_argument('-u',"--start-under",              action="store",  dest="under",       default=None,
+                        help="start under a specific path")
+    parser.add_argument('-m',"--min-length",               action="store",  dest="minlen",      default='0',
+                        help='Only print node text if it is at least this many characters long  '
+                             '(note that for html-style text this will cut parts out of text, consider things like em, b, and such)')
+    parser.add_argument('files',                nargs='+')
+    args = parser.parse_args()
+
+    for filename in args.files:
+        count = collections.defaultdict( int )
+        tree = etree.fromstring(  open(filename,'rb').read()  )
+
+        tree = etree.strip_namespace(tree)
+
+        under = args.under    # e.g. 'wetgeving/wet-besluit/wettekst'
+        minlen = int(args.minlen)
+
+        if under is not None:
+            start_all = tree.findall( under )
+            if len(start_all)==0:#start==None:
+                print( "No nodes found for %r"%under )
+        else:
+            start_all = [tree]
+
+        for start in start_all:
+            text_fragments = etree.all_text_fragments(start)
+
+            for fragment in text_fragments:
+                sns = fragment.strip()
+                if len(sns)==0:
+                    continue
+
+                if minlen !=0  and  len(fragment) > minlen:
+                    print(fragment)  # one per line
+                #print(fragment+' ', file=sys.stdout, end='') # one line
+            print()
