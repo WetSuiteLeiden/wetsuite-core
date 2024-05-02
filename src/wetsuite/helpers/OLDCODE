@@ -1,0 +1,111 @@
+
+    if 0:
+        # It seems that the text is consistently under an element called artikel,
+        # but there is much less consistency in the organization above that.
+        # This section was an experiment of trying to find out what that organisation is.
+        #
+        # (but below is the much easier answr)
+        
+        parents_of_artikel = []
+
+        if soort in ('wet', 'wet-BES'):
+            parents_of_artikel += wetgeving.findall('wet-besluit/wettekst')
+            parents_of_artikel += wetgeving.findall('wet-besluit/wettekst/titeldeel')
+            parents_of_artikel += wetgeving.findall('wet-besluit/wettekst/titeldeel/afdeling')
+            parents_of_artikel += wetgeving.findall('wet-besluit/wettekst/hoofdstuk')
+            parents_of_artikel += wetgeving.findall('wet-besluit/wettekst/hoofdstuk/titeldeel')
+            parents_of_artikel += wetgeving.findall('wet-besluit/wettekst/paragraaf')
+            parents_of_artikel += wetgeving.findall('wet-besluit/wettekst/boek/titeldeel/afdeling')
+            parents_of_artikel += wetgeving.findall('wet-besluit/wettekst/afdeling')
+            parents_of_artikel += wetgeving.findall('wet-besluit/wettekst/afdeling/hoofdstuk/paragraaf')
+            
+
+        elif soort in ('AMvB', 'AMvB-BES'):
+            parents_of_artikel += wetgeving.findall('wet-besluit/wettekst')
+            parents_of_artikel += wetgeving.findall('wet-besluit/wettekst/paragraaf')
+            parents_of_artikel += wetgeving.findall('wet-besluit/wettekst/hoofdstuk')
+            parents_of_artikel += wetgeving.findall('wet-besluit/wettekst/hoofdstuk/titeldeel')
+            parents_of_artikel += wetgeving.findall('wet-besluit/wettekst/afdeling')
+            parents_of_artikel += wetgeving.findall('wet-besluit/wettekst/titeldeel')
+
+        elif soort == 'KB':
+            parents_of_artikel += wetgeving.findall('wet-besluit/wettekst')
+            parents_of_artikel += wetgeving.findall('wet-besluit/wettekst/afdeling/paragraaf')
+            parents_of_artikel += wetgeving.findall('wet-besluit/wettekst/paragraaf')
+            parents_of_artikel += wetgeving.findall('wet-besluit/wettekst/hoofdstuk')
+            parents_of_artikel += wetgeving.findall('wet-besluit/wettekst/hoofdstuk/titeldeel')
+            parents_of_artikel += wetgeving.findall('wet-besluit/wettekst/hoofdstuk/paragraaf')
+            parents_of_artikel += wetgeving.findall('wet-besluit/wettekst/regeling/regeling-tekst')
+            parents_of_artikel += wetgeving.findall('wet-besluit/wettekst/deel/hoofdstuk/afdeling')
+            parents_of_artikel += wetgeving.findall('wet-besluit/wettekst/deel/hoofdstuk/afdeling/paragraaf')
+            parents_of_artikel += wetgeving.findall('regeling/regeling-tekst')
+
+
+        elif soort == 'rijksKB':
+            parents_of_artikel += wetgeving.findall('wet-besluit/wettekst')
+            parents_of_artikel += wetgeving.findall('wet-besluit/wettekst/hoofdstuk')
+            parents_of_artikel += wetgeving.findall('wet-besluit/wettekst/paragraaf')
+            parents_of_artikel += wetgeving.findall('regeling/regeling-tekst')
+
+
+        elif soort == 'rijksAMvB':
+            parents_of_artikel += wetgeving.findall('wet-besluit/wettekst')
+
+        elif soort in ('ministeriele-regeling', 'ministeriele-regeling-BES'):
+            parents_of_artikel += wetgeving.findall('regeling/regeling-tekst')
+            parents_of_artikel += wetgeving.findall('regeling/regeling-tekst/hoofdstuk')
+            parents_of_artikel += wetgeving.findall('regeling/regeling-tekst/afdeling/hoofdstuk')
+            parents_of_artikel += wetgeving.findall('regeling/regeling-tekst/paragraaf')
+            parents_of_artikel += wetgeving.findall('regeling/regeling-tekst/paragraaf/sub-paragraaf')
+            parents_of_artikel += wetgeving.findall('circulaire/circulaire-tekst/circulaire.divisie')
+
+        elif soort == 'zbo':
+            parents_of_artikel += wetgeving.findall('regeling/regeling-tekst')
+            parents_of_artikel += wetgeving.findall('regeling/regeling-tekst/hoofdstuk/paragraaf')
+            parents_of_artikel += wetgeving.findall('regeling/regeling-tekst/hoofdstuk')
+            parents_of_artikel += wetgeving.findall('regeling/regeling-tekst/paragraaf')
+            parents_of_artikel += wetgeving.findall('circulaire/circulaire-tekst')
+
+        elif soort == 'rijkswet':
+            parents_of_artikel += wetgeving.findall('wet-besluit/wettekst')
+            parents_of_artikel += wetgeving.findall('wet-besluit/wettekst/hoofdstuk')
+            parents_of_artikel += wetgeving.findall('wet-besluit/wettekst/paragraaf')
+
+        elif soort in ('beleidsregel','beleidsregel-BES'):
+            parents_of_artikel += wetgeving.findall('circulaire/circulaire-tekst')
+            parents_of_artikel += wetgeving.findall('circulaire/circulaire-tekst/circulaire.divisie')
+            parents_of_artikel += wetgeving.findall('regeling/regeling-tekst')
+            parents_of_artikel += wetgeving.findall('regeling/regeling-tekst/hoofdstuk')
+
+        elif soort == 'pbo':
+            parents_of_artikel += wetgeving.findall('regeling/regeling-tekst')
+            parents_of_artikel += wetgeving.findall('regeling/regeling-tekst/paragraaf')
+            parents_of_artikel += wetgeving.findall('regeling/regeling-tekst/hoofdstuk')
+
+        elif soort == 'ministeriele-regeling-archiefselectielijst':
+            parents_of_artikel += wetgeving.findall('regeling/regeling-tekst')
+
+        elif soort in ('circulaire', 'circulaire-BES'):
+            parents_of_artikel += wetgeving.findall('circulaire/circulaire-tekst')
+            parents_of_artikel += wetgeving.findall('circulaire/circulaire-tekst/circulaire.divisie')
+
+        elif soort == 'reglement':
+            parents_of_artikel += wetgeving.findall('circulaire/circulaire-tekst/hoofdstuk')
+            parents_of_artikel += wetgeving.findall('regeling/regeling-tekst/hoofdstuk')
+
+        else:
+            raise ValueError('UNKNOWN soort %r for %r'%(soort,bwb_id))
+
+
+        for poa in parents_of_artikel:
+
+            for artikel in (poa.findall('artikel') +
+                            poa.findall('enig-artikel') +
+                            poa.findall('tekst')   # used in circulaire
+                            ):
+                pass # got replaced by the below
+
+    #if len(parents_of_artikel)>0 and len(ret)==0:
+    #    print('\n%s (%s)'%(bwb_id,soort))
+    #    print(' POA: %s '%parents_of_artikel)
+    #    print(' RET: %s '%ret)
