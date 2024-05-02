@@ -1,0 +1,11 @@
+#!/bin/bash -x
+# pydoctor CacheControl astor
+pydoctor --project-name=wetsuite \
+ --project-base-dir="." \
+ --make-html \
+ --theme=readthedocs \
+ --docformat=epytext \
+ --html-output=docs/api \
+ --add-package=`pwd` \
+ . # && rsync -ai docs/api/ scarfboy@wetsuite.knobs-dials.com:/var/www/wetsuite/apidocs/ || echo "ERRORS, NOT UPDATING LIVE VERSION"
+
