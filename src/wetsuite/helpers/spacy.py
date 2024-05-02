@@ -225,7 +225,7 @@ def en_noun_chunks( text:str, load_model_name:str='en_core_web_trf' ) -> list:
 
 
 _langdet_model = None
-def detect_language(text:str) -> tuple(str, float):
+def detect_language(text:str): #  -> tuple(str, float)
     ''' Note that this depends on the spacy_fastlang library, which depends on the fasttext library.
         
         Returns (lang, score)

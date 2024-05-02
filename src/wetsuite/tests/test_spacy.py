@@ -1,7 +1,6 @@
 import pytest
 
 import wetsuite.helpers.spacy
-import wetsuite.helpers.metrics
 
 import spacy 
 import spacy.tokens.doc
