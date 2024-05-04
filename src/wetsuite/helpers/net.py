@@ -56,7 +56,7 @@ def download( url:str, tofile_path:str = None, show_progress=None, chunk_size=13
     total_length = response.headers.get( 'content-length' )
 
     if not response.ok:
-        raise ValueError( str(response.status_code) )
+        raise ValueError( f"Response not OK, status={response.status_code} for url={repr(url)}" )
 
     if total_length is not None:
         total_length = int( total_length )
