@@ -88,7 +88,7 @@ persistent=yes
 
 # Minimum Python version to use for version dependent checks. Will default to
 # the version used to run pylint.
-py-version=3.10
+py-version=3.8
 
 # Discover python modules and packages in the file system subtree.
 recursive=no
@@ -130,12 +130,7 @@ attr-naming-style=snake_case
 #attr-rgx=
 
 # Bad variable names which should always be refused, separated by a comma.
-bad-names=foo,
-          bar,
-          baz,
-          toto,
-          tutu,
-          tata
+bad-names=foo
 
 # Bad variable names regexes, separated by a comma. If names match any regex,
 # they will always be refused
@@ -188,8 +183,6 @@ function-naming-style=snake_case
 good-names=i,
            j,
            k,
-           ex,
-           Run,
            _
 
 # Good variable names regexes, separated by a comma. If names match any regex,
@@ -337,10 +330,10 @@ indent-after-paren=4
 indent-string='    '
 
 # Maximum number of characters on a single line.
-max-line-length=100
+max-line-length=120
 
 # Maximum number of lines in a module.
-max-module-lines=1000
+max-module-lines=2000
 
 # Allow the body of a class to be on the same line as the declaration if body
 # contains single statement.
@@ -430,7 +423,14 @@ disable=raw-checker-failed,
         deprecated-pragma,
         use-implicit-booleaness-not-comparison-to-string,
         use-implicit-booleaness-not-comparison-to-zero,
-        use-symbolic-message-instead
+        use-symbolic-message-instead,
+        multiple-imports,
+        invalid-name,
+        consider-using-f-string,
+        import-outside-toplevel,
+        global-statement,
+        protected-access
+
 
 # Enable the message, report, category or checker with the given id(s). You can
 # either give multiple identifier separated by comma (,) or put this option
