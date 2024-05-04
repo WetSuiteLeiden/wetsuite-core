@@ -175,7 +175,7 @@ def parse_ecli(text:str):
             ret['court_details'] = wetsuite.extras.gerechtcodes.data[court_code]
     except ImportError: # pragma nocover  we might want to know, but the point of this is n
         warnings.warn("Could not find our own gerechtcodes")
-        pass
+        #pass
 
     return ret
 

@@ -783,11 +783,11 @@ def list_stores( skip_table_check:bool=True, get_num_items:bool=False, look_unde
                 itemdict.update( kv.summary(get_num_items=get_num_items) )
 
                 try:
-                    itemdict['valtype'] = kv._get_meta('valtype')
+                    itemdict['valtype'] = kv._get_meta('valtype')            # pylint: disable=protected-access
                 except KeyError:
                     pass
 
-                itemdict['description'] = kv._get_meta('description', True)
+                itemdict['description'] = kv._get_meta('description', True)  # pylint: disable=protected-access
                 ret.append( itemdict )
                 kv.close()
     return ret

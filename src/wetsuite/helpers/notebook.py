@@ -118,7 +118,7 @@ def progress_bar(maxval, description='', display=True): # , **kwargs
     try:
         from tqdm import TqdmExperimentalWarning
         # TODO: actually read up on what that warning means exactly
-        warnings.filterwarnings("ignore", category=TqdmExperimentalWarning) 
+        warnings.filterwarnings("ignore", category=TqdmExperimentalWarning)
 
         import tqdm.autonotebook  # pylint: disable=C0415
         class TqdmWrap:
@@ -196,7 +196,7 @@ class ProgressBar:
             # enumarate has no len, even if the iterable it was based on did.
             # the following reads out all values from the enumeration and stores them.
             # If it was a lazy generator for a reason, THIS IS NOT NECESSARILY A SMART THING TO DO!
-            iterable = list(iterable.__iter__()) 
+            iterable = list(iterable.__iter__())
 
         try:
             self._len = len( iterable )
@@ -204,7 +204,6 @@ class ProgressBar:
             #if 'has no len' in str(te): # CONSIDER give a nicer answer
             raise te
             #self._len = 0  # bad idea?  Except our code needs _something_.
-            pass
 
         # this may be a cleanish way to support things that are known-length but unsubscriptable,
         # like set or dict_items without materializing them entirely
@@ -249,7 +248,7 @@ class etree_visualize_selection:
     ''' Produces a colorized representation of selection within an XML document.
         (works only within IPython/jupyter style notebooks,  via a HTML representation.) 
     '''
-    def __init__(self, tree, xpath_or_elements, reindent:bool=True, 
+    def __init__(self, tree, xpath_or_elements, reindent:bool=True,
                  mark_text:bool=True, mark_tail:bool=False, mark_subtree:bool=False):
         ''' Produces a colorized representation of selection within an XML document.
             (works only within IPython/jupyter style notebooks. works via a HTML representation.) 

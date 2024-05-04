@@ -53,7 +53,6 @@ def generated_today_text():
 
 def list_datasets():
     ' fetch index, report dataset names (see fetch_index if you also want the details)'
-    global _index_data
     fetch_index()
     return sorted( _index_data.keys() )
     #return list( _index.items() )
@@ -75,18 +74,18 @@ def fetch_index():
 
         CONSIDER: keep hosting generic (HTTP fetch?) so that any hoster will do.
     '''
-    global _index_data, _index_data, _index_fetch_time, _index_fetch_no_more_often_than_sec
+    global _index_data, _index_data, _index_fetch_time
 
     if (_index_data is None  or
          time.time() - _index_fetch_time > _index_fetch_no_more_often_than_sec):
         #print('FETCHING INDEX')
-        try:
-            _fetched_data = wetsuite.helpers.net.download( _INDEX_URL )
-            _index_data = json.loads( _fetched_data )
-            #print("Fetched index")
-            _index_fetch_time = time.time()
-        except Exception as e:
-            raise
+        #try:
+        _fetched_data = wetsuite.helpers.net.download( _INDEX_URL )
+        _index_data = json.loads( _fetched_data )
+        #print("Fetched index")
+        _index_fetch_time = time.time()
+        #except Exception:
+        #    raise
     #else:
     #    print('CACHED INDEX')
     return _index_data
@@ -94,20 +93,19 @@ def fetch_index():
 
 
 class Dataset:
-    '''
-    If you're looking for details about the specific dataset, look at the .description
+    ''' If you're looking for details about the specific dataset, look at the .description
 
-    Mostly meant to be instantiated by load()
+        Mostly meant to be instantiated by load()
 
-    This class is provisional and likely to change. Right now it does little more than
-      - put a description into a .description attribute 
-      - put data into .data attribute
-        without even saying what that is 
-        though it's probably an interable giving individually useful things, and be able to tell you its len()gth
-    ...also so that it's harder to accidentally dump gigabytes of text to your console.
+        This class is provisional and likely to change. Right now it does little more than
+        - put a description into a .description attribute 
+        - put data into .data attribute
+            without even saying what that is 
+            though it's probably an interable giving individually useful things, and be able to tell you its len()gth
+        ...also so that it's harder to accidentally dump gigabytes of text to your console.
 
-    This is not the part that does the interpretation.
-    This just contains its results.
+        This is not the part that does the interpretation.
+        This just contains its results.
     '''
     def __init__(self, description, data, name=''):
         #for key in self.data:
@@ -300,9 +298,9 @@ def _path_to_data(data_path):
         # the type enforcement is irrelevant when opened read-only
         data = wetsuite.helpers.localdata.LocalKV( data_path, None, None, read_only=True )
 
-        description = data._get_meta('description', missing_as_none=True)
+        description = data._get_meta('description', missing_as_none=True)  # pylint: disable=protected-access
         # This seems very hackish - TODO: avoid this
-        if data._get_meta('valtype', missing_as_none=True) == 'msgpack':
+        if data._get_meta('valtype', missing_as_none=True) == 'msgpack':   # pylint: disable=protected-access
             data.close()
             data = wetsuite.helpers.localdata.MsgpackKV( data_path, None, None, read_only=True)
 
@@ -326,7 +324,7 @@ def _path_to_data(data_path):
     return (data, description)
 
 
-def load(dataset_name: str, verbose=None, force_refetch=False, augment=True):
+def load(dataset_name: str, verbose=None, force_refetch=False):
     ''' Takes a dataset name (that you learned of from the index),
         downloads it if necessary - after the first time it's cached in your home directory
 
@@ -368,7 +366,7 @@ def load(dataset_name: str, verbose=None, force_refetch=False, augment=True):
 
     else:            # implied  >=1
         raise ValueError("Your dataset pattern %r matched %d of %s. We might give you a merger in the future, but right now, choose more specifically."%(
-            dataset_name, 
+            dataset_name,
             len(dataname_matches),
             ', '.join(all_dataset_names)))
 

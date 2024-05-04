@@ -63,7 +63,7 @@ def parse(text:str, exception_as_none=True):
         (None,              lambda x:x.split('+')[0])):
         try:
             return dateutil.parser.parse(transform(text), parserinfo=lang)
-        except dateutil.parser._parser.ParserError:
+        except dateutil.parser._parser.ParserError: # pylint: disable=protected-access
             continue
     if exception_as_none:
         return None

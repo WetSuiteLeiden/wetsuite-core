@@ -190,7 +190,6 @@ def is_pdf( bytesdata:bytes ) -> bool:
     ' Does this bytestring look like a PDF document? '
     if not isinstance(bytesdata, bytes):
         raise TypeError("we expect a bytestring, not a %s"%type(bytesdata))
-    ' Do these bytes look like a PDF document? '
     return bytesdata.startswith( b'%PDF' )
 
 

@@ -771,7 +771,7 @@ def cvdr_versions_for_work( cvdrid:str ) -> list:
         return _versions_cache[cvdrid]
 
     sru_cvdr = wetsuite.datacollect.koop_repositories.CVDR() # TODO: see if doing this here stays valid
-    work_id, expression_id = cvdr_parse_identifier(cvdrid)
+    work_id, _ = cvdr_parse_identifier(cvdrid)
     results = sru_cvdr.search_retrieve_many("workid = CVDR%s"%work_id, up_to=10000)   # only fetches as many as needed, usually a single page of results. TODO: maybe think about injection?
     #print(f"amt results: {len(results)}")
     ret=[]

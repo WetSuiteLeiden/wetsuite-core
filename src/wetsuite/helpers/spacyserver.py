@@ -57,8 +57,7 @@ def parse(nlp, query_string, nlp_lock=None, want_svg=True, want_sims=False):
         
         CONSIDER: add doc.to_bytes and doc.from_bytes 
     '''
-
-    import spacy
+    #import spacy
     from spacy import displacy
     start_time = time.time()
 
@@ -95,8 +94,8 @@ def parse(nlp, query_string, nlp_lock=None, want_svg=True, want_sims=False):
     ret['sentences'] = []
     sent_i = 0
     for sent in doc.sents:
-        # TODO: decide what exactly to do with 
-        # spaces, 
+        # TODO: decide what exactly to do with
+        # spaces,
         # and consistency between sentence_ranges and sents_svgs,
         # and duplication, and off-by-one mistakes I probably made,
         # and the easiest way for people to use this.

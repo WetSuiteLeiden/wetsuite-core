@@ -1,4 +1,4 @@
-'''
+''' (should arguably be in extras)
 Eases production of colors in the terminal, 
 mostly for a few command line debug tools.
 
@@ -45,7 +45,7 @@ def guess_color_support(forceifnottty=False, forceifnoterm=False, fallback=True)
         and only use guess_color_support if it wants a different test or fallback later.
     '''
     global _guess
-    
+
     if not DEFAULT_FORCE_IF_NO_TERM  and  not forceifnoterm:
         if 'TERM' not in os.environ:
             #print( "probably not a shell" )
@@ -55,18 +55,18 @@ def guess_color_support(forceifnottty=False, forceifnoterm=False, fallback=True)
     if not DEFAULT_FORCE_IF_NO_TTY   and  not forceifnottty:
         if not sys.stdout.isatty():
             #print( "Not a TTY, probably a pipe" )
-            
+
             # Assumes that this means it's a less pipe,
             #         that setting LESS=R means you want it in all pipes,
             #         that you have set LESS=R only in the shells where that makes sense
-            # TODO: fewer assumptions 
+            # TODO: fewer assumptions
             #_guess = False
             #if 'LESS' in os.environ:
             #    if 'R' in os.environ['LESS']:
             #        #print( "Rawness in LESS env setting")
             #        _guess = True
             return _guess
-        
+
     if 'TERM' in os.environ:
         try:
             import subprocess
@@ -90,7 +90,7 @@ def guess_color_support(forceifnottty=False, forceifnoterm=False, fallback=True)
             if TERM.endswith('-c') or '-c-' in TERM or 'color' in TERM:
                 _guess = True
                 return _guess
-            # maybe test for -ansi ?        
+            # maybe test for -ansi ?
             if 'rxvt' in TERM or 'putty' in TERM: # or 'linux' in TERM?
                 _guess = True
                 return _guess
@@ -101,7 +101,7 @@ def guess_color_support(forceifnottty=False, forceifnoterm=False, fallback=True)
 def supported():
     global _guess
     _guess = None
-    if _guess == None:
+    if _guess is None:
         guess_color_support()
     return _guess
 
@@ -112,7 +112,7 @@ _guess = supported()
 
 
 
-    
+
 # Try to get column width (*nix-mostly)
 def tty_size(debug=False):    # pragma: no cover   because it's necessarily context-dependent
     """ fetches current terminal size
@@ -141,14 +141,14 @@ def tty_size(debug=False):    # pragma: no cover   because it's necessarily cont
     if ret['rows'] not in (0,None) and ret['cols'] not in (0,None):
         return ret
 
-    try: # stty (*nix only)        
+    try: # stty (*nix only)
         import subprocess
         p = subprocess.Popen('stty size', stdout=subprocess.PIPE, shell=True)
         out,_ = p.communicate()
         out.strip()
         out = out.split()
         ret['rows'] = int( out[0], 10 )
-        ret['cols'] = int( out[1], 10 )    
+        ret['cols'] = int( out[1], 10 )
     except:
         if debug:
             raise
@@ -222,7 +222,7 @@ def tty_size(debug=False):    # pragma: no cover   because it's necessarily cont
             raise
     if ret['rows'] not in (0,None) and ret['cols'] not in (0,None):
         return ret
-                        
+
     return ret
 
 
@@ -411,7 +411,7 @@ def default(s, prepend=''):
     ' add "default colors" code before string if supported '
     return _add_color_if_supported(s,DEFAULT,prepend=prepend)
 
-def reset():                       
+def reset():
     ' add color reset code before string if supported '
     return _add_color_if_supported('',RESET)
 
@@ -502,7 +502,7 @@ def closest_from_rgb255(r,g,b, mid=170,full=255, nobright=False):
     )
     mindist   = 999
     min_index = None
-    for i, (name, mr,mg,mb, func) in enumerate(colors):
+    for i, (name, mr,mg,mb, _) in enumerate(colors):
         if nobright and name.startswith('bright'):
             continue
         dist = math.sqrt( (r-mr)**2 + (g-mg)**2 + (b-mb)**2 )
@@ -571,7 +571,7 @@ def _percent_parse(s, add=[]):
         if ml[2] is not None:
             rps.append( ml[2] )
         if ml[3] not in (None,''):
-            rps.append( str( int(ml[3])+addnow ) )   
+            rps.append( str( int(ml[3])+addnow ) )
         if ml[4] is not None:
             rps.append( ml[4] )
         rps.append( ml[5] )
@@ -585,7 +585,7 @@ def _percent_parse(s, add=[]):
 
 
 
-def truncate_real_len(s,len, append=RESET):
+def truncate_real_len(s, len, append=RESET):
     ''' Truncate a string after so-many real characters.
         Written for "truncate colored text according to the terminal width" functionality.
 
@@ -632,7 +632,7 @@ def cformat(fs, seq, fsinstead=False):
 
     add=[]
     for part in seq:
-        prlen, cclen = real_len(part)
+        _, cclen = real_len(part)
         add.append(cclen)
 
     newfs = _percent_parse(fs, add)
@@ -643,10 +643,12 @@ def cformat(fs, seq, fsinstead=False):
         return newfs
     else:
         return newfs%seq
-     
+
 
 
 def color_degree(s, v, fromv=0, tov=0, colors=[BRIGHTBLACK, GRAY, WHITE, YELLOW, RED]):
+    ''' 
+    '''
     # hacky
     v = float(v)
     tov = float(tov)
@@ -725,7 +727,7 @@ def hash_color(s, rgb=False, append=RESET, prepend='', hash_instead=None, on=Non
         m.update(s.encode('utf8'))
     dig = m.digest()
 
-    if type(dig[0]) is not int: # quick and dirty way of dealing with py2/3 difference
+    if not isinstance(dig[0], int): # quick and dirty way of dealing with py2/3 difference
         dig = list( ord(ch)  for ch in dig)
 
     if rgb:
@@ -749,4 +751,3 @@ def hash_color(s, rgb=False, append=RESET, prepend='', hash_instead=None, on=Non
                        BRIGHTMAGENTA, CYAN, BRIGHTCYAN, GREY, WHITE     ]
         choice = choosefrom[ sum(ch for ch in dig)%len(choosefrom) ]
         return prepend+'%s%s%s'%(choice,s,append)
-

@@ -199,7 +199,7 @@ def nl_noun_chunks( text:str, load_model_name:str='nl_core_news_lg' ) -> list:
         # CONSIDER: taking a model name, and/or nlp object.
     '''
     global _dutch
-    if _dutch is None: # TODO: look for and accept any/best installed duch model 
+    if _dutch is None: # TODO: look for and accept any/best installed duch model
         import spacy
         #spacy.prefer_gpu() # TODO: conditional
         _dutch = spacy.load( load_model_name )

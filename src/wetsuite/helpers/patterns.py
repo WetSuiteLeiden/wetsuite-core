@@ -55,7 +55,7 @@ def find_identifier_references( text,
 
 
     if ecli:
-        for rematch in wetsuite.helpers.meta._RE_ECLIFIND.finditer( text ):
+        for rematch in wetsuite.helpers.meta._RE_ECLIFIND.finditer( text ):  # pylint: disable=protected-access
             match = {}
             match['type']    = 'ecli'
             match['start']   = rematch.start()
@@ -96,7 +96,7 @@ def find_identifier_references( text,
 
 
     if celex:
-        for rematch in wetsuite.helpers.meta._RE_CELEX.finditer( text ):
+        for rematch in wetsuite.helpers.meta._RE_CELEX.finditer( text ):  # pylint: disable=protected-access
             match = {}
             match['type']  = 'celex'
             match['start'] = rematch.start()
@@ -447,14 +447,14 @@ def abbrev_find(text: str):
     # look for bracketed letters, check against context
     for tok_offset, tok in enumerate(toks):
         match = re.match(r'[(]([A-Za-z][.]?){2,}[)]', tok) # does this look like a bracketed abbreviation?
-        if match:   
+        if match:
             # (we over-accept some things, because we'll be checking them against contxt anyway.
             # We could probably require that more than one capital should be involved)
             abbrev = match.group().strip('()')
             letters_lower = abbrev.replace('.','').lower()
 
             match_before = []
-            for check_offset, l in enumerate(letters_lower):
+            for check_offset, _ in enumerate(letters_lower):
                 check_at_pos = tok_offset - len(letters_lower) + check_offset
                 if check_at_pos < 0:
                     break
@@ -467,7 +467,7 @@ def abbrev_find(text: str):
                 matches.append( (abbrev,match_before) )
 
             match_after = []
-            for check_offset, l in enumerate( letters_lower ):
+            for check_offset, _ in enumerate( letters_lower ):
                 check_at_pos = tok_offset+1+check_offset
                 if check_at_pos >= len(toks):
                     break

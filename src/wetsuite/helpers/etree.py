@@ -250,7 +250,6 @@ def strip_namespace(tree, remove_from_attr=True):
     # make copy, an check it's of the right type
     if not isinstance(tree, lxml.etree._Element): #pylint: disable=W0212,I1101
         # we assume that means we're using a non-lxml etree  (and not that you handed in something completely unrelated)
-        # 
         warnings.warn(
             "Trying to work around potential issues from non-lxml etrees by converting to it, which might be unnecessarily slow. "
             "If you parse your XML yourself, please consider lxml.etree.fromstring() / wetsuite.helpers.etree.fromstring() instead of e.g. xml.etree.fromstring()."
