@@ -145,9 +145,20 @@ def is_html( bytesdata ) -> bool:
 
 
 def is_xml( bytesdata ) -> bool:
-    ''' Do these bytes look vaguely like a XML file, more so than a HTML file   (in this context, XHTML is considered XML)
-        will return False if it doesn't parse as XML
+    ''' Does this look and work like an XML file?
+
+        Note that in this context, XHTML (and valid-enough HTML) are considered NOT XML
+
+        Note: gives a stronger answer than "does it look sort of like an XML" - we could answer _that_ for a lot cheaper,
+        (than actually just parseing it, which we do -- TODO: parse only the first kilobyte or so, incrementally)
     '''
+    # arguably a simple and thorough way is to tell that
+    #   it parses in a fairly strict XML/HTML parser,
+    #   and the root node is _not_ called 'html'  (HTML or XHTML)
+    #
+    # There are many other indicators that are cheaper -- but only a good guess, and not _always_ correct,
+    #  depending on whether you are asking
+
     if not isinstance(bytesdata, bytes):
         raise TypeError("we expect a bytestring, not a %s"%type(bytesdata))
 
@@ -157,26 +168,10 @@ def is_xml( bytesdata ) -> bool:
     if is_pdf( bytesdata ): # cheaper than parsing
         return False
 
-    #firstbytes = bytesdata[:200].strip(b'\r\n')
-    #if not firstbytes.startswith('<'):
-    #    return False
-
-    # arguably the simplest way is to tell that it parses in a fairly strict XML/HTML parser,
-    #   and the root node is _not_ called 'html'  (HTML or XHTML)
-    # there are other indicators that may be a little cheaper -- if not _always_ correct, including xmlns: and such
-    # Also the starting processing instruction is a strong indicator -- but optional, and says nothing abouit validity
-    #if b'<?xml' in firstbytes:  # assumes UTF8 encoding (or maybe codepage)
-    #    return True
-    #if b'<\x00?\x00x\x00m\x00l\x00' in firstbytes: # UTF-16 LE, regardless of BOM
-    #    return True
-    #if b'\x00<\x00?\x00x\x00m\x00l' in firstbytes: # UTF-16 BE, regardless of BOM.  (Actually covered by the previous case because these are all low codepoints)
-    #    return True
-
     import wetsuite.helpers.etree
     try:
         root = wetsuite.helpers.etree.fromstring( bytesdata )
     except Exception:   # if it doesn't parse  (probably XMLSyntaxError? Maybe specify that?)
-        #raise
         return False
 
     # if it's valid as XML but the root node is 'html', we do not consider it XML
@@ -197,7 +192,13 @@ def is_zip( bytesdata:bytes ) -> bool:
     ' Does this bytestring look loke a ZIP file? '
     if not isinstance(bytesdata, bytes):
         raise TypeError("we expect a bytestring, not a %s"%type(bytesdata))
-    return bytesdata.startswith( b'PK\x03\x04' )   # \x03 \x04 is arguably a bit specific
+    if bytesdata.startswith( b'PK\x03\x04' ): # (most)
+        return True
+    if bytesdata.startswith( b'PK\x05\x06' ): # empty
+        return True
+    if bytesdata.startswith( b'PK\x07\x08' ): # spanned
+        return True
+    return False
 
 
 def is_htmlzip( bytesdata:bytes ) -> bool:
