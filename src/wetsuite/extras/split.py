@@ -849,17 +849,22 @@ class Fragments_PDF_Fallback( Fragments ):
             self.part_name = ''
             self.part_ary = []
 
-            def flush(why):
-                pa = list( filter( lambda x: len(x.strip())>0, self.part_ary) )
+            def marker_now( hint ):
+                ret.append( ( {'hint':hint},   {},   '') )
+
+            def flush( hint_first = None ):
+                ' any parts of part_ary are  '
+                #if hint_first:
+                #    ret.append( ( {'hint':hint_first},   {},   '') )
+
+                pa = list( filter( lambda x: len(x.strip())>0, self.part_ary) ) # remove empty-text elements from part_ary
                 if len(pa) > 0:
                     for i, frag in enumerate(pa):
-                        hint = 'para'
-                        if i==0:
-                            hint = why
-                        ret.append( (
-                            {'hint':hint, 'lastheader':self.part_name},
-                            {},
-                            frag) )
+                        if i==0 and hint_first is not None:
+                            hint = hint_first
+                        else:
+                            hint = '+para'
+                        ret.append( ( {'hint':hint, 'lastheader':self.part_name},   {},   frag) )
                 self.part_name = ''
                 self.part_ary = []
 
@@ -868,6 +873,11 @@ class Fragments_PDF_Fallback( Fragments ):
             #for page_results in wetsuite.extras.pdf.page_text(docdata, option='xhtml'):
 
             for page in document:
+                flush( )
+                marker_now( 'newpage' )
+
+                # TODO: think about combo with
+
                 page_results = page.get_text( option='xhtml', flags=fitz.TEXTFLAGS_XHTML & ~fitz.TEXT_PRESERVE_IMAGES )
 
                 soup = bs4.BeautifulSoup(page_results, features='lxml', from_encoding='utf8')
@@ -886,14 +896,14 @@ class Fragments_PDF_Fallback( Fragments ):
                         bupwish = b is not None  and b.string is not None  and  not wetsuite.helpers.strings.is_numeric( b.string ) # just an isolated number in a paragraphs does not mean much
 
                         if elem.name in header_tag_names:
-                            flush( why='header' )
+
+                            flush( )
                             self.part_name = ' '.join( elem.find_all(text=True) )
-                            #print('--=====--HDR--=====--')
+                            flush( hint_first='header' )
                         else:
                             if bupwish:
                                 if bupless > -1  and bupwish:
-                                    flush( why='bold' )
-                                    #print('---------BUP----------')
+                                    flush( hint_first='bold' )
                                 bupless  = 0
                             else: # bupless is about not triggering on areas of everything-bold
                                 bupless += 1
@@ -901,7 +911,8 @@ class Fragments_PDF_Fallback( Fragments ):
                         text = ' '.join( elem.find_all(text=True) )
                         self.part_ary.append( text )
 
-            flush( why='end')
+            flush( )
+            marker_now( 'end' )
 
         return ret
 
