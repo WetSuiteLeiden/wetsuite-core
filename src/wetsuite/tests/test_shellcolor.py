@@ -1,8 +1,11 @@
+' test the shell coloring module '
+
 import wetsuite.helpers.shellcolor
 from wetsuite.helpers.shellcolor import *
 from wetsuite.helpers.shellcolor import _percent_parse
-    
+
 def test_color_degree():
+    " test the 'color by liner interpolation' function "
     guess_color_support(True, True, True)
     assert( color_degree('foo', 0,0,100) ) == '\x1b[1;30mfoo\x1b[0m\x1b[39m'
     assert( color_degree('bar', 30,0,100) ) == '\x1b[37mbar\x1b[0m\x1b[39m'
@@ -17,6 +20,7 @@ def test_cformat():
 
 
 def test_real_len():
+    " test the 'ignore some escapes, count the text' function "
     assert real_len( '\x1b[1;30mfoo\x1b[0m\x1b[39m')[0] == 3
     assert real_len( '\x1b[37mbar\x1b[0m\x1b[39m')[0]   == 3
 
@@ -69,7 +73,7 @@ def test_hash_color():
 def test_colors():
     ' mainly just for test coverage statistics :) '
     #guess_color_support(True, True, True)
-    wetsuite.helpers.shellcolor._guess = True  # force
+    wetsuite.helpers.shellcolor._guess = True  # force    # 
 
     for color_func in (
         brightblack,
@@ -111,7 +115,7 @@ def test_colors():
 
     #    default
     #    reset
-    #    clearscreen 
+    #    clearscreen
 
 
 def test_truncate_real_len():

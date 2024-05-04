@@ -1,3 +1,4 @@
+' SRU interface related tests (live, so might fail) '
 import pytest
 from wetsuite.datacollect import sru
 
@@ -57,6 +58,5 @@ def _TEMP_DISABLE_test_callback():
     bwb.search_retrieve_many(
         'dcterms.modified>=2023-11-01',
         at_a_time=1,
-        start_record=5, 
+        start_record=5,
         callback=print_rec)
-

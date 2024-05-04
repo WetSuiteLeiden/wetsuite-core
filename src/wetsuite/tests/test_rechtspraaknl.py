@@ -26,7 +26,7 @@ def test_search():
     results = wetsuite.datacollect.rechtspraaknl.search( params=[
         ('max',  '5'), 
         ('return', 'DOC'),                                         # DOC asks for things with body text only
-        #('modified', '2023-10-01'), ('modified', '2023-11-01')     # date range    (keep in mind that larger ranges easily means we hit the max)
+        #('modified', '2023-10-01'), ('modified', '2023-11-01')    # date range    (keep in mind that larger ranges easily means we hit the max)
         ('modified', '2023-11-01'),
     ] )
 
@@ -35,13 +35,14 @@ def test_search():
     wetsuite.datacollect.rechtspraaknl.parse_search_results( results )
 
 def test_parse():
-    bytes = wetsuite.helpers.net.download('https://data.rechtspraak.nl/uitspraken/content?id=ECLI:NL:GHARL:2022:7129')
-    tree = wetsuite.helpers.etree.fromstring( bytes )
-    results = wetsuite.datacollect.rechtspraaknl.parse_content( tree )
+    ' test that those documents parse without failing '
+    testbytes = wetsuite.helpers.net.download('https://data.rechtspraak.nl/uitspraken/content?id=ECLI:NL:GHARL:2022:7129')
+    tree = wetsuite.helpers.etree.fromstring( testbytes )
+    wetsuite.datacollect.rechtspraaknl.parse_content( tree )
 
-    bytes = wetsuite.helpers.net.download('https://data.rechtspraak.nl/uitspraken/content?id=ECLI:NL:PHR:2022:255')
-    tree = wetsuite.helpers.etree.fromstring( bytes )
-    results = wetsuite.datacollect.rechtspraaknl.parse_content( tree )
+    testbytes = wetsuite.helpers.net.download('https://data.rechtspraak.nl/uitspraken/content?id=ECLI:NL:PHR:2022:255')
+    tree = wetsuite.helpers.etree.fromstring( testbytes )
+    wetsuite.datacollect.rechtspraaknl.parse_content( tree )
 
 
 #def test_website_zoek():

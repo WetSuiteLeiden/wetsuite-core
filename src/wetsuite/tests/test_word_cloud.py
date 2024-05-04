@@ -1,9 +1,11 @@
+' test of wordcloud wrapping module ' 
 from wetsuite.extras.word_cloud import count_normalized, wordcloud_from_freqs, count_case_insensitive#, count_from_spacy_document
 
 
 
 
 def test_count_normalized():
+    ' test the count-normalized-form function'
 
     ci = count_normalized( 'a A A a A A a B b b B b'.split() )
     assert ci['a'] == 3

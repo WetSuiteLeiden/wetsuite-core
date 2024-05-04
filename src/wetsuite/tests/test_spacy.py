@@ -11,10 +11,10 @@ def load_nl():
     download_if_necessary("nl_core_news_sm")
 
 def get_model():
-    return spacy.blank('nl') # 
+    return spacy.blank('nl')
 
 
-def get_simpledoc():
+def get_simpledoc(): # FIXME
     nlp = get_model()
     doc = spacy.tokens.doc.Doc( vocab=nlp.vocab, words=["Smeer", "de", "zonnebrand"] )
     # this is some rather poor and incomplete mocking

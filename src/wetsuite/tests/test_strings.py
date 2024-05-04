@@ -70,10 +70,10 @@ def test_findall_with_context():
     print( matches )
     assert len(matches) == 2
 
-    before_str, match_str, match_obj, after_str = matches[0]
+    before_str, _, _, after_str = matches[0]
     assert before_str == 'I am'
     assert after_str == 'fork '
-    before_str, match_str, match_obj, after_str = matches[1]
+    before_str, _, _, after_str = matches[1]
     assert before_str == 'k and'
     assert after_str == 'spoon'
 

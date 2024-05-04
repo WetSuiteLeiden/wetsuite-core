@@ -31,12 +31,12 @@ def test_metacrud():
     ' basic getter and setter tests of the (hidden) meta table '
     kv = wetsuite.helpers.localdata.LocalKV(':memory:', key_type=str, value_type=str)
     with pytest.raises(KeyError):
-        kv._get_meta('a')
-    kv._put_meta('a', 'b')
-    assert kv._get_meta('a') == 'b'
-    kv._delete_meta('a')
-    kv._put_meta('c', 'd')
-    kv._delete_meta('c')
+        kv._get_meta('a')            # pylint: disable=protected-access
+    kv._put_meta('a', 'b')           # pylint: disable=protected-access
+    assert kv._get_meta('a') == 'b'  # pylint: disable=protected-access
+    kv._delete_meta('a')             # pylint: disable=protected-access
+    kv._put_meta('c', 'd')           # pylint: disable=protected-access
+    kv._delete_meta('c')             # pylint: disable=protected-access
 
 
 def test_readonly():
@@ -49,10 +49,10 @@ def test_readonly():
         kv.delete('a')
 
     with pytest.raises(RuntimeError, match=r'.*Attempted*'):
-        kv._put_meta('a','b')
+        kv._put_meta('a','b') # pylint: disable=protected-access
 
     with pytest.raises(RuntimeError, match=r'.*Attempted*'):
-        kv._delete_meta('a')
+        kv._delete_meta('a')  # pylint: disable=protected-access
 
 
 def test_moreapi():
@@ -81,7 +81,7 @@ def test_list():
     " we can't really know what the testing account has, so this wouldn't be deterministic, just check that it doesn't fail "
     wetsuite.helpers.localdata.list_stores()
     wetsuite.helpers.localdata.list_stores(look_under='/tmp/')
-    
+
     # may take a while:
     #wetsuite.helpers.localdata.list_stores(get_num_items=True)
 
@@ -122,9 +122,9 @@ def test_moretrans():
     ' some transaction relates tests '
     kv = wetsuite.helpers.localdata.LocalKV(':memory:', str, str)
     kv.put('1','2')
-    assert kv._in_transaction is False
+    assert kv._in_transaction is False   # pylint: disable=protected-access
     kv.delete('1', commit=False) # should start transaction
-    assert kv._in_transaction is True
+    assert kv._in_transaction is True    # pylint: disable=protected-access
     kv.vacuum() # test if it commits before vacuum
 
     kv.delete('1', commit=False) # should start transaction
@@ -211,8 +211,9 @@ def test_type_check():
 
 
 
-def TEMPORARILY_DISABLED_test_multiread_and_locking( tmp_path ): # disabled because the test takes longish (on purpose)
 #def test_multiread_and_locking( tmp_path ):
+def TEMPORARILY_DISABLED_test_multiread_and_locking( tmp_path ):
+    ' disabled because the test takes longish (on purpose) '
     import sqlite3
 
     # test that both see the same data

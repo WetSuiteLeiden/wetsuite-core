@@ -38,7 +38,7 @@ def test_cvdr_parse_identifier():
     # TODO: check about possible edge cases, like leading zeroes
 
 
-def test_cvdr_param_parse():
+def test_cvdr_param_parse(): # bad name?
     res = cvdr_param_parse('BWB://1.0:c:BWBR0008903&artikel=12&g=2011-11-08')
     assert res['artikel'] == ['12']
     assert res['g']       == ['2011-11-08']
@@ -59,7 +59,7 @@ def get_test_etree(fn):
     ' read test data with read_testdata(), parse and return as etree object'
     return wetsuite.helpers.etree.fromstring( get_test_data(fn) )
 
-# TODO: find example with different types of sourcerefs 
+# TODO: find example with different types of sourcerefs
 
 # just many is e.g.
 # New best: 14 for 'https://repository.officiele-overheidspublicaties.nl/CVDR/101112/2/xml/101112_2.xml'
@@ -71,6 +71,7 @@ def get_test_etree(fn):
 
 
 def test_cvdr_normalize_expressionid():
+    " test whether we can reasonably use this to normalize the identifier "
     assert cvdr_normalize_expressionid('CVDR112779_1') == 'CVDR112779_1'
     assert cvdr_normalize_expressionid('112779_1')     == 'CVDR112779_1'
     with pytest.raises(ValueError, match=r'.*expression.*'):
@@ -110,11 +111,11 @@ def test_search_related_parsing():
     ' do a bunch of search related parsing '
     # CONSIDER: currently based on an actual search - TODO: fetch a triple of XML files to not rely on taht
     import wetsuite.datacollect.koop_repositories
-    from wetsuite.helpers.net import download
-    from wetsuite.helpers.etree import fromstring
+    #from wetsuite.helpers.net import download
+    #from wetsuite.helpers.etree import fromstring
     bwb_sru =  wetsuite.datacollect.koop_repositories.BWB()
     for record in bwb_sru.search_retrieve('dcterms.identifier = BWBR0045754'):
-        search_meta = wetsuite.helpers.koop_parse.bwb_searchresult_meta( record )
+        wetsuite.helpers.koop_parse.bwb_searchresult_meta( record )
 
 
 def test_more_parsing():
@@ -130,7 +131,7 @@ def test_more_parsing():
     # test case is BWBR0045754
     toe_etree = get_test_etree('bwb_toestand.xml')
     toe_usefuls = wetsuite.helpers.koop_parse.bwb_toestand_usefuls( toe_etree )
-    toe_text    = wetsuite.helpers.koop_parse.bwb_toestand_text(    toe_etree ) # (not used here)
+    wetsuite.helpers.koop_parse.bwb_toestand_text(    toe_etree ) # (not used here)
 
     wti_etree = get_test_etree('bwb_wti.xml')
     wti_usefuls = wetsuite.helpers.koop_parse.bwb_wti_usefuls(      wti_etree )
@@ -138,12 +139,12 @@ def test_more_parsing():
     man_etree = get_test_etree('bwb_manifest.xml')
     man_usefuls = wetsuite.helpers.koop_parse.bwb_manifest_usefuls( man_etree )
 
-    merged = wetsuite.helpers.koop_parse.bwb_merge_usefuls(toe_usefuls, wti_usefuls, man_usefuls)
+    wetsuite.helpers.koop_parse.bwb_merge_usefuls(toe_usefuls, wti_usefuls, man_usefuls)
 
 
 
 def test_prefer_types_1():
-    # this is counting on argument's current default values; CONSIDER: not doing that.
+    # this is counting on argument's current default values;  TODO: don't do that
     assert prefer_types(  ['metadata', 'metadataowms', 'pdf','odt', 'jpg', 'coordinaten', 'ocr', 'html', 'xml'] ) ==  ['metadata', 'metadataowms', 'xml', 'html']
 
 

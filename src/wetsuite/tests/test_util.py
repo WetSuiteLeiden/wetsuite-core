@@ -87,6 +87,7 @@ def test_is_html():
 
 
 def test_is_xml_not_html():
+    " See if we can tell a difference between XML and HTML "
     import test_util
     testzipfn = os.path.join( os.path.dirname( test_util.__file__ ), 'bwb_manifest.xml' )
     with open( testzipfn ,'rb') as f:
@@ -94,6 +95,7 @@ def test_is_xml_not_html():
 
 
 def test_is_pdf():
+    " test that a file('s contents) is PDF "
     import test_util
     testzipfn = os.path.join( os.path.dirname( test_util.__file__ ), 'eggs.pdf' )
     with open( testzipfn ,'rb') as f:

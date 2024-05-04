@@ -1,10 +1,10 @@
-
+''' Tests relating to the patterns module
+'''
 from wetsuite.helpers.patterns import find_identifier_references, find_nonidentifier_references
 
 
 def test_reference_parse():
-    import datetime, pytest
-
+    ' '
     matches = find_nonidentifier_references('artikel 5:9, aanhef en onder b, Awb')
     d = matches[0]['details']
     assert d['artikel'] == '5:9'
@@ -28,9 +28,9 @@ def test_reference_parse():
 
 #     assert cleanup_basics( 'artikel 10.23, eerste lid van de Wet milieubeheer' ) == 'Wet milieubeheer'
 
-#     assert name_from_extref_tag( 
+#     assert name_from_extref_tag(
 #         wetsuite.helpers.etree.fromstring(
-#         '<extref doc="http://wetten.overheid.nl/cgi-bin/deeplink/law1/title=Wet%20milieubeheer/article=10.23" struct="BWB">artikel 10.23, eerste lid van de Wet milieubeheer</extref>' 
+#         '<extref doc="http://wetten.overheid.nl/cgi-bin/deeplink/law1/title=Wet%20milieubeheer/article=10.23" struct="BWB">artikel 10.23, eerste lid van de Wet milieubeheer</extref>'
 #         )
 #         ) == 'Wet milieubeheer'
 
@@ -53,10 +53,10 @@ def test_identifier_parse():
         # TODO: complete
 
         #('asdf Stb 2005 asdf'                       ),
-        #('asdf Kamerstukken 1992/1993, 22 asdf'     ),        
+        #('asdf Kamerstukken 1992/1993, 22 asdf'     ),
     ):
 
-        found = find_identifier_references( test_string, 
+        found = find_identifier_references( test_string,
             ljn=True, ecli=True, celex=True, kamerstukken=True, vindplaatsen=True, nonidentifier=True, euoj=True, eudir=True
         )
         for key, value in expect.items():
@@ -69,7 +69,7 @@ def test_identifier_almost():
         ('asdf 3684R2020 asdf'                      ),
         #('asdf ECLI:N:CBB:1996:ZG0749 asdf'         ),
     ):
-        assert len( find_identifier_references( test_string, 
+        assert len( find_identifier_references( test_string,
             ljn=True, ecli=True, celex=True, kamerstukken=True, vindplaatsen=True, nonidentifier=True, euoj=True, eudir=True
         ) ) == 0
 
@@ -77,8 +77,8 @@ def test_identifier_almost():
 
 if 0: # TODO: decide what to do with these
     for test in [
-        #'artikel 4, tweede lid, aanhef en onder d, van het reglement van orde voor de ministerraad                     ', 
-        #'artikel 4, tweede lid, onder d, van het reglement                     ', 
+        #'artikel 4, tweede lid, aanhef en onder d, van het reglement van orde voor de ministerraad                     ',
+        #'artikel 4, tweede lid, onder d, van het reglement                     ',
         #'artikel 2, lid 1                   ',
         #'artikel 2, lid\n1                   ',
         #'artikel 2, eerste\nlid               ',

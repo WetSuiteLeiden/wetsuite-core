@@ -3,7 +3,7 @@ import datetime
 
 import pytest
 
-from wetsuite.helpers.date import parse, find_dates_in_text,   days_in_range, format_date_list, date_ranges
+from wetsuite.helpers.date import parse, find_dates_in_text,   days_in_range, date_ranges # format_date_list
 
 
 
@@ -35,7 +35,7 @@ def test_days_in_range2():
 
 def test_format_days_in_range():
     ' test string formatting of day ranges '
-    assert days_in_range( datetime.date(2022, 1, 30), datetime.date(2022, 2, 1), 
+    assert days_in_range( datetime.date(2022, 1, 30), datetime.date(2022, 2, 1),
                           strftime_format="%Y-%m-%d") == [ '2022-01-30', '2022-01-31', '2022-02-01']
 
 

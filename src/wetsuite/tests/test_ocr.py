@@ -1,3 +1,6 @@
+''' test OCR related functions
+
+'''
 import pytest
 #import warnings
 
