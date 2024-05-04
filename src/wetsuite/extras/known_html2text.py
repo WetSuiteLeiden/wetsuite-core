@@ -115,7 +115,7 @@ def html_to_chunks(html: str,
                    chunk_n_tokens: int = 500,
                    sent_tokenize=False,
                    **kwargs,
-                   ) -> str:
+                   ):
     """
     Cleans a html and splits it into chunks, respecting headers and tables if present.
     It assumes lines in the original html are meaningful, and does not by default split them up.

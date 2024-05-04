@@ -8,7 +8,6 @@ so this (thin) wrapper module exists largely to separate out the counting,
     - and to make those counting functions usable for other things
 '''
 import collections
-import re
 from typing import List
 
 
@@ -203,19 +202,19 @@ def count_case_insensitive(strings: List[str],  min_count=1,  min_word_length=0,
 #                               add_ents=True,
 #                               add_ncs=True,
 #                               weigh_deps={'nsubj':5, 'obj':3} ):
-#     ''' Takes a spacy document, returns a string->count dict 
-        
+#     ''' Takes a spacy document, returns a string->count dict
+
 #         Does a lot of fairly specific things (a bit too specific to smush into one function, really)
 #         to be smart about removing low-content words, and focusing on terms.
-        
-#         @param restrict_to_tags:  removes if not in this POS list - which defaults to nouns, adjectives, adverbs, 
+
+#         @param restrict_to_tags:  removes if not in this POS list - which defaults to nouns, adjectives, adverbs,
 #                                   and verbs (and removes a lot of fillter words)
 #         @param remove_stop:       removes according to Token.is_stop
 
 #         @param add_ents:          whether to add phrases from Doc.ents
 #         @param add_ncs:           whether to add phrases from Doc.noun_chunks
- 
-#         @param weigh_deps:        exists to weigh words/ent/ncs stronger 
+
+#         @param weigh_deps:        exists to weigh words/ent/ncs stronger
 #         when they are/involve the sentence's subject or object
 
 #         CONSIDER: make this a filter instead, so we can feed the result to count_normalized()

@@ -111,7 +111,7 @@ def easyocr_text(results):
 
         CONSIDER centralizing that and/or 'natural reading order' code
     '''
-    #CONSIDER making this '\n\n',join( the pages function ) instead 
+    #CONSIDER making this '\n\n',join( the pages function ) instead
 
     #warnings.warn('easyocr_text() is currently dumb, and should be made better at its job later')
     ret = []
@@ -302,13 +302,13 @@ def page_fragment_filter( page_ocr_fragments,  textre=None,
         @param verbose: say what we're including/excluding and why
     '''
     # when first and last pages can be odd, it may be useful to pass in the documentation extent
-    if extent is not None: 
+    if extent is not None:
         _, _, page_max_x, page_max_y = extent
     else:
         _, _, page_max_x, page_max_y = page_extent( page_ocr_fragments )
 
     if isinstance(q_min_x, float): # assume it was a fraction
-        # times a fudge factor because we assume there is right margin 
+        # times a fudge factor because we assume there is right margin
         #    that typically has no detected text,
         #  and we want this to be a fraction to be of the whole page,
         #    not of the _use_ of the page

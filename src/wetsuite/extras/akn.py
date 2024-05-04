@@ -5,7 +5,7 @@
 # https://koop.gitlab.io/STOP/standaard/1.3.0/identificatie_doc_pub.html
 # https://koop.gitlab.io/STOP/standaard/1.3.0/identificatie_niet-tekst.html
 
-import re
+#import re
 
 import requests
 
@@ -16,8 +16,10 @@ import wetsuite.helpers.localdata
 
 _akn_cache = None
 
-def cached_resolve(akn, store=None):
-    ' like resolve(), but stores results in your user dir, so repeated searches are fast'
+def cached_resolve(akn):
+    ''' like resolve(), but stores results in your user dir, so repeated searches are fast 
+        CONSIDER: specify a store to store to instead?
+    '''
     global _akn_cache
     if _akn_cache is None:
         _akn_cache = wetsuite.helpers.localdata.LocalKV('akn_cache.db', key_type=str, value_type=str)
@@ -37,7 +39,7 @@ def resolve(akn, timeout=10):
         @return: the URL it went to.
     '''
     # both to ensure it's an AKN at all (/akn) and to signal this only does Dutch ones
-    if not akn.startswith('/akn/nl'): 
+    if not akn.startswith('/akn/nl'):
         raise ValueError('The AKN should start with /akn/nl')
 
     #CONSIDER: think about escaping against injection issues

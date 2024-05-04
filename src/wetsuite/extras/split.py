@@ -16,9 +16,6 @@
 
     It should also have a reasonable fallback for each document type.
 '''
-import warnings
-import time
-
 import bs4  # arguably should be inside each class so we can do without some
 import fitz # arguably should be inside each class so we can do without some
 
@@ -27,9 +24,6 @@ import wetsuite.helpers.strings
 import wetsuite.helpers.koop_parse
 import wetsuite.helpers.etree
 import wetsuite.datacollect.rechtspraaknl
-
-
-
 
 
 header_tag_names = ('h1','h2','h3','h4', 'h5','h6')
@@ -74,7 +68,7 @@ def split_op_xml(tree, start_at=None, debug=0):
         if debug:
             print( 'OP XML (TOD)' )
         for ch in tree:
-            if isinstance(ch, (wetsuite.helpers.etree._Comment, wetsuite.helpers.etree._ProcessingInstruction) ):
+            if isinstance(ch, (wetsuite.helpers.etree._Comment, wetsuite.helpers.etree._ProcessingInstruction) ): #pylint: disable=protected-access
                 pass
                 #print('SKIP OP PI/CMNT ')
             elif ch.tag == 'metadata':
@@ -211,13 +205,12 @@ class Fragments_XML_CVDR( Fragments ):
         # TODO: detect what level gives reasonably-sized chunks on average, to hand into merge
         for part_id, part_text_list in wetsuite.helpers.koop_parse.merge_alinea_data( fragments ):
             for part in part_text_list:
-                ret.append( ( 
+                ret.append( (
                     {'hint':'mergedpart', 'part_id':part_id, 'part_name':', '.join( ' '.join(tup)  for tup in part_id )},
                     {},#'raw':part_text_list},
                     part
                 ) )
         return ret
-
 
 
 
@@ -633,7 +626,6 @@ class Fragments_XML_OP_Handelingen( Fragments ):
         return ret
 
 
-
 class Fragments_XML_BUS_Kamer( Fragments ):
     "  "
     def __init__(self, docbytes):
@@ -699,7 +691,6 @@ class Fragments_HTML_BUS_kamer( Fragments ):
         return ret
 
 
-
 # class Fragments_HTML_Rechtspraak( Fragments ):
 #     def __init__(self, data):
 #         Fragments.__init__(self, data)
@@ -716,8 +707,6 @@ class Fragments_HTML_BUS_kamer( Fragments ):
 #             return 5000
 #
 #     #def fragments
-
-
 
 class Fragments_XML_Rechtspraak( Fragments ):
     " turn rechtspraak.nl's XML form into fragments "
@@ -863,7 +852,7 @@ class Fragments_PDF_Fallback( Fragments ):
             def flush(why):
                 pa = list( filter( lambda x: len(x.strip())>0, self.part_ary) )
                 if len(pa) > 0:
-                     for i, frag in enumerate(pa):
+                    for i, frag in enumerate(pa):
                         hint = 'para'
                         if i==0:
                             hint = why
