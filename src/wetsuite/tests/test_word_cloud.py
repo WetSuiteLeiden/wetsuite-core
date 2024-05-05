@@ -41,7 +41,7 @@ def test_stop():
     cs = count_normalized( 'a A A a A A a B b b B b'.split(), normalize_func=lambda s:s.lower(), stopwords=('a',), stopwords_i=())
     assert cs == {'A': 4, 'b': 5}
 
-    cs = count_normalized( 'a A A a A A a B b b B b'.split(), normalize_func=lambda s:s.lower(), stopwords=(), stopwords_i=('a'))
+    cs = count_normalized( 'a A A a A A a B b b B b'.split(), normalize_func=lambda s:s.lower(), stopwords=(), stopwords_i=('a',))
     assert cs == {'b': 5}
 
     cs = count_case_insensitive( ['the','een'], stopwords=True ) #  asks for some (english and stuch)
