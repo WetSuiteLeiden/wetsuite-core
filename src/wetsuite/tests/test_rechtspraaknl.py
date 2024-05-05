@@ -1,4 +1,5 @@
-import pytest
+''' test functions in the wetsuite.datacollect.rechtspraaknl module '''
+#import pytest
 
 import wetsuite.datacollect.rechtspraaknl
 
@@ -18,13 +19,12 @@ def test_value_list_parsing():
 
 def test_search():
     ' test that the basic API search works '
-    import datetime
-
+    #import datetime
     #yesterday_date = ( datetime.datetime.now() - datetime.timedelta(days=1) ).date()
     #yesterday_str  = yesterday_date.strftime('%Y-%m-%d')
 
     results = wetsuite.datacollect.rechtspraaknl.search( params=[
-        ('max',  '5'), 
+        ('max',  '5'),
         ('return', 'DOC'),                                         # DOC asks for things with body text only
         #('modified', '2023-10-01'), ('modified', '2023-11-01')    # date range    (keep in mind that larger ranges easily means we hit the max)
         ('modified', '2023-11-01'),
@@ -33,6 +33,7 @@ def test_search():
     assert len(results) > 0
 
     wetsuite.datacollect.rechtspraaknl.parse_search_results( results )
+
 
 def test_parse():
     ' test that those documents parse without failing '

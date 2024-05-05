@@ -1,20 +1,25 @@
-import pytest
+''' test spacy-related functions
+    
+'''
+#import pytest
 
 import wetsuite.helpers.spacy
 
-import spacy 
+import spacy
 import spacy.tokens.doc
 import spacy.tokens.span
 
 
-def load_nl():
-    download_if_necessary("nl_core_news_sm")
+#def load_nl():
+#    download_if_necessary("nl_core_news_sm")
 
-def get_model():
-    return spacy.blank('nl')
+def get_model(lang='nl'):
+    ' helpers: get empty model of given Language '
+    return spacy.blank( lang )
 
 
-def get_simpledoc(): # FIXME
+def get_simpledoc():
+    ' TODO: finish this or remove '
     nlp = get_model()
     doc = spacy.tokens.doc.Doc( vocab=nlp.vocab, words=["Smeer", "de", "zonnebrand"] )
     # this is some rather poor and incomplete mocking
@@ -23,22 +28,15 @@ def get_simpledoc(): # FIXME
     doc[2].pos_ = 'NOUN'
     return doc
 
-def test_parse():
-    nlp = get_model()
-    for _ in nlp('I like cheese'):
-        pass
 
 
 def test_simpledoc():
+    " test that that get_simpledoc vaguely works "
     for _ in get_simpledoc():
         pass
 
-
-def test_reload():
-    wetsuite.helpers.spacy.reload()
-
-
 def test_span_as_doc():
+    " test that that get_simpledoc vaguely works, part 2 "
     doc = get_simpledoc()
     assert isinstance( doc, spacy.tokens.doc.Doc )
 
@@ -49,10 +47,22 @@ def test_span_as_doc():
     assert isinstance( asdoc, spacy.tokens.doc.Doc )
 
 
+def test_parse():
+    " test that a parse doesn't fail "
+    nlp = get_model()
+    for _ in nlp('I like cheese'):
+        pass
+
+
+def test_reload():
+    " test that the reload(wetsuite.helpers.spacy) doesn't fail "
+    wetsuite.helpers.spacy.reload()
+
+
 def test_ipython_content_visualisation():
     ' for now just test that it does not bork out '
     doc = get_simpledoc()
-    wetsuite.helpers.spacy.ipython_content_visualisation(doc)._repr_html_()
+    wetsuite.helpers.spacy.ipython_content_visualisation(doc)._repr_html_()  # pylint: disable=protected-access
 
 
 

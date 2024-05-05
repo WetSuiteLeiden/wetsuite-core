@@ -1,5 +1,5 @@
-''' '''
-import pytest
+''' Test some functions of the wetsuite.datacollect.tweedekamer_nl module '''
+#import pytest
 import wetsuite.datacollect.tweedekamer_nl
 
 #def DISABLED_test_fetch_all():

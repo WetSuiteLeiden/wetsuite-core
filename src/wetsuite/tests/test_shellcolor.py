@@ -1,8 +1,12 @@
 ' test the shell coloring module '
 
 import wetsuite.helpers.shellcolor
-from wetsuite.helpers.shellcolor import *
-from wetsuite.helpers.shellcolor import _percent_parse
+
+#from wetsuite.helpers.shellcolor import *   # Too many to import, okay for test, also linter says what we've not tested   pylint: disable=wildcard-import
+from wetsuite.helpers.shellcolor import guess_color_support, color_degree, _percent_parse, real_len, cformat, WHITE, RESET, closest_from_rgb255, redgreen, true_colf, hash_color, blend, truncate_real_len
+from wetsuite.helpers.shellcolor import brightblack, darkgray, darkgrey, black, red, brightred, green, brightgreen, orange, yellow, brightyellow, blue, brightblue, magenta, brightmagenta, cyan, brightcyan, gray, grey, brightgrey, brightgray, white, bgblack, bgred, bggreen, bgblue, bgyellow, bgorange, bgmagenta, bgcyan
+#default, reset, clearscreen
+
 
 def test_color_degree():
     " test the 'color by liner interpolation' function "
@@ -12,10 +16,12 @@ def test_color_degree():
 
 
 def test_percent_parse():
+    ' tests whether the "add number to percentage-formatting widths" function does not bork out '
     assert _percent_parse(' a  %%  qq  %.5d %30s  % -31.7f ', [0,0,5,9]) == ' a  %%  qq  %.5d %35s  % -40.7f '
 
 
 def test_cformat():
+    ' test the "string formatter that understands that color escapes have no real width" function '
     assert cformat('%20s', (WHITE+'fork'+RESET,) ) == '                \x1b[1;37mfork\x1b[0m\x1b[39m'
 
 
@@ -73,7 +79,7 @@ def test_hash_color():
 def test_colors():
     ' mainly just for test coverage statistics :) '
     #guess_color_support(True, True, True)
-    wetsuite.helpers.shellcolor._guess = True  # force    # 
+    wetsuite.helpers.shellcolor._guess = True  # force    # pylint: disable=protected-access
 
     for color_func in (
         brightblack,

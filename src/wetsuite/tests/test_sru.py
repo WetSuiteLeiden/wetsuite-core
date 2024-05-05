@@ -3,6 +3,7 @@ import pytest
 from wetsuite.datacollect import sru
 
 def test_bunch():
+    ' test that some basic interactions do not fail on bad code '
     bwb  = sru.SRUBase(
         base_url='http://zoekservice.overheid.nl/sru/Search',
         x_connection='BWB',
@@ -29,6 +30,7 @@ def test_bunch():
 
 
 def test_extra():
+    ' test some further interactions, e.g. that the server complains of unsupported indexes '
     bwb  = sru.SRUBase(
         base_url='http://zoekservice.overheid.nl/sru/Search',
         x_connection='BWB',

@@ -4,20 +4,21 @@
 import pytest
 #import warnings
 
-import wetsuite.extras.ocr
-
 from PIL import Image, ImageDraw
 
 
 
 def test_import():
-    import wetsuite.extras.ocr
+    ' test that the import does not bork, over dependencies '
+    import wetsuite.extras.ocr         # pylint: disable=unused-import
     #wetsuite.extras.ocr.easyocr()
 
 
 @pytest.mark.filterwarnings("ignore::UserWarning")
 def test_image():
     ' test that OCR basically functions, on an image we generate with PIL '
+    import wetsuite.extras.ocr
+
     image = Image.new("RGB", (200, 200))
     draw = ImageDraw.Draw(image)
     draw.text((10, 10), "Hello from" )

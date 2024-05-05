@@ -4,6 +4,7 @@ import os
 import pytest
 
 from wetsuite.helpers.koop_parse import cvdr_parse_identifier, cvdr_meta, cvdr_text, cvdr_sourcerefs, cvdr_param_parse, cvdr_normalize_expressionid, prefer_types
+import wetsuite.datacollect.koop_repositories
 from wetsuite.datacollect.koop_repositories import BWB, CVDR
 import wetsuite.helpers.etree
 
@@ -38,7 +39,8 @@ def test_cvdr_parse_identifier():
     # TODO: check about possible edge cases, like leading zeroes
 
 
-def test_cvdr_param_parse(): # bad name?
+def test_cvdr_param_parse():
+    ' param parser (TODO: merge underlying function) '
     res = cvdr_param_parse('BWB://1.0:c:BWBR0008903&artikel=12&g=2011-11-08')
     assert res['artikel'] == ['12']
     assert res['g']       == ['2011-11-08']
@@ -110,7 +112,6 @@ def test_cvdr_sourcerefs():
 def test_search_related_parsing():
     ' do a bunch of search related parsing '
     # CONSIDER: currently based on an actual search - TODO: fetch a triple of XML files to not rely on taht
-    import wetsuite.datacollect.koop_repositories
     #from wetsuite.helpers.net import download
     #from wetsuite.helpers.etree import fromstring
     bwb_sru =  wetsuite.datacollect.koop_repositories.BWB()
@@ -144,24 +145,29 @@ def test_more_parsing():
 
 
 def test_prefer_types_1():
-    # this is counting on argument's current default values;  TODO: don't do that
+    " this is counting on argument's current default values;  TODO: don't do that "
     assert prefer_types(  ['metadata', 'metadataowms', 'pdf','odt', 'jpg', 'coordinaten', 'ocr', 'html', 'xml'] ) ==  ['metadata', 'metadataowms', 'xml', 'html']
 
 
 def test_prefer_types_2():
+    " this too is counting on argument's current default values;  TODO: don't do that "
     assert prefer_types(  ['metadata', 'metadataowms', 'pdf',] ) ==  ['metadata', 'metadataowms', 'pdf']
 
 
 # the distinction behind the following two is explained better in prefer's type docstring
+
 def test_prefer_types_exclusive():
+    ' note that all_of and first_of are considered somewhat independently '
     assert prefer_types(  ['metadata', 'metadataowms', 'xml', 'pdf',],
         all_of=  ('metadata', 'metadataowms', 'xml'),
-        first_of=('html', 'pdf', 'odt') )                     ==  ['metadata', 'metadataowms', 'xml', 'pdf']
+        first_of=('html', 'pdf', 'odt') )         ==  ['metadata', 'metadataowms', 'xml', 'pdf']
+
 
 def test_prefer_types_one():
+    ' compared with test_prefer_types_exclusive: duplicate between all_of and first_of so we get just one '
     assert prefer_types(  ['metadata', 'metadataowms', 'xml', 'pdf',],
         all_of=  ('metadata', 'metadataowms', 'xml'),
-        first_of=('xml', 'html', 'pdf', 'odt') )              ==  ['metadata', 'metadataowms', 'xml']
+        first_of=('xml', 'html', 'pdf', 'odt') )  ==  ['metadata', 'metadataowms', 'xml']
 
 
 
