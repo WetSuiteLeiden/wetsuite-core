@@ -43,9 +43,13 @@ def test_is_xml():
 
 def test_is_xml_encoded():
     " test the 'does this look like XML (rather than HTML/XHTML)' rejects XHTML "
-    assert wetsuite.helpers.util.is_xml( '<?xml version="1.0"?><r/>'.encode('utf-16-be') )
-    assert wetsuite.helpers.util.is_xml( '<?xml version="1.0"?><r/>'.encode('utf-16-le') )
-    assert wetsuite.helpers.util.is_xml( '<?xml version="1.0"?><r/>'.encode('utf8') )
+    assert wetsuite.helpers.util.is_xml( '<?xml version="1.0"?><r/>'.encode('utf-16-be') ) == True
+    assert wetsuite.helpers.util.is_xml( '<?xml version="1.0"?><r/>'.encode('utf-16-le') ) == True
+    assert wetsuite.helpers.util.is_xml( '<?xml version="1.0"?><r/>'.encode('utf8') )      == True
+
+def test_is_xml_notags():
+    " tag-less XML is no XML "
+    assert wetsuite.helpers.util.is_xml( b'<?xml version="1.0"?>' ) == False
 
 
 def test_is_with_strings():
