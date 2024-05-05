@@ -1,14 +1,27 @@
 '''
-    TODO: 
-    decide the API (probably make the splitting optional? or write in a way where joining is the original with (nearly) no losses?) 
-    because this overlap with just "read contents document of type X"
+    This module tries to 
+    - wrangle a few different formats into a similar intermediate
+    - allow you some flexibility in terms of how to take those chunks
 
-    Maybe we shouldn't make too many decisions for you, and merely yield suggestions
-      - 'seems like same section, <TEXT>'
-      - 'seems like new section, <TEXT>'
-      - 'seems like page header/footer, <TEXT>'
-      - 'seems like page footnotes, <TEXT>'
-    ...so that you, or a helper function, can group into different-sized chunks as you need it.
+    
+    Secondary thoughts:
+    - we were trying to be inspired by LaTeX hyphenation, which has a simple-but-pretty-great 
+      relative "this is the cost of breaking off here",
+      the analogue of which were  that makes "Hey can you break this more"
+
+    - 
+
+
+    TODO: 
+    - decide the API (probably make the splitting optional? or write in a way where joining is the original with (nearly) no losses?) 
+      because this overlap with just "read contents document of type X"
+
+    - Maybe we shouldn't make too many decisions for you, and merely yield suggestions (often-ignorable) 
+        - 'seems like same section, <TEXT>'
+        - 'seems like new section, <TEXT>'
+        - 'seems like page header/footer, <TEXT>'
+        - 'seems like page footnotes, <TEXT>'
+        ...so that you, or a helper function, can group into different-sized chunks as you need it.
 
     
     This module should eventuall grow a basic "we know about this type of document" 
@@ -16,23 +29,26 @@
 
     It should also have a reasonable fallback for each document type.
 '''
-import bs4  # arguably should be inside each class so we can do without some
-import fitz # arguably should be inside each class so we can do without some
 
-import wetsuite.extras.pdf
+
+import bs4  # arguably should be inside each class so we can do without some of these imports
+import fitz # arguably should be inside each class so we can do without some of these imports
+
 import wetsuite.helpers.strings
 import wetsuite.helpers.koop_parse
 import wetsuite.helpers.etree
+import wetsuite.extras.pdf
 import wetsuite.datacollect.rechtspraaknl
 
 
-header_tag_names = ('h1','h2','h3','h4', 'h5','h6')
+header_tag_names = ('h1','h2','h3', 'h4', 'h5','h6')
 
 
 def fix_ascii_blah(bytesdata):
-    ''' There are a bunch of XMLs that are invalid because they contain UTF8 but say they are US-ASCII. 
+    ''' There are a bunch of XMLs that are invalid _only_ because they contain UTF8 but say they are US-ASCII. 
         This seems constrained to the parliamentary XMLs.
-        This code arguably doesn't really belong here.
+
+        This code arguably doesn't really belong in this module, but .
     '''
     if b'<?xml version="1.0" encoding="US-ASCII"?>' in bytesdata:
         #print( 'ASCII %d'%time.time() )
@@ -47,7 +63,7 @@ def fix_ascii_blah(bytesdata):
 
 
 def split_op_xml(tree, start_at=None, debug=0):
-    ' should become a helper function for a number of the below '
+    ' should be rewritte into a helper function for a number of the below '
     ret = []  #  (metadata, intermediate, debugsomething, text)
 
     # ensure this is a node, not a string path
@@ -88,8 +104,8 @@ def split_op_xml(tree, start_at=None, debug=0):
                             'gemeenteblad', 'waterschapsblad', 'provinciaalblad','provincieblad',
                             'kamervragen','kamerstuk','niet-dossier-stuk','handelingen'):
                 #continue
-                fragments = wetsuite.helpers.koop_parse.alineas_with_selective_path(tree, start_at_path='/officiele-publicatie/%s'%ch.tag)
-                if 1:
+                fragments = wetsuite.helpers.koop_parse.alineas_with_selective_path(tree, start_at_path=start_at_path) # '/officiele-publicatie/%s'%ch.tag
+                if 1: # pylint: disable=using-constant-test
                     for fragment in fragments:
                         #print('FR',fragment)
                         meta       = fragment
@@ -100,7 +116,7 @@ def split_op_xml(tree, start_at=None, debug=0):
                         #print('meta ',  pprint.pformat( meta) )
                         #print('inter',  pprint.pformat( inter) )
                         #print('text ',  text_flat)
-                if 0:
+                if 0: # pylint: disable=using-constant-test
                     print(fragments)
                     # TODO: detect what level gives reasonably-sized chunks on average, to hand into mer
                     for part_id, part_text_list in wetsuite.helpers.koop_parse.merge_alinea_data( fragments ):
@@ -601,7 +617,7 @@ class Fragments_XML_OP_Bgr( Fragments ):
 
 
 class Fragments_XML_OP_Handelingen( Fragments ):
-    "  "
+    " Turn handelingen in XML form (from KOOP's BUS) into fragements "
     def __init__(self, docbytes):
         Fragments.__init__(self, docbytes)
         self.tree = None
@@ -627,7 +643,7 @@ class Fragments_XML_OP_Handelingen( Fragments ):
 
 
 class Fragments_XML_BUS_Kamer( Fragments ):
-    "  "
+    " Turn other kamer XMLs (from KOOP's BUS) into fragements (TODO: re-check which these are) "
     def __init__(self, docbytes):
         Fragments.__init__(self, docbytes)
         self.tree = None
@@ -660,7 +676,7 @@ class Fragments_XML_BUS_Kamer( Fragments ):
 
 
 class Fragments_HTML_BUS_kamer( Fragments ):
-    "  "
+    " Turn kamer-related HTMLs (from KOOP's BUS) into fragements "
     def __init__(self, docbytes):
         Fragments.__init__(self, docbytes)
         self.soup = None
@@ -707,6 +723,7 @@ class Fragments_HTML_BUS_kamer( Fragments ):
 #             return 5000
 #
 #     #def fragments
+
 
 class Fragments_XML_Rechtspraak( Fragments ):
     " turn rechtspraak.nl's XML form into fragments "
@@ -781,6 +798,8 @@ class Fragments_XML_Rechtspraak( Fragments ):
         # # Bijlage
 
 
+####################################################################################
+
 class Fragments_HTML_Fallback( Fragments ):
     " Extract text from HTML from non-specific source into fragments "
     def __init__(self, docbytes):
@@ -805,7 +824,6 @@ class Fragments_HTML_Fallback( Fragments ):
         return ret
 
 
-
 class Fragments_XML_Fallback( Fragments ):
     " Extract text from XML from non-specific source into fragments "
     def __init__(self, docbytes):
@@ -821,7 +839,6 @@ class Fragments_XML_Fallback( Fragments ):
     def fragments(self):
         ret = []
         return ret
-
 
 
 class Fragments_PDF_Fallback( Fragments ):
@@ -876,7 +893,7 @@ class Fragments_PDF_Fallback( Fragments ):
                 flush( )
                 marker_now( 'newpage' )
 
-                # TODO: think about combo with
+                # TODO: move to use 'html' rather than 'xhtml' because it lets us do more.
 
                 page_results = page.get_text( option='xhtml', flags=fitz.TEXTFLAGS_XHTML & ~fitz.TEXT_PRESERVE_IMAGES )
 
@@ -916,34 +933,33 @@ class Fragments_PDF_Fallback( Fragments ):
 
         return ret
 
-
-            #for page in document:
-            #    page_results = page.get_text( option='xhtml', flags=fitz.TEXTFLAGS_XHTML & ~fitz.TEXT_PRESERVE_IMAGES )
-            #    print( page_results )
-            #    break
-
-
-            # Use contents to see if we can use one of our specialized handlers,
-            # or will be calling split_pdf_fallback
-
-            #Tweede Kamer der Staten-Generaal
-
-            #kst-36428-3
-            #ISSN 0921-7371
-            #’s-Gravenhage 2023
-            #Tweede Kamer, vergaderjaar 2023–2024, 36 428, nr. 3
-
-            # ISSN 0921-7371  is  Bijlagen van het Verslag der Handelingen van de Tweede Kamer der Staten-Generaal
-            #      0920-2080      Verslag der Handelingen van de Tweede Kamer der Staten-Generaal
-            #      0920-2072      Verslag der Handelingen van de Eerste Kamer der Staten-Generaal
-            # https://portal.issn.org/api/search?search[]=MUST=default=Kamer+der+Staten-Generaal&search_id=34863538
-            #for page in document:
-            #    yield page.get_text( option=option, sort=True )
+        #for page in document:
+        #    page_results = page.get_text( option='xhtml', flags=fitz.TEXTFLAGS_XHTML & ~fitz.TEXT_PRESERVE_IMAGES )
+        #    print( page_results )
+        #    break
 
 
-            # one generalization might be to find all h1, h2, h3, bold-and-uppercase-only things,
-            # see how many there are and which splits would make for reasonable chunks
-            # also maybe guard against BUPs every line? (e.g. require at least 1 line since the last wish to BUP)
+        # Use contents to see if we can use one of our specialized handlers,
+        # or will be calling split_pdf_fallback
+
+        #Tweede Kamer der Staten-Generaal
+
+        #kst-36428-3
+        #ISSN 0921-7371
+        #’s-Gravenhage 2023
+        #Tweede Kamer, vergaderjaar 2023–2024, 36 428, nr. 3
+
+        # ISSN 0921-7371  is  Bijlagen van het Verslag der Handelingen van de Tweede Kamer der Staten-Generaal
+        #      0920-2080      Verslag der Handelingen van de Tweede Kamer der Staten-Generaal
+        #      0920-2072      Verslag der Handelingen van de Eerste Kamer der Staten-Generaal
+        # https://portal.issn.org/api/search?search[]=MUST=default=Kamer+der+Staten-Generaal&search_id=34863538
+        #for page in document:
+        #    yield page.get_text( option=option, sort=True )
+
+
+        # one generalization might be to find all h1, h2, h3, bold-and-uppercase-only things,
+        # see how many there are and which splits would make for reasonable chunks
+        # also maybe guard against BUPs every line? (e.g. require at least 1 line since the last wish to BUP)
 
 
 
