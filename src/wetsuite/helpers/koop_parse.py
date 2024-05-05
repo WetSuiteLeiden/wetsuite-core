@@ -789,7 +789,7 @@ def cvdr_versions_for_work( cvdrid:str ) -> list:
 
 
 #TODO: rename
-def alineas_with_selective_path(tree, start_at_path=None, alinea_elemname='al', add_raw=True): # , ignore=['meta-data']
+def alineas_with_selective_path(tree, start_at_path=None, alinea_elemname='al'): # , ignore=['meta-data'], add_raw=True
     ''' Given document-style XML data such as that of CVDR XML documents,
         tries to capture most of the interesting structure in easier-to-digest python data form,
         and lessen the nested nature without quite throwing it away.

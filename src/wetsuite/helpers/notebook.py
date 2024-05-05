@@ -35,9 +35,7 @@ def detect_env():
         ret['notebook']    = True
         ret['colab']       = True
         return ret
-    except Exception: # pylint:disable=W0718
-        # certainly ImportError, but maybe also more?
-        # CONSIDER: Nothing else that can error out here so keep like this for now?
+    except ImportError: # probably also further errrs?
         pass
 
     try:

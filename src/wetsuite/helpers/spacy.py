@@ -212,6 +212,7 @@ def nl_noun_chunks( text:str, load_model_name:str='nl_core_news_lg' ) -> list:
 
 _english = None
 def en_noun_chunks( text:str, load_model_name:str='en_core_web_trf' ) -> list:
+    ' Quick and dirty way to get some noun chunks out of english text '
     global _english
     if _english is None:
         import spacy
@@ -240,10 +241,12 @@ def detect_language(text:str): #  -> tuple(str, float)
     try:
         import fasttext   # we depend on spacy_fastlang and fasttext
         fasttext.FastText.eprint = lambda x: None
-    except:
+    except ImportError:
         pass
 
-    import spacy_fastlang, spacy
+    import spacy_fastlang     # it is used, spacy just does it in an obscured way     pylint: disable=unused-import
+    import spacy
+
     global _langdet_model
     if _langdet_model is None:
         #print("Loading spacy_fastlang into pipeline")

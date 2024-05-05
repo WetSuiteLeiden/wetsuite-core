@@ -99,6 +99,9 @@ def guess_color_support(forceifnottty=False, forceifnoterm=False, fallback=True)
     return _guess
 
 def supported():
+    ''' return what guess_color_support() estimated.   
+        (if that was not run yet, do that before returning)
+    '''
     global _guess
     _guess = None
     if _guess is None:
@@ -539,9 +542,10 @@ def _format_segment(s):
 
 
 
-def _percent_parse(s, add=[]):
+def _percent_parse(s, add=()):
     """ Will rewrite any format strings with a width to have more width by the amount specified.
-        The add array must have as many items as there are format strings.
+    
+        The add sequence must have as many items as there are format strings.
         
         TODO: deal with %r sensibly?
     """
@@ -585,7 +589,7 @@ def _percent_parse(s, add=[]):
 
 
 
-def truncate_real_len(s, len, append=RESET):
+def truncate_real_len(s, targetlen, append=RESET):
     ''' Truncate a string after so-many real characters.
         Written for "truncate colored text according to the terminal width" functionality.
 
@@ -606,7 +610,7 @@ def truncate_real_len(s, len, append=RESET):
                 continue
         if en:
             realchars += 1
-            if realchars > len:
+            if realchars > targetlen:
                 ret=i
                 #print( "Truncating at bytestrpos %d, realcharlen %d"%(i,realchars) )
                 break
@@ -646,8 +650,10 @@ def cformat(fs, seq, fsinstead=False):
 
 
 
-def color_degree(s, v, fromv=0, tov=0, colors=[BRIGHTBLACK, GRAY, WHITE, YELLOW, RED]):
-    ''' 
+def color_degree(s:str, v:float, fromv=0, tov=0, colors=(BRIGHTBLACK, GRAY, WHITE, YELLOW, RED)):
+    ''' color string s according to where v lies between fromv and tov,
+        ...from a discrete set of colors (if you wanted something more gradual, perhaps use redgreen (if you like the fixed colors),
+        or do it yourself with e.g. true_colf)
     '''
     # hacky
     v = float(v)

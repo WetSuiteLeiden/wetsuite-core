@@ -55,13 +55,10 @@ def html_parse(htmlbytes):
     ''' 
     
     '''
-    pass
 
 
-def xml_parse(htmlbytes):
+def xml_parse(xmlbytes):
     ''' 
     
     '''
-    pass
-
 

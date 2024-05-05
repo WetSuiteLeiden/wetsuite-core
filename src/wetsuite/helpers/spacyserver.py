@@ -42,7 +42,7 @@ def http_api(q, ip='127.0.0.1', port=8282, want_svg=False, as_text=False, timeou
 
 
 
-def parse(nlp, query_string, nlp_lock=None, want_svg=True, want_sims=False):
+def parse(nlp, query_string, nlp_lock=None, want_svg=True): #, want_sims=False
     ''' Takes a spacy nlp object, and python string.
             
         Runs that model on that string 
@@ -57,6 +57,8 @@ def parse(nlp, query_string, nlp_lock=None, want_svg=True, want_sims=False):
         
         CONSIDER: add doc.to_bytes and doc.from_bytes 
     '''
+    tweak_svg = True # rename and make parameter?
+
     #import spacy
     from spacy import displacy
     start_time = time.time()
@@ -134,7 +136,8 @@ def parse(nlp, query_string, nlp_lock=None, want_svg=True, want_sims=False):
 
                 # hackiness to make the depname a link to its explanation on universaldependencies.org
                 #  (except it's stanford, not udep, I think, so this is hackish even if it is useful?)
-                if 1: # somewhat slower, but hey
+                
+                if tweak_svg: # somewhat slower, but hey    pylint: disable=using-constant-test
                     import lxml.etree as ET
                     ET.register_namespace('svg',   "http://www.w3.org/2000/svg")
                     ET.register_namespace('xlink', "http://www.w3.org/1999/xlink")

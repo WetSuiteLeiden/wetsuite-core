@@ -169,9 +169,10 @@ def is_xml( bytesdata ) -> bool:
         return False
 
     import wetsuite.helpers.etree
+    import lxml.etree
     try:
         root = wetsuite.helpers.etree.fromstring( bytesdata )
-    except Exception:   # if it doesn't parse  (probably XMLSyntaxError? Maybe specify that?)
+    except lxml.etree.XMLSyntaxError: # if it doesn't parse  (not 100% on the exception? What's lxml.etree.ParserError then?)
         return False
 
     # if it's valid as XML but the root node is 'html', we do not consider it XML
