@@ -346,7 +346,7 @@ def _indent_inplace(elem, level:int=0, strip_whitepsace:bool=True):
             elem.tail = i
 
 
-def path_between(under_node, element):
+def path_between(under_node, element, excluding:bool=False):
     ''' Given an ancestor and a descentent element from the same tree
         (In many applications you want under to be the the root element)
 
@@ -357,13 +357,21 @@ def path_between(under_node, element):
 
         This function has very little code, and if you do this for much of a document, you may want to steal the code
         
+        @param excluding: if we have   a/b/c  and call this between an and c, there are cases for wanting either
+          * complete path report, like `/a/b/c` (excluding=False), e.g. as a 'complete
+          * a relative path like `b/c` (excluding=True), in particular when we know we'll be calling xpath or find on node a
         @param under_node: 
         @param element: 
         @return: 
     '''
-    letree = lxml.etree.ElementTree( under_node ) # it does, actually, so pylint: disable=I1101
-    return letree.getpath( element )
-
+    if excluding == False:
+        letree = lxml.etree.ElementTree( under_node ) # it does, actually, so pylint: disable=I1101
+        return letree.getpath( element )
+    else:
+        letree = lxml.etree.ElementTree( under_node ) # it does, actually, so pylint: disable=I1101
+        path = letree.getpath( element )
+        path = path[path.find('/',1)+1:]
+        return path
 
 def node_walk(under_node, max_depth=None):
     ''' Walks all elements under the given element,

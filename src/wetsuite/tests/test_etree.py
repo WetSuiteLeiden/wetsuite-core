@@ -120,7 +120,7 @@ def test_nonlxml():
     # see also https://lxml.de/compatibility.html
 
 
-def test_path_between():
+def test_path_between_including():
     ' test that path_between basically works '
     xml = '<a><b><c><d/><d/></c><d/></b></a>'
     a = fromstring(xml)
@@ -129,6 +129,17 @@ def test_path_between():
     d1 = c.getchildren()[1]
     assert path_between(a, d0) == '/a/b/c/d[1]'
     assert path_between(a, d1) == '/a/b/c/d[2]'
+
+
+def test_path_between_excluding():
+    ' test that path_between basically works '
+    xml = '<a><b><c><d/><d/></c><d/></b></a>'
+    a = fromstring(xml)
+    c = a.find('b/c')
+    d0 = c.getchildren()[0]
+    d1 = c.getchildren()[1]
+    assert path_between(a, d0, excluding=True) == 'b/c/d[1]'
+    assert path_between(a, d1, excluding=True) == 'b/c/d[2]'
 
 
 def test_path_between_elsewhere():
