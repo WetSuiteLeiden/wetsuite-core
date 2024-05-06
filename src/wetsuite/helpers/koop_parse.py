@@ -804,8 +804,7 @@ def alineas_with_selective_path(tree, start_at_path=None, alinea_elemname='al'):
         @param tree:            the etree tree/node to work on
         @param start_at_path:   if you gave it the root of an etree, you can do a subset by handing in xpath here
         (alternatively, you could navigate yourself and hand the interesting section in directly)
-        @param alinea_elemname: will be 'al' for the KOOP sources. A parameter only to make this perhaps-applicable elsewhere
-        @param alinea_elemname:
+        @param alinea_elemname: will be 'al' for the KOOP sources. Was made into a parameter only to make this perhaps-applicable elsewhere, you probably don't want to touch this.
         @return: Returns a list of dicts, one for each <al> (or whatever you handed into alinea_elemname)
 
         While on some flat examples, e.g. officiele-publicaties XMLs, each output might not hold much structure,
@@ -1071,7 +1070,7 @@ def prefer_types(
             If you specifically wanted only one content thing, wanted only one, xml, then you should probably say first_of=('xml, 'html', 'html.zip', 'pdf', 'odt')
         
 
-        @param always:   always add these when they appear.
+        @param all_of:   always add these when they appear.
         Meant for things like metadata, and more data-like formats.
 
         @param first_of: add the first in this list that matches and stop (stop regardless of whether it was already added via always)
