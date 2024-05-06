@@ -16,11 +16,10 @@ There is an API at https://uitspraken.rechtspraak.nl/api/zoek that backs the web
 I'm not sure whether we're supposed to use it like this, but it's one of the better APIs I've seen in this context :)
 '''
 
-import json
 import re
 import urllib.parse
-
-import requests
+#import json
+#import requests
 
 import wetsuite.helpers.net
 import wetsuite.helpers.etree
@@ -124,7 +123,7 @@ def _para_text(treenode):
 
     for ch in treenode.getchildren():
 
-        if isinstance(ch, (wetsuite.helpers.etree._Comment, wetsuite.helpers.etree._ProcessingInstruction)):
+        if isinstance(ch, (wetsuite.helpers.etree._Comment, wetsuite.helpers.etree._ProcessingInstruction)): # pylint: disable=protected-access
             continue
 
         if ch.tag in ('para', 'title', 'bridgehead', 'nr',
@@ -414,7 +413,7 @@ def parse_nietnederlandseuitspraken():
 
 #         ...which is NOT the public-facing API as as detailed by the documentation at https://www.rechtspraak.nl/Uitspraken/paginas/open-data.aspx
 #         but the one that is behind the current webpage search at https://uitspraken.rechtspraak.nl/
-    
+
 #         Result items look something like::
 #             {                   'Titel': 'Gerecht in Eerste Aanleg van Aruba, 06-04-2021, UA202000260',
 #                         'TitelEmphasis': 'ECLI:NL:OGEAA:2021:125',
@@ -464,7 +463,7 @@ def parse_nietnederlandseuitspraken():
 #     if verbose:
 #         print('REQ', req_json)
 #     response = requests.post(
-#         'https://uitspraken.rechtspraak.nl/api/zoek', 
+#         'https://uitspraken.rechtspraak.nl/api/zoek',
 #         data=req_json,
 #         headers={
 #             'Content-type': 'application/json',
@@ -472,6 +471,6 @@ def parse_nietnederlandseuitspraken():
 #             },
 #         timeout=timeout)
 
-#     print('RESP', response.text)    
+#     print('RESP', response.text)
 
 #     return response.json()
