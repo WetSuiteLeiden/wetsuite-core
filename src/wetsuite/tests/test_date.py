@@ -3,9 +3,7 @@ import datetime
 
 import pytest
 
-from wetsuite.helpers.date import parse, find_dates_in_text,   days_in_range, date_ranges # format_date_list
-
-
+from wetsuite.helpers.date import parse, find_dates_in_text,   days_in_range, date_ranges, format_date_list, date_today, date_weeks_ago, date_months_ago, date_first_day_in_year
 
 def test_dates_in_range():
     ' test of date_range '
@@ -64,6 +62,11 @@ def test_format_date_ranges():
     ]
 
 
+def test_format_date_list():
+    " format list of datetimes with (by default) '%Y-%m-%d' "
+    format_date_list( [ datetime.date(2022, 1, 29), datetime.date(2022, 1, 30) ] ) == ['2022-01-29', '2022-01-30']
+
+
 def test_parse():
     ' test the parsing of sligtly free-form strings '
     # invalid but I've seen it
@@ -76,6 +79,13 @@ def test_parse():
 
     # it doesn't actually understand that (it was a tuesday), but it ignores it fine
     assert parse('  donderdag 1 november 1988  ') == datetime.datetime(1988, 11, 1, 0, 0)
+
+
+def test_noparse():
+    ' test the parsing of sligtly free-form strings '
+    assert parse('booga', exception_as_none=True) is None
+    with pytest.raises(ValueError, match=r'.*understand.*'):
+        assert parse('booga', exception_as_none=False)
 
 
 def test_find_dates_in_text():
@@ -100,3 +110,11 @@ def test_find_dates_in_text():
     # two-digit years
     assert find_dates_in_text('  1 nov 88  ')[0][0]      == '1 nov 88'
     assert find_dates_in_text('  1 nov 88  ')[1][0]      == datetime.datetime(1988, 11, 1, 0, 0)
+
+
+def test_nobork():
+    ' test that these functions do not fail outright '
+    date_today()
+    date_weeks_ago( 1 )
+    date_months_ago( 1 )
+    date_first_day_in_year( 2024 )

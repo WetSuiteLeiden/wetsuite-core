@@ -6,21 +6,26 @@ import pytest
 from wetsuite.helpers.koop_parse import cvdr_parse_identifier, cvdr_meta, cvdr_text, cvdr_sourcerefs, cvdr_param_parse, cvdr_normalize_expressionid, prefer_types
 import wetsuite.datacollect.koop_repositories
 from wetsuite.datacollect.koop_repositories import BWB, CVDR
+from wetsuite.datacollect.koop_repositories import SamenwerkendeCatalogi, LokaleBekendmakingen, TuchtRecht, WetgevingsKalender, PLOOI, PUCOpenData, EuropeseRichtlijnen
+from wetsuite.datacollect.koop_repositories import StatenGeneraalDigitaal, Belastingrecht
 import wetsuite.helpers.etree
 
 
-def test_koop_repositories():
+def test_koop_repositories_object_constructor():
     ' mostly just that that they construct fine '
     BWB()
     CVDR()
-    # SamenwerkendeCatalogi
-    # LokaleBekendmakingen
-    # LokaleBekendmakingen
-    # TuchtRecht
-    # WetgevingsKalender
-    # PLOOI
-    # PUCOpenData
-    # EuropeseRichtlijnen
+
+    SamenwerkendeCatalogi()
+    LokaleBekendmakingen()
+    TuchtRecht()
+    WetgevingsKalender()
+    PLOOI()
+    PUCOpenData()
+    EuropeseRichtlijnen()
+
+    Belastingrecht()
+    StatenGeneraalDigitaal()
 
 
 

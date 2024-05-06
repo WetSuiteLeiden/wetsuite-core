@@ -49,7 +49,7 @@ def parse(text:str, exception_as_none=True):
     ...but we have told it a litte more about Dutch, not just English.
     TODO: add French, there is some early legal text in French.
 
-    We try to be a little more robust here - and will return None before we raise an exception.
+    We try to be a little more robust here - and will try to return None instead of raising an exception (but no promises).
 
     @param text:               Takes a string that you know contains just a date
     @param exception_as_none:  if invalid, return None rather than raise a ValueError
@@ -63,7 +63,7 @@ def parse(text:str, exception_as_none=True):
         (None,              lambda x:x.split('+')[0])):
         try:
             return dateutil.parser.parse(transform(text), parserinfo=lang)
-        except dateutil.parser._parser.ParserError: # pylint: disable=protected-access
+        except dateutil.parser._parser.ParserError:    # pylint: disable=protected-access
             continue
     if exception_as_none:
         return None

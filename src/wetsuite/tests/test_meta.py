@@ -8,7 +8,7 @@ import test_meta
 
 from wetsuite.helpers.meta import parse_jci
 from wetsuite.helpers.meta import parse_ecli, findall_ecli
-from wetsuite.helpers.meta import parse_celex, is_equivalent_celex, parse_kst_id
+from wetsuite.helpers.meta import parse_celex, is_equivalent_celex, parse_kst_id, parse_bekendmaking_id
 
 
 def test_parse_jci():
@@ -163,5 +163,44 @@ def test_parse_kst_id():
         parse_kst_id('kst-LXXX-B')
 
 
-#def test_parse_bekendmaking_id():
-#    pass
+def test_parse_bekendmaking_id_kst_1():
+    ' test that these parse into parts decently (also TODO: add more weird cases) '
+    #raise ValueError('erte')
+    d = parse_bekendmaking_id( 'kst-26643-144-h1' )
+    assert d['type']       == 'kst'
+    assert d['dossiernum'] == '26643'
+    assert d['docnum']     == '144-h1'
+
+
+def test_parse_bekendmaking_id_kst_2():
+    ' test that these parse into parts decently (also TODO: add more weird cases) '
+    #raise ValueError('erte')
+    d = parse_bekendmaking_id( 'kst-32360-V-1' )
+    assert d['type']       == 'kst'
+    assert d['dossiernum'] == '32360-V'
+    assert d['docnum']     == '1'
+
+
+
+def test_parse_bekendmaking_id_2():
+    ' test that these parse into parts decently (also TODO: add more weird cases) '
+    #raise ValueError('erte')
+    d = parse_bekendmaking_id( 'ah-tk-20082009-2945' )
+    assert d['type']       == 'ah-tk'
+    assert d['docnum']     == '2945'
+
+
+def test_parse_bekendmaking_id_3():
+    ' test that these parse into parts decently (also TODO: add more weird cases) '
+    #raise ValueError('erte')
+    d = parse_bekendmaking_id( 'h-tk-20082009-7140-7144' )
+    assert d['type']       == 'h-tk'
+    assert d['docnum']     == '7140-7144'
+
+
+def test_parse_bekendmaking_id_4():
+    ' test that these parse into parts decently (also TODO: add more weird cases) '
+    #raise ValueError('erte')
+    d = parse_bekendmaking_id( 'stcrt-2009-9231' )
+    assert d['type']       == 'stcrt'
+    assert d['docnum'] == '9231'

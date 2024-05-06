@@ -41,15 +41,17 @@ def test_is_xml():
     " test the 'does this look like XML (rather than HTML/XHTML)' rejects XHTML "
     assert not wetsuite.helpers.util.is_xml( b'''<html> <head><title>Title of document</title></head> <body> stuff </body> </html>''' )
 
+
 def test_is_xml_encoded():
     " test the 'does this look like XML (rather than HTML/XHTML)' rejects XHTML "
-    assert wetsuite.helpers.util.is_xml( '<?xml version="1.0"?><r/>'.encode('utf-16-be') ) == True
-    assert wetsuite.helpers.util.is_xml( '<?xml version="1.0"?><r/>'.encode('utf-16-le') ) == True
-    assert wetsuite.helpers.util.is_xml( '<?xml version="1.0"?><r/>'.encode('utf8') )      == True
+    assert wetsuite.helpers.util.is_xml( '<?xml version="1.0"?><r/>'.encode('utf-16-be') )
+    assert wetsuite.helpers.util.is_xml( '<?xml version="1.0"?><r/>'.encode('utf-16-le') )
+    assert wetsuite.helpers.util.is_xml( '<?xml version="1.0"?><r/>'.encode('utf8') )
+
 
 def test_is_xml_notags():
     " tag-less XML is no XML "
-    assert wetsuite.helpers.util.is_xml( b'<?xml version="1.0"?>' ) == False
+    assert not wetsuite.helpers.util.is_xml( b'<?xml version="1.0"?>' )
 
 
 def test_is_with_strings():
@@ -132,24 +134,40 @@ def test_is_htmlzip():
     " test the 'does this look like a HTMLfile-in-a-zipfile' (that KOOP uses) "
     # there is probably a better way of picking up a test file
     import test_util
-
     testzipfn = os.path.join( os.path.dirname( test_util.__file__ ), 'with_html_and_png.zip' )
     with open( testzipfn ,'rb') as f:
         assert wetsuite.helpers.util.is_htmlzip( f.read() )
 
+
+def test_is_htmlzip_bad():
+    ' test files we know are NOT ' 
+    import test_util
     testzipfn = os.path.join( os.path.dirname( test_util.__file__ ), 'eggs.pdf' ) # is not a zip
     with open( testzipfn ,'rb') as f:
         assert not wetsuite.helpers.util.is_htmlzip( f.read() )
 
+    testzipfn = os.path.join( os.path.dirname( test_util.__file__ ), 'png.zip' ) # is zip, contains only a .png
+    with open( testzipfn ,'rb') as f:
+        assert not wetsuite.helpers.util.is_htmlzip( f.read() )
+
+
+def test_empty_zip():
+    ' See that is_htmlzip is okay around an empty file '
+    import test_util
     testzipfn = os.path.join( os.path.dirname( test_util.__file__ ), 'empty.zip' ) # is zip, contains no files
     with open( testzipfn ,'rb') as f:
         empty_zip_bytes = f.read()
         assert wetsuite.helpers.util.is_zip( empty_zip_bytes )
         assert not wetsuite.helpers.util.is_htmlzip( empty_zip_bytes )
 
-    testzipfn = os.path.join( os.path.dirname( test_util.__file__ ), 'png.zip' ) # is zip, contains only a .png
+
+def test_tempty_zip_get_ziphtml():
+    ' See that get_ziphtml complains about an empty file '
+    import test_util
+    testzipfn = os.path.join( os.path.dirname( test_util.__file__ ), 'empty.zip' ) # is zip, contains no files
     with open( testzipfn ,'rb') as f:
-        assert not wetsuite.helpers.util.is_htmlzip( f.read() )
+        with pytest.raises(ValueError, match=r'.*empty.*'):
+            wetsuite.helpers.util.get_ziphtml( f.read() )
 
 
 
