@@ -98,11 +98,11 @@ class Dataset:
         Mostly meant to be instantiated by load()
 
         This class is provisional and likely to change. Right now it does little more than
-        - put a description into a .description attribute 
-        - put data into .data attribute
+          - put a description into a .description attribute 
+          - put data into .data attribute
             without even saying what that is 
             though it's probably an interable giving individually useful things, and be able to tell you its len()gth
-        ...also so that it's harder to accidentally dump gigabytes of text to your console.
+            ...also so that it's harder to accidentally dump gigabytes of text to your console.
 
         This is not the part that does the interpretation.
         This just contains its results.
