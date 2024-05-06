@@ -150,17 +150,47 @@ def test_is_equivalent_celex():
     assert is_equivalent_celex('02016R0679', '32012L0019')          is False
 
 
-def test_parse_kst_id():
+def test_parse_kst_id_1():
     ' test the parse of kamerstukken document-in-dossier identifiers '
     assert parse_kst_id('kst-32123-I-5'        ) == {'type': 'kst', 'docnum': '5',      'dossiernum': '32123-I'  }
+
+def test_parse_kst_id_2():
+    ' test the parse of kamerstukken document-in-dossier identifiers '
     assert parse_kst_id('kst-20082009-32024-C' ) == {'type': 'kst', 'docnum': 'C',      'dossiernum': '32024'    }
+
+def test_parse_kst_id_3():
+    ' test the parse of kamerstukken document-in-dossier identifiers '
     assert parse_kst_id('kst-32142-A2E'        ) == {'type': 'kst', 'docnum': 'A2E',    'dossiernum': '32142'    }
+
+def test_parse_kst_id_4():
+    ' test the parse of kamerstukken document-in-dossier identifiers '
     assert parse_kst_id('kst-26643-144-h1'     ) == {'type': 'kst', 'docnum': '144-h1', 'dossiernum': '26643'    }
+
+def test_parse_kst_id_5():
+    ' test the parse of kamerstukken document-in-dossier identifiers '
     assert parse_kst_id('kst-32123-XIV-A-b1'   ) == {'type': 'kst', 'docnum': 'A-b1',   'dossiernum': '32123-XIV'}
+
+def test_parse_kst_id_6():
+    ' test the parse of kamerstukken document-in-dossier identifiers '
     assert parse_kst_id('kst-32168-3-b2'       ) == {'type': 'kst', 'docnum': '3-b2',   'dossiernum': '32168'    }
 
+
+def test_parse_kst_id_bad_1():
+    " Pretty sure that's invalid "
     with pytest.raises(ValueError):
         parse_kst_id('kst-LXXX-B')
+
+def test_parse_kst_id_bad_2():
+    " Nonsense "
+    with pytest.raises(ValueError):
+        parse_kst_id('blah')
+
+
+
+def test_parse_bekendmaking_id_bad():
+    " Nonsense "
+    with pytest.raises(ValueError):
+        parse_bekendmaking_id('blah')
 
 
 def test_parse_bekendmaking_id_kst_1():
@@ -171,7 +201,6 @@ def test_parse_bekendmaking_id_kst_1():
     assert d['dossiernum'] == '26643'
     assert d['docnum']     == '144-h1'
 
-
 def test_parse_bekendmaking_id_kst_2():
     ' test that these parse into parts decently (also TODO: add more weird cases) '
     #raise ValueError('erte')
@@ -181,26 +210,211 @@ def test_parse_bekendmaking_id_kst_2():
     assert d['docnum']     == '1'
 
 
-
-def test_parse_bekendmaking_id_2():
+def test_parse_bekendmaking_id_blg_1():
     ' test that these parse into parts decently (also TODO: add more weird cases) '
     #raise ValueError('erte')
+    d = parse_bekendmaking_id( 'blg-929493' )
+    assert d['type']       == 'blg'
+    assert d['docnum']     == '929493'
+
+
+def test_parse_bekendmaking_id_blg_2():
+    ' test that these parse into parts decently (also TODO: add more weird cases) '
+    #raise ValueError('erte')
+    d = parse_bekendmaking_id( 'blg-26241-10F' )
+    assert d['type']       == 'blg'
+    assert d['docnum']     == '26241-10F'
+
+
+def test_parse_bekendmaking_id_stcrt():
+    ' test that these parse into parts decently (also TODO: add more weird cases) '
+    #raise ValueError('erte')
+    d = parse_bekendmaking_id( 'stcrt-2009-9231' )
+    assert d['type']        == 'stcrt'
+    assert d['jaar']        == '2009'
+    assert d['docnum']      == '9231'
+
+
+
+# def test_parse_bekendmaking_id_stb():
+#     ' test that these parse into parts decently (also TODO: add more weird cases) '
+#     #raise ValueError('erte')
+#     d = parse_bekendmaking_id( 'stb-2017-479' )
+#     assert d['type']        == 'stb'
+#     assert d['jaar']        == '2017'
+#     assert d['docnum']      == '479'
+
+
+def test_parse_bekendmaking_id_trb():
+    ' test that these parse into parts decently (also TODO: add more weird cases) '
+    d = parse_bekendmaking_id( 'trb-1951-25' )
+    assert d['type']        == 'trb'
+    assert d['jaar']        == '1951'
+    assert d['docnum']      == '25'
+
+
+def test_parse_bekendmaking_id_ah_tk():
+    ' test that these parse into parts decently (also TODO: add more weird cases) '
     d = parse_bekendmaking_id( 'ah-tk-20082009-2945' )
-    assert d['type']       == 'ah-tk'
-    assert d['docnum']     == '2945'
+    assert d['type']         == 'ah-tk'
+    assert d['jaar']         == '20082009'
+    assert d['docnum']       == '2945'
 
 
-def test_parse_bekendmaking_id_3():
+def test_parse_bekendmaking_id_ah():
     ' test that these parse into parts decently (also TODO: add more weird cases) '
-    #raise ValueError('erte')
+    d = parse_bekendmaking_id( 'ah-187909' )
+    assert d['type']         == 'ah'
+    assert d['docnum']       == '187909'
+
+
+
+def test_parse_bekendmaking_id_h_tk():
+    ' test that these parse into parts decently (also TODO: add more weird cases) '
     d = parse_bekendmaking_id( 'h-tk-20082009-7140-7144' )
     assert d['type']       == 'h-tk'
     assert d['docnum']     == '7140-7144'
 
 
-def test_parse_bekendmaking_id_4():
+def test_parse_bekendmaking_id_h_vv():
     ' test that these parse into parts decently (also TODO: add more weird cases) '
-    #raise ValueError('erte')
-    d = parse_bekendmaking_id( 'stcrt-2009-9231' )
-    assert d['type']       == 'stcrt'
-    assert d['docnum'] == '9231'
+    d = parse_bekendmaking_id( 'h-vv-19961997-2191-2192' )
+    assert d['type']       == 'h-vv'
+    assert d['jaar']       == '19961997'
+    assert d['docnum']     == '2191-2192' # I guess?
+
+def test_parse_bekendmaking_id_gmb():
+    ' test that these parse into parts decently (also TODO: add more weird cases) '
+    d = parse_bekendmaking_id( 'gmb-2023-502828' )
+    assert d['type']       == 'gmb'
+    assert d['jaar']       == '2023'
+    assert d['docnum']     == '502828'
+
+
+def test_parse_bekendmaking_id_wsb():
+    ' test that these parse into parts decently (also TODO: add more weird cases) '
+    d = parse_bekendmaking_id( 'wsb-2022-9979' )
+    assert d['type']       == 'wsb'
+    assert d['jaar']       == '2022'
+    assert d['docnum']     == '9979'
+
+
+def test_parse_bekendmaking_id_bgr():
+    ' test that these parse into parts decently (also TODO: add more weird cases) '
+    d = parse_bekendmaking_id( 'bgr-2024-440' )
+    assert d['type']       == 'bgr'
+    assert d['jaar']       == '2024'
+    assert d['docnum']     == '440'
+
+
+def test_parse_bekendmaking_id_prb():
+    ' test that these parse into parts decently (also TODO: add more weird cases) '
+    d = parse_bekendmaking_id( 'prb-2023-11394' )
+    assert d['type']       == 'prb'
+    assert d['jaar']       == '2023'
+    assert d['docnum']     == '11394'
+
+
+
+def test_parse_bekendmaking_id_h_ek_1():
+    ' test that these parse into parts decently (also TODO: add more weird cases) '
+    d = parse_bekendmaking_id( 'ah-ek-20072008-5' )
+    assert d['type']       == 'ah-ek'
+    assert d['jaar']       == '20072008'
+    assert d['docnum']     == '5' # I think?
+
+def test_parse_bekendmaking_id_h_ek_2():
+    ' test that these parse into parts decently (also TODO: add more weird cases) '
+    d = parse_bekendmaking_id( 'h-ek-20152016-31-6' )
+    assert d['type']         == 'h-ek'
+    assert d['jaar']         == '20152016'
+    assert d['docnum']       == '31-6' # I think?
+
+
+def test_parse_bekendmaking_id_ag_tk():
+    ' test that these parse into parts decently (also TODO: add more weird cases) '
+    d = parse_bekendmaking_id( 'ag-tk-2001-04-10' )
+    assert d['type']       == 'ag-tk'
+    assert d['jaar']       == '2001'
+    assert d['docnum']     == '04-10' # I think that's effectively a date, april 10th
+
+
+def test_parse_bekendmaking_id_ag_ek():
+    ' test that these parse into parts decently (also TODO: add more weird cases) '
+    d = parse_bekendmaking_id( 'ag-ek-1997-09-17' )
+    assert d['type']         == 'ag-ek'
+    assert d['jaar']         == '1997'
+    assert d['docnum']       == '09-17'
+
+def test_parse_bekendmaking_id_ag_vv():
+    ' test that these parse into parts decently (also TODO: add more weird cases) '
+    d = parse_bekendmaking_id( 'ag-vv-2013-11-28' )
+    assert d['type']         == 'ag-vv'
+    assert d['jaar']         == '2013'
+    assert d['docnum']       == '11-28'
+
+
+def test_parse_bekendmaking_id_kv():
+    ' test that these parse into parts decently (also TODO: add more weird cases) '
+    d = parse_bekendmaking_id( 'kv-2000100840' )
+    assert d['type']       == 'kv'
+    assert d['docnum']     == '2000100840'
+
+
+def test_parse_bekendmaking_id_kv_tk_1():
+    ' test that these parse into parts decently (also TODO: add more weird cases) '
+    d = parse_bekendmaking_id( 'kv-tk-20062007-KVR27039' )
+    assert d['type']       == 'kv-tk'
+    assert d['jaar']       == '20062007'
+    assert d['docnum']     == 'KVR27039'
+
+
+def test_parse_bekendmaking_id_kv_tk_2():
+    ' test that these parse into parts decently (also TODO: add more weird cases) '
+    d = parse_bekendmaking_id( 'kv-tk-2010Z06025' )
+    assert d['type']       == 'kv-tk'
+    assert d['docnum']     == '2010Z06025'
+
+
+def test_parse_bekendmaking_id_nds_1():
+    ' test that these parse into parts decently (also TODO: add more weird cases) '
+    d = parse_bekendmaking_id( 'nds-53676' )
+    assert d['type']       == 'nds'
+    assert d['docnum']     == '53676'
+
+
+def test_parse_bekendmaking_id_nds_2():
+    ' test that these parse into parts decently (also TODO: add more weird cases) '
+    d = parse_bekendmaking_id( 'nds-2009D05284-b1' )
+    assert d['type']       == 'nds'
+    assert d['docnum']     == '2009D05284-b1' # I guess
+
+
+def test_parse_bekendmaking_id_nds_3():
+    ' test that these parse into parts decently (also TODO: add more weird cases) '
+    d = parse_bekendmaking_id( 'nds-buza030098-b1' )
+    assert d['type']       == 'nds'
+    assert d['docnum']     == 'buza030098-b1' # I guess
+
+
+def test_parse_bekendmaking_id_nds_tk():
+    ' test that these parse into parts decently (also TODO: add more weird cases) '
+    d = parse_bekendmaking_id( 'nds-tk-2013D38756' )
+    assert d['type']       == 'nds-tk'
+    assert d['docnum']     == '2013D38756'
+
+
+def test_parse_bekendmaking_id_stb_1():
+    ' test that these parse into parts decently (also TODO: add more weird cases) '
+    d = parse_bekendmaking_id( 'stb-2021-244' )
+    assert d['type']       == 'stb'
+    assert d['jaar']       == '2021'
+    assert d['docnum']     == '244'
+
+
+def test_parse_bekendmaking_id_stb_2():
+    ' test that these parse into parts decently (also TODO: add more weird cases) '
+    d = parse_bekendmaking_id( 'stb-2021-250-n1' )
+    assert d['type']       == 'stb'
+    assert d['jaar']       == '2021'
+    assert d['docnum']     == '250-n1'

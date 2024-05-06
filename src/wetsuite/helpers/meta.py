@@ -491,94 +491,93 @@ def parse_bekendmaking_id(s):
         - ah-tk-20082009-2945
         - stcrt-2009-9231          
 
-        Consider: also producing citation form
+        AOTW still fails on ~ .01% but most of those seem to be invalid (though almost all kst- so we may be missing something).
+
+        CONSIDER: also producing citation form
     '''
     ret = {}
     parts = s.split('-')
 
-    # These are ordered, otherwise there would be prefix ambiguity
-    # These can also be simplified into cases once we know each is without idiosyncracies
+    # Some of these require staying in roughly this order, or you might introduce prefix ambiguity
+    # These can also be simplified into fewer cases if and when we know they are without idiosyncracies
 
     if s.startswith('ah-tk-'):
+        # ah-tk-20082009-2945
+        # ah-tk-20072008-2031-h1
         ret['type'] = 'ah-tk'
         parts.pop( 0 )
         parts.pop( 0 )
-
-        ret['vergaderjaar'] = parts.pop( 0 )
-
-        #if len(parts)>1:
-        #    raise ValueError('ahtkcheck', parts)
+        ret['jaar']   = parts.pop( 0 )
         ret['docnum'] = '-'.join(parts)
 
 
     elif s.startswith('ah-ek-'):
+        # ah-ek-20072008-5
+        # ah-ek-20082009-14-n1
         ret['type'] = 'ah-ek'
         parts.pop( 0 )
         parts.pop( 0 )
-
-        ret['vergaderjaar'] = parts.pop( 0 )
-
-        #if len(parts)>1:
-        #    raise ValueError('ahekcheck', parts)
+        ret['jaar']   = parts.pop( 0 )
         ret['docnum'] = '-'.join(parts)
 
 
-    elif s.startswith('ah-'):
+
+    elif s.startswith('ah-'): # not 100% on this one
         ret['type'] = parts.pop( 0 )
         ret['docnum'] = '-'.join(parts)
+
 
 
     elif s.startswith('h-ek-'):
         ret['type'] = 'h-ek'
         parts.pop( 0 )
         parts.pop( 0 )
-
-        ret['vergaderjaar'] = parts.pop( 0 )
-
-        #if len(parts)>1:
-        #    raise ValueError('ahekcheck', parts)
-        ret['docnum'] = '-'.join(parts)
+        ret['jaar'] = parts.pop( 0 )
+        ret['docnum'] = '-'.join(parts)  # TODO: check that always makes sense
 
 
     elif s.startswith('h-tk-'):
         ret['type'] = 'h-tk'
         parts.pop( 0 )
         parts.pop( 0 )
+        ret['jaar'] = parts.pop( 0 )
+        ret['docnum'] = '-'.join(parts)  # TODO: check that always makes sense
 
-        ret['vergaderjaar'] = parts.pop( 0 )
 
-        #if len(parts)>1:
-        #    raise ValueError('ahekcheck', parts)
-        ret['docnum'] = '-'.join(parts)
+    elif s.startswith('h-vv-'):
+        # h-vv-19961997-2191-2192
+        ret['type'] = 'h-vv'
+        parts.pop( 0 )
+        parts.pop( 0 )
+        ret['jaar'] = parts.pop( 0 )
+        ret['docnum'] = '-'.join(parts)  # TODO: check that always makes sense
 
 
     elif s.startswith('h-'):
-        ret['type'] = parts.pop( 0 )
+        ret['type'] = 'h'
+        parts.pop( 0 )
         ret['docnum'] = '-'.join(parts)
-
 
 
     elif s.startswith('ag-tk-'):
         ret['type'] = 'ag-tk'
         parts.pop( 0 )
         parts.pop( 0 )
-
-        ret['vergaderjaar'] = parts.pop( 0 )
-
-        #if len(parts)>1:
-        #    raise ValueError('ahekcheck', parts)
+        ret['jaar'] = parts.pop( 0 )
         ret['docnum'] = '-'.join(parts)
-
 
     elif s.startswith('ag-ek-'):
         ret['type'] = 'ag-ek'
         parts.pop( 0 )
         parts.pop( 0 )
+        ret['jaar'] = parts.pop( 0 )
+        ret['docnum'] = '-'.join(parts)
 
-        ret['vergaderjaar'] = parts.pop( 0 )
-
-        #if len(parts)>1:
-        #    raise ValueError('ahekcheck', parts)
+    elif s.startswith('ag-vv-'):
+        ret['type'] = 'ag-vv'
+        parts.pop( 0 )
+        parts.pop( 0 )
+        ret['jaar'] = parts.pop( 0 )
         ret['docnum'] = '-'.join(parts)
 
 
@@ -588,11 +587,19 @@ def parse_bekendmaking_id(s):
 
 
     elif s.startswith('kv-tk-'):
+        # seems to appear in multiple forms:
+        # - kv-tk-20062007-KVR27039
+        # - kv-tk-2010Z06025  (more common)
         ret['type'] = 'kv-tk'
         parts.pop( 0 )
         parts.pop( 0 )
-
-        ret['docnum'] = '-'.join(parts)
+        if len(parts) == 2:
+            ret['jaar'] = parts.pop( 0 )
+            ret['docnum'] = parts.pop( 0 )
+        elif len(parts) == 1:
+            ret['docnum'] = parts.pop( 0 )
+        else: # seems to not happen in a lot of data I've thrown at it
+            raise ValueError('kv-tk-check')
 
 
     elif s.startswith('kv-'):
@@ -600,32 +607,32 @@ def parse_bekendmaking_id(s):
         ret['docnum'] = '-'.join(parts)
 
 
-
-    elif parts[0] in ( 'blg', 'kv',): # I think these are all simple
-        ret['type'] = parts.pop(0)
-        if len(parts)==1: # ??
-            ret['docnum'] = parts[0]
-        elif len(parts)==2:  # ASSUMED for now
-            ret['docnum'] = '-'.join(parts)
-            raise ValueError( 'UNSURE', s, parts )
-        else:
-            raise ValueError( 'ERR1', s, parts )
+    elif s.startswith('blg-'):
+        #blg-929493
+        #blg-26241-10F
+        ret['type'] = parts.pop( 0 )
+        ret['docnum'] = '-'.join(parts)
 
 
     elif s.startswith('kst-'):
+        # a little more complex, handled by a separate function
         ret = parse_kst_id( s )
 
-    elif s.startswith('stcrt-'):
+
+    elif s.lower().startswith('stcrt-'): # for some reason only that area gets casing presumably-wrong
         # TODO: check variants
-        ret['type'] = parts.pop(0)
-        #if len(parts)==2:
+        ret['type'] = 'stcrt'
+        parts.pop(0)
         ret['jaar'] = parts[0]
         ret['docnum'] = '-'.join( parts[1:] )
-        #else:
-        #    raise ValueError('HUH stcrt - %r'%parts)
+
 
     elif s.startswith('stb-'):
-        warnings.warn('TODO: stb')
+        # stb-1983-294
+        # stb-1983-297-n1
+        ret['type'] = parts.pop(0)
+        ret['jaar'] = parts[0]
+        ret['docnum'] = '-'.join( parts[1:] )
 
 
     elif s.startswith('gmb-'):
@@ -637,6 +644,7 @@ def parse_bekendmaking_id(s):
         else:
             raise ValueError('HUH gmb - %r'%parts)
 
+
     elif s.startswith('prb-'):
         # TODO: check variants
         ret['type'] = parts.pop(0)
@@ -646,6 +654,7 @@ def parse_bekendmaking_id(s):
         else:
             raise ValueError('HUH prb - %r'%parts)
 
+
     elif s.startswith('wsb-'):
         # TODO: check variants
         ret['type'] = parts.pop(0)
@@ -654,6 +663,7 @@ def parse_bekendmaking_id(s):
             ret['docnum'] = '-'.join( parts[1:] )
         else:
             raise ValueError('HUH wsb - %r'%parts)
+
 
     elif s.startswith('bgr-'):
         # TODO: check variants
@@ -665,7 +675,6 @@ def parse_bekendmaking_id(s):
             raise ValueError('HUH gmb - %r'%parts)
 
 
-
     elif s.startswith('trb-'): # includes interesting cases like trb-2009-mei-v1, which is part of trb-2009-mei
         # TODO: check variants
         ret['type'] = parts.pop(0)
@@ -675,14 +684,28 @@ def parse_bekendmaking_id(s):
         #else:
         #    raise ValueError('HUH trb - %r'%parts)
 
+    elif s.startswith('nds-tk-'):
+        ret['type'] = 'nds-tk'
+        parts.pop(0)
+        parts.pop(0)
+        ret['docnum'] = '-'.join(parts)
+
+    elif s.startswith('nds-ek-'):
+        #ret['type'] = 'nds-ek'
+        #parts.pop(0)
+        #parts.pop(0)
+        raise ValueError('you do exist')
+
     elif s.startswith('nds-'):
         #nds-16451
         #nds-2009D05284-b1
         #nds-buza030067-b1
-        #nds-vws0800900-b1
+        #nds-vrom050481-b1
         #nds-wwi0700033-b1
-        ret['type'] = 'nds'
-        ret['docnum'] = '-'.join(parts[1:])  # s.split('-',1)[1]
+        #nds-vws0800900-b1
+        #nds-tk-2014D45599
+        ret['type'] = parts.pop(0)
+        ret['docnum'] = '-'.join(parts)
 
     else:
         raise ValueError( 'ERR2', s, parts )
