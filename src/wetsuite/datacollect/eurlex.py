@@ -185,7 +185,7 @@ def extract_html(htmlbytes):
     PPLinked_Contents = soup.find(id='PPLinked_Contents')
     if PPLinked_Contents is not None:
         parsed_link = {}
-        for what, val in parse_datalist(PPLinked_Contents.find('dl')).items(): 
+        for what, val in parse_datalist(PPLinked_Contents.find('dl')).items():
             if isinstance(val, bs4.element.ResultSet):
                 parsedval = []
                 # This is far from complete
@@ -245,21 +245,21 @@ def extract_html(htmlbytes):
     if PP2Contents is not None:
         parsed_contents = []
         for ul in PP2Contents.findAll('ul'):
-            format = None
+            frmt = None
             for maybe_format in ul.get('class'):
                 if maybe_format.startswith('PubFormat'):
-                    format = maybe_format[9:]
-            if format is not None:
+                    frmt = maybe_format[9:]
+            if frmt is not None:
                 for li in ul.findAll('li'):
                     if 'disabled' not in li.get('class',''):
                         a = li.find('a')
                         lang = a.find('span').text
-                        if format == 'VIEW':
+                        if frmt == 'VIEW':
                             continue
-                        # constructing the URL like that is cheating and may not always work. 
+                        # constructing the URL like that is cheating and may not always work.
                         # Ideally we'd urllib.parse.urljoin  it from the href, but then we must know the URL this was fetched from.
                         parsed_contents.append(
-                            (lang, format, 'https://eur-lex.europa.eu/legal-content/%s/TXT/%s/?uri=CELEX:%s'%(lang, format, celex)) )
+                            (lang, frmt, 'https://eur-lex.europa.eu/legal-content/%s/TXT/%s/?uri=CELEX:%s'%(lang, frmt, celex)) )
         ret['contents'] = parsed_contents
 
 
@@ -267,7 +267,6 @@ def extract_html(htmlbytes):
     PP4Contents = soup.find(id='PP4Contents')
     txt = []
     if PP4Contents is not None:
-
         # TODO: review, this may be overkill and/or not complete
         titerate = []
         TexteOnly = PP4Contents.find(id='TexteOnly') # probably better if it's there?
