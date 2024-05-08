@@ -48,7 +48,7 @@ def fix_ascii_blah(bytesdata):
     ''' There are a bunch of XMLs that are invalid _only_ because they contain UTF8 but say they are US-ASCII. 
         This seems constrained to the parliamentary XMLs.
 
-        This code arguably doesn't really belong in this module, but .
+        This is a crude patch-up for someone else's mistake, so arguably doesn't really belong in this module, but hey.
     '''
     if b'<?xml version="1.0" encoding="US-ASCII"?>' in bytesdata:
         #print( 'ASCII %d'%time.time() )
@@ -62,70 +62,40 @@ def fix_ascii_blah(bytesdata):
 
 
 
-def split_op_xml(tree, start_at=None, debug=0):
-    ' should be rewritte into a helper function for a number of the below '
+def _split_op_xml(tree, start_at):
+    ' a helper function for some of the below '
     ret = []  #  (metadata, intermediate, debugsomething, text)
 
-    # ensure this is a node, not a string path
-    if start_at is None: # if not specified, then anything
+    ## ensure start_at_node is a node object, and atart_at_path is a string path (to it)
+    if start_at is None: # if not specified, then assume we care about everything and can start at the root
         start_at_node = tree
-        start_at_path = '/'
-    else:
-        if isinstance(start_at, str):
-            start_at_node = tree.find(start_at)
-            if start_at is None:
-                raise ValueError("Did not find %s within %s")
-        else: # assume it was a node in the tre you find'd or xpath'd yourself
-            start_at_node = start_at
+        start_at_path = '.'  # hack to indicate / without using /
+
+    elif isinstance(start_at, str):
+        start_at_path = start_at # assuming that makes sense
+        start_at_node = tree.xpath( start_at )
+        if start_at_node is None:
+            raise ValueError("Did not find %s within %s"%(start_at, tree))
+        #print("START_AT STRING; node=%r"%(start_at_node))
+    else: # assume it was a node in the tree you find'd or xpath'd yourself
+        start_at_node = start_at
         start_at_path = wetsuite.helpers.etree.path_between(tree, start_at_node)
+        #print("START_AT NODE; path=%r"%(start_at_path))
+    #print("path=%r"%(start_at_path))
+    #start_at_path = start_at_path.lstrip('/')
+    #print("path=%r"%(start_at_path))
 
-
-    if tree.tag == 'officiele-publicatie':
-        if debug:
-            print( 'OP XML (TOD)' )
-        for ch in tree:
-            if isinstance(ch, (wetsuite.helpers.etree._Comment, wetsuite.helpers.etree._ProcessingInstruction) ): #pylint: disable=protected-access
-                pass
-                #print('SKIP OP PI/CMNT ')
-            elif ch.tag == 'metadata':
-                #print('SKIP OP NETA')
-                continue
-            elif ch.tag == 'kop':
-                # regardless of other type parts, this tends to look like
-                # <kop>
-                #     <titel>GEMEENTEBLAD</titel>
-                #     <subtitel>Officiële uitgave van de gemeente Rotterdam</subtitel>
-                # </kop>
-                #print('SKIP OP KOP')
-                #print(wetsuite.helpers.etree.debug_pretty(ch))
-                continue
-            elif ch.tag in ('staatscourant',
-                            'tractatenblad',
-                            'gemeenteblad', 'waterschapsblad', 'provinciaalblad','provincieblad',
-                            'kamervragen','kamerstuk','niet-dossier-stuk','handelingen'):
-                #continue
-                fragments = wetsuite.helpers.koop_parse.alineas_with_selective_path(tree, start_at_path=start_at_path) # '/officiele-publicatie/%s'%ch.tag
-                if 1: # pylint: disable=using-constant-test
-                    for fragment in fragments:
-                        #print('FR',fragment)
-                        meta       = fragment
-                        inter      = {'raw':fragment.pop('raw'), 'raw_etree':fragment.pop('raw_etree')}
-                        text_flat  = fragment.pop('text-flat')
-                        ret.append( (meta, inter, text_flat) )
-                        #print('  -  ')
-                        #print('meta ',  pprint.pformat( meta) )
-                        #print('inter',  pprint.pformat( inter) )
-                        #print('text ',  text_flat)
-                if 0: # pylint: disable=using-constant-test
-                    print(fragments)
-                    # TODO: detect what level gives reasonably-sized chunks on average, to hand into mer
-                    for part_id, part_text_list in wetsuite.helpers.koop_parse.merge_alinea_data( fragments ):
-                        part_name = ', '.join( ' '.join(tup)  for tup in part_id )
-                        part_text = '\n'.join( part_text_list )
-                        print( '[%s] %s'%(part_name, part_text) )
-                    #pprint.pprint( parts )
-            else:
-                raise ValueError(ch.tag)
+    ## extract under that node/path
+    for fragment in wetsuite.helpers.koop_parse.alineas_with_selective_path(tree, start_at_path=start_at_path):
+        #print('FR',fragment)
+        meta       = fragment
+        inter      = {'raw':fragment.pop('raw'), 'raw_etree':fragment.pop('raw_etree')}
+        text_flat  = fragment.pop('text-flat')
+        ret.append( (meta, inter, text_flat) )
+        #print('  -  ')
+        #print('meta ',  pprint.pformat( meta) )
+        #print('inter',  pprint.pformat( inter) )
+        #print('text ',  text_flat)
     return ret
 
 
@@ -159,6 +129,7 @@ class Fragments:
         ' yields a tuple for each fragment '
         raise NotImplementedError('Please implement this, it comes from an essentially-abstract class')
 
+    # CONSIDER: meta()
 
 
 
@@ -188,8 +159,9 @@ class Fragments_XML_BWB( Fragments ):
         # TODO: detect what level gives reasonably-sized chunks on average, to hand into mer
         for part_id, part_text_list in wetsuite.helpers.koop_parse.merge_alinea_data( fragments ):
             for part in part_text_list:
+                print(part)
                 ret.append( (
-                    {'hint':'mergedpart', 'part_id':part_id, 'part_name':', '.join( ' '.join(tup)  for tup in part_id )},
+                    {'hints':['mergedpart'], 'part_id':part_id, 'part_name':', '.join( ' '.join(tup)  for tup in part_id )},
                     {},#'raw':part_text_list},
                     part
                 ) )
@@ -217,15 +189,26 @@ class Fragments_XML_CVDR( Fragments ):
     def fragments(self):
         # PRELIMINARY FUDGING AROUND
         ret = []
-        fragments = wetsuite.helpers.koop_parse.alineas_with_selective_path( self.tree )
-        # TODO: detect what level gives reasonably-sized chunks on average, to hand into merge
-        for part_id, part_text_list in wetsuite.helpers.koop_parse.merge_alinea_data( fragments ):
-            for part in part_text_list:
-                ret.append( (
-                    {'hint':'mergedpart', 'part_id':part_id, 'part_name':', '.join( ' '.join(tup)  for tup in part_id )},
-                    {},#'raw':part_text_list},
-                    part
-                ) )
+        for fragment in wetsuite.helpers.koop_parse.alineas_with_selective_path( self.tree ):
+            print( fragment )
+            raw       = fragment.pop('raw')
+            fragment.pop('raw_etree')
+            text_flat = fragment.pop('text-flat')
+            ret.append( (
+                fragment,
+                raw,#'raw':part_text_list},
+                text_flat
+            ) )
+
+        # # TODO: detect what level gives reasonably-sized chunks on average, to hand into merge
+        # for part_id, part_text_list in wetsuite.helpers.koop_parse.merge_alinea_data( fragments ):
+        #     for part in part_text_list:
+        #         print(part)
+        #         ret.append( (
+        #             {'hints':['mergedpart'], 'part_id':part_id, 'part_name':', '.join( ' '.join(tup)  for tup in part_id )},
+        #             {},#'raw':part_text_list},
+        #             part
+        #         ) )
         return ret
 
 
@@ -436,6 +419,7 @@ class Fragments_XML_OP_Stcrt( Fragments ):
     def __init__(self, docbytes):
         Fragments.__init__(self, docbytes)
         self.tree = None
+        self.startpaths = None
 
     def accepts( self ):
         return wetsuite.helpers.util.is_xml( self.docbytes )
@@ -444,23 +428,25 @@ class Fragments_XML_OP_Stcrt( Fragments ):
         # may raise
         self.tree = wetsuite.helpers.etree.fromstring( self.docbytes )
         self.tree = wetsuite.helpers.etree.strip_namespace( self.tree ) # choice to remove namespaces unconditionally
-        if self.tree.xpath('//staatscourant//circulaire-tekst/tekst'):
-            return 5
-        elif self.tree.xpath('//staatscourant//vrije-tekst/tekst'):
-            return 5
-        elif self.tree.xpath('//staatscourant//zakelijke-mededeling-tekst/tekst'):
-            return 5
-        elif self.tree.xpath('//staatscourant//regeling-tekst'):
-            return 5
-        elif self.tree.xpath('//staatscourant'):
-            return 50
-        elif self.tree.tag == 'stcart': # is this wrong?
-            return 50
-        else:
-            return 5000
+
+        for test_xpath, score in (
+            ('//staatscourant//circulaire-tekst/tekst', 5),
+            ('//staatscourant//vrije-tekst/tekst', 5),
+            ('//staatscourant//zakelijke-mededeling-tekst/tekst', 5),
+            ('//staatscourant//regeling-tekst', 5),
+            ('//staatscourant', 50),
+            ('/stcart', 50), # is this wrong?
+        ):
+            sel = self.tree.xpath( test_xpath )
+            if len(sel)>0:
+                self.startpaths = list(wetsuite.helpers.etree.path_between(self.tree, selnode, excluding=True)    for selnode in sel)
+                return score
+        return 5000
 
     def fragments(self):
         ret = []
+        for sp in self.startpaths:
+            ret.extend( _split_op_xml(self.tree, sp) )
         return ret
 
 
@@ -469,6 +455,7 @@ class Fragments_XML_OP_Stb( Fragments ):
     def __init__(self, docbytes):
         Fragments.__init__(self, docbytes)
         self.tree = None
+        self.startpaths = None
 
     def accepts( self ):
         return wetsuite.helpers.util.is_xml( self.docbytes )
@@ -477,17 +464,21 @@ class Fragments_XML_OP_Stb( Fragments ):
         # may raise
         self.tree = wetsuite.helpers.etree.fromstring( self.docbytes )
         self.tree = wetsuite.helpers.etree.strip_namespace( self.tree ) # choice to remove namespaces unconditionally
-        if self.tree.xpath('//staatsblad//wettekst'):
-            return 5
-        elif self.tree.xpath('//staatsblad/verbeterblad/vrije-tekst/tekst'): # exception?
-            return 5
-        #elif self.tree.xpath('//staatsblad'):
-        #    return 50
-        else:
-            return 5000
+        for test_xpath, score in (
+            ('//staatsblad//wettekst', 5),
+            ('//staatsblad/verbeterblad/vrije-tekst/tekst', 5), # exception?
+            #elif self.tree.xpath('//staatsblad'):  return 50
+        ):
+            sel = self.tree.xpath( test_xpath )
+            if len(sel)>0:
+                self.startpaths = list(wetsuite.helpers.etree.path_between(self.tree, selnode, excluding=True)    for selnode in sel)
+                return score
+        return 5000
 
     def fragments(self):
         ret = []
+        for sp in self.startpaths:
+            ret.extend( _split_op_xml(self.tree, sp) )
         return ret
 
 
@@ -496,6 +487,7 @@ class Fragments_XML_OP_Trb( Fragments ):
     def __init__(self, docbytes):
         Fragments.__init__(self, docbytes)
         self.tree = None
+        self.startpaths = None
 
     def accepts( self ):
         return wetsuite.helpers.util.is_xml( self.docbytes )
@@ -504,13 +496,19 @@ class Fragments_XML_OP_Trb( Fragments ):
         # may raise
         self.tree = wetsuite.helpers.etree.fromstring( self.docbytes )
         self.tree = wetsuite.helpers.etree.strip_namespace( self.tree ) # choice to remove namespaces unconditionally
-        if self.tree.xpath('//tractatenblad//vrije-tekst'):
-            return 5
-        else:
-            return 5000
+        for test_xpath, score in (
+            ('//tractatenblad//vrije-tekst', 5),
+        ):
+            sel = self.tree.xpath( test_xpath )
+            if len(sel)>0:
+                self.startpaths = list(wetsuite.helpers.etree.path_between(self.tree, selnode, excluding=True)    for selnode in sel)
+                return score
+        return 5000
 
     def fragments(self):
         ret = []
+        for sp in self.startpaths:
+            ret.extend( _split_op_xml(self.tree, sp) )
         return ret
 
 
@@ -519,6 +517,7 @@ class Fragments_XML_OP_Gmb( Fragments ):
     def __init__(self, docbytes):
         Fragments.__init__(self, docbytes)
         self.tree = None
+        self.startpaths = None
 
     def accepts( self ):
         return wetsuite.helpers.util.is_xml( self.docbytes )
@@ -527,15 +526,20 @@ class Fragments_XML_OP_Gmb( Fragments ):
         # may raise
         self.tree = wetsuite.helpers.etree.fromstring( self.docbytes )
         self.tree = wetsuite.helpers.etree.strip_namespace( self.tree ) # choice to remove namespaces unconditionally
-        if self.tree.xpath('//gemeenteblad//regeling-tekst'):
-            return 5
-        if self.tree.xpath('//gemeenteblad//zakelijke-mededeling-tekst/tekst'):
-            return 5
-        else:
-            return 5000
+        for test_xpath, score in (
+            ('//gemeenteblad//regeling-tekst', 5),
+            ('//gemeenteblad//zakelijke-mededeling-tekst/tekst', 5),
+        ):
+            sel = self.tree.xpath( test_xpath )
+            if len(sel)>0:
+                self.startpaths = list(wetsuite.helpers.etree.path_between(self.tree, selnode, excluding=True)    for selnode in sel)
+                return score
+        return 5000
 
     def fragments(self):
         ret = []
+        for sp in self.startpaths:
+            ret.extend( _split_op_xml(self.tree, sp) )
         return ret
 
 
@@ -544,6 +548,7 @@ class Fragments_XML_OP_Prb( Fragments ):
     def __init__(self, docbytes):
         Fragments.__init__(self, docbytes)
         self.tree = None
+        self.startpaths = None
 
     def accepts( self ):
         return wetsuite.helpers.util.is_xml( self.docbytes )
@@ -552,17 +557,22 @@ class Fragments_XML_OP_Prb( Fragments ):
         # may raise
         self.tree = wetsuite.helpers.etree.fromstring( self.docbytes )
         self.tree = wetsuite.helpers.etree.strip_namespace( self.tree ) # choice to remove namespaces unconditionally
-        if self.tree.xpath('//provinciaalblad//regeling-tekst/tekst'):
-            return 5
-        elif self.tree.xpath('//provinciaalblad//zakelijke-mededeling-tekst/tekst'):
-            return 5
-        elif self.tree.xpath('//provincieblad//zakelijke-mededeling-tekst/tekst'):
-            return 5
-        else:
-            return 5000
+        for test_xpath, score in (
+            ('//provinciaalblad//regeling-tekst/tekst', 5),
+            ('//provinciaalblad//zakelijke-mededeling-tekst/tekst', 5),
+            ('//provincieblad//zakelijke-mededeling-tekst/tekst', 5),
+        ):
+            sel = self.tree.xpath( test_xpath )
+            if len(sel)>0:
+                self.startpaths = list(wetsuite.helpers.etree.path_between(self.tree, selnode, excluding=True)    for selnode in sel)
+                return score
+
+        return 5000
 
     def fragments(self):
         ret = []
+        for sp in self.startpaths:
+            ret.extend( _split_op_xml(self.tree, sp) )
         return ret
 
 
@@ -571,6 +581,7 @@ class Fragments_XML_OP_Wsb( Fragments ):
     def __init__(self, docbytes):
         Fragments.__init__(self, docbytes)
         self.tree = None
+        self.startpaths = None
 
     def accepts( self ):
         return wetsuite.helpers.util.is_xml( self.docbytes )
@@ -579,13 +590,19 @@ class Fragments_XML_OP_Wsb( Fragments ):
         # may raise
         self.tree = wetsuite.helpers.etree.fromstring( self.docbytes )
         self.tree = wetsuite.helpers.etree.strip_namespace( self.tree ) # choice to remove namespaces unconditionally
-        if self.tree.xpath('//waterschapsblad//zakelijke-mededeling-tekst/tekst'):
-            return 5
-        else:
-            return 5000
+        for test_xpath, score in (
+            ('//waterschapsblad//zakelijke-mededeling-tekst/tekst', 5),
+        ):
+            sel = self.tree.xpath( test_xpath )
+            if len(sel)>0:
+                self.startpaths = list(wetsuite.helpers.etree.path_between(self.tree, selnode, excluding=True)    for selnode in sel)
+                return score
+        return 5000
 
     def fragments(self):
         ret = []
+        for sp in self.startpaths:
+            ret.extend( _split_op_xml(self.tree, sp) )
         return ret
 
 
@@ -594,6 +611,7 @@ class Fragments_XML_OP_Bgr( Fragments ):
     def __init__(self, docbytes):
         Fragments.__init__(self, docbytes)
         self.tree = None
+        self.startpaths = None
 
     def accepts( self ):
         return wetsuite.helpers.util.is_xml( self.docbytes )
@@ -602,18 +620,21 @@ class Fragments_XML_OP_Bgr( Fragments ):
         # may raise
         self.tree = wetsuite.helpers.etree.fromstring( self.docbytes )
         self.tree = wetsuite.helpers.etree.strip_namespace( self.tree ) # choice to remove namespaces unconditionally
-        if self.tree.xpath('//bladgemeenschappelijkeregeling//regeling-tekst'):
-            return 5
-        if self.tree.xpath('//bladgemeenschappelijkeregeling//zakelijke-mededeling-tekst/tekst'):
-            return 5
-        else:
-            return 5000
+        for test_xpath, score in (
+            ('//bladgemeenschappelijkeregeling//regeling-tekst', 5),
+            ('//bladgemeenschappelijkeregeling//zakelijke-mededeling-tekst/tekst',5),
+        ):
+            sel = self.tree.xpath( test_xpath )
+            if len(sel)>0:
+                self.startpaths = list(wetsuite.helpers.etree.path_between(self.tree, selnode, excluding=True)    for selnode in sel)
+                return score
+        return 5000
 
     def fragments(self):
         ret = []
+        for sp in self.startpaths:
+            ret.extend( _split_op_xml(self.tree, sp) )
         return ret
-
-
 
 
 class Fragments_XML_OP_Handelingen( Fragments ):
@@ -621,6 +642,7 @@ class Fragments_XML_OP_Handelingen( Fragments ):
     def __init__(self, docbytes):
         Fragments.__init__(self, docbytes)
         self.tree = None
+        self.startpaths = None
 
     def accepts( self ):
         self.docbytes = fix_ascii_blah( self.docbytes )
@@ -630,15 +652,21 @@ class Fragments_XML_OP_Handelingen( Fragments ):
         # may raise
         self.tree = wetsuite.helpers.etree.fromstring( self.docbytes )
         self.tree = wetsuite.helpers.etree.strip_namespace( self.tree ) # choice to remove namespaces unconditionally
-        if self.tree.xpath('//handelingen'):
-            return 5
-        elif self.tree.tag == 'handeling': # is this wrong?
-            return 5
-        else:
-            return 5000
+        for test_xpath, score in (
+            ('//handelingen', 5),
+            ('/handeling',50), # is this wrong?
+        ):
+            sel = self.tree.xpath( test_xpath )
+            if len(sel)>0:
+                self.startpaths = list(wetsuite.helpers.etree.path_between(self.tree, selnode, excluding=True)    for selnode in sel)
+                return score
+        return 5000
 
     def fragments(self):
         ret = []
+        #print( self.startpaths )
+        for sp in self.startpaths:
+            ret.extend( _split_op_xml(self.tree, sp) )
         return ret
 
 
@@ -647,6 +675,7 @@ class Fragments_XML_BUS_Kamer( Fragments ):
     def __init__(self, docbytes):
         Fragments.__init__(self, docbytes)
         self.tree = None
+        self.startpaths = None
 
     def accepts( self ):
         self.docbytes = fix_ascii_blah( self.docbytes )
@@ -656,23 +685,27 @@ class Fragments_XML_BUS_Kamer( Fragments ):
         # may raise
         self.tree = wetsuite.helpers.etree.fromstring( self.docbytes )
         self.tree = wetsuite.helpers.etree.strip_namespace( self.tree ) # choice to remove namespaces unconditionally
-        if self.tree.tag == 'kamerwrk':
-            return 5
 
-        elif self.tree.xpath('//kamerstuk//vrije-tekst/tekst'):
-            return 5
-        elif self.tree.xpath('//kamervragen'):
-            return 5
-        elif self.tree.xpath('//kamerstuk//stuk'): # ??
-            return 50
-        elif self.tree.tag == 'vraagdoc': # is this wrong?
-            return 50
-        else:
-            return 5000
+        for test_xpath, score in (
+            ('/kamerwrk', 5),         # ?
+            ('//kamerstuk//vrije-tekst/tekst',5),
+            ('//kamervragen',5),
+            ('//kamerstuk//stuk',50), # ?
+            ('/vraagdoc',50), # is this wrong?
+        ):
+            sel = self.tree.xpath( test_xpath )
+            if len(sel)>0:
+                self.startpaths = list(wetsuite.helpers.etree.path_between(self.tree, selnode, excluding=True)    for selnode in sel)
+                return score
+
+        return 5000
 
     def fragments(self):
         ret = []
+        for sp in self.startpaths:
+            ret.extend( _split_op_xml(self.tree, sp) )
         return ret
+
 
 
 class Fragments_HTML_BUS_kamer( Fragments ):
@@ -744,7 +777,6 @@ class Fragments_XML_Rechtspraak( Fragments ):
 
     def fragments(self):
         ret = []
-        return ret
 
         # examples:
         # https://data.rechtspraak.nl/uitspraken/content?id=ECLI:NL:RBDHA:2023:18504
@@ -757,45 +789,80 @@ class Fragments_XML_Rechtspraak( Fragments ):
         #         'inhoudsindicatie', ' '.join( wetsuite.datacollect.rechtspraaknl._para_text( ii ) )
         #     ) )
 
-        # t = None
-        # if tree_nonamespaces.find('uitspraak') is not None:
-        #     t = tree_nonamespaces.find('uitspraak')
-        # elif tree_nonamespaces.find('conclusie') is not None:
-        #     t = tree_nonamespaces.find('conclusie')
-        # if t is not None:
-        #     structured_things = t.xpath('uitspraak.info|section')
-        #     if len(structured_things) ==0:
-        #         print( "BLAH %s"%list( tag.tag  for tag in t) )
-        #     else:
-        #         print( "YAY %s"%list( tag.tag  for tag in t) )
-        #         for uis in t.getchildren(): # all top-level, ideally is something like <uitspraak.info> followed by <section>s
-        #             if uis.tag in ('parablock',):
-        #                 continue # TODO: use, probably actually just header
+        t = None
+        if self.tree.find('uitspraak') is not None:
+            t = self.tree.find('uitspraak')
+        elif self.tree.find('conclusie') is not None:
+            t = self.tree.find('conclusie')
+        if t is not None:
+            # top-level, ideally is something like <uitspraak.info> followed by <section>s
+            structured_things = t.xpath('uitspraak.info|section')
+            if len(structured_things) ==0:
+                #raise ValueError("Not structured like the rest?  %s"%list( tag.tag  for tag in t) )
+                # TODO: figure out whether this make sense
+                structured_things = [t]
+            else:
+                pass
+                #print( "YAY %s"%list( tag.tag  for tag in t) )
+
+            for structured_thing in structured_things:
+                last_nr = None
+                last_title = None
+                for ch in structured_thing.getchildren():
+                    # CONSIDER checking ch.tag for parablock, etc. to handle them more specifically, but for now:
+                    meta = {
+                        'part':wetsuite.helpers.etree.path_between( self.tree, structured_thing),
+                        'path':wetsuite.helpers.etree.path_between( self.tree, ch),
+                    }
+                    raw = wetsuite.helpers.etree.tostring(ch)
+
+                    hints = []
+                    nr = ch.find('nr')
+                    if nr is not None:
+                        meta['nr'] = nr.text.strip()
+                        nr.text = '' # so that it doesn't land in flat_text
+                        last_nr = nr
+                    if last_nr:
+                        meta['lastnr'] = last_nr
+
+                    if ch.tag == 'title':#title = ch.find('title')
+                    #if title is not None:
+                        title_text = (' '.join( wetsuite.helpers.etree.all_text_fragments( ch ) )) .strip()
+                        meta['title'] = title_text
+                        last_title = title_text
+                        hints.append('is-title')
+
+                    flat_text = (' '.join( wetsuite.helpers.etree.all_text_fragments( ch ) )) .strip()
+
+                    if ch.find('emphasis'):
+                        hints.append('has-emphasis')
+                        #emphasis role="bold caps
+
+                    #if len(flat_text) > 0:
+                    #    hints.append('is-empty')
+                    #   #emphasis role="bold caps
 
 
-        #             title = uis.find('title')
-        #             st = '???'
-        #             if title:
-        #                 title_nr = title.find('nr')
-        #                 if title_nr:
-        #                     title_nr.text = ''
-        #                 st = ' '.join(wetsuite.helpers.etree.all_text_fragments( title )).strip()
-        #                 title.clear()
-        #             print( '[%s]  %s'%(
-        #                 st, ' '.join( wetsuite.datacollect.rechtspraaknl._para_text( uis ) )
-        #             ) )
-        #             print('--')
-        #     #for thing in wetsuite.datacollect.rechtspraaknl._para_text( t ):
-        #     #    print( repr(thing) )
+                    if ch.find('informaltable'):
+                        hints.append( 'has-table' )
+                        #emphasis role="bold caps
+
+                    #if len(hints)>0:
+                    meta['hints'] = hints
+
+                    ret.append( (
+                        meta,
+                        {'raw':raw},
+                        flat_text,
+                    ))
 
         # # head before
         # #    pre-head b
         # # uitspraak, inleiding, procesverloop, overwegingen, beslissing
-
         # # smaller sections:
         # #   Proceskosten, Standpunt van verzoeker, Wettelijk kader, Bevoegdheid, Conclusie en gevolgen, Rechtsmiddel
-
         # # Bijlage
+        return ret
 
 
 ####################################################################################
@@ -810,7 +877,7 @@ class Fragments_HTML_Fallback( Fragments ):
         if wetsuite.helpers.util.is_html( self.docbytes ):
             return True
         if wetsuite.helpers.util.is_htmlzip( self.docbytes ):
-            self.docbytes = wetsuite.helpers.util.get_ziphtml( self.docbytes ) # unpack the one-html zip into the html
+            self.docbytes = wetsuite.helpers.util.get_ziphtml( self.docbytes ) # fetch the html from the one-html zip
             return True
         return False
 
@@ -838,6 +905,11 @@ class Fragments_XML_Fallback( Fragments ):
 
     def fragments(self):
         ret = []
+        #ret.append( (
+        #    {},
+        #    {},
+        #    (' '.join( wetsuite.helpers.etree.all_text_fragments( ch ) )) .strip(),
+        #))
         return ret
 
 
@@ -867,12 +939,12 @@ class Fragments_PDF_Fallback( Fragments ):
             self.part_ary = []
 
             def marker_now( hint ):
-                ret.append( ( {'hint':hint},   {},   '') )
+                ret.append( ( {'hints':[hint]},   {},   '') )
 
             def flush( hint_first = None ):
                 ' any parts of part_ary are  '
                 #if hint_first:
-                #    ret.append( ( {'hint':hint_first},   {},   '') )
+                #    ret.append( ( {'hints':[hint_first]},   {},   '') )
 
                 pa = list( filter( lambda x: len(x.strip())>0, self.part_ary) ) # remove empty-text elements from part_ary
                 if len(pa) > 0:
@@ -881,7 +953,7 @@ class Fragments_PDF_Fallback( Fragments ):
                             hint = hint_first
                         else:
                             hint = '+para'
-                        ret.append( ( {'hint':hint, 'lastheader':self.part_name},   {},   frag) )
+                        ret.append( ( {'hints':[hint], 'lastheader':self.part_name},   {},   frag) )
                 self.part_name = ''
                 self.part_ary = []
 
@@ -1006,7 +1078,7 @@ _registered_fragment_parsers = [
 ]
 
 
-def decide(docbytes, thresh=1000):
+def decide(docbytes, thresh=1000, first_only=False):
     ''' Ask all processors to say how well they would do, 
         pick any applicable.
 
@@ -1015,12 +1087,15 @@ def decide(docbytes, thresh=1000):
         so you can now call fragments() to get the fragments.
     '''
     options = [] # list of (score, class)
+
     for PerhapsClass in _registered_fragment_parsers:
         plcob = PerhapsClass( docbytes )
-        if plcob.accepts():              # right file type?
-            score = plcob.suitableness() # "how well would you say you would treat this?"
+        if plcob.accepts():              # does it say it's getting the right file type?
+            score = plcob.suitableness() # how well does it figure it would treat this?
             if score < thresh:
                 options.append( [score, plcob] )
+                if first_only:
+                    break
 
     options.sort( key = lambda x:x[0] )
     return options
