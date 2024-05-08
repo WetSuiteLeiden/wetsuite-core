@@ -9,6 +9,7 @@ import test_meta
 from wetsuite.helpers.meta import parse_jci
 from wetsuite.helpers.meta import parse_ecli, findall_ecli
 from wetsuite.helpers.meta import parse_celex, is_equivalent_celex, parse_kst_id, parse_bekendmaking_id
+from wetsuite.helpers.meta import findall_bekendmaking_ids
 
 
 def test_parse_jci():
@@ -154,21 +155,26 @@ def test_parse_kst_id_1():
     ' test the parse of kamerstukken document-in-dossier identifiers '
     assert parse_kst_id('kst-32123-I-5'        ) == {'type': 'kst', 'docnum': '5',      'dossiernum': '32123-I'  }
 
+
 def test_parse_kst_id_2():
     ' test the parse of kamerstukken document-in-dossier identifiers '
     assert parse_kst_id('kst-20082009-32024-C' ) == {'type': 'kst', 'docnum': 'C',      'dossiernum': '32024'    }
+
 
 def test_parse_kst_id_3():
     ' test the parse of kamerstukken document-in-dossier identifiers '
     assert parse_kst_id('kst-32142-A2E'        ) == {'type': 'kst', 'docnum': 'A2E',    'dossiernum': '32142'    }
 
+
 def test_parse_kst_id_4():
     ' test the parse of kamerstukken document-in-dossier identifiers '
     assert parse_kst_id('kst-26643-144-h1'     ) == {'type': 'kst', 'docnum': '144-h1', 'dossiernum': '26643'    }
 
+
 def test_parse_kst_id_5():
     ' test the parse of kamerstukken document-in-dossier identifiers '
     assert parse_kst_id('kst-32123-XIV-A-b1'   ) == {'type': 'kst', 'docnum': 'A-b1',   'dossiernum': '32123-XIV'}
+
 
 def test_parse_kst_id_6():
     ' test the parse of kamerstukken document-in-dossier identifiers '
@@ -179,6 +185,7 @@ def test_parse_kst_id_bad_1():
     " Pretty sure that's invalid "
     with pytest.raises(ValueError):
         parse_kst_id('kst-LXXX-B')
+
 
 def test_parse_kst_id_bad_2():
     " Nonsense "
@@ -418,3 +425,12 @@ def test_parse_bekendmaking_id_stb_2():
     assert d['type']       == 'stb'
     assert d['jaar']       == '2021'
     assert d['docnum']     == '250-n1'
+
+
+def test_findall_bekendmaking_ids():
+    ' test basic promise of finding these identifiers '
+    assert findall_bekendmaking_ids(
+        "identifiers like 'stcrt-2009-9231' and 'ah-tk-20082009-2945' in text" 
+    ) == [
+        'stcrt-2009-9231', 'ah-tk-20082009-2945' 
+    ]

@@ -18,6 +18,8 @@ _RE_JCIFIND  = re.compile(r'(?:jci)?([0-9.]+):([a-z]):(BWB[RV][0-9]+)([^\s;"\']*
 _RE_ECLIFIND = re.compile(r'ECLI:[A-Za-z]{2}:[A-Z-z0-9.]{1,7}:[0-9]{,4}:[A-Z-z0-9.]{,25}')
 
 
+#CONSIDER: a findall_jci, taking either etree or a string?
+
 def parse_jci(text: str):
     """ Takes something in the form of C{jci{version}:{type}:{BWB-id}{key-value}*},
         so e.g. ::
@@ -143,8 +145,8 @@ def parse_ecli(text:str):
     if len(country_code) != 2:
         raise ValueError(f"ECLI country {repr(country_code)} isn't two characters")
 
-    if len(court_code) > 7:
-        raise ValueError(f"ECLI court code too long: {repr(court_code)}")
+    if len(court_code) > 7: # TODO: check that 
+        raise ValueError(f"ECLI court code too long: {repr(court_code)}") 
 
     mo_caseid = re.match(r'([A-Z-z0-9.]{1,25})', caseid)
     if mo_caseid is None:
@@ -173,7 +175,7 @@ def parse_ecli(text:str):
 
         if court_code in wetsuite.extras.gerechtcodes.data:
             ret['court_details'] = wetsuite.extras.gerechtcodes.data[court_code]
-    except ImportError: # pragma nocover  we might want to know, but the point of this is n
+    except ImportError: # pragma nocover
         warnings.warn("Could not find our own gerechtcodes")
         #pass
 
@@ -392,7 +394,7 @@ def is_equivalent_celex(celex1:str, celex2:str):
         Currently:
           - ignores sector to be able to ignore sector 0
           - tries to ignore
-        This is currently based on estimation - we should read up on 
+        This is currently based on estimation - we should read up on the details.
     '''
     d1 = parse_celex( celex1 )
     d2 = parse_celex( celex2 )
@@ -406,10 +408,10 @@ _RE_CELEX = re.compile( r'(\b[1234567890CE])([0-9]{4})([A-Z][A-Z]?)([0-9\(\)]{4,
 #94994L1
 
 def parse_celex(celex: str):
-    ''' Normalize a CELEX number (e.g. strips a 'CELEX:' in front)
-
-        Describes its parts in more readable form, where possible.
+    ''' Describes CELEX's parts in more readable form, where possible.
         All values are returned as strings, even where they are (ostensibly) numbers.
+
+        Also produces a somewhat-normalized form (e.g. strips a 'CELEX:' in front)
 
         Returns a dict detailing the parts.  
         NOTE that the details will change when I actually read the specs properly
@@ -482,6 +484,13 @@ def _is_all_digits(s): #perhaps could be helpers.strings.is_numeric?
     return len( s.strip('0123456789') ) == 0
 
 
+def findall_bekendmaking_ids(instring: str):
+    ''' Look for identifiers like 'stcrt-2009-9231' and 'ah-tk-20082009-2945'
+        Might find a few things that are not.
+    '''
+    # Note that knowing most of the variants, we could refine this and avoid some false positives
+    return re.findall('((?:ag-tk|ag-ek|ag-vv|ag|ah-tk|ah-ek|ah-tk|h-ek|h-tk|kv-tk|kv|blg|kst|stcrt|stb|gmb|prb|wsb|bgr|trb|nds-tk|nds-ek|nds)-[a-z0-9-]+)', instring)
+
 
 def parse_bekendmaking_id(s):
     ''' 
@@ -520,20 +529,10 @@ def parse_bekendmaking_id(s):
         ret['jaar']   = parts.pop( 0 )
         ret['docnum'] = '-'.join(parts)
 
-
-
     elif s.startswith('ah-'): # not 100% on this one
         ret['type'] = parts.pop( 0 )
         ret['docnum'] = '-'.join(parts)
 
-
-
-    elif s.startswith('h-ek-'):
-        ret['type'] = 'h-ek'
-        parts.pop( 0 )
-        parts.pop( 0 )
-        ret['jaar'] = parts.pop( 0 )
-        ret['docnum'] = '-'.join(parts)  # TODO: check that always makes sense
 
 
     elif s.startswith('h-tk-'):
@@ -543,6 +542,12 @@ def parse_bekendmaking_id(s):
         ret['jaar'] = parts.pop( 0 )
         ret['docnum'] = '-'.join(parts)  # TODO: check that always makes sense
 
+    elif s.startswith('h-ek-'):
+        ret['type'] = 'h-ek'
+        parts.pop( 0 )
+        parts.pop( 0 )
+        ret['jaar'] = parts.pop( 0 )
+        ret['docnum'] = '-'.join(parts)  # TODO: check that always makes sense
 
     elif s.startswith('h-vv-'):
         # h-vv-19961997-2191-2192
@@ -605,7 +610,6 @@ def parse_bekendmaking_id(s):
     elif s.startswith('kv-'):
         ret['type'] = parts.pop( 0 )
         ret['docnum'] = '-'.join(parts)
-
 
     elif s.startswith('blg-'):
         #blg-929493
@@ -683,6 +687,7 @@ def parse_bekendmaking_id(s):
         ret['docnum'] = '-'.join(parts[1:])
         #else:
         #    raise ValueError('HUH trb - %r'%parts)
+
 
     elif s.startswith('nds-tk-'):
         ret['type'] = 'nds-tk'
