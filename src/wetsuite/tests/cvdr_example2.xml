@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="UTF-8"?><cvdr xmlns="http://standaarden.overheid.nl/cvdr/terms/" xmlns:dcterms="http://purl.org/dc/terms/" xmlns:overheid="http://standaarden.overheid.nl/owms/terms/" xmlns:overheidrg="http://standaarden.overheid.nl/cvdr/meta/" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://standaarden.overheid.nl/cvdr/terms/  http://decentrale.regelgeving.overheid.nl/cvdr/xsd/cvdr.xsd"><!--export0.91-->
+  <meta xmlns:msxsl="urn:schemas-microsoft-com:xslt" xmlns:xhtml="http://www.w3.org/1999/xhtml"><owmskern><dcterms:identifier>CVDR100394_2</dcterms:identifier><dcterms:title>Beleidsregels verkeersveiligheid en parkeren</dcterms:title><dcterms:language>nl</dcterms:language><dcterms:type scheme="overheid:Informatietype">regeling</dcterms:type><dcterms:creator scheme="overheid:Gemeente">Kampen</dcterms:creator><dcterms:modified>2016-10-26</dcterms:modified><dcterms:spatial scheme="overheid:Gemeente">Kampen</dcterms:spatial></owmskern><owmsmantel><dcterms:isFormatOf resourceIdentifier="https://zoek.officielebekendmakingen.nl/gmb-2016-146361">gmb-2016-146361</dcterms:isFormatOf><dcterms:alternative>Beleidsregels verkeersveiligheid en parkeren</dcterms:alternative><dcterms:source resourceIdentifier="http://wetten.overheid.nl/BWBR0004825/">Reglement verkeersregels en verkeertekens 1990</dcterms:source><dcterms:source resourceIdentifier="1.1:CVDR77862_1">Parkeerverordening gemeente Kampen</dcterms:source><overheid:isRatifiedBy scheme="overheid:BestuursorgaanGemeente">college van burgemeester en wethouders</overheid:isRatifiedBy><dcterms:subject>ruimtelijke ordening, verkeer en vervoer</dcterms:subject><dcterms:issued>2016-10-11</dcterms:issued><dcterms:rights>De tekst in dit document is vrij van auteursrecht en
+                    databankrecht</dcterms:rights></owmsmantel><cvdripm><overheidrg:inwerkingtredingDatum>2016-10-27</overheidrg:inwerkingtredingDatum><overheidrg:betreft>wijz. hfst 1 t/m 4</overheidrg:betreft><overheidrg:kenmerk>16ADV00361</overheidrg:kenmerk><overheidrg:onderwerp>ruimtelijke ordening, verkeer en vervoer</overheidrg:onderwerp><overheidrg:gedelegeerdeRegelgeving><al>Geen.</al></overheidrg:gedelegeerdeRegelgeving><overheidrg:redactioneleToevoeging><al>Geen.</al></overheidrg:redactioneleToevoeging></cvdripm></meta>
+  
+  <body><intitule>
+       Beleidsregels verkeersveiligheid en parkeren 
+    </intitule>
+    
+    <regeling>
+      <aanhef><preambule><al/></preambule></aanhef>
+      <regeling-tekst>
+        <hoofdstuk>
+          <kop>
+            <label>1.Parkeren</label>
+          </kop>
+          <structuurtekst>
+            <al>[Vervallen]</al>
+          </structuurtekst>
+        </hoofdstuk>
+        <hoofdstuk>
+          <kop>
+            <label>2.Hard rijden</label>
+          </kop>
+          <structuurtekst>
+            <al>[Vervallen]</al>
+          </structuurtekst>
+        </hoofdstuk>
+        <hoofdstuk>
+          <kop>
+            <label>3.Bebording</label>
+          </kop>
+          <structuurtekst>
+            <al>[Vervallen]</al>
+          </structuurtekst>
+        </hoofdstuk>
+        <hoofdstuk>
+          <kop>
+            <label>4.Diversen</label>
+          </kop>
+          <structuurtekst>
+            <al>[Vervallen]</al>
+          </structuurtekst>
+        </hoofdstuk>
+        <hoofdstuk>
+          <kop>
+            <label>5.Gehandicaptenparkeerplaatsen</label>
+          </kop>
+          <structuurtekst>
+            <al>
+              <cursief>Verzoek om een gehandicaptenparkeerplaats </cursief>
+            </al>
+            <al>Burgers die in het bezit zijn van een algemene gehandicaptenparkeerkaart kunnen in aanmerking komen van een persoonsgebonden gehandicaptenparkeerplaats. Hiervoor hanteert de gemeente Kampen de volgende criteria / beleidsregels:</al>
+            <al>Criteria / beleidsregels:</al>
+            <lijst>
+              <li nr="-"><al>Ingeschreven in het bevolkingsregister te zijn van Kampen</al></li>
+              <li nr="-"><al>Zelf bestuurder te zijn</al></li>
+              <li nr="-"><al>Niet te beschikken over de mogelijkheid tot parkeren op eigen terrein</al></li>
+              <li nr="-"><al>In alle gevallen dient er sprake te zijn van een permanente of progressieve invaliditeit. Dit wordt vastgesteld op basis van keuring door een erkend medisch adviesbureau. </al></li>
+            </lijst>
+          </structuurtekst>
+        </hoofdstuk>
+      </regeling-tekst>
+    </regeling>
+  </body>
+</cvdr>
