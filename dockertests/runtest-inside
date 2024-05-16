@@ -1,0 +1,4 @@
+#!/bin/bash
+# exists mostly because pytest is curdir-sensitive
+cd /root/test/wetsuite-core-main/src/wetsuite/
+./do-tests
