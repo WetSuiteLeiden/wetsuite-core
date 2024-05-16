@@ -9,7 +9,7 @@ import re
 import sys
 import urllib.parse
 import warnings
-from collections import OrderedDict
+import collections
 
 import wetsuite.datacollect.koop_repositories
 import wetsuite.helpers.meta
@@ -215,7 +215,7 @@ def cvdr_text(tree):
     regeling       = body.find('regeling')
     regeling_tekst = regeling.find('regeling-tekst')
 
-    identifier = tree.find('meta/owmskern/identifier')
+    #identifier = tree.find('meta/owmskern/identifier')
 
     # TODO: decide on a best way to extract the text from this type of document, and use that in all places it happens
 
@@ -234,90 +234,90 @@ def cvdr_text(tree):
 
             text = [] # collected per lid, effectively
 
-            # TODO: decide which one to use, and clean up.
-            if 1:
-                # this is a somewhat awkward way to do it, but may be more robust to unusual nesting
-                for node in apart.iter():
-                    #print( node.tag )
-                    if node.tag in ('al', 'table', 'definitielijst'):
-                        text.extend( ['\n'] +
-                                     wetsuite.helpers.etree.all_text_fragments( node ) )
+            # TODO: decide which one of the following two to use, and clean up.
 
-                    elif node.tag in ('extref',):
-                        text.extend( wetsuite.helpers.etree.all_text_fragments( node ) )
+            # this seems a somewhat awkward way to do it, but may be more robust to unusual nesting
+            for node in apart.iter():
+                #print( node.tag )
+                if node.tag in ('al', 'table', 'definitielijst'):
+                    text.extend( ['\n'] +
+                                    wetsuite.helpers.etree.all_text_fragments( node ) )
 
-                    elif node.tag in ('titel',):
-                        text.extend( wetsuite.helpers.etree.all_text_fragments( node )+[' '] )
+                elif node.tag in ('extref',):
+                    text.extend( wetsuite.helpers.etree.all_text_fragments( node ) )
 
-                    elif node.tag in ('lid',):
-                        text.extend( ['\n'] )
+                elif node.tag in ('titel',):
+                    text.extend( wetsuite.helpers.etree.all_text_fragments( node )+[' '] )
 
-                    elif node.tag in ( # <kop> <label>Artikel</label> <nr>1</nr> <titel>Begripsbepalingen</titel> </kop>
-                                      'kop',  'label', 'nr', 
-                                      'li',  'lijst',      # we will get its contents
-                                      'artikel', 'lid', 'lidnr',
-                                      'specificatielijst', 'li.nr','meta-data','tussenkop', 'plaatje', 'adres',):
-                        #print("%s IGNORE tag type %r"%(identifier, node.tag))
-                        pass
-                    else:
-                        pass
-                        #print("%s UNKNOWN tag type %r"%(identifier, node.tag))
-                        #print( wetsuite.helpers.etree.tostring( node ).decode('u8') )
+                elif node.tag in ('lid',):
+                    text.extend( ['\n'] )
 
-            else:
-                for ch in apart.getchildren():
-                    if ch.tag in ('lidnr', 'meta-data'):
-                        continue
+                elif node.tag in ( # <kop> <label>Artikel</label> <nr>1</nr> <titel>Begripsbepalingen</titel> </kop>
+                                    'kop',  'label', 'nr', 
+                                    'li',  'lijst',      # we will get its contents
+                                    'artikel', 'lid', 'lidnr',
+                                    'specificatielijst', 'li.nr','meta-data','tussenkop', 'plaatje', 'adres',):
+                    #print("%s IGNORE tag type %r"%(identifier, node.tag))
+                    pass
+                else:
+                    pass
+                    #print("%s UNKNOWN tag type %r"%(identifier, node.tag))
+                    #print( wetsuite.helpers.etree.tostring( node ).decode('u8') )
 
-                    if ch.tag == 'lijst':
-                        for li in ch.getchildren():
-                            for lich in li:
-                                if lich.tag in ('al',):
-                                    text.extend( wetsuite.helpers.etree.all_text_fragments( lich ) )
-                                elif lich.tag in ('lijst',): # we can probably do this a little nicer
-                                    text.extend( wetsuite.helpers.etree.all_text_fragments( lich ) )
-                                elif lich.tag in ('table',):
-                                    text.extend( wetsuite.helpers.etree.all_text_fragments( lich ) )
-                                elif lich.tag in ('definitielijst',):
-                                    text.extend( wetsuite.helpers.etree.all_text_fragments( lich ) )
-                                elif lich.tag in ('specificatielijst',):
-                                    pass
-                                elif lich.tag in ('li.nr','meta-data',):
-                                    pass
-                                elif lich.tag in ('tussenkop',):
-                                    pass
-                                elif lich.tag in ('plaatje',):
-                                    pass
-                                elif lich.tag in ('adres',):
-                                    pass
-                                else:
-                                    print("%s IGNORE unknown lijst child %r"%(identifier, lich.tag))
-                                    print( wetsuite.helpers.etree.tostring(lich).decode('u8') )
+            # else:
+            #     for ch in apart.getchildren():
+            #         if ch.tag in ('lidnr', 'meta-data'):
+            #             continue
 
-                    elif ch.tag in ('al',):
-                        text.extend( wetsuite.helpers.etree.all_text_fragments( ch ) )
-                    elif ch.tag in ('al-groep',):
-                        text.extend( wetsuite.helpers.etree.all_text_fragments( ch ) )
-                    elif ch.tag in ('table',):
-                        text.extend( wetsuite.helpers.etree.all_text_fragments( ch ) )
-                    elif ch.tag in ('definitielijst',):
-                        text.extend( wetsuite.helpers.etree.all_text_fragments( ch ) )
+            #         if ch.tag == 'lijst':
+            #             for li in ch.getchildren():
+            #                 for lich in li:
+            #                     if lich.tag in ('al',):
+            #                         text.extend( wetsuite.helpers.etree.all_text_fragments( lich ) )
+            #                     elif lich.tag in ('lijst',): # we can probably do this a little nicer
+            #                         text.extend( wetsuite.helpers.etree.all_text_fragments( lich ) )
+            #                     elif lich.tag in ('table',):
+            #                         text.extend( wetsuite.helpers.etree.all_text_fragments( lich ) )
+            #                     elif lich.tag in ('definitielijst',):
+            #                         text.extend( wetsuite.helpers.etree.all_text_fragments( lich ) )
+            #                     elif lich.tag in ('specificatielijst',):
+            #                         pass
+            #                     elif lich.tag in ('li.nr','meta-data',):
+            #                         pass
+            #                     elif lich.tag in ('tussenkop',):
+            #                         pass
+            #                     elif lich.tag in ('plaatje',):
+            #                         pass
+            #                     elif lich.tag in ('adres',):
+            #                         pass
+            #                     else:
+            #                         print("%s IGNORE unknown lijst child %r"%(identifier, lich.tag))
+            #                         print( wetsuite.helpers.etree.tostring(lich).decode('u8') )
 
-                    elif ch.tag in ('specificatielijst',):
-                        pass
-                    elif ch.tag in ('kop','tussenkop',):
-                        pass
-                    elif ch.tag in ('adres','adreslijst'):
-                        pass
-                    elif ch.tag in ('artikel.toelichting',):
-                        pass
-                    elif ch.tag in ('plaatje','formule'):
-                        pass
-                    elif ch.tag in ('citaat','wetcitaat',):
-                        pass
-                    else:
-                        print( "%s IGNORE unknown lid-child %r"%(identifier, ch.tag) )
-                        print( wetsuite.helpers.etree.tostring(ch).decode('u8') )
+            #         elif ch.tag in ('al',):
+            #             text.extend( wetsuite.helpers.etree.all_text_fragments( ch ) )
+            #         elif ch.tag in ('al-groep',):
+            #             text.extend( wetsuite.helpers.etree.all_text_fragments( ch ) )
+            #         elif ch.tag in ('table',):
+            #             text.extend( wetsuite.helpers.etree.all_text_fragments( ch ) )
+            #         elif ch.tag in ('definitielijst',):
+            #             text.extend( wetsuite.helpers.etree.all_text_fragments( ch ) )
+
+            #         elif ch.tag in ('specificatielijst',):
+            #             pass
+            #         elif ch.tag in ('kop','tussenkop',):
+            #             pass
+            #         elif ch.tag in ('adres','adreslijst'):
+            #             pass
+            #         elif ch.tag in ('artikel.toelichting',):
+            #             pass
+            #         elif ch.tag in ('plaatje','formule'):
+            #             pass
+            #         elif ch.tag in ('citaat','wetcitaat',):
+            #             pass
+            #         else:
+            #             print( "%s IGNORE unknown lid-child %r"%(identifier, ch.tag) )
+            #             print( wetsuite.helpers.etree.tostring(ch).decode('u8') )
 
             #print( text )
             lid_text = (''.join(text)).strip(' ')
@@ -785,6 +785,47 @@ def cvdr_versions_for_work( cvdrid:str ) -> list:
 
 
 
+
+
+def parse_op_meta( xmlbytes: bytes, as_dict=False ):
+    ''' Parses two different metadata-only XML styles found in KOOP's Offiele Publicaties repositories
+          - the one that looks like `<metadata_gegevens>` with a set of `<metadata name="DC.title" scheme="" content="...`
+          - the one that (after a namespace strip) looks like `<owms-metadata><owmskern>` with e.g. `<dcterms:identifier>gmb-...`
+
+        Tries to return them in the same style, e.g. 
+          - taking off the name-based grouping from DC.title
+          - taking off the tag-based grouping (ignoring owmskern tag)
+
+        Returns 
+          - by default, a list of (key, schema, value) tuples
+          - if as_dict=True, a dict like {key: [(schema, value), ...]}
+    '''
+    root = wetsuite.helpers.etree.fromstring( xmlbytes )
+    root = wetsuite.helpers.etree.strip_namespace( root )
+    ret = []
+    if root.tag   == 'metadata_gegevens':
+        for metadata in root:
+            name = metadata.get('name')
+            name = name.split('.',1)[1] # we ignore this grouping string; we could put it on a fourth element
+            ret.append( (name, metadata.get('scheme'), metadata.get('content')) )
+    elif root.tag == 'owms-metadata':
+        for group in root: # we ignore this grouping level; we could put it on a fourth element
+            for node in group:
+                ret.append( (node.tag, node.get('scheme',''), node.text) )
+    else:
+        raise ValueError( 'Did not expect XML with root tag named %r'%root.tag )
+
+    if as_dict is False:
+        return ret
+    if as_dict:
+        rdd = collections.defaultdict(list)
+        for key, schema, value in ret:
+            rdd[key].append( (schema,value) )
+        return dict(rdd)
+
+
+
+
 ###################################
 
 
@@ -964,7 +1005,7 @@ def merge_alinea_data( alinea_dicts, if_same={
     '''
     dummy_count = 0
 
-    merged = OrderedDict()
+    merged = collections.OrderedDict()
     key_meta = {} # key -> meta dict
 
     for alinea_dict in alinea_dicts:
