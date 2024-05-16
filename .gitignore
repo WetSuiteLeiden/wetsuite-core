@@ -3,9 +3,9 @@ __pycache__/
 *.pyo
 *.pyd
 *~
-*.pdf
-*.xml
-*.json
+#*.pdf
+#*.xml
+#*.json
 .ignore
 src/wetsuite/coverage.txt
 src/wetsuite/.coverage
