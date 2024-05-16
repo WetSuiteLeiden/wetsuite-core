@@ -76,14 +76,9 @@ def _split_op_xml(tree, start_at):
         start_at_node = tree.xpath( start_at )
         if start_at_node is None:
             raise ValueError("Did not find %s within %s"%(start_at, tree))
-        #print("START_AT STRING; node=%r"%(start_at_node))
     else: # assume it was a node in the tree you find'd or xpath'd yourself
         start_at_node = start_at
         start_at_path = wetsuite.helpers.etree.path_between(tree, start_at_node)
-        #print("START_AT NODE; path=%r"%(start_at_path))
-    #print("path=%r"%(start_at_path))
-    #start_at_path = start_at_path.lstrip('/')
-    #print("path=%r"%(start_at_path))
 
     ## extract under that node/path
     for fragment in wetsuite.helpers.koop_parse.alineas_with_selective_path(tree, start_at_path=start_at_path):
@@ -92,12 +87,70 @@ def _split_op_xml(tree, start_at):
         inter      = {'raw':fragment.pop('raw'), 'raw_etree':fragment.pop('raw_etree')}
         text_flat  = fragment.pop('text-flat')
         ret.append( (meta, inter, text_flat) )
-        #print('  -  ')
-        #print('meta ',  pprint.pformat( meta) )
-        #print('inter',  pprint.pformat( inter) )
-        #print('text ',  text_flat)
     return ret
 
+
+import re
+
+_op_re      = re.compile(r'.*officiele-publicatie.*')
+_content_re = re.compile(r'.*\bcontent\b.*')
+_stuk_re    = re.compile(r'.*\bstuk\b.*')
+_inhoud_re  = re.compile(r'.*\binhoud\b.*')
+
+_p_re       = re.compile(r'.*_p_.*')
+
+def _split_op_html(soup):
+    ret = []
+
+    # This seems to be based on varied templates/transforms over time, so this may need more work to be complete
+    body = soup.find('body')
+    dop      = body.find('div', attrs={'class': _op_re} )  # this seems to be transformed from the XML, is
+    stuk     = body.find('div', attrs={'class': _stuk_re} )
+    inhoud   = body.find('div', attrs={'class': _inhoud_re} )
+    article  = body.find('article')
+    idc      = body.find('div', attrs={'id': _content_re} )
+
+    #if article is not None:
+    #    print( wetsuite.helpers.etree.debug_pretty( wetsuite.helpers.etree.fromstring( str(article ) ) ) )
+    #    text = article.find_all(text=True)
+    #    print( text )
+    #    ret.append(({},str( article ), text))
+    #    raise ValueError( text )
+
+    alert = body.find('div', attrs={'class':'alert__inner'})
+    if alert is not None:
+        raise ValueError(alert.text)
+        if 'Deze publicatie is niet beschikbaar' in alert.text:
+            raise ValueError(alert.text)
+
+    found_one = False
+    for maybe in (dop, stuk, inhoud, article, idc):
+        if maybe is not None:
+            #print(maybe.name)
+            #print(maybe)
+            found_one = True
+            elems = maybe.find_all('div', attrs={'class':_p_re})
+            if len(elems)==0:
+                elems = maybe.find_all(['p','h1','h2','h3'])
+            if len(elems)==0:
+                raise ValueError('QQ')
+            for elem in elems:
+                ret.append( (
+                    {'class':elem.get('class')},
+                    {'raw':str( elem )},
+                    ' '.join( elem.find_all(text=True))
+                ) )
+            break
+    
+    #if not found_one:
+    #     print("ELSE")
+    #     text = body.find_all(text=True)
+    #     print( text )
+    #     ret.append(({},str( body ), text))
+    #     #raise ValueError( text )
+
+    return ret
+    #ret.append(({},{},str( body )))
 
 ###################################################################################################
 
@@ -241,7 +294,7 @@ class Fragments_HTML_OP_Stcrt( Fragments ):
             return 5000
 
     def fragments(self):
-        ret = []
+        ret = _split_op_html( self.soup )
         return ret
 
 
@@ -268,8 +321,11 @@ class Fragments_HTML_OP_Stb( Fragments ):
             return 5000
 
     def fragments(self):
-        ret = []
+        ret = _split_op_html( self.soup )
         return ret
+
+
+
 
 
 class Fragments_HTML_OP_Gmb( Fragments ):
@@ -296,7 +352,7 @@ class Fragments_HTML_OP_Gmb( Fragments ):
             return 5000
 
     def fragments(self):
-        ret = []
+        ret = _split_op_html( self.soup )
         return ret
 
 
@@ -324,7 +380,7 @@ class Fragments_HTML_OP_Trb( Fragments ):
             return 5000
 
     def fragments(self):
-        ret = []
+        ret = _split_op_html( self.soup )
         return ret
 
 
@@ -354,7 +410,7 @@ class Fragments_HTML_OP_Prb( Fragments ):
             return 5000
 
     def fragments(self):
-        ret = []
+        ret = _split_op_html( self.soup )
         return ret
 
 
@@ -381,7 +437,7 @@ class Fragments_HTML_OP_Wsb( Fragments ):
             return 5000
 
     def fragments(self):
-        ret = []
+        ret = _split_op_html( self.soup )
         return ret
 
 
@@ -408,7 +464,7 @@ class Fragments_HTML_OP_Bgr( Fragments ):
             return 5000
 
     def fragments(self):
-        ret = []
+        ret = _split_op_html( self.soup )
         return ret
 
 
@@ -726,17 +782,17 @@ class Fragments_HTML_BUS_kamer( Fragments ):
         # may raise
         self.soup = bs4.BeautifulSoup( self.docbytes, features='lxml' )
         pname = self.soup.find('meta', attrs={'name':'OVERHEIDop.publicationName'})
-        if pname is not None and pname.get('content')=='Kamervragen (Aanhangsel)':
+        if pname is not None and pname.get('content')   == 'Kamervragen (Aanhangsel)':
             return 5
-        elif pname is not None and pname.get('content')=='Kamervragen zonder antwoord':
+        elif pname is not None and pname.get('content') == 'Kamervragen zonder antwoord':
             return 5
-        elif pname is not None and pname.get('content')=='Kamerstuk':
+        elif pname is not None and pname.get('content') == 'Kamerstuk':
             return 5
         else:
             return 5000
 
     def fragments(self):
-        ret = []
+        ret = _split_op_html( self.soup )
         return ret
 
 
