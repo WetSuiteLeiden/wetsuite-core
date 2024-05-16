@@ -1,6 +1,6 @@
 ''' Some information about the gerechtcodes use in ECLIs 
 
-    Note this overlaps with the output of wetsuite.datacollect.rechtspraaknl.parse_instanties()
+    Note that this overlaps with the output of wetsuite.datacollect.rechtspraaknl.parse_instanties()
 '''
 
 
@@ -651,14 +651,12 @@ data = {
  'XX': {'abbrev': 'XX',
         'extra': ['xx'],
         'name': 'Gerechtscode voor uitspraken van nationale rechterlijke en '
-                'niet-rechterlijke instanties die geen eigen gerechtscode '
-                'hebben, of voor uitspraken van buitenlandse, Europese of '
-                'internationale instanties waaraan door het daartoe bevoegde '
-                'orgaan (nog) geen eigen ECLI is toegekend (artikel 1 lid 1 '
-                "sub c onder vii van de Annex bij de 'Raadsconclusies waarin "
-                'de invoering wordt aanbevolen van een Europese '
-                'identificatiecode voor jurisprudentie (ECLI), en van een '
-                'minimumaantal uniforme metagegevens betreffende '
-                "jurisprudentie' (2011/C 127/01)) "}}
+                'niet-rechterlijke instanties die geen eigen gerechtscode hebben, '
+                'of voor uitspraken van buitenlandse, Europese of internationale instanties '
+                'waaraan door het daartoe bevoegde orgaan (nog) geen eigen ECLI is toegekend '
+                '(artikel 1 lid 1 sub c onder vii van de Annex bij de Raadsconclusies '
+                'waarin de invoering wordt aanbevolen van een Europese identificatiecode'
+                'voor jurisprudentie (ECLI), en van een '
+                'minimumaantal uniforme metagegevens betreffende jurisprudentie (2011/C 127/01))'}}
 ''' nested dict with gerecthtcode-data '''
 
