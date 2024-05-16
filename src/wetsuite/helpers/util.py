@@ -144,7 +144,7 @@ def is_html( bytesdata ) -> bool:
     return False
 
 
-def is_xml( bytesdata ) -> bool:
+def is_xml( bytesdata, debug=False ) -> bool:
     ''' Does this look and work like an XML file?
 
         Note that in this context, XHTML (and valid-enough HTML) are considered NOT XML
@@ -164,15 +164,21 @@ def is_xml( bytesdata ) -> bool:
 
     # the ordering here is more about efficiency than function
     if is_html( bytesdata ): # cheaper than parsing
+        if debug:
+            print('is html')
         return False
     if is_pdf( bytesdata ): # cheaper than parsing
+        if debug:
+            print('is html')
         return False
 
     import wetsuite.helpers.etree
     import lxml.etree
     try:
         root = wetsuite.helpers.etree.fromstring( bytesdata )
-    except lxml.etree.XMLSyntaxError: # if it doesn't parse  (not 100% on the exception? What's lxml.etree.ParserError then?)
+    except lxml.etree.XMLSyntaxError as xse: # if it doesn't parse  (not 100% on the exception? What's lxml.etree.ParserError then?)
+        if debug:
+            print('syntaxerror', xse)
         return False
 
     # if it's valid as XML but the root node is 'html', we do not consider it XML
@@ -190,16 +196,26 @@ def is_pdf( bytesdata:bytes ) -> bool:
 
 
 def is_zip( bytesdata:bytes ) -> bool:
-    ' Does this bytestring look loke a ZIP file? '
+    ' Does this bytestring look like a ZIP file? '
     if not isinstance(bytesdata, bytes):
         raise TypeError("we expect a bytestring, not a %s"%type(bytesdata))
     if bytesdata.startswith( b'PK\x03\x04' ): # (most)
         return True
-    if bytesdata.startswith( b'PK\x05\x06' ): # empty
+    if bytesdata.startswith( b'PK\x05\x06' ): # empty - not good for us and perhaps deserves a separate test
         return True
-    if bytesdata.startswith( b'PK\x07\x08' ): # spanned
+    if bytesdata.startswith( b'PK\x07\x08' ): # spanned - shouldn't apply to us
         return True
     return False
+
+
+def is_empty_zip( bytesdata:bytes ) -> bool:
+    ' Does this bytestring look like an empty ZIP file? '
+    if not isinstance(bytesdata, bytes):
+        raise TypeError("we expect a bytestring, not a %s"%type(bytesdata))
+    if bytesdata.startswith( b'PK\x05\x06' ): # empty - not good for us and perhaps deserves a separate test
+        return True
+    return False
+
 
 
 def is_htmlzip( bytesdata:bytes ) -> bool:

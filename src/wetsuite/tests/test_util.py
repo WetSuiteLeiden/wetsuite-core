@@ -120,9 +120,13 @@ def test_is_zip():
     with open( testzipfn ,'rb') as f:
         assert wetsuite.helpers.util.is_zip( f.read() )
 
+
+def test_is_empty_zip():
+    ' test that is_empty_zip reports that ' 
+    import test_util
     testzipfn = os.path.join( os.path.dirname( test_util.__file__ ), 'empty.zip' )
     with open( testzipfn ,'rb') as f:
-        assert not wetsuite.helpers.util.is_htmlzip( f.read() )
+        assert wetsuite.helpers.util.is_empty_zip( f.read() )
 
 
 def test_is_not_zip():
@@ -140,13 +144,20 @@ def test_is_htmlzip():
 
 
 def test_is_htmlzip_bad():
-    ' test files we know are NOT ' 
+    ' test files we know are NOT valid as this ' 
     import test_util
     testzipfn = os.path.join( os.path.dirname( test_util.__file__ ), 'eggs.pdf' ) # is not a zip
     with open( testzipfn ,'rb') as f:
         assert not wetsuite.helpers.util.is_htmlzip( f.read() )
 
     testzipfn = os.path.join( os.path.dirname( test_util.__file__ ), 'png.zip' ) # is zip, contains only a .png
+    with open( testzipfn ,'rb') as f:
+        assert not wetsuite.helpers.util.is_htmlzip( f.read() )
+
+def test_empty_not_htmlzip():
+    ' or want to consider not valid as this '
+    import test_util
+    testzipfn = os.path.join( os.path.dirname( test_util.__file__ ), 'empty.zip' )
     with open( testzipfn ,'rb') as f:
         assert not wetsuite.helpers.util.is_htmlzip( f.read() )
 
