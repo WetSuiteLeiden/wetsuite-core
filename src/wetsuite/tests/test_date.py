@@ -3,7 +3,9 @@ import datetime
 
 import pytest
 
-from wetsuite.helpers.date import parse, find_dates_in_text,   days_in_range, date_ranges, format_date_list, date_today, date_weeks_ago, date_months_ago, date_first_day_in_year
+from wetsuite.helpers.date import parse, find_dates_in_text
+from wetsuite.helpers.date import days_in_range, date_ranges, format_date_list, yyyy_mm_dd
+from wetsuite.helpers.date import date_today, date_weeks_ago, date_months_ago, date_first_day_in_year
 
 def test_dates_in_range():
     ' test of date_range '
@@ -79,6 +81,11 @@ def test_parse():
 
     # it doesn't actually understand that (it was a tuesday), but it ignores it fine
     assert parse('  donderdag 1 november 1988  ') == datetime.datetime(1988, 11, 1, 0, 0)
+
+
+def test_yy_mm_dd():
+    ' test that this formatter basically works'
+    assert yyyy_mm_dd( datetime.date(2024,1,1) ) == '2024-01-01'
 
 
 def test_noparse():

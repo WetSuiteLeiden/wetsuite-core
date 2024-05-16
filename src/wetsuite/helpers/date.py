@@ -113,7 +113,7 @@ def find_dates_in_text(text: str):
         try:
             parsed = parse( dtt ) # we coung on this
             ret_dt.append( parsed )
-        except Exception as e: # unsure which exceptions
+        except Exception as e: # unsure which exceptions exactly, so for now this is fine  pylint: disable=broad-exception-caught
             print( 'ERROR: %s'%e )  #raise
             ret_dt.append( None )
     assert len(ret_text) == len(ret_dt)
@@ -163,23 +163,27 @@ def _date_from_date_datetime_or_parse( a_date ):
         raise ValueError("Do not understand date of type %s (%s)"%(type(a_date), a_date))
 
 
-# these are almost too simple, but used frequently enough in "fetch the last few weeks of updates" that they're quite convenient
+# these are almost too simple to make into functions, but used frequently enough in "fetch the last few weeks of updates"
+# that they're quite convenient and make such code more readable
 def date_today():
     ''' @return: today, as a datetime.date '''
     return datetime.date.today()
 
-def date_weeks_ago(amount=1):
+def date_weeks_ago(amount:float=1):
     ''' @return: A date some amount of months ago, as a datetime.date '''
     return datetime.date.today() - datetime.timedelta(days=int(amount*7))
 
-def date_months_ago(amount=1):
+def date_months_ago(amount:float=1):
     ''' @return: A date some amount of months ago, as a datetime.date '''
     return datetime.date.today() - datetime.timedelta(days= int(amount*30.6) )
 
-def date_first_day_in_year(yearnum):
+def date_first_day_in_year(yearnum:int):
     ''' @return: January first of the given year, as a datetime.date '''
     return datetime.date(year=yearnum, month=1, day=1)
 
+def yyyy_mm_dd(day:datetime.date):
+    " e.g. returns datetime.date(2024, 1, 1) as '2024-01-01', an apparently common format "
+    return day.strftime("%Y-%m-%d")
 
 
 
