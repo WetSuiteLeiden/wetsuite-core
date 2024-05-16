@@ -156,11 +156,12 @@ def _split_op_html(soup):
 
 class Fragments:
     ' Abstractish base class explaining the purpose of implementing this '
-    def __init__(self, docbytes:bytes):
+    def __init__(self, docbytes:bytes, debug:bool=False):
         ''' Hand the document bytestring into this. Nothing happens yet; you call accepts(), then suitableness(), then possibly fragments() -- see example use in decide(). '''
         if not isinstance(docbytes, bytes):
             raise ValueError("This class only accepts files as bytestrings")
         self.docbytes = docbytes
+        self.debug = debug
 
     def accepts( self ) -> bool:
         ''' whether we would consider parsing that at all.
@@ -190,8 +191,8 @@ class Fragments:
 
 class Fragments_XML_BWB( Fragments ):
     ' Turn BWB in XML form into fragements '
-    def __init__(self, docbytes):
-        Fragments.__init__(self, docbytes)
+    def __init__(self, docbytes, debug=False):
+        Fragments.__init__(self, docbytes, debug)
         self.tree = None
 
     def accepts( self ):
@@ -212,7 +213,8 @@ class Fragments_XML_BWB( Fragments ):
         # TODO: detect what level gives reasonably-sized chunks on average, to hand into mer
         for part_id, part_text_list in wetsuite.helpers.koop_parse.merge_alinea_data( fragments ):
             for part in part_text_list:
-                print(part)
+                if self.debug:
+                    print(part)
                 ret.append( (
                     {'hints':['mergedpart'], 'part_id':part_id, 'part_name':', '.join( ' '.join(tup)  for tup in part_id )},
                     {},#'raw':part_text_list},
@@ -224,8 +226,8 @@ class Fragments_XML_BWB( Fragments ):
 
 class Fragments_XML_CVDR( Fragments ):
     ' Turn CVDR in XML form into fragements '
-    def __init__(self, docbytes):
-        Fragments.__init__(self, docbytes)
+    def __init__(self, docbytes, debug=False):
+        Fragments.__init__(self, docbytes, debug)
         self.tree = None
 
     def accepts( self ):
@@ -243,7 +245,8 @@ class Fragments_XML_CVDR( Fragments ):
         # PRELIMINARY FUDGING AROUND
         ret = []
         for fragment in wetsuite.helpers.koop_parse.alineas_with_selective_path( self.tree ):
-            print( fragment )
+            #if self.debug:
+            #    print( fragment )
             raw       = fragment.pop('raw')
             fragment.pop('raw_etree')
             text_flat = fragment.pop('text-flat')
@@ -273,8 +276,8 @@ class Fragments_XML_CVDR( Fragments ):
 
 class Fragments_HTML_OP_Stcrt( Fragments ):
     " Turn staatscourat in HTML form (from KOOP's BUS) into fragements "
-    def __init__(self, docbytes):
-        Fragments.__init__(self, docbytes)
+    def __init__(self, docbytes, debug=False):
+        Fragments.__init__(self, docbytes, debug)
         self.soup = None
 
     def accepts( self ):
@@ -300,8 +303,8 @@ class Fragments_HTML_OP_Stcrt( Fragments ):
 
 class Fragments_HTML_OP_Stb( Fragments ):
     " Turn staatsblad in HTML form (from KOOP's BUS) into fragements "
-    def __init__(self, docbytes):
-        Fragments.__init__(self, docbytes)
+    def __init__(self, docbytes, debug=False):
+        Fragments.__init__(self, docbytes, debug)
         self.soup = None
 
     def accepts( self ):
@@ -330,9 +333,8 @@ class Fragments_HTML_OP_Stb( Fragments ):
 
 class Fragments_HTML_OP_Gmb( Fragments ):
     " Turn gemeenteblad in HTML form (from KOOP's BUS) into fragements "
-
-    def __init__(self, docbytes):
-        Fragments.__init__(self, docbytes)
+    def __init__(self, docbytes, debug=False):
+        Fragments.__init__(self, docbytes, debug)
         self.soup = None
 
     def accepts( self ):
@@ -359,8 +361,8 @@ class Fragments_HTML_OP_Gmb( Fragments ):
 
 class Fragments_HTML_OP_Trb( Fragments ):
     " Turn tractatenblad in HTML form (from KOOP's BUS) into fragements "
-    def __init__(self, docbytes):
-        Fragments.__init__(self, docbytes)
+    def __init__(self, docbytes, debug=False):
+        Fragments.__init__(self, docbytes, debug)
         self.soup = None
 
     def accepts( self ):
@@ -387,8 +389,8 @@ class Fragments_HTML_OP_Trb( Fragments ):
 
 class Fragments_HTML_OP_Prb( Fragments ):
     " Turn provincieblad in HTML form (from KOOP's BUS) into fragements "
-    def __init__(self, docbytes):
-        Fragments.__init__(self, docbytes)
+    def __init__(self, docbytes, debug=False):
+        Fragments.__init__(self, docbytes, debug)
         self.soup = None
 
     def accepts( self ):
@@ -416,8 +418,8 @@ class Fragments_HTML_OP_Prb( Fragments ):
 
 class Fragments_HTML_OP_Wsb( Fragments ):
     " Turn waterschapsblad in HTML form (from KOOP's BUS) into fragements "
-    def __init__(self, docbytes):
-        Fragments.__init__(self, docbytes)
+    def __init__(self, docbytes, debug=False):
+        Fragments.__init__(self, docbytes, debug)
         self.soup = None
 
     def accepts( self ):
@@ -443,8 +445,8 @@ class Fragments_HTML_OP_Wsb( Fragments ):
 
 class Fragments_HTML_OP_Bgr( Fragments ):
     " Turn blad gemeenschappelijke regeling in HTML form (from KOOP's BUS) into fragements "
-    def __init__(self, docbytes):
-        Fragments.__init__(self, docbytes)
+    def __init__(self, docbytes, debug=False):
+        Fragments.__init__(self, docbytes, debug)
         self.soup = None
 
     def accepts( self ):
@@ -472,8 +474,8 @@ class Fragments_HTML_OP_Bgr( Fragments ):
 
 class Fragments_XML_OP_Stcrt( Fragments ):
     " Turn staatscourant in XML form (from KOOP's BUS) into fragements "
-    def __init__(self, docbytes):
-        Fragments.__init__(self, docbytes)
+    def __init__(self, docbytes, debug=False):
+        Fragments.__init__(self, docbytes, debug)
         self.tree = None
         self.startpaths = None
 
@@ -508,8 +510,8 @@ class Fragments_XML_OP_Stcrt( Fragments ):
 
 class Fragments_XML_OP_Stb( Fragments ):
     " Turn sstaatsblad in XML form (from KOOP's BUS) into fragements "
-    def __init__(self, docbytes):
-        Fragments.__init__(self, docbytes)
+    def __init__(self, docbytes, debug=False):
+        Fragments.__init__(self, docbytes, debug)
         self.tree = None
         self.startpaths = None
 
@@ -540,8 +542,8 @@ class Fragments_XML_OP_Stb( Fragments ):
 
 class Fragments_XML_OP_Trb( Fragments ):
     " Turn tractatenblad in XML form (from KOOP's BUS) into fragements "
-    def __init__(self, docbytes):
-        Fragments.__init__(self, docbytes)
+    def __init__(self, docbytes, debug=False):
+        Fragments.__init__(self, docbytes, debug)
         self.tree = None
         self.startpaths = None
 
@@ -570,8 +572,8 @@ class Fragments_XML_OP_Trb( Fragments ):
 
 class Fragments_XML_OP_Gmb( Fragments ):
     " Turn gemeenteblad in XML form (from KOOP's BUS) into fragements "
-    def __init__(self, docbytes):
-        Fragments.__init__(self, docbytes)
+    def __init__(self, docbytes, debug=False):
+        Fragments.__init__(self, docbytes, debug)
         self.tree = None
         self.startpaths = None
 
@@ -601,8 +603,8 @@ class Fragments_XML_OP_Gmb( Fragments ):
 
 class Fragments_XML_OP_Prb( Fragments ):
     " Turn provincieblad in XML form (from KOOP's BUS) into fragements "
-    def __init__(self, docbytes):
-        Fragments.__init__(self, docbytes)
+    def __init__(self, docbytes, debug=False):
+        Fragments.__init__(self, docbytes, debug)
         self.tree = None
         self.startpaths = None
 
@@ -634,8 +636,8 @@ class Fragments_XML_OP_Prb( Fragments ):
 
 class Fragments_XML_OP_Wsb( Fragments ):
     " Turn waterschapsblad in XML form (from KOOP's BUS) into fragements "
-    def __init__(self, docbytes):
-        Fragments.__init__(self, docbytes)
+    def __init__(self, docbytes, debug=False):
+        Fragments.__init__(self, docbytes, debug)
         self.tree = None
         self.startpaths = None
 
@@ -664,8 +666,8 @@ class Fragments_XML_OP_Wsb( Fragments ):
 
 class Fragments_XML_OP_Bgr( Fragments ):
     " Turn blad gemeenschappelijke regeling in XML form (from KOOP's BUS) into fragements "
-    def __init__(self, docbytes):
-        Fragments.__init__(self, docbytes)
+    def __init__(self, docbytes, debug=False):
+        Fragments.__init__(self, docbytes, debug)
         self.tree = None
         self.startpaths = None
 
@@ -695,8 +697,8 @@ class Fragments_XML_OP_Bgr( Fragments ):
 
 class Fragments_XML_OP_Handelingen( Fragments ):
     " Turn handelingen in XML form (from KOOP's BUS) into fragements "
-    def __init__(self, docbytes):
-        Fragments.__init__(self, docbytes)
+    def __init__(self, docbytes, debug=False):
+        Fragments.__init__(self, docbytes, debug)
         self.tree = None
         self.startpaths = None
 
@@ -728,8 +730,8 @@ class Fragments_XML_OP_Handelingen( Fragments ):
 
 class Fragments_XML_BUS_Kamer( Fragments ):
     " Turn other kamer XMLs (from KOOP's BUS) into fragements (TODO: re-check which these are) "
-    def __init__(self, docbytes):
-        Fragments.__init__(self, docbytes)
+    def __init__(self, docbytes, debug=False):
+        Fragments.__init__(self, docbytes, debug)
         self.tree = None
         self.startpaths = None
 
@@ -766,8 +768,8 @@ class Fragments_XML_BUS_Kamer( Fragments ):
 
 class Fragments_HTML_BUS_kamer( Fragments ):
     " Turn kamer-related HTMLs (from KOOP's BUS) into fragements "
-    def __init__(self, docbytes):
-        Fragments.__init__(self, docbytes)
+    def __init__(self, docbytes, debug=False):
+        Fragments.__init__(self, docbytes, debug)
         self.soup = None
 
     def accepts( self ):
@@ -797,8 +799,8 @@ class Fragments_HTML_BUS_kamer( Fragments ):
 
 
 # class Fragments_HTML_Rechtspraak( Fragments ):
-#     def __init__(self, data):
-#         Fragments.__init__(self, data)
+#     def __init__(self, docbytes, debug=False):
+#         Fragments.__init__(self, docbytes, debug)
 #
 #     def accepts( self ):
 #         return wetsuite.helpers.util.is_html( self.docbytes )
@@ -816,8 +818,8 @@ class Fragments_HTML_BUS_kamer( Fragments ):
 
 class Fragments_XML_Rechtspraak( Fragments ):
     " turn rechtspraak.nl's XML form into fragments "
-    def __init__(self, data):
-        Fragments.__init__(self, data)
+    def __init__(self, docbytes, debug=False):
+        Fragments.__init__(self, docbytes, debug)
         self.tree = None
 
     def accepts( self ):
@@ -925,8 +927,8 @@ class Fragments_XML_Rechtspraak( Fragments ):
 
 class Fragments_HTML_Fallback( Fragments ):
     " Extract text from HTML from non-specific source into fragments "
-    def __init__(self, docbytes):
-        Fragments.__init__(self, docbytes)
+    def __init__(self, docbytes, debug=False):
+        Fragments.__init__(self, docbytes, debug)
         self.soup = None
 
     def accepts( self ):
@@ -949,8 +951,8 @@ class Fragments_HTML_Fallback( Fragments ):
 
 class Fragments_XML_Fallback( Fragments ):
     " Extract text from XML from non-specific source into fragments "
-    def __init__(self, docbytes):
-        Fragments.__init__(self, docbytes)
+    def __init__(self, docbytes, debug=False):
+        Fragments.__init__(self, docbytes, debug)
         self.tree = None
 
     def accepts( self ):
@@ -975,8 +977,8 @@ class Fragments_PDF_Fallback( Fragments ):
         Tries to look at section titles, 
         but is currently too crude to deal with page headers, footers.
     '''
-    def __init__(self, docbytes):
-        Fragments.__init__(self, docbytes)
+    def __init__(self, docbytes, debug=False):
+        Fragments.__init__(self, docbytes, debug)
         self.part_name = None
         self.part_ary = None
 
@@ -1027,15 +1029,16 @@ class Fragments_PDF_Fallback( Fragments ):
 
                 soup = bs4.BeautifulSoup(page_results, features='lxml', from_encoding='utf8')
                 div = soup.find('div')
-                print(div)
+                if self.debug:
+                    print(div)
                 for elem in div.children:
                     if isinstance(elem, bs4.NavigableString):
                         if len(elem.string.strip()) > 0:
-                            print('TopText %r'%elem.string)
+                            if self.debug:
+                                print('TopText %r'%elem.string)
                     else:
                         #if elem.find('img'):# assumes
                         #    continue
-
 
                         b = elem.find('b')
                         bupwish = b is not None  and b.string is not None  and  not wetsuite.helpers.strings.is_numeric( b.string ) # just an isolated number in a paragraphs does not mean much
@@ -1134,18 +1137,19 @@ _registered_fragment_parsers = [
 ]
 
 
-def decide(docbytes, thresh=1000, first_only=False):
+def decide(docbytes, thresh=1000, first_only=False, debug=False):
     ''' Ask all processors to say how well they would do, 
-        pick any applicable.
+        pick any that seem applicable enough (by our threshold).
 
-        Returns a list of (score, procobject),
-        and note that that procobject has had accepts() and suitableness() called 
+        Returns a list of (score, procobject)
+        
+        Note that that procobject has had accepts() and suitableness() called,
         so you can now call fragments() to get the fragments.
     '''
     options = [] # list of (score, class)
 
     for PerhapsClass in _registered_fragment_parsers:
-        plcob = PerhapsClass( docbytes )
+        plcob = PerhapsClass( docbytes, debug=debug )
         if plcob.accepts():              # does it say it's getting the right file type?
             score = plcob.suitableness() # how well does it figure it would treat this?
             if score < thresh:
