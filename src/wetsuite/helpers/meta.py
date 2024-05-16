@@ -1,7 +1,13 @@
-''' Parsing metadata - specifically for things not tied to a singular API or data source, 
+''' Things that aprse metadata.
+    
+    Specifically for things not tied to a singular API or data source, 
     or we otherwise expect to see some reuse of.
 
-    Function name should give you some indication how what it belongs to and how specific it is.
+    Things that are more specific live in places like koop_parse
+
+
+    The function name should give you some indication how what it associates with, 
+    and how specific it is.
 '''
 import re
 import collections
