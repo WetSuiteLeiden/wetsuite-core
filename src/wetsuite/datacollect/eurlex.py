@@ -130,7 +130,7 @@ def extract_html(htmlbytes):
         ret['titles']['englishTitle'] = PP1Contents.find(id='englishTitle').text
         ret['titles']['originalTitle'] = PP1Contents.find(id='originalTitle').text
 
-        eid = PP1Contents.find('p', text=re.compile(r'.*ECLI identifier.*'))
+        eid = PP1Contents.find('p', string=re.compile(r'.*ECLI identifier.*'))
         if eid is not None:
             ret['ecli'] = eid.text.split(':', 1)[1].strip()
 
@@ -193,7 +193,7 @@ def extract_html(htmlbytes):
                     a = li.find('a')
                     data_celex = a.get('data-celex')
                     if data_celex is not None:
-                        parsedval.append(   (  'CELEX:'+data_celex, ''.join( li.findAll(text=True) ).strip()  )   )
+                        parsedval.append(   (  'CELEX:'+data_celex, ''.join( li.findAll(string=True) ).strip()  )   )
                     else:
                         pass # TODO: handle other types
                 parsed_link[what] = parsedval
@@ -230,9 +230,9 @@ def extract_html(htmlbytes):
                 for li in val:
                     div = li.find('div')
                     if div is not None:
-                        parsedval.append(  list(s.strip()   for s in div.findAll(text=True)  if len(s.strip())>0 )  )
+                        parsedval.append(  list(s.strip()   for s in div.findAll(string=True)  if len(s.strip())>0 )  )
                     else:
-                        parsedval.append( ''.join( li.findAll(text=True) ).strip() )
+                        parsedval.append( ''.join( li.findAll(string=True) ).strip() )
                 parsed_class[what] = parsedval
             else:
                 parsed_class[what] = val
@@ -297,12 +297,12 @@ def extract_html(htmlbytes):
                         cur_section_name = node.text
 
                     elif node.name in ('p',):
-                        txtfrags = list(  frag  for frag in node.findAll(text=True) if len(frag.strip())>0)
+                        txtfrags = list(  frag  for frag in node.findAll(string=True) if len(frag.strip())>0)
                         cur_section_txt.extend( txtfrags )
                     elif node.name in ('em','b','i',
                                        'center',
                                        ):
-                        txtfrags = list(  frag  for frag in node.findAll(text=True) if len(frag.strip())>0)
+                        txtfrags = list(  frag  for frag in node.findAll(string=True) if len(frag.strip())>0)
                         cur_section_txt.extend( txtfrags )
                     elif node.name in ('br','hr'):
                         pass # is nothing
@@ -322,7 +322,7 @@ def extract_html(htmlbytes):
                         'td' # TODO: think
                     ):
                         #print( node.name.upper(), node)
-                        txtfrags = list(  frag  for frag in node.findAll(text=True) if len(frag.strip())>0)
+                        txtfrags = list(  frag  for frag in node.findAll(string=True) if len(frag.strip())>0)
                         cur_section_txt.extend( txtfrags )
 
                     # ignore
