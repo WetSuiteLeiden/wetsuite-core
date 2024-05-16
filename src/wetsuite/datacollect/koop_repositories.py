@@ -199,8 +199,8 @@ class EuropeseRichtlijnen(wetsuite.datacollect.sru.SRUBase):
 
 
 
-if False: # Pending removal? It's not a viable route to download...
-    
+if False: # Pending removal? It's not a viable route to download more than a little...
+
     # Code that accesses the https://repository.overheid.nl/frbr/ data
     class FRBRFetcher:
         ''' Helper class to fetch data from an area of https://repository.overheid.nl/frbr/
@@ -219,13 +219,13 @@ if False: # Pending removal? It's not a viable route to download...
                 the latter mostly pointless outside of this fetcher)
 
                 After this you will want to 
-                - hand in a starting point like::
-                    fetcher.add_page( 'https://repository.overheid.nl/frbr/cga?start=1' )
-                - use fetcher.work() to start it fetching. 
-                    - work() is a generator function that tries to frequently return, 
-                    so that you can read out some "what have we done" ( see .count_* )
-                    - if you just want it to do things until it's done, 
-                    you can do `list( fetcher.work() )`
+                  - hand in a starting point like::
+                      fetcher.add_page( 'https://repository.overheid.nl/frbr/cga?start=1' )
+                  - use fetcher.work() to start it fetching. 
+                      - work() is a generator function that tries to frequently return, 
+                      so that you can read out some "what have we done" ( see .count_* )
+                      - if you just want it to do things until it's done, 
+                      you can do `list( fetcher.work() )`
 
                 Will only go deeper from the starting page you give it.
                 @param fetch_store:
