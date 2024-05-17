@@ -1,6 +1,6 @@
 #!/usr/bin/python3
 '''
-Talks to SRU repositories, mainly underlies L{koop_repositories}
+Talks to SRU repositories, mainly underlies L{koop_sru}
 
 SRU is a search-and-retrieve protocol; 
 to dig more into the what and how to use this in a more advanced way, look for the sru-related notebook (somewhere in extras).

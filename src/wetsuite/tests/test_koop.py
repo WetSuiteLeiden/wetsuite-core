@@ -1,17 +1,17 @@
-''' Testing koop_parse and koop_repositories modules '''
+''' Testing koop_parse and koop_sru modules '''
 import os
 
 import pytest
 
 from wetsuite.helpers.koop_parse import cvdr_parse_identifier, cvdr_meta, cvdr_text, cvdr_sourcerefs, cvdr_param_parse, cvdr_normalize_expressionid, prefer_types
-import wetsuite.datacollect.koop_repositories
-from wetsuite.datacollect.koop_repositories import BWB, CVDR
-from wetsuite.datacollect.koop_repositories import SamenwerkendeCatalogi, LokaleBekendmakingen, TuchtRecht, WetgevingsKalender, PLOOI, PUCOpenData, EuropeseRichtlijnen
-from wetsuite.datacollect.koop_repositories import StatenGeneraalDigitaal, Belastingrecht
+import wetsuite.datacollect.koop_sru
+from wetsuite.datacollect.koop_sru import BWB, CVDR
+from wetsuite.datacollect.koop_sru import SamenwerkendeCatalogi, LokaleBekendmakingen, TuchtRecht, WetgevingsKalender, PLOOI, PUCOpenData, EuropeseRichtlijnen
+from wetsuite.datacollect.koop_sru import StatenGeneraalDigitaal, Belastingrecht
 import wetsuite.helpers.etree
 
 
-def test_koop_repositories_object_constructor():
+def test_koop_sru_object_constructor():
     ' mostly just that that they construct fine '
     BWB()
     CVDR()
@@ -119,7 +119,7 @@ def test_search_related_parsing():
     # CONSIDER: currently based on an actual search - TODO: fetch a triple of XML files to not rely on taht
     #from wetsuite.helpers.net import download
     #from wetsuite.helpers.etree import fromstring
-    bwb_sru =  wetsuite.datacollect.koop_repositories.BWB()
+    bwb_sru =  wetsuite.datacollect.koop_sru.BWB()
     for record in bwb_sru.search_retrieve('dcterms.identifier = BWBR0045754'):
         wetsuite.helpers.koop_parse.bwb_searchresult_meta( record )
 
@@ -127,10 +127,10 @@ def test_search_related_parsing():
 def test_more_parsing():
     ' do a bunch of search related parsing '
     # CONSIDER: currently based on an actual search - TODO: fetch a triple of XML files to not rely on taht
-    # import wetsuite.datacollect.koop_repositories
+    # import wetsuite.datacollect.koop_sru
     # from wetsuite.helpers.net import download
     # from wetsuite.helpers.etree import fromstring
-    # bwb =  wetsuite.datacollect.koop_repositories.BWB()
+    # bwb =  wetsuite.datacollect.koop_sru.BWB()
     # for record in bwb.search_retrieve('dcterms.identifier = BWBR0045754'):
     #     search_meta = wetsuite.helpers.koop_parse.bwb_searchresult_meta( record )
 
