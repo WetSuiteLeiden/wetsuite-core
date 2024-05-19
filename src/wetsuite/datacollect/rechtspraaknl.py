@@ -196,7 +196,7 @@ def _para_text(treenode):
 
 
     # # we try to abuse our own
-    # alinea_data = wetsuite.helpers.koop_parse.alineas_with_selective_path( tree, alinea_elemname='para' )
+    # alinea_data = wetsuite.helpers.koop_parse.alineas_with_selective_path( tree, alinea_elemnames=('para',) )
     # #pprint.pprint(alinea_data)
     # merged = wetsuite.helpers.koop_parse.merge_alinea_data( alinea_data ) # TODO: explicit if_same ?
     # #pprint.pprint(merged)

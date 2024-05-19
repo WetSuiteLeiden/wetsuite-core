@@ -830,7 +830,7 @@ def parse_op_meta( xmlbytes: bytes, as_dict=False ):
 
 
 #TODO: rename
-def alineas_with_selective_path(tree, start_at_path=None, alinea_elemname='al'): # , ignore=['meta-data'], add_raw=True
+def alineas_with_selective_path(tree, start_at_path=None, alinea_elemnames=('al',)): # , ignore=['meta-data'], add_raw=True
     ''' Given document-style XML data such as that of CVDR XML documents,
         tries to capture most of the interesting structure in easier-to-digest python data form,
         and lessen the nested nature without quite throwing it away.
@@ -845,8 +845,8 @@ def alineas_with_selective_path(tree, start_at_path=None, alinea_elemname='al'):
         @param tree:            the etree tree/node to work on
         @param start_at_path:   if you gave it the root of an etree, you can do a subset by handing in xpath here
         (alternatively, you could navigate yourself and hand the interesting section in directly)
-        @param alinea_elemname: will be 'al' for the KOOP sources. Was made into a parameter only to make this perhaps-applicable elsewhere, you probably don't want to touch this.
-        @return: Returns a list of dicts, one for each <al> (or whatever you handed into alinea_elemname)
+        @param alinea_elemnames: will be ('al',) for the KOOP sources. Was made into a parameter only to make this perhaps-applicable elsewhere, you probably don't want to touch this.
+        @return: Returns a list of dicts, one for each <al> (or whatever you handed into alinea_elemnames)
 
         While on some flat examples, e.g. officiele-publicaties XMLs, each output might not hold much structure,
         some of the better-structured cases, e.g. BWB XMLs, each such output dict might look something like: ::
@@ -938,7 +938,7 @@ def alineas_with_selective_path(tree, start_at_path=None, alinea_elemname='al'):
             if isinstance(element, _Comment) or isinstance(element, _ProcessingInstruction):
                 pass
             else:
-                if element.tag == alinea_elemname:
+                if element.tag in alinea_elemnames:
                     xpath_path = wetsuite.helpers.etree.path_between(tree, element)
                     emit = {'path':xpath_path, 'parts':[], 'merged':{}}
                     for pathelem in path_to_element:
@@ -968,6 +968,7 @@ def alineas_with_selective_path(tree, start_at_path=None, alinea_elemname='al'):
             path_to_element.append( element )
             for child in reversed( element ):
                 element_stack.append( child )
+            #print( element_stack )
     return ret
 
 
