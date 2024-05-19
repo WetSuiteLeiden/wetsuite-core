@@ -30,6 +30,7 @@
     It should also have a reasonable fallback for each document type.
 '''
 
+import re
 
 import bs4  # arguably should be inside each class so we can do without some of these imports
 import fitz # arguably should be inside each class so we can do without some of these imports
@@ -90,7 +91,6 @@ def _split_op_xml(tree, start_at):
     return ret
 
 
-import re
 
 _op_re      = re.compile(r'.*officiele-publicatie.*')
 _content_re = re.compile(r'.*\bcontent\b.*')
@@ -120,8 +120,8 @@ def _split_op_html(soup):
     alert = body.find('div', attrs={'class':'alert__inner'})
     if alert is not None:
         raise ValueError(alert.text)
-        if 'Deze publicatie is niet beschikbaar' in alert.text:
-            raise ValueError(alert.text)
+        #if 'Deze publicatie is niet beschikbaar' in alert.text:
+        #    raise ValueError(alert.text)
 
     found_one = False
     for maybe in (dop, stuk, inhoud, article, idc):
@@ -141,7 +141,7 @@ def _split_op_html(soup):
                     ' '.join( elem.find_all(text=True))
                 ) )
             break
-    
+
     #if not found_one:
     #     print("ELSE")
     #     text = body.find_all(text=True)
@@ -494,6 +494,7 @@ class Fragments_XML_OP_Stcrt( Fragments ):
             ('//staatscourant//regeling-tekst', 5),
             ('//staatscourant', 50),
             ('/stcart', 50), # is this wrong?
+            ('/avvcao//body', 75), # exception?
         ):
             sel = self.tree.xpath( test_xpath )
             if len(sel)>0:
@@ -524,6 +525,7 @@ class Fragments_XML_OP_Stb( Fragments ):
         self.tree = wetsuite.helpers.etree.strip_namespace( self.tree ) # choice to remove namespaces unconditionally
         for test_xpath, score in (
             ('//staatsblad//wettekst', 5),
+            ('//staatsbl//body', 10 ), # which excludes some
             ('//staatsblad/verbeterblad/vrije-tekst/tekst', 5), # exception?
             #elif self.tree.xpath('//staatsblad'):  return 50
         ):
@@ -556,6 +558,7 @@ class Fragments_XML_OP_Trb( Fragments ):
         self.tree = wetsuite.helpers.etree.strip_namespace( self.tree ) # choice to remove namespaces unconditionally
         for test_xpath, score in (
             ('//tractatenblad//vrije-tekst', 5),
+            ('//trblad//body', 10), # which excludes some
         ):
             sel = self.tree.xpath( test_xpath )
             if len(sel)>0:
@@ -617,6 +620,7 @@ class Fragments_XML_OP_Prb( Fragments ):
         self.tree = wetsuite.helpers.etree.strip_namespace( self.tree ) # choice to remove namespaces unconditionally
         for test_xpath, score in (
             ('//provinciaalblad//regeling-tekst/tekst', 5),
+            ('//provinciaalblad//regeling-tekst', 15),
             ('//provinciaalblad//zakelijke-mededeling-tekst/tekst', 5),
             ('//provincieblad//zakelijke-mededeling-tekst/tekst', 5),
         ):
@@ -748,8 +752,10 @@ class Fragments_XML_BUS_Kamer( Fragments ):
             ('/kamerwrk', 5),         # ?
             ('//kamerstuk//vrije-tekst/tekst',5),
             ('//kamervragen',5),
+            ('//niet-dossier-stuk//vrije-tekst',15), # or maybe //niet-dossier-stuk/nds-stuk  ?
             ('//kamerstuk//stuk',50), # ?
             ('/vraagdoc',50), # is this wrong?
+            ('//agenda',100), # TODO: split the cacses that jsut say to look at the PDF instead?
         ):
             sel = self.tree.xpath( test_xpath )
             if len(sel)>0:
