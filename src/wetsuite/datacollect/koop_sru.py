@@ -2,14 +2,13 @@
 '''
   An interface to the SRU repositories managed by KOOP
 
-  - SRU API
-    - classes that instantiate a usable SRU interface on specific repositories and/or subsets of them
-    - helper functions for dealing with specific repository content
-    - Right now, only BWB and CVDR have been used seriously, the rest still needs testing.
-    - See also sru.py
-  
-  - The repository wit FRBR-style organization, at https://repository.overheid.nl/frbr/
-
+    - SRU API
+      - classes that instantiate a usable SRU interface on specific repositories and/or subsets of them
+      - helper functions for dealing with specific repository content
+      - Right now, only BWB and CVDR have been used seriously, the rest still needs testing.
+      - See also sru.py
+    
+    - The repository wit FRBR-style organization, at https://repository.overheid.nl/frbr/
 '''
 
 import wetsuite.helpers.net
