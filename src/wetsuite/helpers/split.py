@@ -82,7 +82,15 @@ def _split_op_xml(tree, start_at):
         start_at_path = wetsuite.helpers.etree.path_between(tree, start_at_node)
 
     ## extract under that node/path
-    for fragment in wetsuite.helpers.koop_parse.alineas_with_selective_path(tree, start_at_path=start_at_path):
+    for fragment in wetsuite.helpers.koop_parse.alineas_with_selective_path(tree, start_at_path=start_at_path, alinea_elemnames=(
+        'al',
+        'tussenkop',
+        'dagtekening',
+        'context.al',
+        'considerans.al',
+        'Al',
+        #'entry',
+        )):
         #print('FR',fragment)
         meta       = fragment
         inter      = {'raw':fragment.pop('raw'), 'raw_etree':fragment.pop('raw_etree')}
@@ -123,7 +131,7 @@ def _split_op_html(soup):
         #if 'Deze publicatie is niet beschikbaar' in alert.text:
         #    raise ValueError(alert.text)
 
-    found_one = False
+    found_one = False # set but not currently used
     for maybe in (dop, stuk, inhoud, article, idc):
         if maybe is not None:
             #print(maybe.name)
@@ -270,9 +278,6 @@ class Fragments_XML_CVDR( Fragments ):
 
 
 
-# CONSIDER: It seems that for OP, the meta fields are the same between HTML and XML,
-#           which would mean the detection methods could be the same (and more code shared)
-#           On the other hand, the //looking-for//specifics is great at highlighting weird edge caes
 
 class Fragments_HTML_OP_Stcrt( Fragments ):
     " Turn staatscourat in HTML form (from KOOP's BUS) into fragements "
@@ -470,6 +475,73 @@ class Fragments_HTML_OP_Bgr( Fragments ):
         return ret
 
 
+#######################################################################################################################
+
+# CONSIDER: It seems that for OP, the meta fields are the same between HTML and XML,
+#           which would mean the detection methods could be similar (and more code shared)
+#           On the other hand, the //looking-for//specifics is great at highlighting weird edge caes
+
+
+# There is an argument that many of the XPaths below should be made more wide, because while e.g.
+#   //gemeenteblad//regeling-tekst/tekst
+# may focus on the core text,
+#   //gemeenteblad//regeling-tekst
+# will not ignore some text around it (which is why /tekst is mentioned in comments below)
+# but then, there are also a few weird cases like the below and e.g. gmb-2014-45427,
+# where the contents are all in the aanhef, that argue that that we'll catch more like:
+#   //gemeenteblad//regeling
+
+# <gemeenteblad>
+#     <kop>
+#       <titel>Gereserveerde gehandicaptenparkeerplaats nabij het perceelnummer 143, aan de Vijzelstraat te Den Haag.</titel>
+#     </kop>
+#     <regeling>
+#       <aanhef>
+#         <context>
+#           <context.al>Onderwerp: toewijzing gehandicaptenparkeerplaats bestuurder nabij het woonadres.</context.al>
+#           <context.al>Geachte heer, mevrouw,</context.al>
+#           <context.al>Dit is het besluit op uw ingekomen aanvraag voor een gehandicaptenparkeerplaats ten behoeve van bestuurders.</context.al>
+#           [...]
+#         </context>
+#       </aanhef>
+#       <regeling-tekst>
+#         <tekst/>
+#       </regeling-tekst>
+#     </regeling>
+#   </gemeenteblad>
+
+class Fragments_XML_OP_Gmb( Fragments ):
+    " Turn gemeenteblad in XML form (from KOOP's BUS) into fragements "
+    def __init__(self, docbytes, debug=False):
+        Fragments.__init__(self, docbytes, debug)
+        self.tree = None
+        self.startpaths = None
+
+    def accepts( self ):
+        return wetsuite.helpers.util.is_xml( self.docbytes )
+
+    def suitableness( self ):
+        # may raise - maybe return very high score instead?
+        self.tree = wetsuite.helpers.etree.fromstring( self.docbytes )
+        self.tree = wetsuite.helpers.etree.strip_namespace( self.tree ) # choice to remove namespaces unconditionally
+        for test_xpath, score in (
+            #('//gemeenteblad//regeling-tekst', 5),
+            ('//gemeenteblad//zakelijke-mededeling', 10), # -tekst/tekst
+            ('//gemeenteblad//regeling', 10),
+            ('//Gemeenteblad//BesluitCompact', 25),
+            
+        ):
+            sel = self.tree.xpath( test_xpath )
+            if len(sel)>0:
+                self.startpaths = list(wetsuite.helpers.etree.path_between(self.tree, selnode, excluding=True)    for selnode in sel)
+                return score
+        return 5000
+
+    def fragments(self):
+        ret = []
+        for sp in self.startpaths:
+            ret.extend( _split_op_xml(self.tree, sp) )
+        return ret
 
 
 class Fragments_XML_OP_Stcrt( Fragments ):
@@ -483,14 +555,14 @@ class Fragments_XML_OP_Stcrt( Fragments ):
         return wetsuite.helpers.util.is_xml( self.docbytes )
 
     def suitableness( self ):
-        # may raise
+        # may raise - maybe return very high score instead?
         self.tree = wetsuite.helpers.etree.fromstring( self.docbytes )
         self.tree = wetsuite.helpers.etree.strip_namespace( self.tree ) # choice to remove namespaces unconditionally
 
         for test_xpath, score in (
-            ('//staatscourant//circulaire-tekst/tekst', 5),
-            ('//staatscourant//vrije-tekst/tekst', 5),
-            ('//staatscourant//zakelijke-mededeling-tekst/tekst', 5),
+            ('//staatscourant//circulaire-tekst', 5), # /tekst
+            ('//staatscourant//vrije-tekst', 5), # /tekst
+            ('//staatscourant//zakelijke-mededeling-tekst', 5), # /tekst
             ('//staatscourant//regeling-tekst', 5),
             ('//staatscourant', 50),
             ('/stcart', 50), # is this wrong?
@@ -520,13 +592,13 @@ class Fragments_XML_OP_Stb( Fragments ):
         return wetsuite.helpers.util.is_xml( self.docbytes )
 
     def suitableness( self ):
-        # may raise
+        # may raise - maybe return very high score instead?
         self.tree = wetsuite.helpers.etree.fromstring( self.docbytes )
         self.tree = wetsuite.helpers.etree.strip_namespace( self.tree ) # choice to remove namespaces unconditionally
         for test_xpath, score in (
             ('//staatsblad//wettekst', 5),
             ('//staatsbl//body', 10 ), # which excludes some
-            ('//staatsblad/verbeterblad/vrije-tekst/tekst', 5), # exception?
+            ('//staatsblad/verbeterblad/vrije-tekst', 5), #  /tekst    exception?
             #elif self.tree.xpath('//staatsblad'):  return 50
         ):
             sel = self.tree.xpath( test_xpath )
@@ -553,7 +625,7 @@ class Fragments_XML_OP_Trb( Fragments ):
         return wetsuite.helpers.util.is_xml( self.docbytes )
 
     def suitableness( self ):
-        # may raise
+        # may raise - maybe return very high score instead?
         self.tree = wetsuite.helpers.etree.fromstring( self.docbytes )
         self.tree = wetsuite.helpers.etree.strip_namespace( self.tree ) # choice to remove namespaces unconditionally
         for test_xpath, score in (
@@ -573,35 +645,6 @@ class Fragments_XML_OP_Trb( Fragments ):
         return ret
 
 
-class Fragments_XML_OP_Gmb( Fragments ):
-    " Turn gemeenteblad in XML form (from KOOP's BUS) into fragements "
-    def __init__(self, docbytes, debug=False):
-        Fragments.__init__(self, docbytes, debug)
-        self.tree = None
-        self.startpaths = None
-
-    def accepts( self ):
-        return wetsuite.helpers.util.is_xml( self.docbytes )
-
-    def suitableness( self ):
-        # may raise
-        self.tree = wetsuite.helpers.etree.fromstring( self.docbytes )
-        self.tree = wetsuite.helpers.etree.strip_namespace( self.tree ) # choice to remove namespaces unconditionally
-        for test_xpath, score in (
-            ('//gemeenteblad//regeling-tekst', 5),
-            ('//gemeenteblad//zakelijke-mededeling-tekst/tekst', 5),
-        ):
-            sel = self.tree.xpath( test_xpath )
-            if len(sel)>0:
-                self.startpaths = list(wetsuite.helpers.etree.path_between(self.tree, selnode, excluding=True)    for selnode in sel)
-                return score
-        return 5000
-
-    def fragments(self):
-        ret = []
-        for sp in self.startpaths:
-            ret.extend( _split_op_xml(self.tree, sp) )
-        return ret
 
 
 class Fragments_XML_OP_Prb( Fragments ):
@@ -615,14 +658,16 @@ class Fragments_XML_OP_Prb( Fragments ):
         return wetsuite.helpers.util.is_xml( self.docbytes )
 
     def suitableness( self ):
-        # may raise
+        # may raise - maybe return very high score instead?
         self.tree = wetsuite.helpers.etree.fromstring( self.docbytes )
         self.tree = wetsuite.helpers.etree.strip_namespace( self.tree ) # choice to remove namespaces unconditionally
         for test_xpath, score in (
-            ('//provinciaalblad//regeling-tekst/tekst', 5),
-            ('//provinciaalblad//regeling-tekst', 15),
-            ('//provinciaalblad//zakelijke-mededeling-tekst/tekst', 5),
-            ('//provincieblad//zakelijke-mededeling-tekst/tekst', 5),
+            ('//provinciaalblad//regeling', 15),             # -tekst/tekst
+            #('//provinciaalblad//regeling-tekst', 15),
+            ('//provinciaalblad//zakelijke-mededeling', 5), # -tekst/tekst
+            ('//provincieblad//zakelijke-mededeling', 5),   # -tekst/tekst
+            ('//provincieblad//regeling', 15),              # -tekst
+            ('//Provinciaalblad//Lichaam', 10), 
         ):
             sel = self.tree.xpath( test_xpath )
             if len(sel)>0:
@@ -649,11 +694,12 @@ class Fragments_XML_OP_Wsb( Fragments ):
         return wetsuite.helpers.util.is_xml( self.docbytes )
 
     def suitableness( self ):
-        # may raise
+        # may raise - maybe return very high score instead?
         self.tree = wetsuite.helpers.etree.fromstring( self.docbytes )
         self.tree = wetsuite.helpers.etree.strip_namespace( self.tree ) # choice to remove namespaces unconditionally
         for test_xpath, score in (
-            ('//waterschapsblad//zakelijke-mededeling-tekst/tekst', 5),
+            ('//waterschapsblad//zakelijke-mededeling', 10),  # -tekst/tekst
+            ('//waterschapsblad//regeling', 10),  # regeling-tekst
         ):
             sel = self.tree.xpath( test_xpath )
             if len(sel)>0:
@@ -679,12 +725,12 @@ class Fragments_XML_OP_Bgr( Fragments ):
         return wetsuite.helpers.util.is_xml( self.docbytes )
 
     def suitableness( self ):
-        # may raise
+        # may raise - maybe return very high score instead?
         self.tree = wetsuite.helpers.etree.fromstring( self.docbytes )
         self.tree = wetsuite.helpers.etree.strip_namespace( self.tree ) # choice to remove namespaces unconditionally
         for test_xpath, score in (
-            ('//bladgemeenschappelijkeregeling//regeling-tekst', 5),
-            ('//bladgemeenschappelijkeregeling//zakelijke-mededeling-tekst/tekst',5),
+            ('//bladgemeenschappelijkeregeling//regeling', 5),  # -tekst
+            ('//bladgemeenschappelijkeregeling//zakelijke-mededeling',5),  # -tekst/tekst
         ):
             sel = self.tree.xpath( test_xpath )
             if len(sel)>0:
@@ -711,7 +757,7 @@ class Fragments_XML_OP_Handelingen( Fragments ):
         return wetsuite.helpers.util.is_xml( self.docbytes )
 
     def suitableness( self ):
-        # may raise
+        # may raise - maybe return very high score instead?
         self.tree = wetsuite.helpers.etree.fromstring( self.docbytes )
         self.tree = wetsuite.helpers.etree.strip_namespace( self.tree ) # choice to remove namespaces unconditionally
         for test_xpath, score in (
@@ -744,15 +790,15 @@ class Fragments_XML_BUS_Kamer( Fragments ):
         return wetsuite.helpers.util.is_xml( self.docbytes )
 
     def suitableness( self ):
-        # may raise
+        # may raise - maybe return very high score instead?
         self.tree = wetsuite.helpers.etree.fromstring( self.docbytes )
         self.tree = wetsuite.helpers.etree.strip_namespace( self.tree ) # choice to remove namespaces unconditionally
 
         for test_xpath, score in (
             ('/kamerwrk', 5),         # ?
-            ('//kamerstuk//vrije-tekst/tekst',5),
-            ('//kamervragen',5),
-            ('//niet-dossier-stuk//vrije-tekst',15), # or maybe //niet-dossier-stuk/nds-stuk  ?
+            ('//kamerstuk//vrije-tekst',5),   # /tekst
+            ('//kamervragen',15),
+            ('//niet-dossier-stuk//vrije-tekst',10), # or maybe //niet-dossier-stuk/nds-stuk  ?
             ('//kamerstuk//stuk',50), # ?
             ('/vraagdoc',50), # is this wrong?
             ('//agenda',100), # TODO: split the cacses that jsut say to look at the PDF instead?
@@ -787,7 +833,7 @@ class Fragments_HTML_BUS_kamer( Fragments ):
         return False
 
     def suitableness( self ):
-        # may raise
+        # may raise - maybe return very high score instead?
         self.soup = bs4.BeautifulSoup( self.docbytes, features='lxml' )
         pname = self.soup.find('meta', attrs={'name':'OVERHEIDop.publicationName'})
         if pname is not None and pname.get('content')   == 'Kamervragen (Aanhangsel)':
