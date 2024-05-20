@@ -1,0 +1,11 @@
+--2024-05-21 00:27:54--  https://zoek.officielebekendmakingen.nl/bgr-2024-715.xml
+Resolving zoek.officielebekendmakingen.nl (zoek.officielebekendmakingen.nl)... 2a07:3506:4c:3226::5:0, 62.112.246.112
+Connecting to zoek.officielebekendmakingen.nl (zoek.officielebekendmakingen.nl)|2a07:3506:4c:3226::5:0|:443... connected.
+HTTP request sent, awaiting response... 200 OK
+Length: 14183 (14K) [text/xml]
+Saving to: ‘bgr-2024-715.xml’
+
+     0K .......... ...                                        100% 22.2M=0.001s
+
+2024-05-21 00:27:54 (22.2 MB/s) - ‘bgr-2024-715.xml’ saved [14183/14183]
+

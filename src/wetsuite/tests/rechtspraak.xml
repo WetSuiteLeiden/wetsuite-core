@@ -1,0 +1,11 @@
+--2024-05-21 00:34:16--  https://data.rechtspraak.nl/uitspraken/content?id=ECLI:NL:PHR:2011:BP5608
+Resolving data.rechtspraak.nl (data.rechtspraak.nl)... 2a04:9a04:18a0:8a02:0:3c:192:51, 159.46.204.51
+Connecting to data.rechtspraak.nl (data.rechtspraak.nl)|2a04:9a04:18a0:8a02:0:3c:192:51|:443... connected.
+HTTP request sent, awaiting response... 200 OK
+Length: unspecified [application/xml]
+Saving to: ‘content?id=ECLI:NL:PHR:2011:BP5608’
+
+     0K .......... .......... .......... .......... .......    2.47M=0.02s
+
+2024-05-21 00:34:16 (2.47 MB/s) - ‘content?id=ECLI:NL:PHR:2011:BP5608’ saved [48129]
+
