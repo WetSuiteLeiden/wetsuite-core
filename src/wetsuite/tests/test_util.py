@@ -116,7 +116,7 @@ def test_is_html_ns():
 def test_is_zip():
     " test the 'does this look like a ZIP file?' "
     import test_util
-    testzipfn = os.path.join( os.path.dirname( test_util.__file__ ), 'with_html_and_png.zip' )
+    testzipfn = os.path.join( os.path.dirname( test_util.__file__ ), 'html_and_png.zip' )
     with open( testzipfn ,'rb') as f:
         assert wetsuite.helpers.util.is_zip( f.read() )
 
@@ -138,7 +138,7 @@ def test_is_htmlzip():
     " test the 'does this look like a HTMLfile-in-a-zipfile' (that KOOP uses) "
     # there is probably a better way of picking up a test file
     import test_util
-    testzipfn = os.path.join( os.path.dirname( test_util.__file__ ), 'with_html_and_png.zip' )
+    testzipfn = os.path.join( os.path.dirname( test_util.__file__ ), 'html_and_png.zip' )
     with open( testzipfn ,'rb') as f:
         assert wetsuite.helpers.util.is_htmlzip( f.read() )
 
@@ -185,7 +185,7 @@ def test_tempty_zip_get_ziphtml():
 def test_get_ziphtml():
     " test that we can fish the .html out of 'HTMLfile-in-a-zipfile' (that KOOP uses) in the presence of other files (the test example also contains a .png) "
     import test_util
-    testzipfn = os.path.join( os.path.dirname( test_util.__file__ ), 'with_html_and_png.zip' )
+    testzipfn = os.path.join( os.path.dirname( test_util.__file__ ), 'html_and_png.zip' )
     with open( testzipfn ,'rb') as f:
         assert wetsuite.helpers.util.is_html( wetsuite.helpers.util.get_ziphtml( f.read() ) ) # check that the extracted data _is_ the
 

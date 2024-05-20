@@ -1,0 +1,26 @@
+<metadata_gegevens>
+  <metadata name="OVERHEID.organisationType" scheme="OVERHEID.Organisatietype" content="gemeente" />
+  <metadata name="OVERHEIDop.publicationName" scheme="" content="Gemeenteblad" />
+  <metadata name="OVERHEIDop.doctype" scheme="" content="Officiële Publicaties, versie 1.1" />
+  <metadata name="OVERHEIDop.configuratie" scheme="" content="https://repository.officiele-overheidspublicaties.nl/MasterConfiguraties/MC-DRP-BeschikkingAfhandeling-Web-ZM/5.19/xml/MC-DRP-BeschikkingAfhandeling-Web-ZM.xml" />
+  <metadata name="DC.creator" scheme="OVERHEID.Gemeente" content="Reimerswaal" />
+  <metadata name="DC.type" scheme="OVERHEID.Informatietype" content="officiële publicatie" />
+  <metadata name="DCTERMS.publisher" scheme="OVERHEID.Gemeente" content="Reimerswaal" />
+  <metadata name="OVERHEID.authority" scheme="OVERHEID.Gemeente" content="Reimerswaal" />
+  <metadata name="OVERHEID.category" scheme="OVERHEID.TaxonomieBeleidsagendaDecentraal" content="Openbare orde en veiligheid | Organisatie en beleid" />
+  <metadata name="DC.type" scheme="OVERHEIDop.Rubriek" content="evenementenvergunning" />
+  <metadata name="DCTERMS.language" scheme="DCTERMS.RFC4646" content="nl" />
+  <metadata name="OVERHEIDop.gebiedsmarkering" scheme="OVERHEIDop.locatietype" content="Adres">
+    <metadata name="OVERHEIDop.geometrie" scheme="" content="POINT(61309 389557)" />
+    <metadata name="OVERHEIDop.ligtInGemeente" scheme="OVERHEID.Gemeente" content="Reimerswaal" />
+    <metadata name="OVERHEIDop.huisnummer" scheme="" content="15" />
+    <metadata name="OVERHEIDop.postcode" scheme="" content="4401BT" />
+    <metadata name="OVERHEIDop.straatnaam" scheme="" content="Hogeweg" />
+    <metadata name="OVERHEIDop.woonplaats" scheme="" content="Yerseke" />
+  </metadata>
+  <metadata name="DC.title" scheme="" content="Kennisgeving melding incidentele festiviteit op grond van de Algemene Plaatselijke Verordening, Hogeweg 15 in Yerseke" />
+  <metadata name="DCTERMS.available" scheme="DCTERMS.W3CDTF" content="2024-05-17" />
+  <metadata name="OVERHEIDop.jaargang" scheme="DCTERMS.W3CDTF" content="2024" />
+  <metadata name="OVERHEIDop.publicationIssue" scheme="" content="216934" />
+  <metadata name="DC.identifier" scheme="OVERHEIDop.GmbID" content="gmb-2024-216934" />
+</metadata_gegevens>

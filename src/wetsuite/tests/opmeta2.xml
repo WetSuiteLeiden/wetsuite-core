@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+      Generatie: versie XSLT 1.1 op 2024-05-15+02:00-->
+<owms-metadata xmlns:dcterms="http://purl.org/dc/terms/"
+                xmlns:overheid="http://standaarden.overheid.nl/owms/terms/"
+                xmlns:overheidop="http://standaarden.overheid.nl/oep/meta/">
+   <owmskern>
+      <dcterms:identifier>gmb-2024-216934</dcterms:identifier>
+      <dcterms:title>Kennisgeving melding incidentele festiviteit op grond van de Algemene Plaatselijke Verordening, Hogeweg 15 in Yerseke</dcterms:title>
+      <dcterms:language>nl</dcterms:language>
+      <dcterms:type scheme="OVERHEIDop.Rubriek">evenementenvergunning</dcterms:type>
+      <dcterms:creator scheme="OVERHEID.Gemeente">Reimerswaal</dcterms:creator>
+      <dcterms.modified>2024-05-17</dcterms.modified>
+   </owmskern>
+   <owmsmantel>
+      <dcterms:available>2024-05-17</dcterms:available>
+      <dcterms:publisher>Reimerswaal</dcterms:publisher>
+   </owmsmantel>
+   <oep>
+      <overheid:organisationType>gemeente</overheid:organisationType>
+      <overheidop:publicationName>Gemeenteblad</overheidop:publicationName>
+      <overheidop:configuratie>https://repository.officiele-overheidspublicaties.nl/MasterConfiguraties/MC-DRP-BeschikkingAfhandeling-Web-ZM/5.19/xml/MC-DRP-BeschikkingAfhandeling-Web-ZM.xml</overheidop:configuratie>
+      <overheid:authority>Reimerswaal</overheid:authority>
+      <overheid:category scheme="OVERHEID.TaxonomieBeleidsagendaDecentraal">Openbare orde en veiligheid | Organisatie en beleid</overheid:category>
+      <overheidop:gebiedsmarkering>Adres</overheidop:gebiedsmarkering>
+      <overheidop:geometrie>POINT(61309 389557)</overheidop:geometrie>
+      <overheidop:ligtInGemeente>Reimerswaal</overheidop:ligtInGemeente>
+      <overheidop:huisnummer>15</overheidop:huisnummer>
+      <overheidop:postcode>4401BT</overheidop:postcode>
+      <overheidop:straatnaam>Hogeweg</overheidop:straatnaam>
+      <overheidop:woonplaats>Yerseke</overheidop:woonplaats>
+      <overheidop:jaargang>2024</overheidop:jaargang>
+      <overheidop:publicationIssue>216934</overheidop:publicationIssue>
+   </oep>
+</owms-metadata>
