@@ -131,12 +131,12 @@ def _split_op_html(soup):
         #if 'Deze publicatie is niet beschikbaar' in alert.text:
         #    raise ValueError(alert.text)
 
-    found_one = False # set but not currently used
+    #found_one = False # set but not currently used
     for maybe in (dop, stuk, inhoud, article, idc):
         if maybe is not None:
             #print(maybe.name)
             #print(maybe)
-            found_one = True
+            #found_one = True
             elems = maybe.find_all('div', attrs={'class':_p_re})
             if len(elems)==0:
                 elems = maybe.find_all(['p','h1','h2','h3'])
@@ -529,7 +529,6 @@ class Fragments_XML_OP_Gmb( Fragments ):
             ('//gemeenteblad//zakelijke-mededeling', 10), # -tekst/tekst
             ('//gemeenteblad//regeling', 10),
             ('//Gemeenteblad//BesluitCompact', 25),
-            
         ):
             sel = self.tree.xpath( test_xpath )
             if len(sel)>0:
@@ -667,7 +666,7 @@ class Fragments_XML_OP_Prb( Fragments ):
             ('//provinciaalblad//zakelijke-mededeling', 5), # -tekst/tekst
             ('//provincieblad//zakelijke-mededeling', 5),   # -tekst/tekst
             ('//provincieblad//regeling', 15),              # -tekst
-            ('//Provinciaalblad//Lichaam', 10), 
+            ('//Provinciaalblad//Lichaam', 10),
         ):
             sel = self.tree.xpath( test_xpath )
             if len(sel)>0:
@@ -917,7 +916,7 @@ class Fragments_XML_Rechtspraak( Fragments ):
 
             for structured_thing in structured_things:
                 last_nr = None
-                last_title = None
+                #last_title = None
                 for ch in structured_thing.getchildren():
                     # CONSIDER checking ch.tag for parablock, etc. to handle them more specifically, but for now:
                     meta = {
@@ -939,7 +938,7 @@ class Fragments_XML_Rechtspraak( Fragments ):
                     #if title is not None:
                         title_text = (' '.join( wetsuite.helpers.etree.all_text_fragments( ch ) )) .strip()
                         meta['title'] = title_text
-                        last_title = title_text
+                        #last_title = title_text
                         hints.append('is-title')
 
                     flat_text = (' '.join( wetsuite.helpers.etree.all_text_fragments( ch ) )) .strip()
