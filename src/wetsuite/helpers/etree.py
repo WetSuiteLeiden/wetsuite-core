@@ -166,7 +166,7 @@ def kvelements_to_dict(under_node, strip_text=True, ignore_tagnames=()) -> dict:
     return ret
 
 
-def all_text_fragments(under_node, strip:str=None, ignore_empty:bool=False, ignore_tags=(), join:str=None, stop_at=None): # , add_spaces=['extref',]
+def all_text_fragments(under_node, strip:str=None, ignore_empty:bool=False, ignore_tags=(), join:str=None, stop_at:list=None): # , add_spaces=['extref',]
     ''' Returns all fragments of text contained in a subtree, as a list of strings.
 
         For example,  all_text_fragments( fromstring('<a>foo<b>bar</b></a>') ) == ['foo', 'bar']
@@ -182,7 +182,9 @@ def all_text_fragments(under_node, strip:str=None, ignore_empty:bool=False, igno
 
         @param ignore_tags: ignores direct/first .text content of named tags (does not ignore .tail, does not ignore the subtree)
 
-        @param stop_at: should be None or a list of tag names. If a tag name is this, we stop walking the tree entirely.
+        @param stop_at: should be None or a list of tag names. 
+        If a tag name is in this sequence, we stop walking the tree entirely.
+        (note that it would still include that tag's tail; CONSIDER: changing that)
 
                     
         TODO: more tests, I'm moderately sure strip doesn't do quite what it should.
@@ -214,6 +216,7 @@ def all_text_fragments(under_node, strip:str=None, ignore_empty:bool=False, igno
                 pass
             else:
                 ret.append( etss )
+
         if stop_at is not None  and  elem.tag in stop_at:
             break
 
@@ -364,7 +367,7 @@ def path_between(under_node, element, excluding:bool=False):
         @param element: 
         @return: 
     '''
-    if excluding == False:
+    if excluding is False:
         letree = lxml.etree.ElementTree( under_node ) # it does, actually, so pylint: disable=I1101
         return letree.getpath( element )
     else:
