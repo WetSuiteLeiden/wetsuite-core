@@ -1,7 +1,7 @@
 ' test etree / lxml related functions '
 import pytest
 from wetsuite.helpers.etree import fromstring, tostring, strip_namespace, _strip_namespace_inplace, all_text_fragments
-from wetsuite.helpers.etree import indent, path_count, kvelements_to_dict, path_between
+from wetsuite.helpers.etree import indent, path_count, kvelements_to_dict, path_between, node_walk, debug_pretty
 
 
 def test_strip():
@@ -31,6 +31,9 @@ def test_strip():
     # test whether it alters in-place
     assert tree.find('{foo}b') is None  and  tree.find('b').tag == 'b'
 
+    with pytest.raises(ValueError, match=r'.*Handed None.*'):
+        strip_namespace( None )
+
 
 
 def test_attribute_stripping():
@@ -43,6 +46,7 @@ def test_attribute_stripping():
 def test_comment_robustness():
     " tests whether we're not assuming the only node type is element "
     _strip_namespace_inplace( fromstring('<a> <b /><!--comment--> </a>') )
+
 
 
 def test_processing_instruction_robustness():
@@ -68,14 +72,31 @@ def test_all_text_fragments():
     ' test all_text_fragments function'
     assert all_text_fragments( fromstring('<a>foo<b>bar</b>quu</a>') )                    == ['foo', 'bar', 'quu']
 
+
+def test_all_text_fragments_emptiness():
+    ' test all_text_fragments function around empty text or tail '
     # rather than a '', is expected behaviour.
     assert all_text_fragments( fromstring('<a>foo<b></b>quu</a>'))                        == ['foo', 'quu']
 
     assert all_text_fragments( fromstring('<a>foo<b> </b>quu</a>'))                       == ['foo', '', 'quu']
     assert all_text_fragments( fromstring('<a>foo<b> </b>quu</a>'), ignore_empty=True)    == ['foo', 'quu']
 
+    assert all_text_fragments( fromstring('<a>foo<b>bar</b>quu<c> </c> </a>'), ignore_empty=True ) == ['foo', 'bar', 'quu']
+
+
+def test_all_text_fragments_ignoretag():
+    ' test all_text_fragments function ignores tags as requested'
     assert all_text_fragments( fromstring('<a>foo<b>bar</b>quu</a>'), ignore_tags=['b'] ) == ['foo', 'quu']
 
+
+def test_all_text_fragments_stopat():
+    ' test all_text_fragments function stops at tag names as requested'
+    assert all_text_fragments( fromstring('<a>foo<b>bar</b><c>quu</c></a>'), stop_at=('b',) ) == ['foo', 'bar']
+    # NOTE: we may wish to change its behaviour a little, in particular exclude the .tail
+
+
+def test_all_text_fragments_join():
+    ' test all_text_fragments with string joining '
     assert all_text_fragments( fromstring('<a>foo<b>bar</b>quu</a>'), join=' ' )          == 'foo bar quu'
 
 
@@ -91,9 +112,16 @@ def test_pathcount():
     assert path_count( fromstring( xml ) ) == {'a': 1, 'a/b': 1, 'a/b/c': 3, 'a/d': 2}
 
 
+def test_node_walk_none():
+    ' mostly tested by pathcount, except for this'
+    # might be a clearer way to write that?
+    g = node_walk( None )
+    with pytest.raises(StopIteration):
+        next( g )
+
+
 def test_kvelements_to_dict():
     ' test kv_elements_to_dict() basically works '
-
     assert kvelements_to_dict(
         fromstring(
         '''<foo>
@@ -102,8 +130,22 @@ def test_kvelements_to_dict():
                 <onderwerp/>
            </foo>''')) == {'identifier':'BWBR0001840', 'title':'Grondwet'}
 
+
+def test_kvelements_to_dict_ignore():
+    ' test kv_elements_to_dict() ignores tags by name as requested '
     assert kvelements_to_dict( fromstring(
         '''<foo>
+                <identifier>BWBR0001840</identifier>
+                <title>Grondwet</title>
+                <onderwerp>ignore me</onderwerp>
+           </foo>'''), ignore_tagnames=['onderwerp'] ) == {'identifier':'BWBR0001840', 'title':'Grondwet'}
+
+
+def test_kvelements_to_dict_pi():
+    ' test kv_elements_to_dict() deals with processing instructions '
+    assert kvelements_to_dict( fromstring(
+        '''<foo>
+                <?xml-stylesheet type="text/xsl" href="blah.xsl"?>
                 <identifier>BWBR0001840</identifier>
                 <title>Grondwet</title>
                 <onderwerp>ignore me</onderwerp>
@@ -118,6 +160,9 @@ def test_nonlxml():
         strip_namespace( xml.etree.ElementTree.fromstring(b'<a><?xml-stylesheet type="text/xsl" href="style.xsl"?></a>') )
 
     # see also https://lxml.de/compatibility.html
+
+
+
 
 
 def test_path_between_including():
@@ -156,3 +201,16 @@ def test_path_between_elsewhere():
 
 
     #wetsuite.helpers.etree.path_between(tree, body.xpath('//al')[10]) == '/cvdr/body/regeling/regeling-tekst/artikel[1]/al[1]'
+
+
+
+def test_debug_pretty():
+    ' test that debug_pretty basically works '
+
+    # note that the output is intentionally unicode, not bytes
+    assert debug_pretty(b'<a xmlns:pre="foo"><b/></a>', reindent=True, strip_namespaces=True) == '<a>\n  <b/>\n</a>\n'
+
+    # more variations would be more thorough
+
+    with pytest.raises(ValueError):
+        assert debug_pretty(None)
