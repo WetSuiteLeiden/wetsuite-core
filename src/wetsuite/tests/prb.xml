@@ -1,0 +1,11 @@
+--2024-05-20 18:04:35--  https://repository.overheid.nl/frbr/officielepublicaties/prb/2017/prb-2017-1003/1/xml/prb-2017-1003.xml
+Resolving repository.overheid.nl (repository.overheid.nl)... 2a07:3506:4c:3217::3:0, 62.112.233.87
+Connecting to repository.overheid.nl (repository.overheid.nl)|2a07:3506:4c:3217::3:0|:443... connected.
+HTTP request sent, awaiting response... 200 200
+Length: 4638 (4.5K) [application/xml]
+Saving to: ‘prb-2017-1003.xml’
+
+     0K ....                                                  100% 3.33M=0.001s
+
+2024-05-20 18:04:35 (3.33 MB/s) - ‘prb-2017-1003.xml’ saved [4638/4638]
+
