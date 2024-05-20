@@ -3,7 +3,7 @@ import os
 
 import pytest
 
-from wetsuite.helpers.koop_parse import cvdr_parse_identifier, cvdr_meta, cvdr_text, cvdr_sourcerefs, cvdr_param_parse, cvdr_normalize_expressionid, prefer_types
+from wetsuite.helpers.koop_parse import cvdr_parse_identifier, cvdr_meta, cvdr_text, cvdr_sourcerefs, cvdr_param_parse, cvdr_normalize_expressionid, prefer_types, parse_op_meta
 import wetsuite.datacollect.koop_sru
 from wetsuite.datacollect.koop_sru import BWB, CVDR
 from wetsuite.datacollect.koop_sru import SamenwerkendeCatalogi, LokaleBekendmakingen, TuchtRecht, WetgevingsKalender, PLOOI, PUCOpenData, EuropeseRichtlijnen
@@ -41,6 +41,8 @@ def test_cvdr_parse_identifier():
     assert cvdr_parse_identifier('CVDR101406',   prepend_cvdr=True)  ==  ('CVDR101406',  None     )
     assert cvdr_parse_identifier('1.0:101407_1', prepend_cvdr=True)  ==  ('CVDR101407', 'CVDR101407_1')
 
+    with pytest.raises(ValueError, match=r'.*does not look like.*'):
+        assert cvdr_parse_identifier('BLAH')
     # TODO: check about possible edge cases, like leading zeroes
 
 
@@ -95,6 +97,49 @@ def test_cvdr_meta():
     meta = cvdr_meta(tree, flatten=True)
     assert meta['identifier'] == '112779_1' # a value as expected  TODO: check that we normalize this?
 
+
+def test_cvdr_meta_bytes():
+    ' test that giving it bytes instead of an etree node works at all  (shortish XML that still passes the basic tests, but contains nothing)' 
+    cvdr_meta(b'''<?xml version="1.0" encoding="utf-8"?><cvdr>
+                     <meta><owmskern></owmskern><owmsmantel></owmsmantel><cvdripm></cvdripm></meta>
+                     <body></body></cvdr>''')
+
+
+def test_cvdr_meta_nonmeta():
+    ' test that it rejects non-metadata records ' 
+    with pytest.raises(ValueError, match=r'.*neither a document or a search result.*'):
+        cvdr_meta(b'''<body></body>''')
+
+
+def test_cvdr_enriched():
+    ' parse a query response with enrichedData nodes '
+    cvdr_meta(b'''
+    <record>
+      <recordSchema>http://standaarden.overheid.nl/sru/</recordSchema>
+      <recordPacking>xml</recordPacking>
+      <recordData>
+        <gzd gzd="http://standaarden.overheid.nl/sru http://standaarden.overheid.nl/sru/gzd.xsd">
+          <originalData>
+            <meta>
+              <owmskern>
+              </owmskern>
+              <owmsmantel>
+              </owmsmantel>
+              <cvdripm>
+              </cvdripm>
+            </meta>
+          </originalData>
+          <enrichedData>
+            <organisatietype>Provincie</organisatietype>
+            <publicatieurl_xhtml>https://repository.officiele-overheidspublicaties.nl/cvdr/CVDR717960/1/html/CVDR717960_1.html</publicatieurl_xhtml>
+            <publicatieurl_xml>https://repository.officiele-overheidspublicaties.nl/cvdr/CVDR717960/1/xml/CVDR717960_1.xml</publicatieurl_xml>
+            <preferred_url>https://lokaleregelgeving.overheid.nl/CVDR717960/1</preferred_url>
+          </enrichedData>
+        </gzd>
+      </recordData>
+      <recordPosition>1501</recordPosition>
+    </record>
+''')
 
 
 
@@ -175,6 +220,22 @@ def test_prefer_types_one():
         first_of=('xml', 'html', 'pdf', 'odt') )  ==  ['metadata', 'metadataowms', 'xml']
 
 
+
+def test_parse_op_meta():
+    ' test that parsing these files gives results '
+    import test_koop  # that's intentional pylint: disable=W0406
+    for fn in (
+        'opmeta1.xml',
+        'opmeta2.xml'
+        ):
+        with open( os.path.join( os.path.dirname( test_koop.__file__ ), fn), mode='rb' ) as f:
+            assert len( parse_op_meta( f.read() ) ) > 5
+
+
+def test_parse_op_meta_bad():
+    ' test that it tests it applies '
+    with pytest.raises(ValueError, match=r'.*not expect.*'):
+        parse_op_meta(b'''<body></body>''')
 
 
 #alineas_with_selective_path
