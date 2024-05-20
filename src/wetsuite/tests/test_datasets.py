@@ -18,8 +18,9 @@ def test_list_datasets():
 
 
 def test_load():
-    ' test whether we can load a dataset (implicitly tests that there is at least one currently at the configured index path '
-    wetsuite.datasets.load( wetsuite.datasets.list_datasets()[0] )
+    ' test whether we can load a dataset '
+    wetsuite.datasets.load( 'gemeentes-struc' )
+#   wetsuite.datasets.load( wetsuite.datasets.list_datasets()[0] ) # (implicitly tests that there is at least one currently at the configured index path
 
 
 def test_generated_today_text():
@@ -89,6 +90,5 @@ def test_dataset_class_export_zip3( tmp_path ):
         data  = {'a':{1:2}, 'c':{3:4}},
         name  = 'name')
     ds.export_files( to_zipfile_path=tmp_path/'test.zip' )
-
 
     
