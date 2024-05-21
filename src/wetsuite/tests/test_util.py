@@ -16,6 +16,30 @@ def test_wetsuite_dir():
     assert len( d['stores_dir']   ) > 10
 
 
+def test_wetsuite_dir_winmock1( tmp_path ):
+    ' Not testing actual windowsy functionality, just tests more code paths (mostly for not erroring out) '
+    os.environ['HOMESHARE'] = str(tmp_path)
+    d = wetsuite.helpers.util.wetsuite_dir()
+
+    assert len( d['wetsuite_dir'] ) > 10
+    assert len( d['datasets_dir'] ) > 10
+    assert len( d['stores_dir']   ) > 10
+
+def test_wetsuite_dir_winmock2( tmp_path ):
+    ' Not testing actual windowsy functionality, just tests more code paths (mostly for not erroring out) '
+    os.environ['USERPROFILE'] = str(tmp_path)
+
+    d = wetsuite.helpers.util.wetsuite_dir()
+
+    assert len( d['wetsuite_dir'] ) > 10
+    assert len( d['datasets_dir'] ) > 10
+    assert len( d['stores_dir']   ) > 10
+
+
+
+
+
+
 def test_hash_hex():
     ' test that hash works on str and bytes, and not some other types '
     wetsuite.helpers.util.hash_hex('foo')
@@ -124,9 +148,22 @@ def test_is_zip():
 def test_is_empty_zip():
     ' test that is_empty_zip reports that ' 
     import test_util
-    testzipfn = os.path.join( os.path.dirname( test_util.__file__ ), 'empty.zip' )
-    with open( testzipfn ,'rb') as f:
+    
+    testzipfn1 = os.path.join( os.path.dirname( test_util.__file__ ), 'empty.zip' )
+    with open( testzipfn1 ,'rb') as f:
         assert wetsuite.helpers.util.is_empty_zip( f.read() )
+
+    testzipfn2 = os.path.join( os.path.dirname( test_util.__file__ ), 'png.zip' )
+    with open( testzipfn2 ,'rb') as f:
+        assert not wetsuite.helpers.util.is_empty_zip( f.read() )
+
+
+
+
+def test_is_empty_zip_complains():
+    ' test that is_empty_zip complains of not given bytes ' 
+    with pytest.raises(TypeError, match=r'.*bytestring.*'):
+        wetsuite.helpers.util.is_empty_zip( 'PK\x03\x04' )
 
 
 def test_is_not_zip():
@@ -193,3 +230,6 @@ def test_get_ziphtml():
     with open( testzipfn ,'rb') as f:
         with pytest.raises(ValueError, match=r'.*without.*'):
             wetsuite.helpers.util.is_html( wetsuite.helpers.util.get_ziphtml( f.read() ) )
+
+
+
