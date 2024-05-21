@@ -1,6 +1,8 @@
 ''' test functions in the wetsuite.datacollect.rechtspraaknl module '''
 #import pytest
 
+import os
+
 import wetsuite.datacollect.rechtspraaknl
 
 import wetsuite.helpers.net
@@ -37,14 +39,17 @@ def test_search():
 
 def test_parse():
     ' test that those documents parse without failing '
-    testbytes = wetsuite.helpers.net.download('https://data.rechtspraak.nl/uitspraken/content?id=ECLI:NL:GHARL:2022:7129')
-    tree = wetsuite.helpers.etree.fromstring( testbytes )
-    wetsuite.datacollect.rechtspraaknl.parse_content( tree )
+    import test_rechtspraaknl
 
-    testbytes = wetsuite.helpers.net.download('https://data.rechtspraak.nl/uitspraken/content?id=ECLI:NL:PHR:2022:255')
-    tree = wetsuite.helpers.etree.fromstring( testbytes )
-    wetsuite.datacollect.rechtspraaknl.parse_content( tree )
+    #testbytes = wetsuite.helpers.net.download( 'https://data.rechtspraak.nl/uitspraken/content?id=ECLI:NL:GHARL:2022:7129' )
+    #tree = wetsuite.helpers.etree.fromstring( testbytes )
+    #wetsuite.datacollect.rechtspraaknl.parse_content( tree )
 
+    #testbytes = wetsuite.helpers.net.download( 'https://data.rechtspraak.nl/uitspraken/content?id=ECLI:NL:PHR:2022:255' )
+    #tree = wetsuite.helpers.etree.fromstring( testbytes )
+    #wetsuite.datacollect.rechtspraaknl.parse_content( tree )
 
-#def test_website_zoek():
-#    wetsuite.datacollect.rechtspraaknl.website_zoek('fork')
+    path = os.path.join( os.path.dirname( test_rechtspraaknl.__file__ ), 'rechtspraak.xml' )
+    with open(path,'rb') as f:
+        tree = wetsuite.helpers.etree.fromstring( f.read() )
+        wetsuite.datacollect.rechtspraaknl.parse_content( tree )
