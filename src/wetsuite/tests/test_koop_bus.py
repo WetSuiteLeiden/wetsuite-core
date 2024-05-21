@@ -27,15 +27,12 @@ def test_interact_listdir():
 def test_get_bytes():
     ' test that we can log in, and list contents '
     bf = BUSFetcher()
-    c = bf.connect()
+    #c = bf.connect()
     assert len( bf.get_bytes('/1995/01/02/changelog.xml') ) > 0
 
 
 def test_get_file(tmp_path):
     ' test that we can log in, and list contents '
     bf = BUSFetcher()
-    c = bf.connect()
+    #c = bf.connect()
     bf.get_file('/1995/01/02/changelog.xml', os.path.join( tmp_path, 'changelog') )
-    
-
-
