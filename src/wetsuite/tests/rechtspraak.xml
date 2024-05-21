@@ -1,11 +1,283 @@
---2024-05-21 00:34:16--  https://data.rechtspraak.nl/uitspraken/content?id=ECLI:NL:PHR:2011:BP5608
-Resolving data.rechtspraak.nl (data.rechtspraak.nl)... 2a04:9a04:18a0:8a02:0:3c:192:51, 159.46.204.51
-Connecting to data.rechtspraak.nl (data.rechtspraak.nl)|2a04:9a04:18a0:8a02:0:3c:192:51|:443... connected.
-HTTP request sent, awaiting response... 200 OK
-Length: unspecified [application/xml]
-Saving to: ‘content?id=ECLI:NL:PHR:2011:BP5608’
-
-     0K .......... .......... .......... .......... .......    2.47M=0.02s
-
-2024-05-21 00:34:16 (2.47 MB/s) - ‘content?id=ECLI:NL:PHR:2011:BP5608’ saved [48129]
-
+<?xml version="1.0" encoding="utf-8"?>
+<open-rechtspraak>
+  <rdf:RDF xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#" xmlns:ecli="https://e-justice.europa.eu/ecli" xmlns:tr="http://tuchtrecht.overheid.nl/" xmlns:eu="http://publications.europa.eu/celex/" xmlns:dcterms="http://purl.org/dc/terms/" xmlns:bwb="bwb-dl" xmlns:cvdr="http://decentrale.regelgeving.overheid.nl/cvdr/" xmlns:psi="http://psi.rechtspraak.nl/" xmlns:rdfs="http://www.w3.org/2000/01/rdf-schema#">
+    <rdf:Description>
+      <dcterms:identifier>ECLI:NL:PHR:2011:BP5608</dcterms:identifier>
+      <dcterms:format>text/xml</dcterms:format>
+      <dcterms:accessRights>public</dcterms:accessRights>
+      <dcterms:modified>2018-03-11T18:28:05</dcterms:modified>
+      <dcterms:issued rdfs:label="Publicatiedatum">2013-04-05</dcterms:issued>
+      <dcterms:publisher resourceIdentifier="http://rechtspraak.nl/">Raad voor de Rechtspraak</dcterms:publisher>
+      <dcterms:language>nl</dcterms:language>
+      <dcterms:replaces rdfs:label="Vervangt">BP5608</dcterms:replaces>
+      <dcterms:creator rdfs:label="Instantie" resourceIdentifier="http://standaarden.overheid.nl/owms/terms/Parket_bij_de_Hoge_Raad" scheme="overheid.RechterlijkeMacht">Parket bij de Hoge Raad</dcterms:creator>
+      <dcterms:date rdfs:label="Datum genomen">2011-05-27</dcterms:date>
+      <psi:zaaknummer rdfs:label="Zaaknr">09/04566</psi:zaaknummer>
+      <dcterms:type rdf:language="nl" resourceIdentifier="http://psi.rechtspraak.nl/conclusie">Conclusie</dcterms:type>
+      <dcterms:coverage>NL</dcterms:coverage>
+      <dcterms:subject rdfs:label="Rechtsgebied" resourceIdentifier="http://psi.rechtspraak.nl/rechtsgebied#civielRecht">Civiel recht</dcterms:subject>
+      <dcterms:relation rdfs:label="Formele relatie" ecli:resourceIdentifier="ECLI:NL:HR:2011:BP5608" psi:type="http://psi.rechtspraak.nl/conclusie" psi:aanleg="http://psi.rechtspraak.nl/latereAanleg">Arrest Hoge Raad: ECLI:NL:HR:2011:BP5608</dcterms:relation>
+      <dcterms:hasVersion rdfs:label="Vindplaatsen" resourceIdentifier="http://psi.rechtspraak.nl/vindplaats">
+        <rdf:list>
+          <rdf:li>Rechtspraak.nl</rdf:li>
+          <rdf:li>RvdW 2011/687</rdf:li>
+          <rdf:li>JWB 2011/282</rdf:li>
+        </rdf:list>
+      </dcterms:hasVersion>
+    </rdf:Description>
+    <rdf:Description rdf:about="http://deeplink.rechtspraak.nl/uitspraak?id=ECLI:NL:PHR:2011:BP5608">
+      <dcterms:identifier>http://deeplink.rechtspraak.nl/uitspraak?id=ECLI:NL:PHR:2011:BP5608</dcterms:identifier>
+      <dcterms:format>text/html</dcterms:format>
+      <dcterms:accessRights>public</dcterms:accessRights>
+      <dcterms:modified>2013-04-05T07:43:45</dcterms:modified>
+      <dcterms:issued rdfs:label="Publicatiedatum">2011-05-27</dcterms:issued>
+      <dcterms:publisher resourceIdentifier="http://rechtspraak.nl/">Raad voor de Rechtspraak</dcterms:publisher>
+      <dcterms:language>nl</dcterms:language>
+      <dcterms:title rdf:language="nl">ECLI:NL:PHR:2011:BP5608 Parket bij de Hoge Raad , 27-05-2011 / 09/04566</dcterms:title>
+      <dcterms:abstract resourceIdentifier="../../rs:inhoudsindicatie" />
+    </rdf:Description>
+  </rdf:RDF>
+  <inhoudsindicatie id="ECLI:NL:PHR:2011:BP5608:INH" lang="nl" xml:space="preserve" xmlns="http://www.rechtspraak.nl/schema/rechtspraak-1.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+      <para>(Art. 81 RO). Procesrecht. Aan bewijsaanbod in hoger beroep te stellen eisen. Verboden bewijsprognose? Voldoende belang bij vordering? Bevel bepaalde stellingen toe te lichten (als bedoeld in art. 22 Rv.).</para>
+    </inhoudsindicatie>
+  <conclusie id="ECLI:NL:PHR:2011:BP5608:DOC" lang="nl" xml:space="preserve" xmlns="http://www.rechtspraak.nl/schema/rechtspraak-1.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+    <parablock>
+      <para>09/04566</para>
+      <para>mr. M.H. Wissink</para>
+      <para>Zitting: 18 februari 2011</para>
+    </parablock>
+    <para />
+    <para>Conclusie inzake:</para>
+    <para />
+    <parablock>
+      <para>Westlandse Plantenkwekerij B.V.</para>
+      <para>(hierna: WPK)</para>
+    </parablock>
+    <para />
+    <para>tegen</para>
+    <para />
+    <parablock>
+      <para>[Verweerder] h.o.d.n. [A]</para>
+      <para>(hierna: [verweerder])</para>
+    </parablock>
+    <para />
+    <para>Deze zaak betreft de vraag of de door [verweerder] geleverde en geplaatste verduisteringsfolie in de kassen van WPK schade heeft toegebracht aan planten van WPK. Het hof heeft het bewijsaanbod van WPK gepasseerd en geoordeeld dat WPK geen belang heeft bij haar vordering als gevolg van een met de fabrikant van de folie bereikte regeling. </para>
+    <para />
+    <para>1. Feiten</para>
+    <para />
+    <para>1.1 In cassatie kan worden uitgegaan van de navolgende feiten, zoals het hof 's-Gravenhage deze heeft vastgesteld in rov. 2.1 t/m 2.9 van zijn arrest van 23 december 2008. </para>
+    <para />
+    <para>1.2 WPK exploiteert een glastuinbouwbedrijf en [verweerder] exploiteert een technisch installatiebedrijf. Tot de werkzaamheden van [verweerder] behoort onder meer het monteren van verduisteringsfolie ten behoeve van de glastuinbouw. Met deze folie wordt de lichtinval in de kas gereguleerd. WPK maakt gebruik van dergelijke folie. Partijen deden in 2002 reeds zeven jaar zaken met elkaar. </para>
+    <para />
+    <para>1.3 Op 3 januari 2002 heeft [verweerder] op verzoek van WPK een offerte uitgebracht betreffende het leveren, monteren en demonteren van zwart verduisteringsfolie over een oppervlakte van ca. 30.153,6 m2, voor een totaalprijs van € 22.850,78 exclusief BTW. Onderaan de offerte is vermeld: </para>
+    <para />
+    <para>"Op al onze offertes, op alle opdrachten aan ons en op alle met ons gesloten overeenkomsten zijn toepasselijk de METAALUNIEVOORWAARDEN, gedeponeerd ter Griffie van de Rechtbank Rotterdam, zoals deze luiden volgens de laatstelijk aldaar neergelegde tekst. De leveringsvoorwaarden worden u op verzoek toegezonden."</para>
+    <para />
+    <para>1.4 Nadat WPK deze offerte had aanvaard, is aansluitend in de loop van januari 2002 de oude folie vervangen door de nieuwe. [verweerder] heeft de folie betrokken van [B] B.V. (hierna: [B]). De folie is gefabriceerd door de in België gevestigde vennootschap Hyplast N.V. </para>
+    <para />
+    <para>1.5 Na de installatie van de folie zijn planten van het type Kalanchoë blossfeldiana (hierna: Kalanchoë) op de teeltvloer geplaatst. Binnen enkele dagen daarna vertoonden de planten bladschade. </para>
+    <para />
+    <para>1.6 In een op verzoek van WPK uitgebracht rapport, gedateerd 19 februari 2002, schrijft [E] dat zij, na in dat rapport beschreven onderzoek op een van de folie genomen monster, concludeert: </para>
+    <para />
+    <para>"De in de proef toegepaste parameters zorgen ervoor dat het gedemineraliseerd water dat met het schermfolie (monster A) in aanraking komt schade veroorzaakt aan het blad van Kalanchoë blossfeldiana. </para>
+    <para />
+    <para>Het schermfolie (monster A) bevat een stof die met gedemineraliseerd water verplaatst kan worden naar de bladeren van Kalanchoë blossfeldiana. Deze stof veroorzaakt schade aan de bladeren van Kalanchoë blossfeldiana. </para>
+    <para />
+    <para>De schade bij Kalanchoë blossfeldiana zoals die in de proef is waargenomen komt visueel overeen met de schade die bij WPK Made is waargenomen."</para>
+    <para />
+    <para>1.7 In een rapport van 3 mei 2002 heeft [betrokkene 3] de schade aan de Kalanchoë berekend op € 99.750,29. </para>
+    <para />
+    <para>1.8 WPK heeft rechtstreeks bij [B] nieuwe folie van een ander fabricaat besteld en door [verweerder] laten monteren. De terzake door [verweerder] aan WPK gestuurde factuur is door WPK betaald. </para>
+    <para />
+    <para>1.9 Op 23 april 2002 heeft het in België gevestigde Expertisebureau [C] N.V. op een, kennelijk namens de verzekeraar van [verweerder] door [D] B.V. gedaan verzoek, een rapport uitgebracht.(1) Onder "Besluit", op pagina 2 van het rapport is vermeld: </para>
+    <para />
+    <parablock>
+      <para>"Vier verschillende folies werden op een gelijkaardige manier behandeld als bij de firma [E] om zo schadelijke stoffen uit de schermfolie te wassen. Deze vier vloeistoffen en een referentievloeistof werden op verschillende Kalanchoë-planten aangebracht, maar na 3 dagen hebben we geen vlekken t.g.v. afsterving terug kunnen vinden op de planten. Zelfs wanneer er extra geconcentreerde vloeistof op Kalanchoë-planten of op chrysanten-planten aangebracht wordt, ontstaan er geen vlekken. </para>
+      <para>Het ontstaan van de vlekken heeft mogelijk een andere oorzaak."</para>
+    </parablock>
+    <para />
+    <para>1.10 WPK heeft niet voldaan aan het door of namens [verweerder] aan haar gerichte verzoek om het gedemineraliseerde water, dat door [E] is gebruikt voor haar onderzoek, aan [verweerder] ter beschikking te stellen. </para>
+    <para />
+    <para>2. Procesverloop</para>
+    <para />
+    <para>2.1 WPK heeft [verweerder] gedagvaard voor de rechtbank 's-Gravenhage en gevorderd [verweerder] te veroordelen tot betaling van € 99.750,29 ter zake van schadevergoeding, vermeerderd met buitengerechtelijke kosten, rente en kosten. WPK stelt daartoe dat de door [verweerder] ter uitvoering van de tussen partijen gesloten overeenkomst in haar kassen geplaatste verduisteringsfolie, stoffen heeft afgescheiden in condenswater waardoor schade is ontstaan aan haar kalanchoë-planten. [verweerder] heeft gemotiveerd verweer gevoerd. Een aantal partijen is in (onder)vrijwaring opgeroepen. Deze (onder)vrijwaringsprocedures spelen in cassatie geen rol meer.</para>
+    <para />
+    <para>2.2 In haar tussenvonnis van 15 december 2004 heeft de rechtbank de zaak naar de rol verwezen, opdat partijen zich zouden uitlaten omtrent de zin dan wel het nut van een eventueel in te stellen onderzoek door een deskundige naar de gestelde schadelijke stoffen in de onderhavige verduisteringsfolie.(2) Partijen hebben daarop aktes genomen. In haar eindvonnis van 18 mei 2005 heeft de rechtbank geoordeeld dat beide partijen voor een deskundigenonderzoek geen grond (meer) aanwezig achten. Ook de rechtbank heeft een dergelijk onderzoek zonder zin geacht en heeft deze dan ook niet gelast. Er kan, aldus de rechtbank, dan ook feitelijk niet van worden uitgegaan dat de door [verweerder] bij WPK geplaatste verduisteringsfolie stoffen heeft afgescheiden die aan de kalanchoë-planten van WPK schade hebben toegebracht. Dit is gemotiveerd betwist en inmiddels niet meer vast te stellen, aldus de rechtbank. De rechtbank heeft de vordering van WPK dan ook afgewezen. </para>
+    <para />
+    <para>2.3 WPK is in beroep gekomen van de beide vonnissen bij het hof 's-Gravenhage. [verweerder] heeft het beroep weersproken. Na het tussenarrest van 23 december 2008 - waarin het hof WPK onder meer niet-ontvankelijk heeft verklaard in haar beroep tegen het tussenvonnis van de rechtbank van 15 december 2004 - heeft het hof in zijn eindarrest van 14 juli 2009 het eindvonnis van de rechtbank van 18 mei 2005 bekrachtigd. </para>
+    <para />
+    <para>2.4 WPK heeft tijdig(3) beroep in cassatie ingesteld. [verweerder] is in cassatie niet verschenen en tegen hem is verstek verleend. WPK heeft haar standpunten nog schriftelijk toegelicht.</para>
+    <para />
+    <para>3. Bespreking van het cassatiemiddel</para>
+    <para />
+    <para>3.1 Met twee cassatiemiddelen richt eiser zich tegen de twee oordelen van het hof, die elk zijn beslissing zelfstandig kunnen dragen. Beide middelen dienen te slagen, wil het cassatieberoep slagen. </para>
+    <para />
+    <para>3.2 Middel 1 klaagt in nrs. 4-18 over het oordeel van het hof in rov. 19(4) van het tussenarrest van 23 december 2008 en rov. 2 t/m 7 van het eindarrest van 14 juli 2009. Ik geef eerst de gedachtegang van het hof weer (3.3.1 t/m 3.3.6) en vat daarna het middel samen (3.4.1 t/m 3.4) alvorens het te bespreken (3.5.1 e.v.).</para>
+    <para />
+    <parablock>
+      <para>3.3.1 In rov. 15 van het tussenarrest heeft het hof voorop gesteld dat het betoog van WPK, dat vaststaat dat de door [verweerder] geleverde folie stoffen heeft afgescheiden die in combinatie met de opgetreden condens schade aan de Kalanchoë-planten heeft veroorzaakt, faalt. Het rapport van [E] geldt niet als een onafhankelijk deskundigenrapport en is zowel wat betreft de inhoud, als de wijze van totstandkoming ervan, door [verweerder] gemotiveerd betwist (CvA onder 10-14). WPK is niet meer ingegaan op de in het kader van die betwisting door [verweerder] opgeworpen vragen. De bevindingen van [E] worden niet bevestigd door het tegenonderzoek van Expertisebureau [C] N.V. Onder die omstandigheden komt aan het rapport van [E] onvoldoende bewijskracht toe, aldus het hof. </para>
+      <para>Volgens het hof geldt voorts dat, ook indien de constateringen van [E] juist zouden zijn, daarmee, mede gelet op de door [verweerder] genoemde vraagpunten, nog niet vaststaat dat de gevorderde schade het gevolg is van door de folie los gelaten stoffen. Ook de door WPK aangehaalde brief van 15 februari 2002 leidt niet tot de conclusie dat het bedoelde causaal verband reeds vaststaat. Het enkele advies de folie te vervangen impliceert immers niet (zonder meer) dat [B] heeft erkend dat de folie niet deugde, nog daargelaten dat een dergelijke erkenning [verweerder] niet zou binden. Ook in onderlinge samenhang bezien rechtvaardigen de stukken waarop WPK een beroep doet niet de conclusie dat (thans reeds) vaststaat dat in de folie aanwezige stoffen de bladschade aan de Kalanchoë-plantjes hebben veroorzaakt, aldus nog steeds het hof. </para>
+    </parablock>
+    <para />
+    <para>3.3.2 Na in rov. 16 en 17 van het tussenarrest te hebben overwogen dat de bewijslast ter zake de door WPK gestelde tekortkoming op WPK ligt, heeft het hof in rov. 18 en 19 als volgt geoordeeld:</para>
+    <para />
+    <para>"18. WPK heeft in hoger beroep een aantal nader aangeduide stellingen te bewijzen aangeboden; (...) De stellingen v) en vi), inhoudend dat de door [verweerder] bij WPK geplaatste verduisteringsfolie stoffen heeft afgescheiden die met het water op de schermen neerdalen op de bladeren van de planten onder het scherm, respectievelijk dat die stoffen aan de Kalanchoë-planten schade hebben veroorzaakt, raken (...) de kern van de zaak. WPK noemt als mogelijke getuigen: [betrokkene 1] (kennelijk: van [E]), [verweerder], [betrokkene 2] (voor het hof vooralsnog niet te plaatsen), [betrokkene 3] (schade-expert van WPK) en [betrokkene 4] (WPK).</para>
+    <para />
+    <para>19. In het licht van hetgeen het hof in r.o. 15 heeft overwogen, dient WPK, alvorens zij tot bewijslevering kan worden toegelaten, bij akte nader te specificeren wat voornoemde getuigen, alsook eventuele andere getuigen, zouden kunnen verklaren waardoor, ondanks de onmogelijkheid van nader, onafhankelijk onderzoek, voldoende aannemelijk wordt dat de door [verweerder] geleverde folie stoffen heeft afgescheiden die via het condenswater op de Kalanchoë-planten terecht zijn gekomen en tot bladschade hebben geleid. Daarbij dient WPK ook in te gaan op de door [verweerder] in zijn conclusie van antwoord onder 10-14 genoemde vraagpunten." </para>
+    <para />
+    <para>3.3.3 In zijn eindarrest van 14 juli 2009 heeft het hof vervolgens, voor zover te dezer zake relevant, als volgt geoordeeld: </para>
+    <para />
+    <parablock>
+      <para>"3. Met betrekking tot de vraag wat getuigen over het als tweede genoemde punt zouden kunnen verklaren heeft WPK aangegeven dat: </para>
+      <para>* [betrokkene 4] heeft aangenomen dat de condens afkomstig van het scherm schade veroorzaakt heeft; </para>
+      <para>* (ook) [betrokkene 3], schade-expert, kan bevestigen dat de schade veroorzaakt is door van het scherm afkomstig condens; </para>
+      <para>* dezelfde verklaring kan worden afgelegd door [betrokkene 1] van [E], die één en ander heeft geconstateerd en waargenomen; </para>
+      <para>* een groot aantal werknemers van WPK kan worden gehoord die destijds de betreffende waarneming hebben gedaan." </para>
+    </parablock>
+    <para />
+    <para>3.3.4 Vervolgens gaat het hof in op de vraagpunten die [verweerder] heeft opgeworpen naar aanleiding van het rapport van [E]:</para>
+    <para />
+    <parablock>
+      <para>"5. In de conclusie van antwoord heeft [verweerder], onder 10-14, naar aanleiding van het rapport van [E], diverse vraagpunten opgeworpen en kanttekeningen geplaatst. Kort samengevat luiden die als volgt: </para>
+      <para>* over de staat waarin de planten verkeerden voorafgaand aan plaatsing op de teeltvloer, de behandelingen die zij voordien hebben ondergaan, de materialen waarmee zij zijn bespoten of gevoed, is niets bekend; </para>
+      <para>* hetzelfde geldt voor de temperatuur in de kassen en in de ruimten waarin de planten voordien waren ondergebracht, alsmede de behandeling die de kassen hebben ondergaan na de laatste succesvolle teelt; </para>
+      <para>* niet bekend is waar het in het rapport genoemde condenswater vandaan komt en welke (schadelijke) bestanddelen daarin zijn aangetroffen; </para>
+      <para>* niet bekend is wat de invloed is van de door [E] genoemde omstandigheid dat bij WPK sprake is van ongunstige omstandigheden, in die zin dat weinig condens op de folie aanwezig is; </para>
+      <para>* niet is vastgesteld of bij WPK gedemineraliseerd water wordt gebruikt; </para>
+      <para>* het rapport van Expertisebureau [C] ondersteunt de bevindingen van [E] niet."</para>
+    </parablock>
+    <para />
+    <para>3.3.5 Het hof heeft in rov. 6 overwogen dat WPK niet op deze vraagpunten is ingegaan, ondanks daartoe uitdrukkelijk door het hof te zijn uitgenodigd. Dat lag wel op haar weg, nu de door [verweerder] genoemde vragen van belang zijn voor het antwoord op de vraag of de door [E] uitgevoerde proeven representatief zijn voor de omstandigheden waaronder de schade in het bedrijf van WPK is opgetreden en, daarmee, voor de betekenis die aan het rapport moet worden gehecht wat betreft de gestelde gebrekkigheid van de folie. De enige uitlating die zijdens WPK over de voornoemde vraagpunten is gedaan betreft de mededeling van [betrokkene 4] tijdens de comparitie van partijen bij de rechtbank dat bij WPK geen gebruik wordt gemaakt van gedemineraliseerd water, wat [E] bij haar proeven wel heeft gebruikt. Dat maakt dat - minst genomen - moet worden getwijfeld aan de betekenis van de proeven, aldus nog steeds het hof in rov. 6.</para>
+    <para />
+    <para>3.3.6 Het hof heeft in rov. 7 als volgt geconcludeerd:</para>
+    <para />
+    <para>"7. In het licht van het voorgaande zijn de stellingen van WPK, die zij blijkens haar akte door het horen van getuigen wenst te bewijzen (zie r.o. 3 hiervoor), te weinig specifiek. Dat geldt in het bijzonder voor de verwijzing naar constateringen en waarnemingen van de beoogde getuigen. Immers, niet wordt aangegeven om welke constateringen en waarnemingen het gaat en hoe deze, mede in het licht van de hiervoor, in r.o. 5 weergegeven, vraagpunten - ondanks de onmogelijkheid van nader onderzoek van de folie zelf - voldoende aannemelijk zouden maken dat het de aanwezigheid van een schadelijke stof in de folie is geweest die de schade aan de planten heeft veroorzaakt. De enige concrete waarneming die WPK noemt is dat daar waar geen condens op de planten terecht kwam, geen schade werd geconstateerd. Echter, ook al zou dit zijn waargenomen, dan is dit onvoldoende, omdat deze waarneming, gelet op de mogelijke andere oorzaken van de schade, nog niet voldoende aannemelijk zou maken dat een in de folie aanwezige schadelijke stof de schade aan de planten heeft veroorzaakt. Het bewijsaanbod wordt om deze reden als niet terzake dienende, respectievelijk onvoldoende gespecificeerd gepasseerd."</para>
+    <para />
+    <para>3.4.1 Volgens middel 1 onder nr. 11 heeft het hof miskend: dat de rechter niet een voldoende gespecificeerd aanbod tot getuigenbewijs mag passeren; dat de rechter in het algemeen niet de eis mag stellen dat vooraf wordt verklaard wat de te horen getuigen zullen gaan verklaren; dat de rechter evenmin een prognose mag maken omtrent de uitkomst van het aangeboden bewijs; dat in civiele zaken bewijs geleverd wordt geacht door de rechter voldoende zekerheid te verschaffen om het beoogde rechtsgevolg aan de gestelde feiten of rechten toe te kennen; dan wel heeft het hof onjuiste eisen gesteld aan de stelplicht van de partij met de bewijslast. 's Hofs oordeel is althans onbegrijpelijk in het licht van de in het onderdeel aangehaalde stellingen en bewijsaanbiedingen van WPK.</para>
+    <para />
+    <parablock>
+      <para>3.4.2 Het middel draagt in nr. 12 aan dat het opmerkelijk is dat het hier gaat om wanprestatie wegens non-conformiteit van door [verweerder] verkochte maar door een ander geproduceerde zaken, ten aanzien van welke de producent wegens productaansprakelijkheid een bedrag heeft betaald aan WPK, dat volgens het hof de geleden schade volledig vergoed.</para>
+      <para>Hierover merk ik reeds nu op, dat voor zover hierin een afzonderlijke klacht moet worden gelezen, deze niet tot cassatie kan leiden nu de daarin verwoorde stelling in de feitelijke instanties niet is betrokken, althans een vindplaats niet is genoemd. </para>
+    </parablock>
+    <para />
+    <para>3.4.3 Voorts stelt het middel in nr. 16 dat het opgeruimd zijn van de folie dat [verweerder] heeft afgeleverd aan WPK niet eraan afdoet dat getuigen wel kunnen verklaren omtrent hetgeen zij hebben waargenomen toen het beschadigde gewas onder het betreffende folie stond, respectievelijk toen zij het betreffende folie onderzochten. De uitkomst hiervan kan zodanig zijn dat de rechter dit voldoende acht om het beoogde rechtsgevolg aan de gestelde feiten toe te kennen. In nr. 17 stelt het middel dat het hof in rov. 19 van het tussenarrest heeft geoordeeld, dat bewijs onmogelijk is. Volgens het middel is dit een prognose omtrent de uitkomst van het te leveren bewijs. Dat het hof dit verwoordt met het niet voldoen aan de stelplicht maakt dit niet anders. Ook wanneer het hof eist dat een partij vooraf specificeert wat een getuige gaat verklaren is dat een onderdeel van de stellingen van die partij. Hetzelfde geldt ten aanzien van de eis van het hof dat een partij een prognose afgeeft van de haalbaarheid van het door die partij te leveren bewijs, aldus nog steeds het onderdeel. </para>
+    <para />
+    <para>3.5 In HR 9 juli 2004, LJN: AO7817, NJ 2005, 270 (OZ/[...]) m.nt. W.D.H. Asser, is over de aan een bewijsaanbod in hoger beroep te stellen eisen als volgt overwogen:(5) </para>
+    <para />
+    <para>"3.6 Uitgangspunt bij de beoordeling van het middel is dat, ingevolge het bepaalde in art. 166 lid 1 in verbinding met art. 353 lid 1 Rv., een partij in hoger beroep tot getuigenbewijs moet worden toegelaten indien zij voldoende specifiek bewijs aanbiedt van feiten die tot beslissing van de zaak kunnen leiden. Het antwoord op de vraag of een bewijsaanbod voldoende specifiek is, hangt af van de omstandigheden van het geval, waarbij de rechter, mede in verband met de eisen van een goede procesorde, zal moeten letten op de wijze waarop het processuele debat zich heeft ontwikkeld en het stadium waarin de procedure verkeert. In hoger beroep zal van een partij die bewijs door getuigen aanbiedt, in beginsel mogen worden verwacht dat zij voldoende concreet aangeeft op welke van haar stellingen dit bewijsaanbod betrekking heeft en, voor zover mogelijk, wie daarover een verklaring zouden kunnen afleggen, doch zal in het algemeen niet mogen worden verlangd dat daarbij ook wordt aangegeven wat daarover door getuigen zal kunnen worden verklaard. Indien reeds getuigen zijn gehoord of schriftelijke verklaringen van getuigen zijn overgelegd, zal de eis dat het bewijsaanbod voldoende specifiek en ter zake dienend moet zijn, kunnen meebrengen dat nader wordt aangegeven in hoeverre de getuigen meer of anders kunnen verklaren dan zij al hebben gedaan. De rechter mag echter niet op grond van zijn waardering van de reeds afgelegde verklaringen of de inhoud van de schriftelijke verklaringen, aan een bewijsaanbod voorbijgaan, omdat hij daarmee ten onrechte vooruit zou lopen op het resultaat van de bewijsvoering die nog moet plaatsvinden."</para>
+    <para />
+    <para>3.6 In het onderhavige geval is de kernvraag hoe rov. 19 van het tussenarrest en rov. 7 van het eindarrest moeten worden verstaan. </para>
+    <para />
+    <para>3.7 Enerzijds geeft de door het hof gebezigde formulering steun aan de gedachte van het middel, dat het hof eist dat WPK vermeldt wat de getuigen zouden kunnen verklaren. In rov. 19, eerste volzin (vgl. ook rov. 7, derde volzin) wordt immers gesproken van hetgeen de getuigen "zouden kunnen verklaren waardoor ...voldoende aannemelijk wordt". Het stellen van een dergelijke eis komt in het licht van de boven aangehaalde jurisprudentie in casu onterecht voor, nu er niet reeds getuigen zijn gehoord of schriftelijke verklaringen van getuigen zijn overgelegd (zodat niet de vraag rijst wat de getuigen nog zouden kunnen toevoegen aan hetgeen zij reeds eerder hebben verklaard).(6) Eveneens zou in de bedoelde rechtsoverweging mogelijk in die zin een prognose gelezen kunnen worden, dat het hof op basis van de door WPK te omschrijven verklaringen reeds wil beoordelen of de stellingen van WPK voldoende aannemelijk zijn. </para>
+    <para />
+    <para>3.8 Aan de andere kant kunnen deze rechtsoverwegingen ook zo worden begrepen, dat het hof daarin een oordeel geeft over de vraag of WPK voldoende specifieke stellingen aan haar bewijsaanbod ten grondslag heeft gelegd. Daarop wijst bijvoorbeeld de slotzin van rov. 19, waarin wordt aangegeven dat WPK ook moet ingaan op de door [verweerder] bij CvA genoemde vraagpunten, en de eerste volzin van rov. 7, waarin het hof met zoveel woorden overweegt dat de stellingen van WPK te weinig specifiek zijn..</para>
+    <para />
+    <parablock>
+      <para>3.9 De onder 3.8 bedoelde lezing lijkt mij de juiste.</para>
+      <para>Hoewel WPK's bewijsaanbod de namen van de getuigen vermeldde en (mede) betrekking had op relevante vragen (sub v en vi; zie rov. 18), rees toch de vraag of dit aanbod voldoende specifiek was, gegeven dat i) aan het rapport van [E] onvoldoende bewijskracht toekwam gezien (onder meer) de vraagpunten van [verweerder] terwijl ii) indien de constateringen in het rapport juist zijn de causaliteit nog niet zou vast staan (beide punten volgen uit de in cassatie niet bestreden rov. 15) en iii) een nader, onafhankelijk onderzoek onmogelijk was (zoals blijkt uit rov. 19).</para>
+      <para>Rov. 19 moet m.i. daarom zo worden verstaan - al geef ik toe dat het hof het wat anders formuleert - dat WPK diende te specificeren welke stellingen door het horen van getuigen zouden kunnen worden bewezen waaruit desalniettemin zou kunnen volgen dat de door [verweerder] geleverde folie stoffen heeft afgescheiden die via het condenswater op de Kalanchoë-planten terecht zijn gekomen en tot bladschade hebben geleid. </para>
+      <para>In overeenstemming hiermee overweegt rov. 7, eerste volzin, van het eindarrest dat de stellingen van WPK, zoals verwoord in haar akte, te weinig specifiek zijn en motiveert het dat oordeel in het vervolg van deze rechtsoverweging.</para>
+    </parablock>
+    <para />
+    <para>3.10 Een verboden prognose van het resultaat van bewijslevering lees ik evenmin in deze overwegingen. Anders dan het middel sub 17 aanneemt, heeft het hof (in rov. 19) niet geoordeeld dat bewijs onmogelijk is, maar dat 'nader, onafhankelijk onderzoek' onmogelijk is. Waar het hof in rov. 7 van het eindarrest spreekt over constateringen en waarnemingen van de beoogde getuigen, brengt het slechts tot uitdrukking waarom het de stellingen van WPK te weinig specifiek acht.</para>
+    <para />
+    <para>3.11 Dan resteert de vraag of het hof bij de beoordeling van het bewijsaanbod van WPK te hoge eisen heeft gesteld aan de stelplicht van WPK. In het licht van het hierboven uitvoerig weergegeven debat, meen ik dat het hof in dit geval terecht hoge eisen heeft gesteld aan de stelplicht van WPK zonder daarmee afbreuk te doen aan het mede door artikel 166 Rv gewaarborgde belang van de waarheidsvinding door het leveren van getuigenbewijs.(7) Ik merk daarbij op, dat het middel geen (kenbare) klacht richt tegen de oordelen in rov. 6 (niet ingegaan op de vraagpunten van [verweerder]) en rov. 7, voorlaatste volzin, van het eindarrest (de waarneming - dat daar waar geen condens op de planten terecht kwam, geen schade werd geconstateerd - is onvoldoende, omdat deze waarneming, gelet op de mogelijke andere oorzaken van de schade, nog niet voldoende aannemelijk zou maken dat een in de folie aanwezige schadelijke stof de schade aan de planten heeft veroorzaakt).</para>
+    <para />
+    <para>3.12 Het hof heeft, kortom, naar mijn mening de door het onderdeel bedoelde rechtsregels niet miskend, noch zijn oordeel onbegrijpelijk of onvoldoende gemotiveerd, zodat het middel niet tot cassatie leidt.</para>
+    <para />
+    <para>3.13 Met het falen van middel 1 heeft WPK geen belang bij bespreking van het tweede middel (zie 3.1). Dit wordt ten overvloede besproken. </para>
+    <para />
+    <para>3.14 Middel 2 keert zich tegen rov. 20(8) van het tussenarrest en rov. 8 van het eindarrest, waarin het gaat om de vraag of WPK nog wel schade heeft gezien de door haar met de fabrikant van de folie, Hyplast N.V., getroffen regeling. </para>
+    <para />
+    <parablock>
+      <para>3.15 In rov. 5 van het tussenarrest heeft het hof overwogen dat [verweerder] primair de niet-ontvankelijkheid van WPK bepleit, op de grond dat WPK een schikking heeft getroffen met Hyplast en zij niet twee keer vergoeding van dezelfde schade kan vorderen.</para>
+      <para>In rov. 20 heeft het hof geoordeeld dat WPK zal dienen aan te geven in hoeverre de met Hyplast getroffen regeling de bedoelde schade heeft verminderd en, met name, of WPK nog wel schade c.q. belang bij de zaak tegen [verweerder] heeft.</para>
+      <para>WPK heeft in haar daarop genomen akte hierover gesteld: "De schade overstijgt het bedrag van de regeling met Hyplast. WPK heeft derhalve nog wel degelijke schade cq belang bij de zaak tegen [verweerder]."</para>
+      <para>In rov. 8 van zijn eindarrest heeft het hof vastgesteld dat WPK niet aan de opdracht van het hof heeft voldaan om aan te geven in hoeverre haar schade is verminderd door de regeling met Hyplast. Volgens het hof valt ook niet in te zien waarom zij dit niet heeft gedaan. Het hof concludeert dat WPK niet aannemelijk heeft gemaakt nog voldoende, in rechte te honoreren, belang bij haar vordering tegen [verweerder] te hebben.</para>
+    </parablock>
+    <para />
+    <para>3.16.1 Volgens de klacht in nr. 26 geeft het hof niet aan of het bedoelt dat WPK de schade niet aannemelijk heeft gemaakt, dan wel dat WPK(9) geen belang heeft bij haar vordering als bedoeld in artikel 3:303 BW. </para>
+    <para />
+    <parablock>
+      <para>3.16.2 Het middel klaagt in nr. 27 voorts dat het hof een groot aantal rechtsregels heeft miskend, te weten:</para>
+      <para>- dat de vordering tot het meerdere de vordering tot het mindere in zich draagt.;</para>
+      <para>- dat voor verwijzing naar de schadestaatprocedure voldoende is dat schade aannemelijk is en dat de eiser de schade-elementen moet stellen in de aansprakelijkheidsprocedure; </para>
+      <para>- dat de kosten van vaststelling van de aansprakelijkheid en de schade, voor vergoeding in aanmerking komende schade kunnen zijn in geval van aansprakelijkheid voor een bepaalde gebeurtenis, ook in geval verdere schade ontbreekt;</para>
+      <para>- dat de stelling dat de vordering tot vergoeding van schade al is voldaan door een ander een zelfstandig verweer is, waarvan de bewijslast rust op degene die het verweer inroept;</para>
+      <para>- dat de rechter niet een voldoende gespecificeerd aanbod tot getuigenbewijs mag passeren, niet de eis mag stellen dat vooraf wordt verklaard wat de getuigen zullen gaan verklaren en niet een prognose mag maken omtrent de uitkomst van het aangeboden bewijs. </para>
+      <para>Voor zover het hof dit niet heeft miskend, heeft het hof volgens het middel te hoge eisen gesteld aan de motiveringsplicht, dan wel is zijn oordeel onvoldoende gemotiveerd. </para>
+      <para>Ter uitwerking van de in nr. 27 bedoelde klachten wordt nog het volgende opgemerkt:WPK heeft in haar akte na het tussenarrest toegelicht dat er schade onvergoed is gebleven na aftrek van het van Hyplast ontvangen bedrag. Het hof gaat in rov. 8 van het eindarrest alleen in op de hoofdsom en niet op de gevorderde incassokosten en expertisekosten, zodat die posten in ieder geval resteren. Het hof heeft WPK althans ten onrechte niet toegelaten tot het leveren van bewijs. In rov. 20(10) van het tussenarrest geeft het hof aan dat het erom gaat vast te stellen of WPK nog wel schade heeft, hetgeen een andere norm is dan de norm of aannemelijk is dat WPK schade heeft. Ook merkt het onderdeel op dat het verweer dat de vordering is voldaan een zelfstandig verweer is, waarvan de bewijslast bij [verweerder] ligt.</para>
+      <para>In nr. 19-21 van het middel wordt nog vermeld: WPK heeft in eerste aanleg zijn vordering als volgt gespecificeerd: € 99.750,29 met betrekking tot diverse schadeposten, € 1.542,85 buitengerechtelijke incassokosten en € 2.000 kosten van expertise met betrekking tot de schade. Deze vordering heeft WPK in hoger beroep gehandhaafd. In hoger beroep heeft WPK voorts betoogd dat schade in ieder geval aannemelijk is. WPK heeft bewijs aangeboden dat aannemelijk is dat zij schade heeft geleden.</para>
+    </parablock>
+    <para />
+    <para>3.16.3 Tot slot heeft het hof miskend dat de rechter terughoudend dient te zijn met het afwijzen van een vordering op de grond dat er niet voldoende belang bestaat, aldus het middel in nr. 28-30. </para>
+    <para />
+    <para>3.17 Anders dan het middel veronderstelt, ziet rov. 8 (blijkens de derde volzin) op de gehele vordering van WPK, niet alleen op de hoofdsom. De klacht bij 3.16.2, derde gedachtestreepje, faalt daarom.</para>
+    <para />
+    <parablock>
+      <para>3.18 M.i. dient het oordeel van het hof aldus te worden begrepen dat WPK geweigerd heeft gevolg te geven aan een door het hof gegeven bevel als bedoeld in artikel 22 Rv, zonder dat daarvoor een gewichtige reden is (aangevoerd).(11) Het hof heeft daaruit in rov. 8 van het eindarrest de gevolgtrekking gemaakt die het geraden acht, namelijk dat WPK niet aannemelijk heeft gemaakt nog voldoende belang te hebben bij haar vordering tegen [verweerder]. Tegen de achtergrond van rov. 20, slotzin, van het tussenarrest impliceert dit het oordeel, dat niet aannemelijk is dat WPK nog schade heeft.</para>
+      <para>De bij 3.16.1 bedoelde klacht mist dus feitelijke grondslag. De klacht bij 3.16.2, eerste gedachtestreepje, faalt omdat de vraag niet was of WPK ook vergoeding van een lager schadebedrag wenste te vorderen.</para>
+    </parablock>
+    <para />
+    <para>3.19 Het oordeel van het hof is kennelijk hierin gelegen dat gebleken is dat er een regeling is getroffen tussen WPK en Hyplast op grond waarvan Hyplast een bedrag heeft betaald aan WPK, alsmede dat dit bedrag in mindering dient te komen op het door WPK van [verweerder] gevorderde bedrag. </para>
+    <para />
+    <parablock>
+      <para>3.20 Nu op basis van de verklaring van WPK zelf blijkt, dat de door haar van [verweerder] gevorderde schade reeds deels is gecompenseerd door haar regeling met Hyplast, brengt dit met zich dat het (eventueel) resterende deel van de gevorderde schadevergoeding niet kan worden toegewezen voordat bekend is welk bedrag Hyplast aan WPK heeft betaald. De eiser zal immers het bestaan van de gestelde schade, bij betwisting door de gedaagde, moeten kunnen verdedigen.(12) </para>
+      <para>De situatie doet zich niet voor, dat WPK het bestaan van een dergelijke door [verweerder] gestelde regeling heeft betwist en het bestaan ervan vervolgens niet zou zijn komen vast te staan. De door het middel opgeworpen kwestie, of sprake is van een door [verweerder] aangevoerd bevrijdend verweer, kan daarom blijven rusten. De klacht bij 3.16.2, vierde gedachtestreepje, faalt daarom.</para>
+    </parablock>
+    <para />
+    <para>3.21 De rechter zou de vraag naar de resterende schade voor zich uit hebben kunnen schuiven, bijvoorbeeld naar een schadestaatprocedure.(13) Maar ook indien zou worden doorgeprocedeerd op basis van de mededeling van WPK dat er nog schade resteert, zou op enig moment duidelijk moeten worden welke schade WPK nog lijdt. De rechter mag de vraag, zoals in het onderhavige geval is gebeurd, ook meteen aan de orde stellen. Gezien het feit dat WPK haar schade reeds in de hoofdzaak heeft gespecificeerd en gezien het uitgangspunt dat de rechter de schade direct in de uitspraak begroot,(14) heeft het hof WPK kunnen bevelen kenbaar te maken in hoeverre de regeling met Hyplast de gevorderde schade heeft verminderd. De klacht bij 3.16.2, tweede gedachtestreepje, faalt daarom.</para>
+    <para />
+    <para>3.22 Als ik het goed zie, bestrijdt het middel niet de oordelen in rov. 8 van het eindarrest (i) dat WPK niet aan de opdracht van het hof heeft voldaan en (ii) dat niet valt in te waarom WPK niet aan de opdracht van het hof heeft voldaan. </para>
+    <para />
+    <para>3.23 Nu WPK naar het oordeel van het hof aan zijn bevel geen gevolg heeft gegeven, heeft het hof de conclusie daaraan verbonden die het geraden acht, te weten het oordeel dat WPK niet aannemelijk heeft gemaakt nog voldoende schade c.q. belang te hebben bij haar vordering tegen [verweerder]. </para>
+    <para />
+    <parablock>
+      <para>3.24 De gedachtegang van het hof is op zich invoelbaar: welk in rechte te respecteren belang heeft WPK bij het zonder toelichting niet verstrekken van de expliciet door het hof gevraagde informatie die nodig is voor de afwikkeling van haar vordering? Als zij erkent dat er een regeling is en stelt dat er schade resteert, ligt het op haar weg te zeggen welk bedrag reeds is vergoed. Dat bevordert een efficiënte afdoening van het proces. Dat is in het belang van beide partijen en in het algemeen belang.</para>
+      <para>De door het hof gevolgde aanpak heeft ook een keerzijde. Zoals boven aangegeven, bestond ook de mogelijkheid dat zou worden doorgeprocedeerd. Dan had de vraag naar de resterende schade alsnog beantwoord kunnen worden waarbij zou hebben kunnen blijken dat nog schade resteerde.</para>
+    </parablock>
+    <para />
+    <parablock>
+      <para>3.25 Nu is inherent aan elk proces het risico dat een partij verzuimt om een bepaalde stelling (die aan haar eis, verzoek of verweer ten grondslag ligt) tijdig aan te voeren of aannemelijk te maken, zodat zij de gevolgen van dat verzuim moet dragen.</para>
+      <para>Een actieve(re) opstelling van de rechter in het kader van de instructie van de zaak lijkt echter op dit risico van invloed te kunnen zijn. Enerzijds kan die opstelling er toe leiden dat relevante stellingen beter (d.w.z. eerder én nauwkeuriger betrokken op het werkelijk geschil) door partijen worden aangevoerd.(15) Dat vermindert het risico dat een partij verzuimt een relevante stelling aan te dragen. Anderzijds lijkt een actieve(re) opstelling van de rechter ook mee te (kunnen) brengen, dat partijen meer zullen (kunnen) worden geconfronteerd met de gevolgen van hun processuele gedrag. De kans om een stelling aan te dragen wordt immers scherper gedefinieerd wanneer zij niet aan het initiatief van een partij wordt overgelaten, maar wordt gevormd door een opdracht van de rechter aan een partij in de zin van artikel 22 Rv ('U moet nu aangeven etc"). Wordt aan die opdracht niet voldaan (c.q. wordt de daarmee geboden kans niet wordt gegrepen), dan kan de rechter daaraan allerlei gevolgen verbinden.</para>
+      <para>Daarmee bedoel ik niet te zeggen, dat de rechter bepaalt wanneer een partij de mogelijkheid heeft een bepaalde stelling aan te voeren. Een partij heeft dat immers goeddeels zelf in de hand. En wanneer zij haar mogelijkheden niet heeft benut, maar door de rechter wordt opgedragen een stelling te adstrueren, wordt zij door de rechter nog een kans geboden om dat te doen. Het wordt daarmee wellicht wel (zo het dat gezien de stand van de procedure al niet was) de laatste kans om de stelling (in de betreffende procedure) aan te voeren, gezien de bevoegdheid van de rechter om op de voet van artikel 22 Rv de gevolgtrekkingen te maken die hij geraden acht wanneer onterecht niet aan zijn opdracht wordt voldaan. De rechter mag de gevolgtrekking maken, dat bepaalde stellingen niet zonder meer als juist kunnen worden aanvaard.(16) De rechter kan echter ook andere gevolgtrekkingen maken. Zo is denkbaar, dat als het tot een schadestaatprocedure was gekomen en WPK eerst daarin had aangegeven welke schade zij na aftrek van het door Hyplast uitgekeerde bedrag nog lijdt, dit wordt verdisconteerd in de kosten- en/of renteveroordeling.</para>
+    </parablock>
+    <para />
+    <para>3.26 In ieder geval dient de rechter die op de voet van artikel 22 Rv de gevolgtrekkingen maakt die hij geraden acht, zijn gevolgtrekking dat een voor de beslissing essentiële stelling - hier: is er restschade - onaannemelijk is, genoegzaam te motiveren.(17) Het oordeel van het hof ziet niet op de vraag of aannemelijk is dat aanvankelijk schade is geleden (opbrengstverlies e.d.), maar op de vraag of het bestaan ervan nog aannemelijk is in het licht van de regeling met Hyplast. Daarbij diene dat weliswaar de omvang van de restschade door een informatieverzuim van eiseres in casu niet vaststaat, maar dat eiseres haar stelling dat schade resteert in haar (overigens inadequate) reactie op het bevel van de rechter ex artikel 22 Rv heeft gehandhaafd, terwijl denkbaar is dat de schade niet geheel door de regeling met Hyplast is vergoed. </para>
+    <para />
+    <para>3.27 Of het hof zijn oordeel genoegzaam heeft gemotiveerd, kan echter in het midden blijven. Het zou eiseres om de bij 3.1 genoemde reden niet baten indien middel 2 wel zou slagen, nu middel 1 faalt. Mocht Uw Raad daarover anders oordelen, dan merk ik op dat het twijfelachtig is of middel 2 wel opkomt tegen het onder 3.23 bedoelde oordeel. De klachten bij 3.16.2, vijfde gedachtestreepje, en bij 3.16.3 missen feitelijke grondslag en falen daarom evenals de eerder besproken klachten van middel 2. Mogelijk kan een klacht tegen het onder 3.23 bedoelde oordeel gevonden kunnen worden in de passage op p. 11 van de cassatiedagvaarding, waar gelezen kan worden: "zijn deze rechtsoverwegingen onbegrijpelijk (...) gemotiveerd (...) mede in het licht van de nadere toelichting van WPK bij akte na tussenarrest dat er schade onvergoed is gebleven na aftrek van het bedrag van schade met Hyplast (...)". </para>
+    <para />
+    <para>3.28 Het onderdeel klaagt ten slotte in nr. 31 dat het slagen van het cassatieberoep ertoe leidt dat ook de kostenveroordeling heroverwogen dient te worden. De klacht bouwt voort op de eerdere klachten en faalt evenzo. </para>
+    <para />
+    <para>Conclusie </para>
+    <para />
+    <para>De conclusie strekt tot verwerping van het cassatieberoep. </para>
+    <para />
+    <parablock>
+      <para>De Procureur-Generaal bij de </para>
+      <para>Hoge Raad der Nederlanden,</para>
+    </parablock>
+    <para />
+    <para>A-G</para>
+    <para />
+    <parablock>
+      <para>1 Het betreft een onderzoek dat is uitgevoerd door Hyplast, de fabrikant. Zie prod. 4 bij CvA en de Akte uitlating ter rolle d.d. 2 februari 2005 sub 4.</para>
+      <para>2 Zie het eindvonnis d.d. 18 mei 2005, p. 1. Het vonnis van 15 december 2004 ontbreekt in het dossier (evenals bepaalde stukken die kennelijk op de vrijwaringszaken betrekking hadden); dit vonnis is in hoger beroep en cassatie echter niet van belang (geweest).</para>
+      <para>3 De cassatiedagvaarding is op 14 oktober 2009 uitgebracht.</para>
+      <para>4 Het middel vermeldt abusievelijk rov. 8, maar uit de toelichting op de laatste alinea van p. 3 en uit nr. 11 op p. 6 volgt dat het doelt op rov. 19 van het tussenarrest.</para>
+      <para>5 Zie voorts Asser Procesrecht/Bakels, Hammerstein &amp; Wesseling-Van Gent 4 2009, nr. 208-214; H.J. Snijders en A. Wendels, Civiel appel, 2009, nrs. 207-20; Losbl. Rv. (M. Ynzonides en E.D. van Geuns), art. 353, aant. 10-12.</para>
+      <para>6 In zijn noot onder HR 9 juli 2004, LJN: AO7817, NJ 2005, 270 (OZ/[...]) heeft Asser wel bepleit te verlangen dat een partij aangeeft wat de getuigen zouden kunnen verklaren; die eis stimuleert een wat meer gedegen voorbereiding van de procedure. Daartegen Asser Procesrecht/Bakels, Hammerstein &amp; Wesseling-Van Gent 4 2009, nr. 209, met het argument dat het met het oog op onbevangenheid van getuigen niet wenselijk is dat zij vooraf door de partij die hen voorbrengt zijn gehoord, laat staan op het getuigenverhoor zijn voorbereid. Dit laat wat hen betreft onverlet dat als een partij die bewijs aanbiedt wel op de hoogte is van de wetenschap van de getuige, het de voorkeur verdient dat dit ook wordt vermeld.</para>
+      <para>7 Vgl. HR 28 januari 2011, LJN: BO6106, rov. 4.2.2.</para>
+      <para>8 Het middel vermeldt abusievelijk rov. 19 van het tussenarrest, maar uit de toelichting volgt dat het doelt op rov. 20. </para>
+      <para>9 Het onderdeel vermeldt hier abusievelijk "[verweerder]" i.p.v. WPK.</para>
+      <para>10 Er wordt abusievelijk verwezen naar rov. 19. </para>
+      <para>11 Zie Losbl. Rechtsvordering (Wesseling-van Gent), art. 22. </para>
+      <para>12 Zie Losbl. Rechtsvordering (A.I.M. van Mierlo), art, 612, aant. 4. Hieraan worden trouwens geen hoge eisen gesteld. Het volstaat dat eiser (voor wat betreft de verwijzing naar een schadestaatprocedure: de mogelijkheid van) schade aannemelijk maakt. Als feiten komen vast te staan waaruit in het algemeen het geleden zijn van schade kan worden afgeleid, staat het de rechter vrij om zonder bewijs aannemelijk te achten dat schade is geleden, aldus Schadevergoeding (S.D. Lindenbergh), art. 97, aant. 16.</para>
+      <para>13 Daartoe volstaat immers dat eiser de mogelijkheid van schade aannemelijk maakt. Eventuele schadeverminderende factoren, zoals bijvoorbeeld de mogelijkheid van voordeelstoerekening, kunnen ook in de schadestaatprocedure worden bekeken. Zie HR 27 november 1998, LJN: ZC2793, NJ 1999, 685 m.nt. PvS; Losbl. Rv (A.I.M. van Mierlo), art. 612, aant. 4.</para>
+      <para>14 Losbl. Rechtvordering (A.I.M. van Mierlo), art. 612, aant. 2. </para>
+      <para>15 Zie in meer algemene zin, recent, o.m. W.D.H. Asser, Burgerlijk (proces)recht: bewijs in het spanningsveld tussen rechter en partijen (Preadvies Nederlandse Vereniging voor Rechtsvergelijking nr. 69), Wolf: Nijmegen, tweede herstelde druk 2010, waaruit ik in het bijzonder wijs op p. 14-15, 21-29, 33. Zie voorts, kritisch, A.C. Van Schaick, Het burgerlijk recht de baas? (oratie UvT), Kluwer: Deventer 2009, p. 52-55 waarover I. Giessen, Zoeken naar balans?, Trema 2010, p. 155-156. Voor een toepassing: R.A. Dozy en W.L. Valk, Innovatief instrueren in hoger beroep, Trema 2010, p. 463 e.v.</para>
+      <para>16 Losb. Rechtsvordering (E.M. Wesseling-van Gent), art. 21, aant. 4; E.M. Wesseling-van Gent, To fish or not to fish, that's the question, in: Het verzamelen van feiten en bewijs: begrenzing versus verruiming, een kruisbestuiving tussen civiel procesrecht en ondernemingsprocesrecht, preadvies Nederlandse Vereniging voor Procesrecht (deel 15 in de Procesrechtelijke Reeks), 2006, p. 111-112.</para>
+      <para>17 Vgl. HR 9 juni 2006, LJN: AW2089, NJ 2006, 327.</para>
+    </parablock>
+  </conclusie>
+</open-rechtspraak>
