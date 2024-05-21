@@ -16,7 +16,7 @@ test_file_list = ( # these are test files in the repo
     'gmb.html.zip',
     'prb.xml',
     'bgr.html',
-    'rechtspraak.xml',
+    'rechtspraak2.xml',
 )
 
 def test_ascii_fix():
