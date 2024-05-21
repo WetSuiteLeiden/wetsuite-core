@@ -3,7 +3,9 @@ import os
 
 import pytest
 
-from wetsuite.helpers.koop_parse import cvdr_parse_identifier, cvdr_meta, cvdr_text, cvdr_sourcerefs, cvdr_param_parse, cvdr_normalize_expressionid, prefer_types, parse_op_meta
+from wetsuite.helpers.koop_parse import cvdr_parse_identifier, cvdr_meta, cvdr_text, cvdr_sourcerefs, cvdr_param_parse, cvdr_normalize_expressionid
+from wetsuite.helpers.koop_parse import prefer_types, parse_op_meta
+from wetsuite.helpers.koop_parse import alineas_with_selective_path
 import wetsuite.datacollect.koop_sru
 from wetsuite.datacollect.koop_sru import BWB, CVDR
 from wetsuite.datacollect.koop_sru import SamenwerkendeCatalogi, LokaleBekendmakingen, TuchtRecht, WetgevingsKalender, PLOOI, PUCOpenData, EuropeseRichtlijnen
@@ -52,7 +54,11 @@ def test_cvdr_param_parse():
     assert res['artikel'] == ['12']
     assert res['g']       == ['2011-11-08']
 
-    #TODO: bad amp parse
+
+def test_cvdr_param_parse_repeat():
+    ' test repeated params (nonsense value) '
+    res = cvdr_param_parse('BWB://1.0:c:BWBR0008903&a=1&a=2')
+    assert res['a']       == ['1','2']
 
 
 def get_test_data(fn):
@@ -229,7 +235,9 @@ def test_parse_op_meta():
         'opmeta2.xml'
         ):
         with open( os.path.join( os.path.dirname( test_koop.__file__ ), fn), mode='rb' ) as f:
-            assert len( parse_op_meta( f.read() ) ) > 5
+            docbytes = f.read()
+            assert len( parse_op_meta( docbytes ) ) > 5
+            assert len( parse_op_meta( docbytes, as_dict=True ) ) > 5
 
 
 def test_parse_op_meta_bad():
@@ -238,22 +246,15 @@ def test_parse_op_meta_bad():
         parse_op_meta(b'''<body></body>''')
 
 
-#alineas_with_selective_path
+def test_alineas_with_selective_path():
+    ''' test that the basic extraction idea works 
+        TODO: add a bunch more real cases
+    '''
+    tree = wetsuite.helpers.etree.fromstring( b'<body><al>test1</al><!-- --><al>test2</al></body>' )
+    res = alineas_with_selective_path( tree)
+    assert res[0]['path']      == '/body/al[1]'
+    assert res[0]['text-flat'] == 'test1'
+    assert res[0]['raw']       == b'<al>test1</al>'
 
-
-
-# TODO:
-# bwb_searchresult_meta
-
-# bwb_toestand_usefuls
-
-# bwb_wti_usefuls
-
-# cvdr_versions_for_work
-
-
-# alineas_with_selective_path
-
-# merge_alinea_data
-
-# merge_alinea_data
+    assert res[1]['path'] == '/body/al[2]'
+    assert res[1]['text-flat'] == 'test2'
