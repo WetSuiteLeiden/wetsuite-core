@@ -287,7 +287,7 @@ def simple_tokenize(text):
     #return list(e.strip("'")   for e in l  if len(e)>0)
 
 
-ordinal_nl_20 = {
+_ordinal_nl_20 = {
           "nulde":0,
          "eerste":1,
          "tweede":2,
@@ -310,11 +310,11 @@ ordinal_nl_20 = {
     "negentiende":19,
      "twintigste":20,
 }
-ordinal_nl_20_rev = {}
-for k, v in ordinal_nl_20.items():
-    ordinal_nl_20_rev[v] = k
+_ordinal_nl_20_rev = {}
+for k, v in _ordinal_nl_20.items():
+    _ordinal_nl_20_rev[v] = k
 
-tigste1 = {
+_tigste1 = {
            '':0,
       'eenen':1,
      'tweeen':2,
@@ -326,11 +326,11 @@ tigste1 = {
      'achten':8,
     'negenen':9,
 }
-tigste1_rev = {}
-for k, v in tigste1.items():
-    tigste1_rev[v] = k
+_tigste1_rev = {}
+for k, v in _tigste1.items():
+    _tigste1_rev[v] = k
 
-tigste10 = {
+_tigste10 = {
      'twintigste':20,
       'dertigste':30,
     'veertichste':40,
@@ -340,9 +340,9 @@ tigste10 = {
      'tachtigste':80,
     'negentigste':90,
 }
-tigste10_rev = {}
-for k, v in tigste10.items():
-    tigste10_rev[v] = k
+_tigste10_rev = {}
+for k, v in _tigste10.items():
+    _tigste10_rev[v] = k
 
 # t1000 = { # note: Dutch uses long scale, not short scale like English does - https://en.wikipedia.org/wiki/Long_and_short_scales
 #      'honderd':100,
@@ -359,17 +359,17 @@ for k, v in tigste10.items():
 
 # There are probably more efficient ways to do each of these.
 
-re_tig = re.compile( '(%s)(%s)'%( '|'.join(tigste1), '|'.join(tigste10) ) )
+_re_tig = re.compile( '(%s)(%s)'%( '|'.join(_tigste1), '|'.join(_tigste10) ) )
 
 def interpret_ordinal_nl(s:str):
     " Given ordinals, gives the integer it represents (for 0..99), e.g. interpret_ordinal_nl('eerste') -> 1 "
     s = remove_diacritics(s).strip() # remove_diacritics mostly to remove the dearesis (we could have hardcoded U+00EB to u+0065)
-    if s in ordinal_nl_20:
-        return ordinal_nl_20[s]
-    m = re_tig.search(s)
+    if s in _ordinal_nl_20:
+        return _ordinal_nl_20[s]
+    m = _re_tig.search(s)
     if m is not None:
         s1, s10 = m.groups()
-        return tigste1[s1] + tigste10[s10]
+        return _tigste1[s1] + _tigste10[s10]
     raise ValueError("interpret_ordinal_nl doesn't understand %r"%s)
 
 
@@ -380,10 +380,10 @@ def ordinal_nl(i:int):
     i = int(i)
     if i < 0:
         raise ValueError("Values <0 make no sense")
-    elif i in ordinal_nl_20_rev:  # first 20
-        return ordinal_nl_20_rev[i]
+    elif i in _ordinal_nl_20_rev:  # first 20
+        return _ordinal_nl_20_rev[i]
     elif i <= 99:
         i1  = int( i%10 )
         i10 = i-i1  # round(-1) may be clearer?
-        return '%s%s'%( tigste1_rev[i1], tigste10_rev[i10] )
+        return '%s%s'%( _tigste1_rev[i1], _tigste10_rev[i10] )
     raise ValueError("can't yet do integers > 99")
