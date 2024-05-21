@@ -48,7 +48,7 @@ def wetsuite_dir():
         if os.path.exists( r_via_up ):
             chose_dir = os.path.join( r_via_up, '.wetsuite' )
 
-    if chose_dir is None:  # probably linux or osx, or weird windows
+    if chose_dir is None:
         home_dir = os.path.expanduser("~")
         ret['wetsuite_dir'] = os.path.join( home_dir, '.wetsuite' )
     else:
@@ -164,12 +164,12 @@ def is_xml( bytesdata, debug=False ) -> bool:
 
     # the ordering here is more about efficiency than function
     if is_html( bytesdata ): # cheaper than parsing
-        if debug:
-            print('is html')
+        #if debug:
+        #    print('is html')
         return False
     if is_pdf( bytesdata ): # cheaper than parsing
-        if debug:
-            print('is html')
+        #if debug:
+        #    print('is html')
         return False
 
     import wetsuite.helpers.etree
@@ -177,8 +177,8 @@ def is_xml( bytesdata, debug=False ) -> bool:
     try:
         root = wetsuite.helpers.etree.fromstring( bytesdata )
     except lxml.etree.XMLSyntaxError as xse: # if it doesn't parse  (not 100% on the exception? What's lxml.etree.ParserError then?)
-        if debug:
-            print('syntaxerror', xse)
+        #if debug:
+        #    print('syntaxerror', xse)
         return False
 
     # if it's valid as XML but the root node is 'html', we do not consider it XML
@@ -203,8 +203,8 @@ def is_zip( bytesdata:bytes ) -> bool:
         return True
     if bytesdata.startswith( b'PK\x05\x06' ): # empty - not good for us and perhaps deserves a separate test
         return True
-    if bytesdata.startswith( b'PK\x07\x08' ): # spanned - shouldn't apply to us
-        return True
+    #if bytesdata.startswith( b'PK\x07\x08' ): # spanned - shouldn't apply to us, and I think we cannot currently deal with it
+    #    return True
     return False
 
 
