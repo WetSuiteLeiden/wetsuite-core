@@ -11,5 +11,4 @@ def test_lookup():
 
 def test_lookup_bad():
     ' test that the lookup works, with a known item ' 
-    assert wetsuite.extras.gerechtcodes.case_insensitive_lookup('BLAH') == None
-
+    assert wetsuite.extras.gerechtcodes.case_insensitive_lookup('BLAH') is None
