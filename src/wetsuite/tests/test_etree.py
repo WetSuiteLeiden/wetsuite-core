@@ -108,12 +108,12 @@ def test_indent():
 
 def test_pathcount():
     ' test the path counting '
-    xml = '<a><b>><c/><c/><c/></b><d/><d/></a>'
+    xml = '<a><b>><c/><c/><c/><!-- --></b><d/><d/></a>'
     assert path_count( fromstring( xml ) ) == {'a': 1, 'a/b': 1, 'a/b/c': 3, 'a/d': 2}
 
 
 def test_node_walk_none():
-    ' mostly tested by pathcount, except for this'
+    ' mostly tested by (test_)pathcount, except for this '
     # might be a clearer way to write that?
     g = node_walk( None )
     with pytest.raises(StopIteration):
