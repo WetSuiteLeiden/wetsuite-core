@@ -2,14 +2,12 @@
 #import pytest
 import wetsuite.datacollect.tweedekamer_nl
 
-#def DISABLED_test_fetch_all():
-def test_fetch_all():
+def DISABLED_test_fetch_all(): # because it takes 20 sec
+#def test_fetch_all():
     ' test that we can fetch and merge '
     #etrees = wetsuite.datacollect.tweedekamer_nl.fetch_all( 'Zaal') #, break_actually=True )
     etrees = wetsuite.datacollect.tweedekamer_nl.fetch_all( 'Zaal', break_actually=True )
-
     merged_tree = wetsuite.datacollect.tweedekamer_nl.merge_etrees( etrees )
-
     wetsuite.datacollect.tweedekamer_nl.entry_dicts( merged_tree )
 
 
