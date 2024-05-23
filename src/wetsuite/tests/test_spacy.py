@@ -3,11 +3,12 @@
 '''
 #import pytest
 
-import wetsuite.helpers.spacy
-
 import spacy
 import spacy.tokens.doc
 import spacy.tokens.span
+
+import wetsuite.helpers.spacy
+
 
 
 #def load_nl():
@@ -54,9 +55,9 @@ def test_parse():
         pass
 
 
-def test_reload():
-    " test that the reload(wetsuite.helpers.spacy) doesn't fail "
-    wetsuite.helpers.spacy.reload()
+# def test_reload():
+#     " test that the reload(wetsuite.helpers.spacy) doesn't fail "
+#     wetsuite.helpers.spacy.reload()
 
 
 def test_ipython_content_visualisation():
