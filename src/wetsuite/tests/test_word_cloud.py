@@ -2,8 +2,6 @@
 from wetsuite.extras.word_cloud import count_normalized, wordcloud_from_freqs, count_case_insensitive#, count_from_spacy_document
 
 
-
-
 def test_count_normalized():
     ' test the count-normalized-form function'
 
@@ -92,7 +90,3 @@ def test_wordcloud_from_freqs():
 #     doc[2].pos_='NOUN'
 
 #     assert count_from_spacy_document( doc ) == {'a':1}
-
-
-if __name__ == '__main__':
-    test_wordcloud_from_freqs()
