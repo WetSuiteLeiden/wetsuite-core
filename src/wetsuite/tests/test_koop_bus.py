@@ -1,6 +1,6 @@
 ''' Testing koop_bus '''
 
-import os 
+import os
 from wetsuite.datacollect.koop_bus import normalize_path, id_from_path, BUSFetcher
 
 

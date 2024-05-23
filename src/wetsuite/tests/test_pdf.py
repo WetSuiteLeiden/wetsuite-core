@@ -12,6 +12,7 @@ def read_eggs():
     import test_pdf    #import for self-reference is intentional, pylint: disable=W0406
     eggs_filename = os.path.join(
         os.path.dirname( test_pdf.__file__ ),
+        'testfiles', 
         'eggs.pdf' )
 
     with open(eggs_filename, 'rb') as f:

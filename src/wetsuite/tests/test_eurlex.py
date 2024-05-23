@@ -10,7 +10,7 @@ def test_extract_html():
     '''
     #htmlbytes = wetsuite.helpers.net.download('https://eur-lex.europa.eu/eli/reg/2016/679/oj')
     import test_eurlex   #import for self-reference is intentional, pylint: disable=W0406
-    with open( os.path.join( os.path.dirname( test_eurlex.__file__ ),'eurlex.html' ), 'rb') as f:
+    with open( os.path.join( os.path.dirname( test_eurlex.__file__ ),'testfiles','eurlex.html' ), 'rb') as f:
         htmlbytes = f.read()
     d = wetsuite.datacollect.eurlex.extract_html( htmlbytes )
     assert d['celex'] == '32016R0679'

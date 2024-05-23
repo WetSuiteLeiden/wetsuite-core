@@ -38,7 +38,7 @@ def test_decide():
     import test_split
 
     for test_path in test_file_list:
-        one_path = os.path.join( os.path.dirname( test_split.__file__ ), test_path )
+        one_path = os.path.join( os.path.dirname( test_split.__file__ ), 'testfiles', test_path )
         with open(one_path,'rb') as f:
             for _, _ in wetsuite.helpers.split.decide( f.read(), debug=True ):
                 pass
@@ -49,7 +49,7 @@ def test_fragments():
     import test_split
 
     for test_path in test_file_list:
-        one_path = os.path.join( os.path.dirname( test_split.__file__ ), test_path )
+        one_path = os.path.join( os.path.dirname( test_split.__file__ ), 'testfiles', test_path )
         with open(one_path,'rb') as f:
             for _, procobj in wetsuite.helpers.split.decide( f.read() ):
                 list( procobj.fragments() )
@@ -59,7 +59,7 @@ def test_firstonly():
     ' see whether decide() deals with a file'
     import test_split
 
-    gmb_path = os.path.join( os.path.dirname( test_split.__file__ ), 'gmb.xml' )
+    gmb_path = os.path.join( os.path.dirname( test_split.__file__ ), 'testfiles', 'gmb.xml' )
     with open(gmb_path,'rb') as f:
         docbytes = f.read()
 
@@ -73,7 +73,7 @@ def test_firstonly():
 def test__split_op_xml__start_at_none():
     ' test the code path for starting at root '
     import test_split
-    gmb_path = os.path.join( os.path.dirname( test_split.__file__ ), 'gmb.xml' )
+    gmb_path = os.path.join( os.path.dirname( test_split.__file__ ), 'testfiles', 'gmb.xml' )
     with open( gmb_path, 'rb') as gmb_file:
         gmb_tree = wetsuite.helpers.etree.fromstring( gmb_file.read() )
         wetsuite.helpers.split._split_op_xml( gmb_tree, start_at=None) # pylint: disable=protected-access
@@ -89,7 +89,7 @@ def test__split_op_xml__list_test():
 def test__split_op_xml__start_at_nonsemse():
     ' test the code path for starting at path that does not exist '
     import test_split
-    gmb_path = os.path.join( os.path.dirname( test_split.__file__ ), 'gmb.xml' )
+    gmb_path = os.path.join( os.path.dirname( test_split.__file__ ), 'testfiles', 'gmb.xml' )
     with open( gmb_path, 'rb') as gmb_file:
         gmb_tree = wetsuite.helpers.etree.fromstring( gmb_file.read() )
         with pytest.raises(ValueError,  match=r'.*Did not find.*'):
@@ -99,7 +99,7 @@ def test__split_op_xml__start_at_nonsemse():
 def test__split_op_xml__start_at_node():
     ' test the code path for starting at root '
     import test_split
-    gmb_path = os.path.join( os.path.dirname( test_split.__file__ ), 'gmb.xml' )
+    gmb_path = os.path.join( os.path.dirname( test_split.__file__ ), 'testfiles', 'gmb.xml' )
     with open( gmb_path, 'rb') as gmb_file:
         gmb_tree = wetsuite.helpers.etree.fromstring( gmb_file.read() )
         node = gmb_tree.find('gemeenteblad/zakelijke-mededeling')

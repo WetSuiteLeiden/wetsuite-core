@@ -64,7 +64,7 @@ def test_cvdr_param_parse_repeat():
 def get_test_data(fn):
     ' open a test file placed in the test directory - probably works unless something is being very protective '
     import test_koop  # that's intentional pylint: disable=W0406
-    file = open( os.path.join( os.path.dirname( test_koop.__file__ ), fn), mode='rb' )
+    file = open( os.path.join( os.path.dirname( test_koop.__file__ ), 'testfiles', fn), mode='rb' )
     filedata = file.read()
     file.close()
     return filedata
@@ -232,9 +232,9 @@ def test_parse_op_meta():
     import test_koop  # that's intentional pylint: disable=W0406
     for fn in (
         'opmeta1.xml',
-        'opmeta2.xml'
+        'opmeta2.xml',
         ):
-        with open( os.path.join( os.path.dirname( test_koop.__file__ ), fn), mode='rb' ) as f:
+        with open( os.path.join( os.path.dirname( test_koop.__file__ ), 'testfiles', fn), mode='rb' ) as f:
             docbytes = f.read()
             assert len( parse_op_meta( docbytes ) ) > 5
             assert len( parse_op_meta( docbytes, as_dict=True ) ) > 5

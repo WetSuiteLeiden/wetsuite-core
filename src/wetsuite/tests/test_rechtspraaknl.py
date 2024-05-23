@@ -41,12 +41,12 @@ def test_parse():
     ' test that those documents parse without failing '
     import test_rechtspraaknl
 
-    path = os.path.join( os.path.dirname( test_rechtspraaknl.__file__ ), 'rechtspraak1.xml' )
+    path = os.path.join( os.path.dirname( test_rechtspraaknl.__file__ ), 'testfiles', 'rechtspraak1.xml' )
     with open(path,'rb') as f:
         tree = wetsuite.helpers.etree.fromstring( f.read() )
         wetsuite.datacollect.rechtspraaknl.parse_content( tree )
 
-    path = os.path.join( os.path.dirname( test_rechtspraaknl.__file__ ), 'rechtspraak2.xml' )
+    path = os.path.join( os.path.dirname( test_rechtspraaknl.__file__ ), 'testfiles', 'rechtspraak2.xml' )
     with open(path,'rb') as f:
         tree = wetsuite.helpers.etree.fromstring( f.read() )
         wetsuite.datacollect.rechtspraaknl.parse_content( tree )

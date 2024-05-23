@@ -3,7 +3,7 @@ import time
 
 import pytest
 
-from wetsuite.extras.akn import resolve, cached_resolve
+from wetsuite.helpers.akn import resolve, cached_resolve
 
 
 def test_valid():

@@ -98,15 +98,11 @@ def test_findall_ecli_nostrip():
 
 def test_parse_ecli_good_file():
     ' see if it is found (no stripping) '
-    good_ecli_fn = os.path.join( os.path.dirname( test_meta.__file__ ), 'good_ecli.txt' )
+    good_ecli_fn = os.path.join( os.path.dirname( test_meta.__file__ ), 'testfiles', 'ecli_good.txt' )
     with open(good_ecli_fn,'r', encoding='utf8') as good_ecli_file:
         for line in good_ecli_file:
             text, _ = line.rstrip('\n').split('\t')
             parse_ecli( text )
-
-
-#    assert findall_ecli(' .nl/inziendocument?id=ECLI:NL:RBDHA:2016:4235. ', False) == ['ECLI:NL:RBDHA:2016:4235.']
-
 
 
 def test_parse_celex_noerror():
