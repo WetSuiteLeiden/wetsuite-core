@@ -9,12 +9,15 @@ so this (thin) wrapper module exists largely to separate out the counting,
 '''
 import collections
 from typing import List
-
+import warnings
 
 # The wordcloud module imports matplotlib so we might need to ensure a non-graphical backend
 #   TODO: read up, IIRC it's good to do this conditionally and lazily?
-import matplotlib
-matplotlib.use('Agg')
+
+with warnings.catch_warnings():
+    warnings.simplefilter("ignore") # meant to ignore some deprecation warnings
+    import matplotlib
+    matplotlib.use('Agg')
 
 import wordcloud  #  if not installed, do  pip3 install wordcloud       also this is intentionally after the previous, so:   pylint: disable=C0413
                   # note that it draws in matplotlib, numpy, and PIL
