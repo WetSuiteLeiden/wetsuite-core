@@ -1,6 +1,8 @@
 ' test of PDF-related functions '
 import os
 
+import pytest
+
 import wetsuite.extras.pdf
 from wetsuite.helpers.strings import contains_all_of
 
@@ -66,6 +68,9 @@ def test_page_image_renders_at_all():
         assert page_im.size[0] > 500
 
 
+# both sets of warnings seem about deprecated stuff - might break in the future?
+@pytest.mark.filterwarnings("ignore::UserWarning")
+@pytest.mark.filterwarnings("ignore::DeprecationWarning")
 def test_pdf_text_ocr():
     ' mostly a test of the ocr module does not bork out '
     wetsuite.extras.pdf.pdf_text_ocr( read_eggs() )
