@@ -8,6 +8,7 @@ from PIL import Image, ImageDraw
 
 
 
+
 def test_import():
     ' test that the import does not bork, over dependencies '
     import wetsuite.extras.ocr         # pylint: disable=unused-import
@@ -15,6 +16,7 @@ def test_import():
 
 
 @pytest.mark.filterwarnings("ignore::UserWarning")
+@pytest.mark.filterwarnings("ignore::DeprecationWarning") # some distutil blah that is not important for this test
 def test_image():
     ' test that OCR basically functions, on an image we generate with PIL '
     import wetsuite.extras.ocr
