@@ -815,9 +815,9 @@ def parse_op_meta( xmlbytes: bytes, as_dict=False ):
     else:
         raise ValueError( 'Did not expect XML with root tag named %r'%root.tag )
 
-    if as_dict is False:
+    if not as_dict:
         return ret
-    if as_dict:
+    else:
         rdd = collections.defaultdict(list)
         for key, schema, value in ret:
             rdd[key].append( (schema,value) )
