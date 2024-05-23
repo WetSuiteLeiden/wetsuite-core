@@ -31,6 +31,7 @@
 '''
 
 import re
+import warnings
 
 import bs4  # arguably should be inside each class so we can do without some of these imports
 import fitz # arguably should be inside each class so we can do without some of these imports
@@ -69,13 +70,14 @@ def _split_op_xml(tree, start_at):
     if start_at is None: # if not specified, then assume we care about everything and can start at the root
         start_at_node = tree
         start_at_path = '.'  # hack to indicate / without using /
-
     elif isinstance(start_at, str):
         start_at_path = start_at # assuming that makes sense
         start_at_node = tree.xpath( start_at )
         if start_at_node is None  or  len(start_at_node)==0: # TODO: check that both can actually happen
             raise ValueError("Did not find %s within %s"%(start_at, tree))
-    else: # assume it was a node in the tree you find'd or xpath'd yourself
+    elif isinstance(start_at, list):
+        raise ValueError("_split_op_xml() does not know what to do when given a list")
+    else: # assume it was a node in the tree you find'd or xpath'd yourself (keep in mind that xpath returns a list of nodes)
         start_at_node = start_at
         start_at_path = wetsuite.helpers.etree.path_between(tree, start_at_node)
 
@@ -123,11 +125,11 @@ def _split_op_html(soup):
     #    ret.append(({},str( article ), text))
     #    raise ValueError( text )
 
-    alert = body.find('div', attrs={'class':'alert__inner'})
-    if alert is not None:
-        raise ValueError(alert.text)
-        #if 'Deze publicatie is niet beschikbaar' in alert.text:
-        #    raise ValueError(alert.text)
+    # alert = body.find('div', attrs={'class':'alert__inner'})
+    # if alert is not None:
+    #     raise ValueError(alert.text)
+    #     #if 'Deze publicatie is niet beschikbaar' in alert.text:
+    #     #    raise ValueError(alert.text)
 
     #found_one = False # set but not currently used
     for maybe in (dop, stuk, inhoud, article, idc):
@@ -138,8 +140,6 @@ def _split_op_html(soup):
             elems = maybe.find_all('div', attrs={'class':_p_re})
             if len(elems)==0:
                 elems = maybe.find_all(['p','h1','h2','h3'])
-            if len(elems)==0:
-                raise ValueError('QQ')
             for elem in elems:
                 ret.append( (
                     {'class':elem.get('class')},
@@ -213,7 +213,7 @@ class Fragments_XML_BWB( Fragments ):
             return 5000
 
     def fragments(self):
-        # PRELIMINARY FUDGING AROUND
+        # PRELIMINARY TESTS
         ret = []
         fragments = wetsuite.helpers.koop_parse.alineas_with_selective_path( self.tree )
         # TODO: detect what level gives reasonably-sized chunks on average, to hand into mer
@@ -248,7 +248,7 @@ class Fragments_XML_CVDR( Fragments ):
             return 5000
 
     def fragments(self):
-        # PRELIMINARY FUDGING AROUND
+        # PRELIMINARY TESTS
         ret = []
         for fragment in wetsuite.helpers.koop_parse.alineas_with_selective_path( self.tree ):
             #if self.debug:
@@ -292,7 +292,9 @@ class Fragments_HTML_OP_Stcrt( Fragments ):
         return False
 
     def suitableness( self ):
-        self.soup = bs4.BeautifulSoup( self.docbytes, features='lxml' )
+        with warnings.catch_warnings(): # meant to ignore the "It looks like you're parsing an XML document using an HTML parser." warning
+            warnings.simplefilter("ignore")
+            self.soup = bs4.BeautifulSoup( self.docbytes, features='lxml' )
         pname = self.soup.find('meta', attrs={'name':'OVERHEIDop.publicationName'})
         if pname is not None and pname.get('content')=='Staatscourant':
             return 5
@@ -319,7 +321,9 @@ class Fragments_HTML_OP_Stb( Fragments ):
         return False
 
     def suitableness( self ):
-        self.soup = bs4.BeautifulSoup( self.docbytes, features='lxml' )
+        with warnings.catch_warnings(): # meant to ignore the "It looks like you're parsing an XML document using an HTML parser." warning
+            warnings.simplefilter("ignore")
+            self.soup = bs4.BeautifulSoup( self.docbytes, features='lxml' )
         pname = self.soup.find('meta', attrs={'name':'OVERHEIDop.publicationName'})
         if pname is not None and pname.get('content')=='Staatsblad':
             return 5
@@ -349,7 +353,9 @@ class Fragments_HTML_OP_Gmb( Fragments ):
         return False
 
     def suitableness( self ):
-        self.soup = bs4.BeautifulSoup( self.docbytes, features='lxml' )
+        with warnings.catch_warnings(): # meant to ignore the "It looks like you're parsing an XML document using an HTML parser." warning
+            warnings.simplefilter("ignore")
+            self.soup = bs4.BeautifulSoup( self.docbytes, features='lxml' )
         pname = self.soup.find('meta', attrs={'name':'OVERHEIDop.publicationName'})
         if pname is not None and pname.get('content')=='Gemeenteblad':
             return 5
@@ -377,7 +383,9 @@ class Fragments_HTML_OP_Trb( Fragments ):
         return False
 
     def suitableness( self ):
-        self.soup = bs4.BeautifulSoup( self.docbytes, features='lxml' )
+        with warnings.catch_warnings(): # meant to ignore the "It looks like you're parsing an XML document using an HTML parser." warning
+            warnings.simplefilter("ignore")
+            self.soup = bs4.BeautifulSoup( self.docbytes, features='lxml' )
         pname = self.soup.find('meta', attrs={'name':'OVERHEIDop.publicationName'})
         if pname is not None and pname.get('content')=='Tractatenblad':
             return 5
@@ -405,7 +413,9 @@ class Fragments_HTML_OP_Prb( Fragments ):
         return False
 
     def suitableness( self ):
-        self.soup = bs4.BeautifulSoup( self.docbytes, features='lxml' )
+        with warnings.catch_warnings(): # meant to ignore the "It looks like you're parsing an XML document using an HTML parser." warning
+            warnings.simplefilter("ignore")
+            self.soup = bs4.BeautifulSoup( self.docbytes, features='lxml' )
         pname = self.soup.find('meta', attrs={'name':'OVERHEIDop.publicationName'})
         if pname is not None and pname.get('content')=='Provincieblad':
             return 5
@@ -434,7 +444,9 @@ class Fragments_HTML_OP_Wsb( Fragments ):
         return False
 
     def suitableness( self ):
-        self.soup = bs4.BeautifulSoup( self.docbytes, features='lxml' )
+        with warnings.catch_warnings(): # meant to ignore the "It looks like you're parsing an XML document using an HTML parser." warning
+            warnings.simplefilter("ignore")
+            self.soup = bs4.BeautifulSoup( self.docbytes, features='lxml' )
         pname = self.soup.find('meta', attrs={'name':'OVERHEIDop.publicationName'})
         if pname is not None and pname.get('content')=='Waterschapsblad':
             return 5
@@ -461,7 +473,9 @@ class Fragments_HTML_OP_Bgr( Fragments ):
         return False
 
     def suitableness( self ):
-        self.soup = bs4.BeautifulSoup( self.docbytes, features='lxml' )
+        with warnings.catch_warnings(): # meant to ignore the "It looks like you're parsing an XML document using an HTML parser." warning
+            warnings.simplefilter("ignore")
+            self.soup = bs4.BeautifulSoup( self.docbytes, features='lxml' )
         pname = self.soup.find('meta', attrs={'name':'OVERHEIDop.publicationName'})
         if pname is not None and pname.get('content')=='Blad gemeenschappelijke regeling':
             return 5
@@ -831,7 +845,9 @@ class Fragments_HTML_BUS_kamer( Fragments ):
 
     def suitableness( self ):
         # may raise - maybe return very high score instead?
-        self.soup = bs4.BeautifulSoup( self.docbytes, features='lxml' )
+        with warnings.catch_warnings(): # meant to ignore the "It looks like you're parsing an XML document using an HTML parser." warning
+            warnings.simplefilter("ignore")
+            self.soup = bs4.BeautifulSoup( self.docbytes, features='lxml' )
         pname = self.soup.find('meta', attrs={'name':'OVERHEIDop.publicationName'})
         if pname is not None and pname.get('content')   == 'Kamervragen (Aanhangsel)':
             return 5
@@ -929,7 +945,7 @@ class Fragments_XML_Rechtspraak( Fragments ):
                         meta['nr'] = nr.text.strip()
                         nr.text = '' # so that it doesn't land in flat_text
                         last_nr = nr
-                    if last_nr:
+                    if last_nr is not None:
                         meta['lastnr'] = last_nr
 
                     if ch.tag == 'title':#title = ch.find('title')
@@ -950,7 +966,7 @@ class Fragments_XML_Rechtspraak( Fragments ):
                     #   #emphasis role="bold caps
 
 
-                    if ch.find('informaltable'):
+                    if ch.find('informaltable') is not None:
                         hints.append( 'has-table' )
                         #emphasis role="bold caps
 
@@ -989,7 +1005,12 @@ class Fragments_HTML_Fallback( Fragments ):
         return False
 
     def suitableness( self ):
-        self.soup = bs4.BeautifulSoup( self.docbytes, features='lxml' )
+        with warnings.catch_warnings(): # meant to ignore the "It looks like you're parsing an XML document using an HTML parser." warning
+            warnings.simplefilter("ignore")
+            self.soup = bs4.BeautifulSoup( self.docbytes, features='lxml' )
+
+
+
 
         return 500
 
@@ -1076,7 +1097,7 @@ class Fragments_PDF_Fallback( Fragments ):
 
                 page_results = page.get_text( option='xhtml', flags=fitz.TEXTFLAGS_XHTML & ~fitz.TEXT_PRESERVE_IMAGES )
 
-                soup = bs4.BeautifulSoup(page_results, features='lxml', from_encoding='utf8')
+                soup = bs4.BeautifulSoup(page_results, features='lxml') # , from_encoding='utf8'
                 div = soup.find('div')
                 if self.debug:
                     print(div)
