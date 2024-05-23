@@ -37,9 +37,6 @@ def test_wetsuite_dir_winmock2( tmp_path ):
 
 
 
-
-
-
 def test_hash_hex():
     ' test that hash works on str and bytes, and not some other types '
     wetsuite.helpers.util.hash_hex('foo')
