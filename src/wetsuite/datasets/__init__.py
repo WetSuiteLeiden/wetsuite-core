@@ -91,7 +91,6 @@ def fetch_index():
     return _index_data
 
 
-
 class Dataset:
     ''' If you're looking for details about the specific dataset, look at the .description
 
@@ -194,7 +193,7 @@ class Dataset:
 
 
 
-def _load_bare(dataset_name: str, verbose=None, force_refetch=False):
+def _load_bare(dataset_name: str, verbose=None, force_refetch=False, check_free_space=True):
     ''' Note: You normally would use load(), which takes the same name but gives you a usable object, not a filename
 
         Takes a dataset name (that you learned of from the index),
@@ -219,7 +218,6 @@ def _load_bare(dataset_name: str, verbose=None, force_refetch=False):
     ws_dir       = dir_dict['wetsuite_dir']
     datasets_dir = dir_dict['datasets_dir']
 
-
     ## figure out path in that directory
     dataset_details = _index_data[dataset_name]
     data_url        = dataset_details['url']
@@ -230,6 +228,22 @@ def _load_bare(dataset_name: str, verbose=None, force_refetch=False):
     data_path       = os.path.join( datasets_dir, location_hash )
     # right now the data_path is a single file per dataset, expected to be a JSON file.
     # TODO: decide on whether that is our standard, or needs changing
+
+    if check_free_space:
+        ds = dataset_details['download_size']
+        rs = dataset_details['real_size']
+        if ds != rs: # assume that we will need to store both the compressed and uncompressed size, if only for a moment
+            needed_space_byteamt = ds + rs
+        else:        # assume ds==rs means it's not compressed
+            needed_space_byteamt = ds
+        free_space_byteamt = wetsuite.helpers.util.free_space( path=datasets_dir )
+        if needed_space_byteamt > free_space_byteamt:
+            MB = 1024*1024
+            raise IOError('To fetch %r we would need %.1f MByte free and we have only %.1f MByte'%(
+                dataset_name,
+                needed_space_byteamt / MB,
+                free_space_byteamt / MB,
+            ))
 
     # If we don't have it in our cache, or a re-fetch was forced, then download it.
     if force_refetch or not os.path.exists( data_path ):
@@ -324,7 +338,7 @@ def _path_to_data(data_path):
     return (data, description)
 
 
-def load(dataset_name: str, verbose=None, force_refetch=False):
+def load(dataset_name: str, verbose=None, force_refetch=False, check_free_space=True):
     ''' Takes a dataset name (that you learned of from the index),
         downloads it if necessary - after the first time it's cached in your home directory
 
@@ -359,9 +373,9 @@ def load(dataset_name: str, verbose=None, force_refetch=False):
 
     elif len(dataname_matches) == 1:
         # TODO: huh?
-        data_path = _load_bare( dataname_matches[0] )
+        data_path = _load_bare( dataname_matches[0], check_free_space=check_free_space )
         data, description = _path_to_data( data_path )
-        data_path = _load_bare( dataset_name=dataname_matches[0], verbose=verbose, force_refetch=force_refetch )
+        data_path = _load_bare( dataset_name=dataname_matches[0], verbose=verbose, force_refetch=force_refetch, check_free_space=check_free_space )
         return Dataset( data=data, description=description, name=dataname_matches[0] )
 
     else:            # implied  >=1

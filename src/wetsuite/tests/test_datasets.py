@@ -96,3 +96,18 @@ def test_dataset_class_export_zip3( tmp_path ):
         data  = {'a':{1:2}, 'c':{3:4}},
         name  = 'name')
     ds.export_files( to_zipfile_path=tmp_path/'test.zip' )
+
+
+def test_sizecheck( ):
+    ' test whether the "do we have enough space?" check will work '
+
+    def lots_of_space(path=None): # monkey patch  pylint: disable=unused-argument
+        return 555555555555
+    wetsuite.helpers.util.free_space = lots_of_space
+    wetsuite.datasets.load( 'gemeentes-struc' )
+
+    with pytest.raises(IOError, match=r'.*only.*'):
+        def no_space(path=None): # monkey patch  pylint: disable=unused-argument
+            return 5   # When I was young, five whole bytes, etc.
+        wetsuite.helpers.util.free_space = no_space
+        wetsuite.datasets.load( 'gemeentes-struc' )
