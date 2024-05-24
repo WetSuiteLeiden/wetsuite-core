@@ -6,6 +6,9 @@
 
 import tempfile
 
+_bf = None
+
+
 def normalize_path( path:str ):
     ''' Given a path like either of:
           - ftps://bestanden.officielebekendmakingen.nl/2024/05/17/gmb/gmb-2024-216934/
@@ -24,6 +27,7 @@ def id_from_path( path:str ):
     ''' Given a path like
           - ftps://bestanden.officielebekendmakingen.nl/2024/05/17/gmb/gmb-2024-216934/
           - /2024/05/17/gmb/gmb-2024-216934/
+          
         Returns: 
           - 'gmb-2024-216934'
 
@@ -41,13 +45,13 @@ class BUSFetcher:
 
         It's a little more awkward if you just want to fetch one document, though. 
     '''
-
     def __init__(self):
         self._sftp_connection = None
 
     def connect(self):
-        """ I expect the setup behind this is very finicky. 
-            If it doesn't work, it isn't you, and we should do more research and fix it for you.
+        """ (re)connect if necessary (necessity judged based on whether a simple listdir works)
+            I expect the setup behind this SSH/SFTP connection is finicky. 
+            If it doesn't connect at all, it isn't you, and we should do more research and fix it for you.
         """
         reconnect = False
         if self._sftp_connection is None:
@@ -60,7 +64,7 @@ class BUSFetcher:
                 reconnect = True
 
         if reconnect:
-            import pysftp   # if this line fails, you probably forgot to do a   !pip install pysftp
+            import pysftp   # if this line fails, you probably want to do a   !pip install pysftp   (which would also install paramiko)
             cnopts = pysftp.CnOpts()
             cnopts.hostkeys = None    # TODO: figure out whether this can pick up ~/.ssh/config regardless
             self._sftp_connection   = pysftp.Connection('bestanden.officielebekendmakingen.nl', username='anonymous', password='anonymous', cnopts=cnopts)
@@ -69,7 +73,7 @@ class BUSFetcher:
         return self._sftp_connection
 
 
-    def list(self, path): # , stat=True
+    def listdir(self, path): # , stat=True
         """
             Given a path like either of:
             - ftps://bestanden.officielebekendmakingen.nl/2024/05/17/gmb/gmb-2024-216934/
@@ -82,13 +86,14 @@ class BUSFetcher:
         sftp = self.connect()
         path = normalize_path( path )
         # CONSIDER: raise on unexpected path values
-        ret = []
-        def _add(fn):
-            ret.append( fn )
-        def _ignore(_):
-            pass
-        sftp.walktree(path, fcallback=_add, dcallback=_ignore, ucallback=_ignore)
-        return ret
+        #ret = []
+        #def _add(fn):
+        #    ret.append( fn )
+        #def _ignore(_):
+        #    pass
+        return sftp.listdir(path)#, fcallback=_add, dcallback=_ignore, ucallback=_ignore)
+        #return ret
+
 
 
     def get_file(self, remotepath, saveto):
@@ -109,8 +114,16 @@ class BUSFetcher:
             try:
                 sftp.get(remotepath, tf.name)
             except Exception as e:
-                raise ValueError( 'ERROR fetching %r: %s'%(remotepath, e) )
+                raise ValueError( 'ERROR fetching %r: %s'%(remotepath, e) )  from e
                 #raise
             tf.seek(0)
             filedata = tf.read()
         return filedata
+
+
+# for less typing for some one-offs:
+def _bus_get_bytes(path:str):
+    global _bf
+    if _bf is None:
+        _bf = BUSFetcher()
+    return _bf.get_bytes(path)
