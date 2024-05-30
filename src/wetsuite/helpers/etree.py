@@ -459,3 +459,35 @@ def debug_pretty(tree, reindent=True, strip_namespaces=True, encoding='unicode')
         tree = indent( tree )
 
     return tostring( tree, encoding=encoding )
+
+
+
+class debug_color():
+    ''' Takes XML, 
+        - applies debug_pretty 
+        - returns a class that will renderer it in color in a jupyter notebook.
+    
+        relies on pygments; CONSIDER: removing that dependency,
+        we already have much of the code in the xml-color tool
+    '''
+    def __init__(self, tree_or_bytestring):
+        self.xstr = debug_pretty( tree_or_bytestring )
+        #if isinstance(tree_or_bytestring, (str, bytes)):
+        #    self.xstr = tree_or_bytestring # TODO: ensure bytes?
+        #else:
+        #    self.xstr = tostring( tree_or_bytestring, encoding='utf-8' )
+
+    def _repr_html_(self):
+        #try:
+        from pygments.lexers.html import XmlLexer
+        from pygments.formatters import HtmlFormatter
+        from pygments import highlight
+        html = highlight( self.xstr, XmlLexer(), HtmlFormatter())
+        return '<style>%s%s</style>%s'%(
+            HtmlFormatter().get_style_defs('.highlight'),
+            '\n* { background-color: transparent !important; color:inherit };',  # TODO: consider a light and dark mode
+            html
+        )
+        #except ImportError:
+        #    fall back to escaped
+        #    return escape.  xstr
