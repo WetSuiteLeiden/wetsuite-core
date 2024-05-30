@@ -75,6 +75,13 @@ def wetsuite_dir():
     return ret
 
 
+def free_space(path=None):
+    ''' Says how many bytes are free on the filesystem that stores that mentioned path '''
+    import shutil
+    if path is None:
+        path = wetsuite_dir()['datasets_dir']
+    return shutil.disk_usage( path ).free
+
 
 
 def unified_diff( before:str, after:str, strip_header=True, context_n=999 ) -> str:
