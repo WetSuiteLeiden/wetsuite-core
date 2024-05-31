@@ -2,14 +2,11 @@
     This module tries to 
     - wrangle a few different formats into a similar intermediate
     - allow you some flexibility in terms of how to take those chunks
-
     
     Secondary thoughts:
     - we were trying to be inspired by LaTeX hyphenation, which has a simple-but-pretty-great 
       relative "this is the cost of breaking off here",
       the analogue of which were  that makes "Hey can you break this more"
-
-    - 
 
 
     TODO: 
@@ -47,8 +44,8 @@ header_tag_names = ('h1','h2','h3', 'h4', 'h5','h6')
 
 
 def fix_ascii_blah(bytesdata):
-    ''' There are a bunch of XMLs that are invalid _only_ because they contain UTF8 but say they are US-ASCII. 
-        This seems constrained to the parliamentary XMLs.
+    ''' There are a bunch of XMLs that are invalid _only_ because they contain UTF8 but say they are US-ASCII.
+        This seems constrained to some parliamentary XMLs.
 
         This is a crude patch-up for someone else's mistake, so arguably doesn't really belong in this module, but hey.
     '''
@@ -63,7 +60,7 @@ def fix_ascii_blah(bytesdata):
 
 
 def _split_op_xml(tree, start_at):
-    ' a helper function for some of the below '
+    ''' Code shared between a lot of the officiele-publicaties XML extraction '''
     ret = []  #  (metadata, intermediate, debugsomething, text)
 
     ## ensure start_at_node is a node object, and atart_at_path is a string path (to it)
@@ -108,6 +105,7 @@ _inhoud_re  = re.compile(r'.*\binhoud\b.*')
 _p_re       = re.compile(r'.*_p_.*')
 
 def _split_op_html(soup):
+    ''' Code shared between a lot of the officiele-publicaties HTML extraction '''
     ret = []
 
     # This seems to be based on varied templates/transforms over time, so this may need more work to be complete
@@ -134,15 +132,16 @@ def _split_op_html(soup):
     #found_one = False # set but not currently used
     for maybe in (dop, stuk, inhoud, article, idc):
         if maybe is not None:
+            hints = [] # TODO: use headers to meta and hints
             #print(maybe.name)
             #print(maybe)
             #found_one = True
             elems = maybe.find_all('div', attrs={'class':_p_re})
             if len(elems)==0:
-                elems = maybe.find_all(['p','h1','h2','h3'])
+                elems = maybe.find_all(['p', 'h1','h2','h3', 'h4'])
             for elem in elems:
                 ret.append( (
-                    {'class':elem.get('class')},
+                    {'class':elem.get('class'), 'hints':hints},
                     {'raw':str( elem )},
                     ' '.join( elem.find_all(string=True))
                 ) )
@@ -275,6 +274,31 @@ class Fragments_XML_CVDR( Fragments ):
 
 
 
+
+class Fragments_HTML_CVDR( Fragments ):
+    ' Turn CVDR in HTML form into fragments '
+    def __init__(self, docbytes, debug=False):
+        Fragments.__init__(self, docbytes, debug)
+        self.soup = None
+
+    def accepts( self ):
+        return wetsuite.helpers.util.is_html( self.docbytes )
+
+    def suitableness( self ):
+        with warnings.catch_warnings(): # meant to ignore the "It looks like you're parsing an XML document using an HTML parser." warning
+            warnings.simplefilter("ignore")
+            self.soup = bs4.BeautifulSoup( self.docbytes, features='lxml' )
+
+        # Not yet sure what the best indicator is
+        #pname = self.soup.find('meta', attrs={'name':'DC.identifier'})
+        #if pname is not None and pname.get('content').startwith( 'CVDR' ):
+        if self.soup.find('div', attrs={'id':'cvdr_meta'}) is not None:
+            return 5
+        else:
+            return 5000
+
+    def fragments(self):
+        return _split_op_html( self.soup ) #preliminary do-anything; TODO: this is a case where we can probably do better
 
 
 class Fragments_HTML_OP_Stcrt( Fragments ):
@@ -1008,14 +1032,11 @@ class Fragments_HTML_Fallback( Fragments ):
         with warnings.catch_warnings(): # meant to ignore the "It looks like you're parsing an XML document using an HTML parser." warning
             warnings.simplefilter("ignore")
             self.soup = bs4.BeautifulSoup( self.docbytes, features='lxml' )
-
-
-
-
         return 500
 
     def fragments(self):
         ret = []
+        raise NotImplemented("TODO: implement this fallback")
         return ret
 
 
@@ -1033,6 +1054,7 @@ class Fragments_XML_Fallback( Fragments ):
 
     def fragments(self):
         ret = []
+        raise NotImplemented("TODO: implement this fallback")
         #ret.append( (
         #    {},
         #    {},
@@ -1176,6 +1198,8 @@ _registered_fragment_parsers = [
 
    Fragments_XML_BWB,
    Fragments_XML_CVDR,
+
+   Fragments_HTML_CVDR,
 
    Fragments_XML_OP_Stcrt,
    Fragments_XML_OP_Stb,
