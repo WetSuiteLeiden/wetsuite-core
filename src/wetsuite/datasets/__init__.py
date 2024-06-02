@@ -41,7 +41,7 @@ from wetsuite.helpers.notebook import is_interactive
 # TODO: figure out hosting, and where to put the base URL
 
 _INDEX_URL = 'https://wetsuite.knobs-dials.com/datasets/index.json'
-_index_data = None  # should be None, or a dict once loaded
+_index_data = None  # should be None at first, and a dict once loaded
 _index_fetch_time = 0
 _index_fetch_no_more_often_than_sec = 600
 
@@ -49,13 +49,6 @@ _index_fetch_no_more_often_than_sec = 600
 def generated_today_text():
     ' Used when generating datasets, returns a string like "This dataset was generated on 2024-02-02" '
     return 'This dataset was generated on %s'%( wetsuite.helpers.date.date_today().strftime("%Y-%m-%d") )
-
-
-def list_datasets():
-    ' fetch index, report dataset names (see fetch_index if you also want the details)'
-    fetch_index()
-    return sorted( _index_data.keys() )
-    #return list( _index.items() )
 
 
 def fetch_index():
@@ -91,6 +84,29 @@ def fetch_index():
     return _index_data
 
 
+def list_datasets():
+    ' fetch index, report dataset names (see fetch_index if you also want the details)'
+    fetch_index()
+    return sorted( _index_data.keys() )
+    #return list( _index.items() )
+
+
+def print_dataset_summary():
+    ''' Print short summary per dataset. 
+        A little more to go on than just the names from list_datasets(),
+        a little less work than shifting through the dicts for each yourself,
+         but only useful in notebooks or from the console
+    '''
+    for name, details in fetch_index().items():
+        real_size_human     = details.get("real_size_human")
+        print( f"{name:<40}\t{real_size_human:>8s}\t{details.get('description_short')}" )
+
+
+def description(dataset_name:str):
+    ' fetch the description field from a specific name from the index. Simple, but less typing than picking it out yourself '
+    return fetch_index()[dataset_name].get('description','')
+
+
 class Dataset:
     ''' If you're looking for details about the specific dataset, look at the .description
 
@@ -106,7 +122,7 @@ class Dataset:
         This is not the part that does the interpretation.
         This just contains its results.
     '''
-    def __init__(self, description, data, name=''):
+    def __init__(self, description:str, data, name:str=''):
         #for key in self.data:
         #    setattr(self, key, self.data[key])
         # the above seems powerful but potentially iffy, so for now:
@@ -169,7 +185,6 @@ class Dataset:
                 typ[:5],
             )[:254]
 
-
             ## write out
             if in_dir_path is not None:
                 ffn = os.path.join( in_dir_path, safe_fn )
@@ -190,17 +205,56 @@ class Dataset:
             zob.close()
 
 
+def _data_from_path( data_path ):
+    ''' Given a path to a data file,
+        return the data in python-object form -- and and description (based on contents).
+        This wraps opening and dealing with file type, and separates that from the download phase.
+    '''
+    f = open(data_path,'rb')
+    first_bytes = f.read(15)
+    f.seek(0)
 
+    if first_bytes == b'SQLite format 3':
+        f.close()
+
+        # the type enforcement is irrelevant when opened read-only
+        data = wetsuite.helpers.localdata.LocalKV( data_path, None, None, read_only=True )
+
+        ret_description = data._get_meta('description', missing_as_none=True)  # pylint: disable=protected-access
+        # This seems very hackish - TODO: avoid this
+        if data._get_meta('valtype', missing_as_none=True) == 'msgpack':   # pylint: disable=protected-access
+            data.close()
+            data = wetsuite.helpers.localdata.MsgpackKV( data_path, None, None, read_only=True)
+
+    elif first_bytes.strip().startswith(b'{'): # Assume that's a decent indicator of JSON (given that our downloads aren't a lot of different things)
+        # expected to be a dict with two main keys, 'data' and 'description'
+        loaded = json.loads( f.read() )
+        f.close()
+
+        # TODO: remove the need for JSON, or at least make this alternative go away
+        #       ...by being more consistent in dataset generation
+        if 'description' in loaded:
+            data        = loaded.get('data')
+            ret_description = loaded.get('description')
+        else:
+            raise ValueError("This JSON does not have the structure we expect.")
+    else:
+        f.close()
+        raise ValueError("Don't know how to deal with file called %r  that starts with %r"%(
+                         os.path.basename(data_path), first_bytes))
+
+    return (data, ret_description)
 
 
 def _load_bare(dataset_name: str, verbose=None, force_refetch=False, check_free_space=True):
-    ''' Note: You normally would use load(), which takes the same name but gives you a usable object, not a filename
-
-        Takes a dataset name (that you learned of from the index),
+    ''' Takes a dataset name (that you learned of from the index),
         Downloads it if necessary - after the first time it's cached in your home directory
 
         If compressed, will uncompress. 
         Does not think about the type of data
+
+        Note: You normally would use load(), 
+        which takes the same name but gives you a usable object, instead of just a filename.
         
         @return: the filename we fetched to
     '''
@@ -239,7 +293,7 @@ def _load_bare(dataset_name: str, verbose=None, force_refetch=False, check_free_
         free_space_byteamt = wetsuite.helpers.util.free_space( path=datasets_dir )
         if needed_space_byteamt > free_space_byteamt:
             MB = 1024*1024
-            raise IOError('To fetch %r we would need %.1f MByte free and we have only %.1f MByte'%(
+            raise IOError('To fetch %r we would need %.1f MByte free. We have only %.1f MByte in the directory we would place it.'%(
                 dataset_name,
                 needed_space_byteamt / MB,
                 free_space_byteamt / MB,
@@ -297,69 +351,33 @@ def _load_bare(dataset_name: str, verbose=None, force_refetch=False, check_free_
     return data_path
 
 
-def _path_to_data(data_path):
-    ''' Given a filename,
-        return the data and description (based on contents)
-        regardless of what data type it is
-    '''
-    f = open(data_path,'rb')
-    first_bytes = f.read(15)
-    f.seek(0)
-
-    if first_bytes == b'SQLite format 3':
-        f.close()
-
-        # the type enforcement is irrelevant when opened read-only
-        data = wetsuite.helpers.localdata.LocalKV( data_path, None, None, read_only=True )
-
-        description = data._get_meta('description', missing_as_none=True)  # pylint: disable=protected-access
-        # This seems very hackish - TODO: avoid this
-        if data._get_meta('valtype', missing_as_none=True) == 'msgpack':   # pylint: disable=protected-access
-            data.close()
-            data = wetsuite.helpers.localdata.MsgpackKV( data_path, None, None, read_only=True)
-
-    elif first_bytes.strip().startswith(b'{'): # Assume that's a decent indicator of JSON
-        # expected to be a dict with two main keys, 'data' and 'description'
-        loaded = json.loads( f.read() )
-        f.close()
-
-        # TODO: remove the need for JSON, or at least make this alternative go away
-        #       by being more consistent in dataset generation
-        if 'description' in loaded:
-            data        = loaded.get('data')
-            description = loaded.get('description')
-        else:
-            raise ValueError("This JSON does not have the structure we expect.")
-    else:
-        f.close()
-        raise ValueError("Don't know how to deal with file called %r  that starts with %r"%(
-                         os.path.basename(data_path), first_bytes))
-
-    return (data, description)
-
-
 def load(dataset_name: str, verbose=None, force_refetch=False, check_free_space=True):
     ''' Takes a dataset name (that you learned of from the index),
         downloads it if necessary - after the first time it's cached in your home directory
 
-        Returns a Dataset object - which is a container with little more than  
-          - a .description string
-          - a .data member, some kind of iterable of iterms.
-            The .description will mention what .data will contain 
-            and should give an example of how to use it.
+        Wraps _load_bare, which does most of the heavy lifting. 
 
-        
-        CONSIDER: have load('datasetname-*') automatically merge_datasets,
-        one for each matched datasets, with an attribute named for the last bit of the dataset name.
-        However, this only makes sense if dataset convention _and_ dataset naming convention are always considered,
-        so maybe the benefit is not enough here.
+        This primarily adds what is necessary to load that downloaded thing 
+        and give it to you as a usable Dataset object
 
-        @param verbose: tells you more about the download (on stderr)
-        can be given True or False. By default, we try to detect whether we are in an interactive context.
+        @param verbose: tells you more about the download (on stderr) 
+        Can be given True or False. 
+        By default (None), we try to detect whether we are in an interactive context, and print only if we are.
 
         @param force_refetch: whether to remove the current contents before fetching
         dataset naming should prevent the need for this (except if you're the wetsuite programmer)
+
+        @return: a Dataset object - which is a container object with little more than  
+          - a .description, which is a string
+          - a .data member, some kind of iterable of items.
+            The .description should mention what .data will contain 
+            and should give an example of how to use it.
     '''
+    # CONSIDER: have load('datasetname-*') automatically merge_datasets,
+    # one for each matched datasets, with an attribute named for the last bit of the dataset name.
+    # However, this only makes sense if dataset convention _and_ dataset naming convention are always considered,
+    # so maybe the benefit is not enough here.
+    # CONSIDER: giving up on that idea, which also lets us remove some code below
 
     #if '*' in dataset_name:
     global _index_data
@@ -372,10 +390,9 @@ def load(dataset_name: str, verbose=None, force_refetch=False, check_free_space=
         raise ValueError("Your dataset name/pattern %r matched none of %s"%(dataset_name, ', '.join(all_dataset_names)))
 
     elif len(dataname_matches) == 1:
-        # TODO: huh?
-        data_path = _load_bare( dataname_matches[0], check_free_space=check_free_space )
-        data, description = _path_to_data( data_path )
-        data_path = _load_bare( dataset_name=dataname_matches[0], verbose=verbose, force_refetch=force_refetch, check_free_space=check_free_space )
+        data_path = _load_bare( dataname_matches[0], verbose=verbose, force_refetch=force_refetch, check_free_space=check_free_space )
+        data, description = _data_from_path( data_path )
+        #data_path = _load_bare( dataset_name=dataname_matches[0] )
         return Dataset( data=data, description=description, name=dataname_matches[0] )
 
     else:            # implied  >=1
@@ -384,30 +401,20 @@ def load(dataset_name: str, verbose=None, force_refetch=False, check_free_space=
             len(dataname_matches),
             ', '.join(all_dataset_names)))
 
-        # datasets = {} # list of (dataset, lastpartofname)
-
-        # for dataname_match in dataname_matches:
-        #     data_path = _load_bare( dataname_match )
-        #     data, description = _path_to_data( data_path )
-        #     data_path = _load_bare( dataset_name=dataname_match, verbose=verbose, force_refetch=force_refetch )
-        #     datasets[ Dataset( data=data, description=description, name=dataname_match ) ] = dataname_match.rsplit('-')[-1]
-        # print( datasets)
-
-        # return merge_datasets( datasets )
-
-
 
 # @classmethod
-# def files_as_dataset(self, in_dir):
-#     ''' Notes that this does _nothing_ for you other than making it a little easier to iterate though the _contents_ of these files '''
+# def files_to_store(self, in_dir):
+#     ''' Notes that this does _nothing_ for you other than make a store
+#         that might make it a little easier (and maybe a little faster) to iterate though the _contents_ of these files '''
 #     store = wetsuite.helpers.localdata.LocalKV( ':memory:', None, None )
 #     for r, ds, fs in os.walk(in_dir):
 #         for fn in fs:
 #             ffn = os.path.join( r, fn )
 #             #if os.path.is_file():
+#             #if ffn not in store: # TODO: think about update logic
 #             with open(ffn,'rb') as f:
 #                 store.put(ffn, f.read() )
-#     ret = Dataset(  description='Files loaded from %r'%in_dir,
-#                     data=store,
-#                     name='filesystem-'+re.sub('[^A-Za-z0-9]+','-',in_dir)  )
-#     return ret
+#         ret = Dataset(  description='Files loaded from %r'%in_dir,
+#                         data=store,
+#                         name='filesystem-'+re.sub('[^A-Za-z0-9]+','-',in_dir)  )
+#         return ret
