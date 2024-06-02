@@ -150,19 +150,45 @@ def test_cvdr_enriched():
 
 
 def test_cvdr_text():
-    ' test cvdr_text, currently just for not borking out immediately '
+    ' test cvdr_text, currently just for not being broken '
     tree = get_test_etree( 'cvdr_example1.xml' )
+    cvdr_text(tree)
+
+    tree = get_test_etree( 'cvdr_example2.xml' )
+    cvdr_text(tree)
+
+    tree = get_test_etree( 'cvdr_example3.xml' )
     cvdr_text(tree)
 
 
 
 def test_cvdr_sourcerefs():
-    ' test cvdr_text, currently just for not borking out immediately '
+    ' test cvdr_text, currently just for not being broken '
     tree = get_test_etree('cvdr_example1.xml')
     cvdr_sourcerefs(tree)
 
     tree = get_test_etree('cvdr_example2.xml')
     cvdr_sourcerefs(tree)
+
+    tree = get_test_etree('cvdr_example3.xml')
+    cvdr_sourcerefs(tree)
+
+
+def test_cvdr_sourcerefs_bad():
+    ' test that bad CVDR IDs get ignored '
+    tree = wetsuite.helpers.etree.fromstring( '''
+<cvdr>
+ <meta>
+  <owmsmantel>
+    <source resourceIdentifier="CVDR://qq:">Blah</source>
+  </owmsmantel>
+ </meta>
+</cvdr>''' )
+
+    assert len( cvdr_sourcerefs(tree, debug=True) ) == 0   # debug is for code coverage
+
+
+
 
 
 def test_search_related_parsing():
@@ -187,6 +213,14 @@ def test_more_parsing():
 
     # test case is BWBR0045754
     toe_etree = get_test_etree('bwb_toestand.xml')
+    toe_usefuls = wetsuite.helpers.koop_parse.bwb_toestand_usefuls( toe_etree )
+    wetsuite.helpers.koop_parse.bwb_toestand_text(    toe_etree ) # (not used here)
+
+    toe_etree = get_test_etree('bwb_toestand_2.xml')
+    toe_usefuls = wetsuite.helpers.koop_parse.bwb_toestand_usefuls( toe_etree )
+    wetsuite.helpers.koop_parse.bwb_toestand_text(    toe_etree ) # (not used here)
+
+    toe_etree = get_test_etree('bwb_toestand_3.xml')
     toe_usefuls = wetsuite.helpers.koop_parse.bwb_toestand_usefuls( toe_etree )
     wetsuite.helpers.koop_parse.bwb_toestand_text(    toe_etree ) # (not used here)
 

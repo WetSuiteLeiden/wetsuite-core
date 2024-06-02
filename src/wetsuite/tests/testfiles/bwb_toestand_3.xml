@@ -1,0 +1,73 @@
+<?xml version="1.0" encoding="UTF-8"?><toestand xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" bwb-ng-vast-deel="http://wetten.overheid.nl/id/BWBR0003984/1986-06-26/0" xsi:noNamespaceSchemaLocation="https://repository.officiele-overheidspublicaties.nl/Schema/BWB-toestand/2016-1/xsd/toestand_2016-1.xsd" bwb-id="BWBR0003984" inwerkingtreding="1986-06-26"><bwb-inputbestand/><bwb-wijzigingen/><redactionele-correcties/><wetgeving dtdversie="2.0" soort="ministeriele-regeling" xml:lang="nl" stam-id="3780283" versie-id="5563132" id="C5756221" label-id="3760014" inwerkingtredingsdatum="1986-06-26">
+  <intitule bwb-ng-variabel-deel="/Intitule" stam-id="3780303" versie-id="5563062" id="C5756151" label-id="3759944" inwerking="1986-06-26" bron="Stcrt.1986-120" effect="nieuwe-regeling" ondertekening_bron="1986-06-03" publicatie_bron="1986-06-26" publicatie_iwt="1986-06-26" status="goed">Vaststelling nummers kandidatenlijsten centrales van overheidspersoneel<meta-data><brondata><oorspronkelijk><publicatie effect="nieuwe-regeling" soort="Stcrt" urlidentifier=""><publicatiejaar>1986</publicatiejaar><publicatienr>120</publicatienr><uitgiftedatum isodatum="1986-06-26">26-06-1986</uitgiftedatum><ondertekeningsdatum isodatum="1986-06-03">03-06-1986</ondertekeningsdatum><kenmerk>AB86/U760</kenmerk></publicatie></oorspronkelijk><inwerkingtreding><publicatie effect="nieuwe-regeling" soort="Stcrt" urlidentifier=""><publicatiejaar>1986</publicatiejaar><publicatienr>120</publicatienr><uitgiftedatum isodatum="1986-06-26">26-06-1986</uitgiftedatum><ondertekeningsdatum isodatum="1986-06-03">03-06-1986</ondertekeningsdatum><kenmerk>AB86/U760</kenmerk></publicatie><inwerkingtreding.datum isodatum="1986-06-26">26-06-1986</inwerkingtreding.datum></inwerkingtreding></brondata></meta-data></intitule>
+  <citeertitel bwb-ng-variabel-deel="/Citeertitel" status="officieel" stam-id="3780313" versie-id="5563072" id="C5756161" label-id="3759954" inwerking="1986-06-26" bron="Stcrt.1986-120" effect="nieuwe-regeling" ondertekening_bron="1986-06-03" publicatie_bron="1986-06-26" publicatie_iwt="1986-06-26">Vaststelling nummers kandidatenlijsten centrales van overheidspersoneel<meta-data><brondata><oorspronkelijk><publicatie effect="nieuwe-regeling" soort="Stcrt" urlidentifier=""><publicatiejaar>1986</publicatiejaar><publicatienr>120</publicatienr><uitgiftedatum isodatum="1986-06-26">26-06-1986</uitgiftedatum><ondertekeningsdatum isodatum="1986-06-03">03-06-1986</ondertekeningsdatum><kenmerk>AB86/U760</kenmerk></publicatie></oorspronkelijk><inwerkingtreding><publicatie effect="nieuwe-regeling" soort="Stcrt" urlidentifier=""><publicatiejaar>1986</publicatiejaar><publicatienr>120</publicatienr><uitgiftedatum isodatum="1986-06-26">26-06-1986</uitgiftedatum><ondertekeningsdatum isodatum="1986-06-03">03-06-1986</ondertekeningsdatum><kenmerk>AB86/U760</kenmerk></publicatie><inwerkingtreding.datum isodatum="1986-06-26">26-06-1986</inwerkingtreding.datum></inwerkingtreding></brondata></meta-data></citeertitel>
+  <regeling>
+    <aanhef bwb-ng-variabel-deel="/Aanhef" stam-id="3780323" versie-id="5563082" id="C6898601" label-id="3759964" inwerking="1986-06-26" bron="Stcrt.1986-120" effect="nieuwe-regeling" ondertekening_bron="1986-06-03" publicatie_bron="1986-06-26" publicatie_iwt="1986-06-26" status="goed">
+  <wie>De minister van Binnenlandse Zaken,</wie>
+  <considerans>
+    <considerans.al bevat="grondslag">Gelet op <extref doc="jci1.3:c:BWBR0001950&amp;artikel=129b" verwijzing-id="1735222" bwb-id="BWBR0001950" label-id="848514">artikel 129b, eerste lid van het Algemeen Rijksambtenarenreglement</extref>;</considerans.al>
+  </considerans>
+  <afkondiging>
+    <al>Besluit:</al>
+  </afkondiging>
+<meta-data><brondata><oorspronkelijk><publicatie effect="nieuwe-regeling" soort="Stcrt" urlidentifier=""><publicatiejaar>1986</publicatiejaar><publicatienr>120</publicatienr><uitgiftedatum isodatum="1986-06-26">26-06-1986</uitgiftedatum><ondertekeningsdatum isodatum="1986-06-03">03-06-1986</ondertekeningsdatum><kenmerk>AB86/U760</kenmerk></publicatie></oorspronkelijk><inwerkingtreding><publicatie effect="nieuwe-regeling" soort="Stcrt" urlidentifier=""><publicatiejaar>1986</publicatiejaar><publicatienr>120</publicatienr><uitgiftedatum isodatum="1986-06-26">26-06-1986</uitgiftedatum><ondertekeningsdatum isodatum="1986-06-03">03-06-1986</ondertekeningsdatum><kenmerk>AB86/U760</kenmerk></publicatie><inwerkingtreding.datum isodatum="1986-06-26">26-06-1986</inwerkingtreding.datum></inwerkingtreding></brondata></meta-data></aanhef>
+    <regeling-tekst>
+      <artikel bwb-ng-variabel-deel="/Artikel1" stam-id="3780333" versie-id="5563092" id="C6898591" label-id="3759974" inwerking="1986-06-26" label="Artikel 1" bron="Stcrt.1986-120" effect="nieuwe-regeling" ondertekening_bron="1986-06-03" publicatie_bron="1986-06-26" publicatie_iwt="1986-06-26" status="goed">
+  <kop>
+    <label>Artikel</label>
+    <nr>1</nr>
+  </kop>
+  <al>Bij verkiezingen op grond van <extref doc="jci1.3:c:BWBR0001950&amp;artikel=124" verwijzing-id="1735221" bwb-id="BWBR0001950" label-id="847814">artikel 124 van het Algemeen Rijksambtenarenreglement</extref> dragen de kandidatenlijsten van de centrales van overheidspersoneel de volgende nummers:</al>
+  <specificatielijst nr-sluiting="" plaatsing="inline" type="expliciet">
+    <specificatie-item>
+      <li.nr>a </li.nr>
+      <specificatie>
+        <al>de Algemene Centrale van Overheidspersoneel: </al>
+      </specificatie>
+      <waarde>nummer 1;</waarde>
+    </specificatie-item>
+    <specificatie-item>
+      <li.nr>b </li.nr>
+      <specificatie>
+        <al>de Christelijke Centrale van Overheids- en Onderwijspersoneel: </al>
+      </specificatie>
+      <waarde>nummer 2;</waarde>
+    </specificatie-item>
+    <specificatie-item>
+      <li.nr>c </li.nr>
+      <specificatie>
+        <al>het Ambtenarencentrum: </al>
+      </specificatie>
+      <waarde>nummer 3</waarde>
+    </specificatie-item>
+    <specificatie-item>
+      <li.nr>d </li.nr>
+      <specificatie>
+        <al>de Centrale van Middelbare en Hogere Functionarissen bij Overheid en Onderwijs: </al>
+      </specificatie>
+      <waarde>nummer 4.</waarde>
+    </specificatie-item>
+  </specificatielijst>
+<meta-data><brondata><oorspronkelijk><publicatie effect="nieuwe-regeling" soort="Stcrt" urlidentifier=""><publicatiejaar>1986</publicatiejaar><publicatienr>120</publicatienr><uitgiftedatum isodatum="1986-06-26">26-06-1986</uitgiftedatum><ondertekeningsdatum isodatum="1986-06-03">03-06-1986</ondertekeningsdatum><kenmerk>AB86/U760</kenmerk></publicatie></oorspronkelijk><inwerkingtreding><publicatie effect="nieuwe-regeling" soort="Stcrt" urlidentifier=""><publicatiejaar>1986</publicatiejaar><publicatienr>120</publicatienr><uitgiftedatum isodatum="1986-06-26">26-06-1986</uitgiftedatum><ondertekeningsdatum isodatum="1986-06-03">03-06-1986</ondertekeningsdatum><kenmerk>AB86/U760</kenmerk></publicatie><inwerkingtreding.datum isodatum="1986-06-26">26-06-1986</inwerkingtreding.datum></inwerkingtreding></brondata><jcis><jci versie="1.0" verwijzing="1.0:c:BWBR0003984&amp;artikel=1&amp;g=1986-06-26" onderdeel="artikel=1" korte-verwijzing="1.0:c:BWBR0003984&amp;artikel=1"/><jci versie="1.3" verwijzing="jci1.3:c:BWBR0003984&amp;artikel=1&amp;z=1986-06-26&amp;g=1986-06-26" onderdeel="artikel=1" korte-verwijzing="jci1.3:c:BWBR0003984&amp;artikel=1"/></jcis></meta-data></artikel>
+      <artikel bwb-ng-variabel-deel="/Artikel2" stam-id="3780343" versie-id="5563102" id="C5756191" label-id="3759984" inwerking="1986-06-26" label="Artikel 2" bron="Stcrt.1986-120" effect="nieuwe-regeling" ondertekening_bron="1986-06-03" publicatie_bron="1986-06-26" publicatie_iwt="1986-06-26" status="goed">
+  <kop>
+    <label>Artikel</label>
+    <nr>2</nr>
+  </kop>
+  <al>Het besluit van de minister van Binnenlandse Zaken van 10 augustus 1983, nr. AB83/U1460, wordt ingetrokken.</al>
+<meta-data><brondata><oorspronkelijk><publicatie effect="nieuwe-regeling" soort="Stcrt" urlidentifier=""><publicatiejaar>1986</publicatiejaar><publicatienr>120</publicatienr><uitgiftedatum isodatum="1986-06-26">26-06-1986</uitgiftedatum><ondertekeningsdatum isodatum="1986-06-03">03-06-1986</ondertekeningsdatum><kenmerk>AB86/U760</kenmerk></publicatie></oorspronkelijk><inwerkingtreding><publicatie effect="nieuwe-regeling" soort="Stcrt" urlidentifier=""><publicatiejaar>1986</publicatiejaar><publicatienr>120</publicatienr><uitgiftedatum isodatum="1986-06-26">26-06-1986</uitgiftedatum><ondertekeningsdatum isodatum="1986-06-03">03-06-1986</ondertekeningsdatum><kenmerk>AB86/U760</kenmerk></publicatie><inwerkingtreding.datum isodatum="1986-06-26">26-06-1986</inwerkingtreding.datum></inwerkingtreding></brondata><jcis><jci versie="1.0" verwijzing="1.0:c:BWBR0003984&amp;artikel=2&amp;g=1986-06-26" onderdeel="artikel=2" korte-verwijzing="1.0:c:BWBR0003984&amp;artikel=2"/><jci versie="1.3" verwijzing="jci1.3:c:BWBR0003984&amp;artikel=2&amp;z=1986-06-26&amp;g=1986-06-26" onderdeel="artikel=2" korte-verwijzing="jci1.3:c:BWBR0003984&amp;artikel=2"/></jcis></meta-data></artikel>
+      <artikel bwb-ng-variabel-deel="/Artikel3" stam-id="3780353" versie-id="5563112" id="C5756201" label-id="3759994" inwerking="1986-06-26" label="Artikel 3" bron="Stcrt.1986-120" effect="nieuwe-regeling" ondertekening_bron="1986-06-03" publicatie_bron="1986-06-26" publicatie_iwt="1986-06-26" status="goed">
+  <kop>
+    <label>Artikel</label>
+    <nr>3</nr>
+  </kop>
+  <al>Dit besluit treedt in werking op de dag van uitgifte van de Staatscourant waarin het wordt geplaatst.</al>
+<meta-data><brondata><oorspronkelijk><publicatie effect="nieuwe-regeling" soort="Stcrt" urlidentifier=""><publicatiejaar>1986</publicatiejaar><publicatienr>120</publicatienr><uitgiftedatum isodatum="1986-06-26">26-06-1986</uitgiftedatum><ondertekeningsdatum isodatum="1986-06-03">03-06-1986</ondertekeningsdatum><kenmerk>AB86/U760</kenmerk></publicatie></oorspronkelijk><inwerkingtreding><publicatie effect="nieuwe-regeling" soort="Stcrt" urlidentifier=""><publicatiejaar>1986</publicatiejaar><publicatienr>120</publicatienr><uitgiftedatum isodatum="1986-06-26">26-06-1986</uitgiftedatum><ondertekeningsdatum isodatum="1986-06-03">03-06-1986</ondertekeningsdatum><kenmerk>AB86/U760</kenmerk></publicatie><inwerkingtreding.datum isodatum="1986-06-26">26-06-1986</inwerkingtreding.datum></inwerkingtreding></brondata><jcis><jci versie="1.0" verwijzing="1.0:c:BWBR0003984&amp;artikel=3&amp;g=1986-06-26" onderdeel="artikel=3" korte-verwijzing="1.0:c:BWBR0003984&amp;artikel=3"/><jci versie="1.3" verwijzing="jci1.3:c:BWBR0003984&amp;artikel=3&amp;z=1986-06-26&amp;g=1986-06-26" onderdeel="artikel=3" korte-verwijzing="jci1.3:c:BWBR0003984&amp;artikel=3"/></jcis></meta-data></artikel>
+    </regeling-tekst>
+    <regeling-sluiting bwb-ng-variabel-deel="/SlotformulierEnOndertekening" stam-id="3780363" versie-id="5563122" id="C5756211" label-id="3760004" inwerking="1986-06-26" bron="Stcrt.1986-120" effect="nieuwe-regeling" ondertekening_bron="1986-06-03" publicatie_bron="1986-06-26" publicatie_iwt="1986-06-26" status="goed">
+  <ondertekenaar>
+    <ondertekening>De <functie>minister</functie> van <organisatie>Binnenlandse Zaken</organisatie>, <naam><voornaam>R. W. de</voornaam><achternaam>Korte</achternaam></naam></ondertekening>
+  </ondertekenaar>
+<meta-data><brondata><oorspronkelijk><publicatie effect="nieuwe-regeling" soort="Stcrt" urlidentifier=""><publicatiejaar>1986</publicatiejaar><publicatienr>120</publicatienr><uitgiftedatum isodatum="1986-06-26">26-06-1986</uitgiftedatum><ondertekeningsdatum isodatum="1986-06-03">03-06-1986</ondertekeningsdatum><kenmerk>AB86/U760</kenmerk></publicatie></oorspronkelijk><inwerkingtreding><publicatie effect="nieuwe-regeling" soort="Stcrt" urlidentifier=""><publicatiejaar>1986</publicatiejaar><publicatienr>120</publicatienr><uitgiftedatum isodatum="1986-06-26">26-06-1986</uitgiftedatum><ondertekeningsdatum isodatum="1986-06-03">03-06-1986</ondertekeningsdatum><kenmerk>AB86/U760</kenmerk></publicatie><inwerkingtreding.datum isodatum="1986-06-26">26-06-1986</inwerkingtreding.datum></inwerkingtreding></brondata></meta-data></regeling-sluiting>
+  </regeling>
+<meta-data><brondata><oorspronkelijk><publicatie effect="nieuwe-regeling" soort="Stcrt" urlidentifier=""><publicatiejaar>1986</publicatiejaar><publicatienr>120</publicatienr><uitgiftedatum isodatum="1986-06-26">26-06-1986</uitgiftedatum><ondertekeningsdatum isodatum="1986-06-03">03-06-1986</ondertekeningsdatum><kenmerk>AB86/U760</kenmerk></publicatie></oorspronkelijk><inwerkingtreding><publicatie effect="nieuwe-regeling" soort="Stcrt" urlidentifier=""><publicatiejaar>1986</publicatiejaar><publicatienr>120</publicatienr><uitgiftedatum isodatum="1986-06-26">26-06-1986</uitgiftedatum><ondertekeningsdatum isodatum="1986-06-03">03-06-1986</ondertekeningsdatum><kenmerk>AB86/U760</kenmerk></publicatie><inwerkingtreding.datum isodatum="1986-06-26">26-06-1986</inwerkingtreding.datum></inwerkingtreding></brondata><jcis><jci versie="1.0" verwijzing="1.0:c:BWBR0003984&amp;g=1986-06-26" onderdeel="wetgeving" korte-verwijzing="1.0:c:BWBR0003984"/><jci versie="1.3" verwijzing="jci1.3:c:BWBR0003984&amp;z=1986-06-26&amp;g=1986-06-26" onderdeel="wetgeving" korte-verwijzing="jci1.3:c:BWBR0003984"/></jcis></meta-data></wetgeving></toestand>
