@@ -29,6 +29,7 @@
 
 import re
 import warnings
+import pprint
 
 import bs4  # arguably should be inside each class so we can do without some of these imports
 import fitz # arguably should be inside each class so we can do without some of these imports
@@ -59,7 +60,7 @@ def fix_ascii_blah(bytesdata):
 
 
 
-def _split_op_xml(tree, start_at):
+def _split_officielepublikaties_xml(tree, start_at):
     ''' Code shared between a lot of the officiele-publicaties XML extraction '''
     ret = []  #  (metadata, intermediate, debugsomething, text)
 
@@ -90,7 +91,7 @@ def _split_op_xml(tree, start_at):
         )):
         #print('FR',fragment)
         meta       = fragment
-        inter      = {'raw':fragment.pop('raw'), 'raw_etree':fragment.pop('raw_etree')}
+        inter      = {'raw':fragment.pop('raw'), 'rawtype':'xml', 'raw_etree':fragment.pop('raw_etree')}
         text_flat  = fragment.pop('text-flat')
         ret.append( (meta, inter, text_flat) )
     return ret
@@ -104,9 +105,10 @@ _inhoud_re  = re.compile(r'.*\binhoud\b.*')
 
 _p_re       = re.compile(r'.*_p_.*')
 
-def _split_op_html(soup):
+def _split_officielepublikaties_html(soup):
     ''' Code shared between a lot of the officiele-publicaties HTML extraction '''
     ret = []
+    warnings.warn('_split_officielepublikaties_html() needs some basic refinement')
 
     # This seems to be based on varied templates/transforms over time, so this may need more work to be complete
     body = soup.find('body')
@@ -132,19 +134,35 @@ def _split_op_html(soup):
     #found_one = False # set but not currently used
     for maybe in (dop, stuk, inhoud, article, idc):
         if maybe is not None:
-            hints = [] # TODO: use headers to meta and hints
             #print(maybe.name)
             #print(maybe)
             #found_one = True
+
+            # look for divs that have a _p_ class; these seem to come from tempate that converted this from... XML perhaps?
+            # there seem to be some variants, though. If there is anything with _p_ inside that, iterate over those _instead_
+            # to make that the fine-grainedness.
+            # TODO: check for most sense -- maybe '_p_al'-parent-based logic makes more sense?
             elems = maybe.find_all('div', attrs={'class':_p_re})
             if len(elems)==0:
                 elems = maybe.find_all(['p', 'h1','h2','h3', 'h4'])
-            for elem in elems:
-                ret.append( (
-                    {'class':elem.get('class'), 'hints':hints},
-                    {'raw':str( elem )},
-                    ' '.join( elem.find_all(string=True))
-                ) )
+
+            for elem in elems: # if div contains _p_ elements
+                # "is this split into smaller _p_ fragments?"
+                # TODO: This implicitly assumes that we _only_ care about elements with _p_; CHECK that that is actually valid (and non-nested)
+                p_inside = elem.find_all(True, attrs={'class':_p_re})
+                if len(p_inside) > 0:
+                    for ip in p_inside:
+                        ret.append( (
+                            {'class':ip.get('class'), 'hints':['pblock']},
+                            {'raw':str( ip ), 'rawtype':'html'},
+                            ' '.join( ip.find_all(string=True))
+                        ) )
+                else: # no _p_ inside, whatever is in that whole chunk
+                    ret.append( (
+                        {'class':elem.get('class'), 'hints':['pblock']},
+                        {'raw':str( elem ), 'rawtype':'html'},
+                        ' '.join( elem.find_all(string=True))
+                    ) )
             break
 
     #if not found_one:
@@ -257,7 +275,7 @@ class Fragments_XML_CVDR( Fragments ):
             text_flat = fragment.pop('text-flat')
             ret.append( (
                 fragment,
-                raw,#'raw':part_text_list},
+                {'raw':raw, 'rawtype':'xml'},#'raw':part_text_list},
                 text_flat
             ) )
 
@@ -298,7 +316,7 @@ class Fragments_HTML_CVDR( Fragments ):
             return 5000
 
     def fragments(self):
-        return _split_op_html( self.soup ) #preliminary do-anything; TODO: this is a case where we can probably do better
+        return _split_officielepublikaties_html( self.soup ) #preliminary do-anything; TODO: this is a case where we can probably do better
 
 
 class Fragments_HTML_OP_Stcrt( Fragments ):
@@ -326,7 +344,7 @@ class Fragments_HTML_OP_Stcrt( Fragments ):
             return 5000
 
     def fragments(self):
-        ret = _split_op_html( self.soup )
+        ret = _split_officielepublikaties_html( self.soup )
         return ret
 
 
@@ -355,7 +373,7 @@ class Fragments_HTML_OP_Stb( Fragments ):
             return 5000
 
     def fragments(self):
-        ret = _split_op_html( self.soup )
+        ret = _split_officielepublikaties_html( self.soup )
         return ret
 
 
@@ -387,7 +405,7 @@ class Fragments_HTML_OP_Gmb( Fragments ):
             return 5000
 
     def fragments(self):
-        ret = _split_op_html( self.soup )
+        ret = _split_officielepublikaties_html( self.soup )
         return ret
 
 
@@ -417,7 +435,7 @@ class Fragments_HTML_OP_Trb( Fragments ):
             return 5000
 
     def fragments(self):
-        ret = _split_op_html( self.soup )
+        ret = _split_officielepublikaties_html( self.soup )
         return ret
 
 
@@ -449,7 +467,7 @@ class Fragments_HTML_OP_Prb( Fragments ):
             return 5000
 
     def fragments(self):
-        ret = _split_op_html( self.soup )
+        ret = _split_officielepublikaties_html( self.soup )
         return ret
 
 
@@ -478,7 +496,7 @@ class Fragments_HTML_OP_Wsb( Fragments ):
             return 5000
 
     def fragments(self):
-        ret = _split_op_html( self.soup )
+        ret = _split_officielepublikaties_html( self.soup )
         return ret
 
 
@@ -507,7 +525,7 @@ class Fragments_HTML_OP_Bgr( Fragments ):
             return 5000
 
     def fragments(self):
-        ret = _split_op_html( self.soup )
+        ret = _split_officielepublikaties_html( self.soup )
         return ret
 
 
@@ -575,7 +593,7 @@ class Fragments_XML_OP_Gmb( Fragments ):
     def fragments(self):
         ret = []
         for sp in self.startpaths:
-            ret.extend( _split_op_xml(self.tree, sp) )
+            ret.extend( _split_officielepublikaties_xml(self.tree, sp) )
         return ret
 
 
@@ -612,7 +630,7 @@ class Fragments_XML_OP_Stcrt( Fragments ):
     def fragments(self):
         ret = []
         for sp in self.startpaths:
-            ret.extend( _split_op_xml(self.tree, sp) )
+            ret.extend( _split_officielepublikaties_xml(self.tree, sp) )
         return ret
 
 
@@ -645,7 +663,7 @@ class Fragments_XML_OP_Stb( Fragments ):
     def fragments(self):
         ret = []
         for sp in self.startpaths:
-            ret.extend( _split_op_xml(self.tree, sp) )
+            ret.extend( _split_officielepublikaties_xml(self.tree, sp) )
         return ret
 
 
@@ -676,7 +694,7 @@ class Fragments_XML_OP_Trb( Fragments ):
     def fragments(self):
         ret = []
         for sp in self.startpaths:
-            ret.extend( _split_op_xml(self.tree, sp) )
+            ret.extend( _split_officielepublikaties_xml(self.tree, sp) )
         return ret
 
 
@@ -714,7 +732,7 @@ class Fragments_XML_OP_Prb( Fragments ):
     def fragments(self):
         ret = []
         for sp in self.startpaths:
-            ret.extend( _split_op_xml(self.tree, sp) )
+            ret.extend( _split_officielepublikaties_xml(self.tree, sp) )
         return ret
 
 
@@ -745,7 +763,7 @@ class Fragments_XML_OP_Wsb( Fragments ):
     def fragments(self):
         ret = []
         for sp in self.startpaths:
-            ret.extend( _split_op_xml(self.tree, sp) )
+            ret.extend( _split_officielepublikaties_xml(self.tree, sp) )
         return ret
 
 
@@ -776,7 +794,7 @@ class Fragments_XML_OP_Bgr( Fragments ):
     def fragments(self):
         ret = []
         for sp in self.startpaths:
-            ret.extend( _split_op_xml(self.tree, sp) )
+            ret.extend( _split_officielepublikaties_xml(self.tree, sp) )
         return ret
 
 
@@ -809,7 +827,7 @@ class Fragments_XML_OP_Handelingen( Fragments ):
         ret = []
         #print( self.startpaths )
         for sp in self.startpaths:
-            ret.extend( _split_op_xml(self.tree, sp) )
+            ret.extend( _split_officielepublikaties_xml(self.tree, sp) )
         return ret
 
 
@@ -848,7 +866,7 @@ class Fragments_XML_BUS_Kamer( Fragments ):
     def fragments(self):
         ret = []
         for sp in self.startpaths:
-            ret.extend( _split_op_xml(self.tree, sp) )
+            ret.extend( _split_officielepublikaties_xml(self.tree, sp) )
         return ret
 
 
@@ -883,7 +901,7 @@ class Fragments_HTML_BUS_kamer( Fragments ):
             return 5000
 
     def fragments(self):
-        ret = _split_op_html( self.soup )
+        ret = _split_officielepublikaties_html( self.soup )
         return ret
 
 
@@ -999,7 +1017,7 @@ class Fragments_XML_Rechtspraak( Fragments ):
 
                     ret.append( (
                         meta,
-                        {'raw':raw},
+                        {'raw':raw, 'rawtype':'xml'},
                         flat_text,
                     ))
 
@@ -1036,7 +1054,7 @@ class Fragments_HTML_Fallback( Fragments ):
 
     def fragments(self):
         ret = []
-        raise NotImplemented("TODO: implement this fallback")
+        raise NotImplementedError("TODO: implement this fallback")
         return ret
 
 
@@ -1054,7 +1072,7 @@ class Fragments_XML_Fallback( Fragments ):
 
     def fragments(self):
         ret = []
-        raise NotImplemented("TODO: implement this fallback")
+        raise NotImplementedError("TODO: implement this fallback")
         #ret.append( (
         #    {},
         #    {},
@@ -1119,7 +1137,7 @@ class Fragments_PDF_Fallback( Fragments ):
 
                 page_results = page.get_text( option='xhtml', flags=fitz.TEXTFLAGS_XHTML & ~fitz.TEXT_PRESERVE_IMAGES )
 
-                soup = bs4.BeautifulSoup(page_results, features='lxml') # , from_encoding='utf8'
+                soup = bs4.BeautifulSoup(page_results, features='lxml')
                 div = soup.find('div')
                 if self.debug:
                     print(div)
@@ -1148,7 +1166,7 @@ class Fragments_PDF_Fallback( Fragments ):
                             else: # bupless is about not triggering on areas of everything-bold
                                 bupless += 1
 
-                        text = ' '.join( elem.find_all(string=True) )
+                        text = ' '.join( elem.find_all( string=True ) )
                         self.part_ary.append( text )
 
             flush( )
@@ -1225,9 +1243,10 @@ _registered_fragment_parsers = [
    #Fragments_HTML_Rechtspraak,
 
    Fragments_PDF_Fallback,
-   Fragments_XML_Fallback,
-   Fragments_HTML_Fallback,
    # opendocument fallback?
+   # Only add the following two once they do something:
+   #Fragments_XML_Fallback,
+   #Fragments_HTML_Fallback,
 ]
 
 
@@ -1253,3 +1272,41 @@ def decide(docbytes, thresh=1000, first_only=False, debug=False):
 
     options.sort( key = lambda x:x[0] )
     return options
+
+
+class SplitDebug:
+    ''' Does little more than take a list of tuple of three things, and print them in a table. '''
+    def __init__(self, fragments):
+        self.fragments = fragments
+
+    def _repr_html_(self):
+        def oe(o):
+            ' decide how exactly to print object in HTML, dependin on its type'
+            if isinstance(o, str):
+                return o
+            elif isinstance(o, (list, tuple, dict)):
+                #return str(o)
+                return pprint.pformat(o, width=50)
+            else:
+                return str(o)
+                return repr(o)
+            #    raise TypeError('blah %s'%type(o))
+
+        ret = [ '<table border="1">' ]
+        ret.append('<tr><th>meta</th><th>intermediate</th><th>len</th><th>text</th></tr>')
+        for metadict, intermediate, textstr in self.fragments:
+            ret.append('<tr>')
+            ret.append('<td style="text-align:left"><pre>%s</pre></td>'%wetsuite.helpers.escape.nodetext( oe(metadict) ))
+            #ret.append('<td>%s</td>'%wetsuite.helpers.escape.nodetext( oe(intermediate) ))
+            ret.append('<td style="text-align:left"><pre>%s</pre></td>'%wetsuite.helpers.escape.nodetext( oe(intermediate) ))
+            ret.append('<td style="text-align:left">%d</td>'%len(textstr))
+            ret.append('<td style="text-align:left">%r</td>'%wetsuite.helpers.escape.nodetext( textstr ))
+            ret.append('</tr>')
+        ret.append('</table>')
+        return ''.join(ret)
+
+# display(
+#     wetsuite.helpers.split.SplitDebug( [ ({'sec':'foo'},    '<tt>bar</tt>', 'bar'),
+#                 ({'sec':['bar']},  {1:'<bla>'},    'bar'),
+#                 ({'type':'image'}, '(STUF))',      '')     ] )
+# )
