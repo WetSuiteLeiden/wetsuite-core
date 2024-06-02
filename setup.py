@@ -6,7 +6,7 @@ setup(
     classifiers=['Development Status :: 3 - Alpha',   'Programming Language :: Python :: 3',   'Topic :: Text Processing :: Linguistic'],
     url='https://github.com/WetSuiteLeiden/wetsuite-core.git',
     author='Wetsuite team',
-    author_email='scarfboy@gmail.com',
+    author_email='alewijnse.bart@gmail.com',
     description='Wetsuite',
     packages=['wetsuite.datasets', 'wetsuite.helpers', 'wetsuite.datacollect', 'wetsuite.extras'],
     package_dir={"": "src"},
@@ -20,8 +20,9 @@ setup(
         'numpy >= 1.11.1',     # BSD
         'matplotlib >= 1.5.1', # BSD
         'spacy',               # MIT
-        'pillow',              # HPND, which is permissive, and GPL-compatible
+        'pillow',              # HPND, which is permissive and GPL-compatible
         'PyMuPDF',             # AGPL (or commercial)
+        'pysftp',              # BSD; also pulls in paramiko (LGPL) 
     ],
     extras_require={        
         'ocr':'easyocr',         # Apache2
