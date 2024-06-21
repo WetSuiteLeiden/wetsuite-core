@@ -7,7 +7,7 @@ import pytest
 import wetsuite.helpers.split
 import wetsuite.helpers.etree
 
-test_file_list = ( # these are test files in the repo
+test_file_list = ( # these are test files also in the repo
     'bwb_toestand.xml',
     'cvdr_example1.xml',
     'gmb.html',
@@ -34,7 +34,7 @@ def test_ascii_fix():
 
 
 def test_decide():
-    ' see whether decide() deals with a file'
+    ' see whether decide() deals with each test file without failing '
     import test_split
 
     for test_path in test_file_list:
@@ -45,7 +45,7 @@ def test_decide():
 
 
 def test_fragments():
-    ' see whether decide() deals with a file'
+    ' see whether fragments() deals with each test file without failing '
     import test_split
 
     for test_path in test_file_list:
@@ -56,7 +56,7 @@ def test_fragments():
 
 
 def test_firstonly():
-    ' see whether decide() deals with a file'
+    ' see whether decide() deals with each file, and the best choice gives actual output '
     import test_split
 
     gmb_path = os.path.join( os.path.dirname( test_split.__file__ ), 'testfiles', 'gmb.xml' )
@@ -70,40 +70,40 @@ def test_firstonly():
     )
 
 
-def test__split_op_xml__start_at_none():
+def test__split_officielepublikaties_xml__start_at_none():
     ' test the code path for starting at root '
     import test_split
     gmb_path = os.path.join( os.path.dirname( test_split.__file__ ), 'testfiles', 'gmb.xml' )
     with open( gmb_path, 'rb') as gmb_file:
         gmb_tree = wetsuite.helpers.etree.fromstring( gmb_file.read() )
-        wetsuite.helpers.split._split_op_xml( gmb_tree, start_at=None) # pylint: disable=protected-access
+        wetsuite.helpers.split._split_officielepublikaties_xml( gmb_tree, start_at=None) # pylint: disable=protected-access
 
 
-def test__split_op_xml__list_test():
+def test__split_officielepublikaties_xml__list_test():
     ' test the code path testing for lsit '
     tree = wetsuite.helpers.etree.fromstring( '<r/>' )
     with pytest.raises(ValueError,  match=r'.*given a list.*'):
-        wetsuite.helpers.split._split_op_xml( tree, start_at=tree.xpath('/') ) # pylint: disable=protected-access
+        wetsuite.helpers.split._split_officielepublikaties_xml( tree, start_at=tree.xpath('/') ) # pylint: disable=protected-access
 
 
-def test__split_op_xml__start_at_nonsemse():
+def test__split_officielepublikaties_xml__start_at_nonsemse():
     ' test the code path for starting at path that does not exist '
     import test_split
     gmb_path = os.path.join( os.path.dirname( test_split.__file__ ), 'testfiles', 'gmb.xml' )
     with open( gmb_path, 'rb') as gmb_file:
         gmb_tree = wetsuite.helpers.etree.fromstring( gmb_file.read() )
         with pytest.raises(ValueError,  match=r'.*Did not find.*'):
-            wetsuite.helpers.split._split_op_xml( gmb_tree, start_at='/przewalski') # pylint: disable=protected-access
+            wetsuite.helpers.split._split_officielepublikaties_xml( gmb_tree, start_at='/przewalski') # pylint: disable=protected-access
 
 
-def test__split_op_xml__start_at_node():
+def test__split_officielepublikaties_xml__start_at_node():
     ' test the code path for starting at root '
     import test_split
     gmb_path = os.path.join( os.path.dirname( test_split.__file__ ), 'testfiles', 'gmb.xml' )
     with open( gmb_path, 'rb') as gmb_file:
         gmb_tree = wetsuite.helpers.etree.fromstring( gmb_file.read() )
         node = gmb_tree.find('gemeenteblad/zakelijke-mededeling')
-        wetsuite.helpers.split._split_op_xml( gmb_tree, start_at=node) # pylint: disable=protected-access
+        wetsuite.helpers.split._split_officielepublikaties_xml( gmb_tree, start_at=node) # pylint: disable=protected-access
 
 
 def test_Fragments_nonbytes():
