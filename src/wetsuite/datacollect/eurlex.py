@@ -1,8 +1,11 @@
 ''' Helps interact with the EUR-Lex website and APIs.
 '''
-import re, datetime, urllib.parse
+import re
+import datetime
+import urllib.parse
+import json
 
-import requests
+import wetsuite.helpers.net
 
 import bs4
 
@@ -73,12 +76,13 @@ def fetch_by_resource_type(typ='JUDG'):
       FILTER not exists{?work cdm:do_not_index "true"^^<http://www.w3.org/2001/XMLSchema#boolean>}. }'''%typ
 
     url = ''.join([
-        'http://publications.europa.eu/webapi/rdf/sparql?default-graph-uri=&query=',
+        'https://publications.europa.eu/webapi/rdf/sparql?default-graph-uri=&query=',
         urllib.parse.quote(query),
         '&format=application%2Fsparql-results%2Bjson&timeout=0&debug=on&run=+Run+Query+'
     ])
-    resp = requests.get(url, timeout=30)
-    return resp.json()
+
+    resp = wetsuite.helpers.net.download( url, timeout=30 )
+    return json.loads( resp )
 
 
 def extract_html(htmlbytes):
