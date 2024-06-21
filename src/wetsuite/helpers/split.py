@@ -74,7 +74,7 @@ def _split_officielepublikaties_xml(tree, start_at):
         if start_at_node is None  or  len(start_at_node)==0: # TODO: check that both can actually happen
             raise ValueError("Did not find %s within %s"%(start_at, tree))
     elif isinstance(start_at, list):
-        raise ValueError("_split_op_xml() does not know what to do when given a list")
+        raise ValueError("_split_officielepublikaties_xml() does not know what to do when given a list")
     else: # assume it was a node in the tree you find'd or xpath'd yourself (keep in mind that xpath returns a list of nodes)
         start_at_node = start_at
         start_at_path = wetsuite.helpers.etree.path_between(tree, start_at_node)
