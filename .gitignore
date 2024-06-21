@@ -3,13 +3,16 @@ __pycache__/
 *.pyo
 *.pyd
 *~
-#*.pdf
-#*.xml
-#*.json
+
 .ignore
+
+# testing and documentation
 src/wetsuite/coverage.txt
 src/wetsuite/.coverage
 src/wetsuite/tests/coverage.txt
 src/wetsuite/docs/api
 src/wetsuite/unsorted/
-src/wetsuite/do-tests
+
+# distribution
+src/wetsuite.egg-info/*
+src/dist/*
