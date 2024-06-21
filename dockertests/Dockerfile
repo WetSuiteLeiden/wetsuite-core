@@ -16,12 +16,12 @@ RUN pip3 install spacy sympy tokenizers
 RUN pip3 install torch>=1.8.0
 RUN pip3 install easyocr
 
-RUN echo "change this text to defeat the cache at this point, to ensure the github fetches get the lastest"
+RUN echo "change this text to defeat the cache at this point, to ensure the github fetches get the lastest "
 
 # Install the core part as a library (will only include the parts of the repo that setup.py mentions)
 # takes a while, mostly in CUDA dependencies
 # WARNING: this will get cached 
-RUN pip3 install -U https://github.com/WetSuiteLeiden/wetsuite-core/archive/refs/heads/main.zip
+RUN pip3 install -U wetsuite
 
 # Copy all the source, now mostly for the tests (the rest isn't used)
 ADD https://github.com/WetSuiteLeiden/wetsuite-core/archive/refs/heads/main.tar.gz /root/test/
