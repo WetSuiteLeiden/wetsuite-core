@@ -1,16 +1,16 @@
 #!/usr/bin/python3
 '''
-Talks to SRU repositories, mainly underlies L{koop_sru}
+    Talks to SRU repositories, mainly underlies L{koop_sru}
 
-SRU is a search-and-retrieve protocol; 
-to dig more into the what and how to use this in a more advanced way, look for the sru-related notebook (somewhere in extras).
+    SRU is a search-and-retrieve protocol; 
+    to dig more into the what and how to use this in a more advanced way, look for the sru-related notebook (somewhere in extras).
 
-Very minimal SRU implementationm and not meant to be a generic implementation. 
+    Very minimal SRU implementationm and not meant to be a generic implementation. 
 
-It was written because existing python SRU libraries we tried didn't seem to like
-the apparently-custom URL component (x-connection) that the KOOP rpositories use, 
-so until we figure out a clean solution, 
-here's a just-enough-to-work implementation for our specific use cases.
+    It was written because existing python SRU libraries we tried didn't seem to like
+    the apparently-custom URL component (x-connection) that the KOOP rpositories use, 
+    so until we figure out a clean solution, 
+    here's a just-enough-to-work implementation for our specific use cases.
 '''
 # https://www.loc.gov/standards/sru/sru-1-1.html
 
@@ -24,19 +24,17 @@ import wetsuite.helpers.etree
 
 # TODO: centralize parsing of originalData / enrichedData as much as we can, so that each individual user doesn't have to.
 
-
-
 class SRUBase:
     ' Very minimal SRU implementation - just enough to access the KOOP repositories. '
     def __init__(self, base_url:str, x_connection:str=None, extra_query:str=None, verbose=False):
         '''
-        base_url should be everything up to the ?
-            
-        Notes:
-          - x_connection is used to specify the collection within a server, and seems to be non-standard and required
+            base_url should be everything up to the ?
+                
+            Notes:
+            - x_connection is used to specify the collection within a server, and seems to be non-standard and required
 
-          - extra_query is used to let us AND something into the query, and is intended to restrict to a subset of documents
-            in these cases, x_connection seems to include in extra sets, and the combination is sometimes too much (?)
+            - extra_query is used to let us AND something into the query, and is intended to restrict to a subset of documents
+                in these cases, x_connection seems to include in extra sets, and the combination is sometimes too much (?)
         '''
         self.base_url          = base_url
         self.x_connection      = x_connection
@@ -47,9 +45,8 @@ class SRUBase:
 
 
     def _url(self):
-        """
-        Combines the basic URL parts given to the constructor, and ensures there's a ?  (so you know you can add &k=v)
-        This can probably go into the constructor, when I know how much is constant across SRU URLs
+        """ Combines the basic URL parts given to the constructor, and ensures there's a ?  (so you know you can add &k=v)
+            This can probably go into the constructor, when I know how much is constant across SRU URLs
         """
         ret = self.base_url
         if '?' not in ret:
@@ -63,18 +60,18 @@ class SRUBase:
 
 
     def explain(self, readable=True, strip_namespaces=True, timeout=10):
-        '''
-        Does an explain operation,
-        Returns the XML
-          - if readable==False, it returns it as-is
-          - if readable==True (default), it will ease human readability:
-              - strips namespaces
-              - reindent 
-        The XML is a unicode string (for consistency with other parts of this codebase)
+        ''' Does an explain operation,
+            Returns the XML
+            - if readable==False, it returns it as-is
+            - if readable==True (default), it will ease human readability:
+                - strips namespaces
+                - reindent 
+            The XML is a unicode string (for consistency with other parts of this codebase)
         '''
         url = self._url()
         url += '&operation=explain'
         r = requests.get( url, timeout=timeout )
+
         if readable:
             tree = wetsuite.helpers.etree.fromstring(r.content)
             if strip_namespaces is True:
