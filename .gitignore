@@ -15,4 +15,5 @@ src/wetsuite/unsorted/
 
 # distribution
 src/wetsuite.egg-info/*
-src/dist/*
+dist/*
+
