@@ -2,22 +2,22 @@ from setuptools import setup
 
 setup(
     name             = 'wetsuite',
-    version          = '0.1.5',
+    version          = '0.2.1',
     description      = 'A library that helps to explore dutch legal data, and to apply language processing on it',
-    long_description = 'A library that helps to explore dutch legal data, and to apply language processing on it. This is the library code, you are probably more interested in some notebooks that use it, at https://github.com/WetSuiteLeiden/example-notebooks',
+    long_description = 'A library that helps to explore dutch legal data, and to apply language processing on it. This is the library code, you are probably more interested in some notebooks that use it, at https://github.com/WetSuiteLeiden/example-notebooks or the website that introduces it, http://wetsuite.nl',
 
     author           = 'Wetsuite team',
     author_email     = 'alewijnse.bart+wetsuite@gmail.com',
-    classifiers=[
+    classifiers = [
         'Development Status :: 4 - Beta',
         'Programming Language :: Python :: 3',
         'Topic :: Text Processing :: Linguistic',
         'License :: OSI Approved :: European Union Public Licence 1.2 (EUPL 1.2)',
     ],
-    url          ='https://github.com/WetSuiteLeiden/wetsuite-core.git',
+    url          = 'https://github.com/WetSuiteLeiden/wetsuite-core.git',
     project_urls = {
         'Project home':'https://wetsuite.nl',
-        'API docs': 'https://wetsuite.knobs-dials.com/apidocs/',
+        'API docs':    'https://wetsuite.knobs-dials.com/apidocs/',
         'Source code': 'https://github.com/WetSuiteLeiden/wetsuite-core.git'
     },
 
@@ -32,55 +32,36 @@ setup(
         'python-dateutil',     # Apache2
         'numpy >= 1.11.1',     # BSD
         'matplotlib >= 1.5.1', # BSD
+        'ipywidgets',          # BSD
         'spacy',               # MIT
-        'spacy_fastlang',    # MIT
-        'fasttext'           # MIT
+        'spacy_fastlang',      # MIT
         'wordcloud',           # MIT
         'pillow',              # HPND, which is permissive and GPL-compatible
         'PyMuPDF',             # AGPL (or commercial)
+        'fasttext-wheel',      # MIT;    the non-wheel name seems to need a linker on windows; either use this or use gensim's implementation?
+        # 'gensim',              # LGPL
     ],
     extras_require={
-        #'fastlang':[
-        #],
-
-        # pysftp is only used for one specific data collection thing, that you amy not need 
+        # pysftp is only used for one specific data collection thing, that you may not need
         'collect':[
             'pysftp',              # BSD; also pulls in paramiko (LGPL) 
         ],
 
-        #  TODO: test install of easyOCR and spacy  as CPU-only, to avoid needing CUDA
-        'nogpu':[
-            'torch==1.9.0+cpu',
-            'torchvision==0.10.0+cpu',
-            'easyocr',             # Apache2, also pulls in pytorch and CUDA;
-            'spacy'
+        # TODO: test install of easyOCR and spacy  as CPU-only, to avoid needing and pulling in CUDA
+        'cpu':[
+            # apparently torch it won't pull in CUDA like this?
+            'torch',               # BSD
+            'torchvision',         # BSD
+            'spacy',               # MIT
+            'easyocr',             # Apache2
         ],
 
         'gpu':[
-            'torch==1.9.0',
-            'torchvision==0.10.0',
-            'easyocr',             # Apache2, also pulls in pytorch and CUDA;
-            'spacy',
-            'spacy[cuda-autodetect]',
+            'torch',               # BSD
+            'torchvision',         # BSD
+            'spacy[cuda-autodetect]', # MIT   and pulls in cupy and depends on CUDA?   replaces a bunch of specific package name depending on a similar list of package extras
+            'easyocr',                # Apache2
         ],
-        # try to have gpu install be optional (this only makes sense when we explain it in our own install instructions, though)
-        #'spacy-cpu':'spacy',
-        #'spacy-cuda90':'spacy[cuda90]',
-        #'spacy-cuda91':'spacy[cuda91]',
-        #'spacy-cuda92':'spacy[cuda92]',
-        #'spacy-cuda100':'spacy[cuda100]',
-        #'spacy-cuda101':'spacy[cuda101]',
-        #'spacy-cuda102':'spacy[cuda102]',
-        #'spacy-cuda110':'spacy[cuda110]',
-        #'spacy-cuda111':'spacy[cuda111]',
-        #'spacy-cuda112':'spacy[cuda112]',
-        #'spacy-cuda113':'spacy[cuda113]',
-        #'spacy-cuda114':'spacy[cuda114]',
-        #'spacy-cuda115':'spacy[cuda115]',
-        #'spacy-cuda116':'spacy[cuda116]',
-        #'spacy-cuda117':'spacy[cuda117]',
-        #'spacy-cuda11x':'spacy[cuda11x]',
-        #'spacy-cuda12x':'spacy[cuda12x]',
 
         #'spacy-transformers',  # MIT,  draws in a bunch more depdendencies, so optional; could uncomment now that it's in extras
 
