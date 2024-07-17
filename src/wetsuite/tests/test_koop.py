@@ -261,7 +261,7 @@ def test_prefer_types_one():
 
 
 
-def test_parse_op_meta():
+def test_parse_op_metafile():
     ' test that parsing these files gives results '
     import test_koop  # that's intentional pylint: disable=W0406
     for fn in (
@@ -270,14 +270,14 @@ def test_parse_op_meta():
         ):
         with open( os.path.join( os.path.dirname( test_koop.__file__ ), 'testfiles', fn), mode='rb' ) as f:
             docbytes = f.read()
-            assert len( parse_op_meta( docbytes ) ) > 5
-            assert len( parse_op_meta( docbytes, as_dict=True ) ) > 5
+            assert len( parse_op_metafile( docbytes ) ) > 5
+            assert len( parse_op_metafile( docbytes, as_dict=True ) ) > 5
 
 
-def test_parse_op_meta_bad():
+def test_parse_op_metafile_bad():
     ' test that it tests it applies '
     with pytest.raises(ValueError, match=r'.*not expect.*'):
-        parse_op_meta(b'''<body></body>''')
+        parse_op_metafile(b'''<body></body>''')
 
 
 def test_alineas_with_selective_path():
