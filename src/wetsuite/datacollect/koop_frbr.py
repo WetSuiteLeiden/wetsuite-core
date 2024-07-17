@@ -1,10 +1,10 @@
 '''
-    Code that accesses the https://repository.overheid.nl/frbr/ data 
-
+    Code that accesses the https://repository.overheid.nl/frbr/ data in a bulk way.
+    ...pending removal.
     
-    Pending removal? It's not a viable route to download a lot of data,
-    though it is perhaps a better route towards "the set of files for a single ID"
-    more than BUS is.
+    It's not a viable route to download a lot of data 
+    In particular the SRU interface seems to link to most of this and provide an actual search and filtering interface
+    ...though it is perhaps a better route towards "the set of files for a single ID" more than BUS is.
 '''
 
 import time
