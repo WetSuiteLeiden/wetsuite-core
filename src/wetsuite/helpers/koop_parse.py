@@ -21,9 +21,10 @@ from wetsuite.helpers.etree import _Comment, _ProcessingInstruction, tostring
 
 
 def cvdr_meta(tree, flatten=False):
-    ''' Extracts metadata from a CVDR
+    ''' Extracts metadata from a CVDR SRU search result's individual record, or CVDR content xml's root.
 
         Because various elements can repeat - and various things frequently do (e.g. 'source'), each value is a list.
+        using flatten=True MAY CLOBBER DATA and is only recommended for quick and dirty debug prints, not for real use.
 
         Context for flatten:
         ====================
@@ -46,7 +47,7 @@ def cvdr_meta(tree, flatten=False):
     
         When those attributes matter, you want C{flatten=False} (the default) and you will get a dict like: ::
                 { 'creator': [{'attr': {'scheme': 'overheid:Gemeente'}, 'text': 'Zuidplas'}], ... }
-        
+       
 
         @param tree: an etree object that is either 
           - a search result's individual record  
@@ -81,10 +82,10 @@ def cvdr_meta(tree, flatten=False):
         if meta_under is None:
             raise ValueError("got XML that seems to be neither a document or a search result record")
 
-
+    # this would lead flatten to overwrite data
     enriched_data = tree.find('recordData/gzd/enrichedData')
     if enriched_data is not None: # only appears in search results, not the XML that points to
-        for enriched_key, enriched_val in wetsuite.helpers.etree.kvelements_to_dict( enriched_data ).items():
+        for enriched_key, enriched_val in wetsuite.helpers.etree.kvelements_to_dict( enriched_data ).items(): # this assumes there is no tag duplication, which only seems to be true here
             if enriched_key not in ret:
                 ret[enriched_key] = []
             ret[enriched_key].append( {'text':enriched_val, 'attr':{}} ) # imitate the structure the below use
@@ -787,10 +788,12 @@ def cvdr_versions_for_work( cvdrid:str ) -> list:
 
 
 
-def parse_op_meta( xmlbytes: bytes, as_dict=False ):
+def parse_op_metafile( xmlbytes: bytes, as_dict=False ):
     ''' Parses two different metadata-only XML styles found in KOOP's Offiele Publicaties repositories
           - the one that looks like `<metadata_gegevens>` with a set of `<metadata name="DC.title" scheme="" content="...`
           - the one that (after a namespace strip) looks like `<owms-metadata><owmskern>` with e.g. `<dcterms:identifier>gmb-...`
+
+        NOT TO BE CONFUSED with (TODO)
 
         Tries to return them in the same style, e.g. 
           - taking off the name-based grouping from DC.title
@@ -824,6 +827,101 @@ def parse_op_meta( xmlbytes: bytes, as_dict=False ):
         return dict(rdd)
 
 
+def parse_op_searchmeta(tree, flatten=False):
+    ''' similar to cvdr_meta; we may want to abstract most of that into one helper function
+        
+        Note that 
+          - the 'enriched' and 'manifestations' keys show equivalent information
+          - the 'enriched' and 'manifestations' keys are not affected by flattening.
+    '''
+    # allow people to be lazier - hand in the XML bytes without parsing it into etree
+    if isinstance(tree, bytes):
+        tree = wetsuite.helpers.etree.fromstring( tree )
+
+    ret = {}
+    tree = wetsuite.helpers.etree.strip_namespace(tree)
+    #print( wetsuite.helpers.etree.tostring(tree).decode('u8') )
+
+
+    # we want tree to be the node under which ./meta lives
+    # TODO: review, this looks unclear
+    if tree.find('meta') is not None:
+        meta_under = tree
+    else:
+        meta_under = tree.find('recordData/gzd/originalData')
+        if meta_under is None:
+            raise ValueError("got XML that seems to be neither a document or a search result record")
+
+    owmskern   = meta_under.find('meta/owmskern')
+    for child in owmskern:
+        tagname = child.tag
+        if child.text is not None:
+            tagtext = child.text
+            if tagname not in ret:
+                ret[tagname]=[]
+            ret[tagname].append( {'text':tagtext, 'attr':child.attrib} )
+
+    owmsmantel = meta_under.find('meta/owmsmantel')
+    for child in owmsmantel:
+        tagname = child.tag
+        tagtext = child.text
+        if child.text is not None:
+            if tagname not in ret:
+                ret[tagname]=[]
+            ret[tagname].append( {'text':tagtext, 'attr':child.attrib} )
+
+    tpmeta = meta_under.find('meta/tpmeta')
+    for child in tpmeta:
+        tagname = child.tag
+        text = ''.join( wetsuite.helpers.etree.all_text_fragments( child ) )
+        if tagname not in ret:
+            ret[tagname]=[]
+        ret[tagname].append( {'text':text, 'attr':child.attrib} )
+
+
+    if flatten:
+        simpler = {}
+        for meta_key, value_list in ret.items(): # each of the metadata
+            simplified_text = []
+            for item in value_list:
+                text = item['text']
+                if item['attr']:
+                    for _, attr_val in item['attr'].items():
+                        # this seems to make decent sense half the time (the attribute name is often less interesting)
+                        if len(attr_val.strip())==0: # present but empty
+                            text = '%s'%(text,)
+                        else:
+                            text = '%s (%s)'%(text, attr_val)
+                simplified_text.append( text )
+            simpler[meta_key] = (',  '.join( simplified_text )).strip()
+        ret = simpler
+
+
+    enriched_data = tree.find('recordData/gzd/enrichedData')
+    # Looks something like the following, so flattening would change its meaning, and it's handled separately.
+    # <enrichedData>
+    #     <url>https://repository.overheid.nl/frbr/officielepublicaties/kst/26100/kst-26100-1/1/pdf/kst-26100-1.pdf</url>
+    #     <preferredUrl>https://zoek.officielebekendmakingen.nl/kst-26100-1.html</preferredUrl>
+    #     <itemUrl manifestation="html">https://repository.overheid.nl/frbr/officielepublicaties/kst/26100/kst-26100-1/1/html/kst-26100-1.html</itemUrl>
+    #     <itemUrl manifestation="metadata">https://repository.overheid.nl/frbr/officielepublicaties/kst/26100/kst-26100-1/1/metadata/metadata.xml</itemUrl>
+    #     <itemUrl manifestation="metadataowms">https://repository.overheid.nl/frbr/officielepublicaties/kst/26100/kst-26100-1/1/metadataowms/metadata_owms.xml</itemUrl>
+    #     <itemUrl manifestation="pdf">https://repository.overheid.nl/frbr/officielepublicaties/kst/26100/kst-26100-1/1/pdf/kst-26100-1.pdf</itemUrl>
+    #     <itemUrl manifestation="xml">https://repository.overheid.nl/frbr/officielepublicaties/kst/26100/kst-26100-1/1/xml/kst-26100-1.xml</itemUrl>
+    #     <timestamp>2020-04-16T14:47:53.69679+02:00</timestamp>
+    #   </enrichedData>
+    enriched = []
+    manifs   = {}
+    if enriched_data is not None: # only appears in search results, not the XML that points to
+        for tag in enriched_data:
+            if tag.tag not in ('timestamp',):
+                #print( tag )
+                enriched.append( (tag.tag, tag.get('manifestation'), tag.text))
+                if tag.tag == 'itemUrl':
+                    manifs[ tag.get('manifestation') ] = tag.text
+    ret['enriched']       = enriched
+    ret['manifestations'] = manifs
+
+    return ret
 
 
 ###################################
@@ -1153,6 +1251,6 @@ def prefer_types(
 
     unknown = set(given_strlist).difference(  set( all_of ).union( first_of ).union( never )  )
     if len(unknown) > 0:
-        warnings.warn( 'unknown types: %r'%sorted(unknown) )
+        warnings.warn( 'data mentioned types you did not mention in your request: %r'%sorted(unknown) )
 
     return ret
