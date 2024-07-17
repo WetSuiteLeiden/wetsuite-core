@@ -57,8 +57,8 @@ setup(
         ],
 
         'gpu':[
-            'torch',               # BSD
-            'torchvision',         # BSD
+            'torch',                  # BSD
+            'torchvision',            # BSD
             'spacy[cuda-autodetect]', # MIT   and pulls in cupy and depends on CUDA?   replaces a bunch of specific package name depending on a similar list of package extras
             'easyocr',                # Apache2
         ],
