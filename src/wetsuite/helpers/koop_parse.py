@@ -10,6 +10,7 @@ import sys
 import urllib.parse
 import warnings
 import collections
+from typing import Union
 
 import wetsuite.datacollect.koop_sru
 import wetsuite.helpers.meta
@@ -760,19 +761,19 @@ def bwb_toestand_text(tree):
 
 _versions_cache = {}
 
-def cvdr_versions_for_work( cvdrid:str ) -> list:
+def cvdr_versions_for_work( cvdr_id:str ) -> list:
     ''' takes a CVDR id (with or without _version, i.e. expression id or work id),
         searches KOOP's CVDR repo, 
         Returns: a list of all matching version expression ids  
 
         Keep in mind that this actively does requests, so preferably don't do this in bulk, and/or cache your results.
     '''
-    if cvdrid in _versions_cache:
+    if cvdr_id in _versions_cache:
         #print( "HIT %r -> %r"%(cvdrid, _versions_cache[cvdrid]) )
-        return _versions_cache[cvdrid]
+        return _versions_cache[cvdr_id]
 
     sru_cvdr = wetsuite.datacollect.koop_sru.CVDR() # TODO: see if doing this here stays valid
-    work_id, _ = cvdr_parse_identifier(cvdrid)
+    work_id, _ = cvdr_parse_identifier(cvdr_id)
     results = sru_cvdr.search_retrieve_many("workid = CVDR%s"%work_id, up_to=10000)   # only fetches as many as needed, usually a single page of results. TODO: maybe think about injection?
     #print(f"amt results: {len(results)}")
     ret=[]
@@ -781,19 +782,21 @@ def cvdr_versions_for_work( cvdrid:str ) -> list:
         result_expression_id = meta['identifier'][0]['text']
         ret.append( result_expression_id )
     ret = sorted( ret )
-    _versions_cache[cvdrid] = ret
+    _versions_cache[cvdr_id] = ret
     return ret
 
 
 
 
 
-def parse_op_metafile( xmlbytes: bytes, as_dict=False ):
+def parse_op_metafile( input: Union[bytes,wetsuite.helpers.etree.ElementTree], as_dict=False ):
     ''' Parses two different metadata-only XML styles found in KOOP's Offiele Publicaties repositories
           - the one that looks like `<metadata_gegevens>` with a set of `<metadata name="DC.title" scheme="" content="...`
           - the one that (after a namespace strip) looks like `<owms-metadata><owmskern>` with e.g. `<dcterms:identifier>gmb-...`
 
-        NOT TO BE CONFUSED with (TODO)
+        NOT TO BE CONFUSED with parse_op_searchmeta
+
+        CONSIDER: TODO: a simiular  flatten parameter (probably defaulting False)
 
         Tries to return them in the same style, e.g. 
           - taking off the name-based grouping from DC.title
@@ -803,8 +806,11 @@ def parse_op_metafile( xmlbytes: bytes, as_dict=False ):
           - by default, a list of (key, schema, value) tuples
           - if as_dict=True, a dict like {key: [(schema, value), ...]}
     '''
-    root = wetsuite.helpers.etree.fromstring( xmlbytes )
-    root = wetsuite.helpers.etree.strip_namespace( root )
+    if isinstance(input, bytes):
+        root = wetsuite.helpers.etree.fromstring( input )
+        root = wetsuite.helpers.etree.strip_namespace( root )
+    else: # assume it's an alrady-parsed etree
+        root = input
     ret = []
     if root.tag   == 'metadata_gegevens':
         for metadata in root:
@@ -827,7 +833,7 @@ def parse_op_metafile( xmlbytes: bytes, as_dict=False ):
         return dict(rdd)
 
 
-def parse_op_searchmeta(tree, flatten=False):
+def parse_op_searchmeta(input, flatten=False):
     ''' similar to cvdr_meta; we may want to abstract most of that into one helper function
         
         Note that 
@@ -835,20 +841,23 @@ def parse_op_searchmeta(tree, flatten=False):
           - the 'enriched' and 'manifestations' keys are not affected by flattening.
     '''
     # allow people to be lazier - hand in the XML bytes without parsing it into etree
-    if isinstance(tree, bytes):
-        tree = wetsuite.helpers.etree.fromstring( tree )
+    if isinstance(input, bytes):
+        root = wetsuite.helpers.etree.fromstring( input )
+        root = wetsuite.helpers.etree.strip_namespace( root )
+    else: # assume it's an alrady-parsed etree
+        root = input
 
     ret = {}
-    tree = wetsuite.helpers.etree.strip_namespace(tree)
+    root = wetsuite.helpers.etree.strip_namespace(root)
     #print( wetsuite.helpers.etree.tostring(tree).decode('u8') )
 
 
     # we want tree to be the node under which ./meta lives
     # TODO: review, this looks unclear
-    if tree.find('meta') is not None:
-        meta_under = tree
+    if root.find('meta') is not None:
+        meta_under = root
     else:
-        meta_under = tree.find('recordData/gzd/originalData')
+        meta_under = root.find('recordData/gzd/originalData')
         if meta_under is None:
             raise ValueError("got XML that seems to be neither a document or a search result record")
 
@@ -897,7 +906,7 @@ def parse_op_searchmeta(tree, flatten=False):
         ret = simpler
 
 
-    enriched_data = tree.find('recordData/gzd/enrichedData')
+    enriched_data = root.find('recordData/gzd/enrichedData')
     # Looks something like the following, so flattening would change its meaning, and it's handled separately.
     # <enrichedData>
     #     <url>https://repository.overheid.nl/frbr/officielepublicaties/kst/26100/kst-26100-1/1/pdf/kst-26100-1.pdf</url>
