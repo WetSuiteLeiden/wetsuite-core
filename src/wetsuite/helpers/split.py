@@ -1244,7 +1244,8 @@ _registered_fragment_parsers = [
 
    Fragments_PDF_Fallback,
    # opendocument fallback?
-   # Only add the following two once they do something:
+
+   # CONSIDER: Only add the following two once they give output: (except one of the tests, test_firstonly, relies on it being there, so...)
    #Fragments_XML_Fallback,
    #Fragments_HTML_Fallback,
 ]
