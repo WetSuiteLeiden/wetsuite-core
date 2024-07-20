@@ -36,7 +36,6 @@ def test_ascii_fix():
 def test_decide():
     ' see whether decide() deals with each test file without failing '
     import test_split
-
     for test_path in test_file_list:
         one_path = os.path.join( os.path.dirname( test_split.__file__ ), 'testfiles', test_path )
         with open(one_path,'rb') as f:
@@ -55,19 +54,15 @@ def test_fragments():
                 list( procobj.fragments() )
 
 
-def test_firstonly():
-    ' see whether decide() deals with each file, and the best choice gives actual output '
-    import test_split
+# def test_firstonly():
+#     ' see whether asking decide() for _only_ the first/best choice works  (COMMENTED BECAUSE THERE ARE CURRENTLY NO CASES FOR THIS)  '
+#     import test_split
 
-    gmb_path = os.path.join( os.path.dirname( test_split.__file__ ), 'testfiles', 'gmb.xml' )
-    with open(gmb_path,'rb') as f:
-        docbytes = f.read()
-
-    assert (
-        len( wetsuite.helpers.split.decide( docbytes ) ) > 1   # ther are more than one (we need an example for which that is true)
-        and
-        len( wetsuite.helpers.split.decide( docbytes, first_only=True ) ) == 1 # but not if you ask for one
-    )
+#     gmb_path = os.path.join( os.path.dirname( test_split.__file__ ), 'testfiles', 'gmb.xml' )
+#     with open(gmb_path,'rb') as f:
+#         docbytes = f.read()
+#         assert len( wetsuite.helpers.split.decide( docbytes ) ) > 1                    # there are more than one (we need an example for which that is true)
+#         assert len( wetsuite.helpers.split.decide( docbytes, first_only=True ) ) == 1  # ...but not if you ask for one
 
 
 def test__split_officielepublikaties_xml__start_at_none():
