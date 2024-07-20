@@ -4,12 +4,12 @@ import os
 import pytest
 
 from wetsuite.helpers.koop_parse import cvdr_parse_identifier, cvdr_meta, cvdr_text, cvdr_sourcerefs, cvdr_param_parse, cvdr_normalize_expressionid
-from wetsuite.helpers.koop_parse import prefer_types, parse_op_meta
+from wetsuite.helpers.koop_parse import prefer_types, parse_op_metafile
 from wetsuite.helpers.koop_parse import alineas_with_selective_path
 import wetsuite.datacollect.koop_sru
 from wetsuite.datacollect.koop_sru import BWB, CVDR
 from wetsuite.datacollect.koop_sru import SamenwerkendeCatalogi, LokaleBekendmakingen, TuchtRecht, WetgevingsKalender, PLOOI, PUCOpenData, EuropeseRichtlijnen
-from wetsuite.datacollect.koop_sru import StatenGeneraalDigitaal, Belastingrecht
+from wetsuite.datacollect.koop_sru import StatenGeneraalDigitaal#, Belastingrecht
 import wetsuite.helpers.etree
 
 
@@ -26,7 +26,7 @@ def test_koop_sru_object_constructor():
     PUCOpenData()
     EuropeseRichtlijnen()
 
-    Belastingrecht()
+    #Belastingrecht()
     StatenGeneraalDigitaal()
 
 
