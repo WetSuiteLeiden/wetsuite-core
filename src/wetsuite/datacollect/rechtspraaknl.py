@@ -231,6 +231,9 @@ def parse_content(tree):
         
     TODO: actually read the schema - see https://www.rechtspraak.nl/Uitspraken/paginas/open-data.aspx
     '''
+    if isinstance( tree, bytes ):  # be robust to people not reading the documentation
+        tree = wetsuite.helpers.etree.fromstring( tree )
+
     ret = {}
     tree = wetsuite.helpers.etree.strip_namespace( tree )
 
