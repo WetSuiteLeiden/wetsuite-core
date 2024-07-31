@@ -169,22 +169,25 @@ def date_today():
     ''' @return: today, as a datetime.date '''
     return datetime.date.today()
 
+
 def date_weeks_ago(amount:float=1):
     ''' @return: A date some amount of months ago, as a datetime.date '''
     return datetime.date.today() - datetime.timedelta(days=int(amount*7))
+
 
 def date_months_ago(amount:float=1):
     ''' @return: A date some amount of months ago, as a datetime.date '''
     return datetime.date.today() - datetime.timedelta(days= int(amount*30.6) )
 
+
 def date_first_day_in_year(yearnum:int):
     ''' @return: January first of the given year, as a datetime.date '''
     return datetime.date(year=yearnum, month=1, day=1)
 
-def yyyy_mm_dd(day:datetime.date):
-    " e.g. returns datetime.date(2024, 1, 1) as '2024-01-01', an apparently common format "
-    return day.strftime("%Y-%m-%d")
 
+def yyyy_mm_dd(day:datetime.date):
+    " Returns a date as a string like '2024-01-01'  e.g. datetime.date(2024, 1, 1) as that. "
+    return day.strftime("%Y-%m-%d")
 
 
 def days_in_range( from_date, to_date, strftime_format=None ):

@@ -10,10 +10,10 @@
 
 
     TODO: 
-    - decide the API (probably make the splitting optional? or write in a way where joining is the original with (nearly) no losses?) 
-      because this overlap with just "read contents document of type X"
+      - decide the API (probably make the splitting optional? or write in a way where joining is the original with (nearly) no losses?) 
+        because this overlap with just "read contents document of type X"
 
-    - Maybe we shouldn't make too many decisions for you, and merely yield suggestions (often-ignorable) 
+      - Maybe we shouldn't make too many decisions for you, and merely yield suggestions (often-ignorable) 
         - 'seems like same section, <TEXT>'
         - 'seems like new section, <TEXT>'
         - 'seems like page header/footer, <TEXT>'

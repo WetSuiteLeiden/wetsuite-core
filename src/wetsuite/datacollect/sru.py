@@ -31,9 +31,9 @@ class SRUBase:
             base_url should be everything up to the ?
                 
             Notes:
-            - x_connection is used to specify the collection within a server, and seems to be non-standard and required
-
-            - extra_query is used to let us AND something into the query, and is intended to restrict to a subset of documents
+              - x_connection is used to specify the collection within a server, and seems to be non-standard and required
+ 
+              - extra_query is used to let us AND something into the query, and is intended to restrict to a subset of documents
                 in these cases, x_connection seems to include in extra sets, and the combination is sometimes too much (?)
         '''
         self.base_url          = base_url
@@ -62,8 +62,8 @@ class SRUBase:
     def explain(self, readable=True, strip_namespaces=True, timeout=10):
         ''' Does an explain operation,
             Returns the XML
-            - if readable==False, it returns it as-is
-            - if readable==True (default), it will ease human readability:
+              - if readable==False, it returns it as-is
+              - if readable==True (default), it will ease human readability:
                 - strips namespaces
                 - reindent 
             The XML is a unicode string (for consistency with other parts of this codebase)
