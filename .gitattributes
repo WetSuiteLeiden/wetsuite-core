@@ -1,2 +1,2 @@
+# ignoring test files in github's language detection
 src/wetsuite/tests/testfiles/**    linguist-detectable=false
-#src/wetsuite/tests/testfiles/**    -linguist-detectable
