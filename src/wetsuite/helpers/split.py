@@ -1251,6 +1251,7 @@ _registered_fragment_parsers = [
 ]
 
 
+
 def decide(docbytes, thresh=1000, first_only=False, debug=False):
     ''' Ask all processors to say how well they would do, 
         pick any that seem applicable enough (by our threshold).
@@ -1273,6 +1274,15 @@ def decide(docbytes, thresh=1000, first_only=False, debug=False):
 
     options.sort( key = lambda x:x[0] )
     return options
+
+
+def feeling_lucky( docbytes ):
+    ret = []
+    for score, fragclass in decide( docbytes ):
+        for _,_,textfrag in fragclass.fragments():
+            ret.append( textfrag )
+        break
+    return ret
 
 
 class SplitDebug:
