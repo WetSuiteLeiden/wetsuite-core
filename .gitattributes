@@ -1,0 +1,2 @@
+src/wetsuite/tests/testfiles/**    linguist-detectable=false
+src/wetsuite/tests/testfiles/**    -linguist-detectable
