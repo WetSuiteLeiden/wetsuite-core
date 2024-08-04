@@ -95,11 +95,11 @@ def print_dataset_summary():
     ''' Print short summary per dataset. 
         A little more to go on than just the names from list_datasets(),
         a little less work than shifting through the dicts for each yourself,
-         but only useful in notebooks or from the console
+        but only useful in notebooks or from the console
     '''
     for name, details in fetch_index().items():
         real_size_human     = details.get("real_size_human")
-        print( f"{name:<40}\t{real_size_human:>8s}\t{details.get('description_short')}" )
+        print( f"{name:<40}\t{real_size_human:>8s}\t{details.get('description_short').strip()}" )
 
 
 def description(dataset_name:str):
@@ -316,6 +316,7 @@ def _load_bare(dataset_name: str, verbose=None, force_refetch=False, check_free_
         # There is a race condition in multiple loads() of the same thing. CONSIDER: fixing that via a second temporary file
         # CONSIDER: it may be preferable to store it compressed, and decompress every load. Or at least make this a parameter
         def decompress_stream(instream, outstream):
+            # TODO: allowing a "we know the output size" argument to decompress_stream so we can show a percentage
             uncompressed_data_bytes = 0
             while True:
                 data = instream.read( 2*1048576 )
