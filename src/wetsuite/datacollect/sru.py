@@ -172,8 +172,11 @@ class SRUBase:
         ''' Fetches a range of results for a particular query. 
             Returns each result record as a separate ElementTree object.
 
-            Exactly what record contains varies per repo, but you may well _want_ this raw 
-            because it can contain metadata not easily fetched from the results themselves.
+            Exactly what each record contains will vary per repository,
+            sometimes even per presumably-sensible-subset of records,
+            but you may well _want_ access to this detail in raw form
+            because in some cases, it can contain metadata not as easily fetched
+            from the result documents themselves.
 
             You mat want to fish out the number of results (TODO: make that easier)
             
