@@ -1,6 +1,7 @@
 ''' Helps interact with the EUR-Lex website and APIs.
 '''
 import re
+import warnings
 import datetime
 import urllib.parse
 import json
@@ -195,11 +196,14 @@ def extract_html(htmlbytes):
                 # This is far from complete
                 for li in val:
                     a = li.find('a')
-                    data_celex = a.get('data-celex')
-                    if data_celex is not None:
-                        parsedval.append(   (  'CELEX:'+data_celex, ''.join( li.findAll(string=True) ).strip()  )   )
-                    else:
-                        pass # TODO: handle other types
+                    if a is not None:
+                        data_celex = a.get('data-celex')
+                        if data_celex is not None:
+                            parsedval.append(   (  'CELEX:'+data_celex, ''.join( li.findAll(string=True) ).strip()  )   )
+                        else: # this seems to happen only in regulations; TODO: investigate
+                            pass # TODO: handle other types
+                    else: # a is None
+                        warnings.warn("LI without A IN PPLinked_Contents + ", li)
                 parsed_link[what] = parsedval
             else:
                 parsed_link[what] = val
@@ -342,7 +346,8 @@ def extract_html(htmlbytes):
 
                     elif node.name is None:
                         print('NONE', node)
-
+                    elif node.name in ('figure',):
+                        warnings.warn( "Don't yet handle %r"%node.name )
                     else:
                         raise ValueError( "Don't yet handle %r"%node.name )
 
