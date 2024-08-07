@@ -1,22 +1,15 @@
 
-# Introduction - What to expect from this project
+# wetsuite core library
 
-Wetsuite aims to be a toolset to make it easier for researchers to apply natural language processing and other analysis to legal text,
-primarily to Dutch governmental documents (though some of it translates well, and there is some EU data collection).
-
-
-Other parts of the project provides educational materials to be a gentler introduction to the topic.
-
-This part is focused on providing, data, tools, and other infrastructure, and as such is the more technical part.
-
-It is intended for those not scared of getting in some technical work, yet currently unsure of where to start.
+This is part of a wider project with wider aims, [introduced here](https://github.com/WetSuiteLeiden).
 
 
-The the gentler intruduction on varied topics lies in the notebooks, and arguably it is also the larger contribution in getting people started.
-The code as a library, with [some API documentation here](https://wetsuite.knobs-dials.com/apidocs/), is more for the programmers ready to dive in
+## This is just data and code
 
+The data and this code are only helpers to the wider purpose of 
+making it easier for you to get started analysing legal text.
 
-As a project, the core is currenty:
+This part is:
 - datasets to work on,
 - helper functions to ease some common tasks
 - notebooks that 
