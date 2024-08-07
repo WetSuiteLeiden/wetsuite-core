@@ -1,5 +1,5 @@
 #!/usr/bin/python3
-'''
+"""
   An interface to the SRU repositories managed by KOOP
 
     - SRU API
@@ -9,7 +9,7 @@
       - See also sru.py
     
     - The repository wit FRBR-style organization, at https://repository.overheid.nl/frbr/
-'''
+"""
 
 import wetsuite.helpers.net
 import wetsuite.helpers.localdata
@@ -18,79 +18,93 @@ import wetsuite.datacollect.sru
 
 
 class BWB(wetsuite.datacollect.sru.SRUBase):
-    ''' SRU endpoint for the Basis Wetten Bestand repository
+    """SRU endpoint for the Basis Wetten Bestand repository
 
-        See a description in 
-        https://www.overheid.nl/sites/default/files/wetten/Gebruikersdocumentatie%20BWB%20-%20Zoeken%20binnen%20het%20basiswettenbestand%20v1.3.1.pdf
-    '''
+    See a description in
+    https://www.overheid.nl/sites/default/files/wetten/Gebruikersdocumentatie%20BWB%20-%20Zoeken%20binnen%20het%20basiswettenbestand%20v1.3.1.pdf
+    """
+
     def __init__(self, verbose=False):
-        wetsuite.datacollect.sru.SRUBase.__init__(self,
-                                                  base_url='http://zoekservice.overheid.nl/sru/Search',
-                                                  x_connection='BWB',
-                                                  verbose=verbose)
-
-
-class CVDR(wetsuite.datacollect.sru.SRUBase):
-    ''' SRU endpoint for the CVDR (Centrale Voorziening Decentrale Regelgeving) repository
-
-        https://www.hetwaterschapshuis.nl/centrale-voorziening-decentrale-regelgeving
-
-        https://www.koopoverheid.nl/voor-overheden/gemeenten-provincies-en-waterschappen/cvdr/handleiding-cvdr
-    '''
-    def __init__(self, verbose=False):
-        wetsuite.datacollect.sru.SRUBase.__init__(self,
-                                                  base_url='https://zoekservice.overheid.nl/sru/Search',
-                                                  x_connection='cvdr',
-                                                  verbose=verbose
-                                                  #, extra_query='c.product-area==cvdr' this doesn't work, and x_connection seems to be enough in this case (?)
+        wetsuite.datacollect.sru.SRUBase.__init__(
+            self,
+            base_url="http://zoekservice.overheid.nl/sru/Search",
+            x_connection="BWB",
+            verbose=verbose,
         )
 
 
+class CVDR(wetsuite.datacollect.sru.SRUBase):
+    """SRU endpoint for the CVDR (Centrale Voorziening Decentrale Regelgeving) repository
 
+    https://www.hetwaterschapshuis.nl/centrale-voorziening-decentrale-regelgeving
+
+    https://www.koopoverheid.nl/voor-overheden/gemeenten-provincies-en-waterschappen/cvdr/handleiding-cvdr
+    """
+
+    def __init__(self, verbose=False):
+        wetsuite.datacollect.sru.SRUBase.__init__(
+            self,
+            base_url="https://zoekservice.overheid.nl/sru/Search",
+            x_connection="cvdr",
+            verbose=verbose,
+            # , extra_query='c.product-area==cvdr' this doesn't work, and x_connection seems to be enough in this case (?)
+        )
 
 
 ## Tested for basic function
 # ...usually because we have a script that fetches data from it, but we haven't done anything with that data yet so have not dug deeper
 
+
 class OfficielePublicaties(wetsuite.datacollect.sru.SRUBase):
-    " SRU endpoint for the OfficielePublicaties repository "
+    "SRU endpoint for the OfficielePublicaties repository"
+
     def __init__(self, verbose=False):
-        wetsuite.datacollect.sru.SRUBase.__init__(self,
-                                                  base_url='https://repository.overheid.nl/sru',
-                                                  x_connection='officielepublicaties',
-                                                  extra_query='c.product-area==officielepublicaties',
-                                                  verbose=verbose)
+        wetsuite.datacollect.sru.SRUBase.__init__(
+            self,
+            base_url="https://repository.overheid.nl/sru",
+            x_connection="officielepublicaties",
+            extra_query="c.product-area==officielepublicaties",
+            verbose=verbose,
+        )
 
 
 class SamenwerkendeCatalogi(wetsuite.datacollect.sru.SRUBase):
-    " SRU endpoint for the Samenwerkende Catalogi repository "
+    "SRU endpoint for the Samenwerkende Catalogi repository"
+
     def __init__(self, verbose=False):
-        wetsuite.datacollect.sru.SRUBase.__init__(self,
-                                                  base_url='https://repository.overheid.nl/sru',
-                                                  x_connection='samenwerkendecatalogi',
-                                                  extra_query='c.product-area==samenwerkendecatalogi',
-                                                  verbose=verbose)
+        wetsuite.datacollect.sru.SRUBase.__init__(
+            self,
+            base_url="https://repository.overheid.nl/sru",
+            x_connection="samenwerkendecatalogi",
+            extra_query="c.product-area==samenwerkendecatalogi",
+            verbose=verbose,
+        )
 
 
 class LokaleBekendmakingen(wetsuite.datacollect.sru.SRUBase):
-    " SRU endpoint for bekendmakingen repository "
+    "SRU endpoint for bekendmakingen repository"
+
     def __init__(self, verbose=False):
-        wetsuite.datacollect.sru.SRUBase.__init__(self,
-                                                  base_url='https://repository.overheid.nl/sru',
-                                                  x_connection='lokalebekendmakingen',
-                                                  extra_query='c.product-area==lokalebekendmakingen',
-                                                  verbose=verbose)
+        wetsuite.datacollect.sru.SRUBase.__init__(
+            self,
+            base_url="https://repository.overheid.nl/sru",
+            x_connection="lokalebekendmakingen",
+            extra_query="c.product-area==lokalebekendmakingen",
+            verbose=verbose,
+        )
 
 
 class StatenGeneraalDigitaal(wetsuite.datacollect.sru.SRUBase):
-    ''' SRU endpoint for Staten-Generaal Digitaal repository '''
-    def __init__(self, verbose=False):
-        wetsuite.datacollect.sru.SRUBase.__init__(self,
-                                                  base_url='https://repository.overheid.nl/sru',
-                                                  x_connection='sgd',
-                                                  extra_query='c.product-area==sgd',
-                                                  verbose=verbose)
+    """SRU endpoint for Staten-Generaal Digitaal repository"""
 
+    def __init__(self, verbose=False):
+        wetsuite.datacollect.sru.SRUBase.__init__(
+            self,
+            base_url="https://repository.overheid.nl/sru",
+            x_connection="sgd",
+            extra_query="c.product-area==sgd",
+            verbose=verbose,
+        )
 
 
 ## Untested
@@ -106,39 +120,36 @@ class StatenGeneraalDigitaal(wetsuite.datacollect.sru.SRUBase):
 
 
 class TuchtRecht(wetsuite.datacollect.sru.SRUBase):
-    ''' SRU endpoint for the TuchtRecht repository
-   
-        https://tuchtrecht.overheid.nl/
-    '''
+    """SRU endpoint for the TuchtRecht repository
+
+    https://tuchtrecht.overheid.nl/
+    """
+
     def __init__(self, verbose=False):
-        wetsuite.datacollect.sru.SRUBase.__init__(self,
-                                                  base_url='https://repository.overheid.nl/sru/Search',
-                                                  x_connection='tuchtrecht',
-                                                  extra_query='c.product-area==tuchtrecht',
-                                                  verbose=verbose)
-
-
-
-
-
-
-
-
-
+        wetsuite.datacollect.sru.SRUBase.__init__(
+            self,
+            base_url="https://repository.overheid.nl/sru/Search",
+            x_connection="tuchtrecht",
+            extra_query="c.product-area==tuchtrecht",
+            verbose=verbose,
+        )
 
 
 # Does not seem to do what I think - though I may be misunderstanding it.
 class WetgevingsKalender(wetsuite.datacollect.sru.SRUBase):
-    ''' SRU endpoint for wetgevingskalender, see e.g. https://wetgevingskalender.overheid.nl/ 
-    
-        Note: Broken/untested
-    '''
+    """SRU endpoint for wetgevingskalender, see e.g. https://wetgevingskalender.overheid.nl/
+
+    Note: Broken/untested
+    """
+
     def __init__(self, verbose=False):
-        wetsuite.datacollect.sru.SRUBase.__init__(self,
-                                                  base_url='http://repository.overheid.nl/sru',
-                                                  x_connection='wgk',
-                                                  #extra_query='c.product-area any wgk',
-                                                  verbose=verbose)
+        wetsuite.datacollect.sru.SRUBase.__init__(
+            self,
+            base_url="http://repository.overheid.nl/sru",
+            x_connection="wgk",
+            # extra_query='c.product-area any wgk',
+            verbose=verbose,
+        )
 
 
 ## Not working?
@@ -146,46 +157,53 @@ class WetgevingsKalender(wetsuite.datacollect.sru.SRUBase):
 
 # broken in that the documents URLs it links to will 404 - this seems to be because this PLOOI beta led to a retraction and redesign?
 class PLOOI(wetsuite.datacollect.sru.SRUBase):
-    ''' SRU endpoint for the Platform Open Overheidsinformatie repository 
+    """SRU endpoint for the Platform Open Overheidsinformatie repository
 
-        https://www.open-overheid.nl/plooi/
+    https://www.open-overheid.nl/plooi/
 
-        https://www.koopoverheid.nl/voor-overheden/rijksoverheid/plooi-platform-open-overheidsinformatie
+    https://www.koopoverheid.nl/voor-overheden/rijksoverheid/plooi-platform-open-overheidsinformatie
 
-        Note: Broken/untested
-    '''
+    Note: Broken/untested
+    """
+
     def __init__(self, verbose=False):
-        wetsuite.datacollect.sru.SRUBase.__init__(self,
-                                                  base_url='http://zoekservice.overheid.nl/sru/Search',
-                                                  x_connection='plooi',
-                                                  verbose=verbose)
-        #wetsuite.datacollect.sru.SRUBase.__init__(self, base_url='http://repository.overheid.nl/sru', x_connection='plooi', verbose=verbose)
+        wetsuite.datacollect.sru.SRUBase.__init__(
+            self,
+            base_url="http://zoekservice.overheid.nl/sru/Search",
+            x_connection="plooi",
+            verbose=verbose,
+        )
+        # wetsuite.datacollect.sru.SRUBase.__init__(self, base_url='http://repository.overheid.nl/sru', x_connection='plooi', verbose=verbose)
 
 
 class PUCOpenData(wetsuite.datacollect.sru.SRUBase):
-    ''' Publicatieplatform UitvoeringsContent
-        https://puc.overheid.nl/
+    """Publicatieplatform UitvoeringsContent
+    https://puc.overheid.nl/
 
-        Note: Broken/untested
-    '''
+    Note: Broken/untested
+    """
+
     def __init__(self, verbose=False):
-        wetsuite.datacollect.sru.SRUBase.__init__(self,
-                                                  base_url='http://repository.overheid.nl/sru',
-                                                  x_connection='pod', #extra_query='c.product-area==pod',
-                                                  verbose=verbose)
-        #wetsuite.datacollect.sru.SRUBase.__init__(
+        wetsuite.datacollect.sru.SRUBase.__init__(
+            self,
+            base_url="http://repository.overheid.nl/sru",
+            x_connection="pod",  # extra_query='c.product-area==pod',
+            verbose=verbose,
+        )
+        # wetsuite.datacollect.sru.SRUBase.__init__(
         #   self,
         #   base_url='http://zoekservice.overheid.nl/sru/Search',
         #   x_connection='pod', extra_query='c.product-area==pod', verbose=verbose)
 
 
 class EuropeseRichtlijnen(wetsuite.datacollect.sru.SRUBase):
-    ''' Note: Broken/untested
-    '''
-    def __init__(self, verbose=False):
-        wetsuite.datacollect.sru.SRUBase.__init__(self,
-                                                  base_url='http://repository.overheid.nl/sru',
-                                                  x_connection='eur',
-                                                  extra_query='c.product-area any eur',
-                                                  verbose=verbose)
+    """Note: Broken/untested"""
 
+    def __init__(self, verbose=False):
+        wetsuite.datacollect.sru.SRUBase.__init__(
+            self,
+            base_url="http://repository.overheid.nl/sru",
+            x_connection="eur",
+            extra_query="c.product-area any eur",
+            verbose=verbose,
+        )
