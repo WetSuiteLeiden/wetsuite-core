@@ -46,13 +46,6 @@ _index_fetch_time = 0
 _index_fetch_no_more_often_than_sec = 600
 
 
-def generated_today_text():
-    'Used when generating datasets, returns a string like "This dataset was generated on 2024-02-02"'
-    return "This dataset was generated on %s" % (
-        wetsuite.helpers.date.date_today().strftime("%Y-%m-%d")
-    )
-
-
 def fetch_index():
     """Index is expected to be a list of dicts, each with keys includin
       - url
@@ -89,14 +82,20 @@ def fetch_index():
 
 
 def list_datasets():
-    "fetch index, report dataset names (see fetch_index if you also want the details)"
+    """fetch index, report dataset names _only_.
+    If you also want the details, 
+    see C{fetch_index} if you care about the data form,
+    or C{print_dataset_summary} if want it printed on the console/notebook output.
+
+    @return: a list of strings, e.g. ['bwb-mostrecent-xml','woo_besluiten_docs_text']
+    """
     fetch_index()
     return sorted(_index_data.keys())
     # return list( _index.items() )
 
 
 def print_dataset_summary():
-    """Print short summary per dataset.
+    """Print short summary per dataset, on stdout.
     A little more to go on than just the names from list_datasets(),
     a little less work than shifting through the dicts for each yourself,
     but only useful in notebooks or from the console
@@ -109,14 +108,15 @@ def print_dataset_summary():
 
 
 def description(dataset_name: str):
-    "fetch the description field from a specific name from the index. Simple, but less typing than picking it out yourself"
+    "Fetch the description field, for a specifically named dataset. Simple, but less typing than picking it out yourself."
     return fetch_index()[dataset_name].get("description", "")
 
 
 class Dataset:
     """If you're looking for details about the specific dataset, look at the .description
 
-    Mostly meant to be instantiated by load()
+    This classis mostly meant to be instantiated by load(),
+    not by you - it's the thinnest of wrapper classes so you probably wouldn't care to.
 
     This class is provisional and likely to change. Right now it does little more than
       - put a description into a .description attribute
@@ -130,28 +130,34 @@ class Dataset:
     """
 
     def __init__(self, description: str, data, name: str = ""):
+        """@param description: A description that load() would lift from the underlying data.
+        @param data: A reference to the main data, that load() would load from the underlying data.
+        @param name: a name that would be printed into str() representation. Usually set by load().
+        """
         # for key in self.data:
         #    setattr(self, key, self.data[key])
         # the above seems powerful but potentially iffy, so for now:
         self.data = data
         self.description = description
         self.name = name
-        self.num_items = len(self.data)
+        self.num_items = len(self.data) # TODO: don't rely on that being possible.
 
     def __str__(self):
+        'String representation that mentions the name and the number of items'
         return "<wetsuite.datasets.Dataset name=%r num_items=%r>" % (
             self.name,
             self.num_items,
         )
 
     def export_files(self, in_dir_path=None, to_zipfile_path=None):
-        """This is primarily for people who want to see their data in file form.
+        """Try to export each item to a file, for people who want to continue working on data elsewhere.
 
-        It also only makes sense when the dataset values are bytes objects
+        Mostly useful when the dataset actually _does_ store one file (bytes object) per item.
+        For other underlying types we might do some conversion, e.g. dict becomes JSON.
+        We estimate the file extension it should have.
         """
 
         if to_zipfile_path is not None:
-
             if os.path.exists(to_zipfile_path):
                 raise RuntimeError(
                     "Target ZIP file (%r) already exists. Please rename or remove it."
@@ -463,19 +469,11 @@ def load(dataset_name: str, verbose=None, force_refetch=False, check_free_space=
         )
 
 
-# @classmethod
-# def files_to_store(self, in_dir):
-#     ''' Notes that this does _nothing_ for you other than make a store
-#         that might make it a little easier (and maybe a little faster) to iterate though the _contents_ of these files '''
-#     store = wetsuite.helpers.localdata.LocalKV( ':memory:', None, None )
-#     for r, ds, fs in os.walk(in_dir):
-#         for fn in fs:
-#             ffn = os.path.join( r, fn )
-#             #if os.path.is_file():
-#             #if ffn not in store: # TODO: think about update logic
-#             with open(ffn,'rb') as f:
-#                 store.put(ffn, f.read() )
-#         ret = Dataset(  description='Files loaded from %r'%in_dir,
-#                         data=store,
-#                         name='filesystem-'+re.sub('[^A-Za-z0-9]+','-',in_dir)  )
-#         return ret
+def generated_today_text():
+    """Used when generating datasets 
+    @return: a string like 'This dataset was generated on 2024-02-02'
+    """
+    return "This dataset was generated on %s" % (
+        wetsuite.helpers.date.date_today().strftime("%Y-%m-%d")
+    )
+
