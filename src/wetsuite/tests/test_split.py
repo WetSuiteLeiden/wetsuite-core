@@ -87,7 +87,7 @@ def test__split_officielepublicaties_xml__start_at_none():
         )  # pylint: disable=protected-access
 
 
-def test__split_officielepublikaties_xml__list_test():
+def test__split_officielepublicaties_xml__list_test():
     "test the code path testing for lsit"
     tree = wetsuite.helpers.etree.fromstring("<r/>")
     with pytest.raises(ValueError, match=r".*given a list.*"):
@@ -96,7 +96,7 @@ def test__split_officielepublikaties_xml__list_test():
         )  # pylint: disable=protected-access
 
 
-def test__split_officielepublikaties_xml__start_at_nonsemse():
+def test__split_officielepublicaties_xml__start_at_nonsemse():
     "test the code path for starting at path that does not exist"
     import test_split
 
@@ -111,7 +111,7 @@ def test__split_officielepublikaties_xml__start_at_nonsemse():
             )  # pylint: disable=protected-access
 
 
-def test__split_officielepublikaties_xml__start_at_node():
+def test__split_officielepublicaties_xml__start_at_node():
     "test the code path for starting at root"
     import test_split
 
