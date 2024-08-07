@@ -211,17 +211,18 @@ def date_today():
 
 
 def date_weeks_ago(amount: float = 1):
-    """@return: A date some amount of months ago, as a datetime.date"""
+    """@return: A date some amount of months ago from the day of calling this, as a datetime.date"""
     return datetime.date.today() - datetime.timedelta(days=int(amount * 7))
 
 
 def date_months_ago(amount: float = 1):
-    """@return: A date some amount of months ago, as a datetime.date"""
+    """@return: A date some amount of months ago from the day of calling this, as a datetime.date"""
     return datetime.date.today() - datetime.timedelta(days=int(amount * 30.6))
 
 
 def date_first_day_in_year(yearnum: int):
-    """@return: January first of the given year, as a datetime.date"""
+    """@param yearnum: the year you want the first day of, e.g. 2024.
+    @return: January first of the given year, as a datetime.date"""
     return datetime.date(year=yearnum, month=1, day=1)
 
 

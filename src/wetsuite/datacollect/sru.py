@@ -26,7 +26,15 @@ import wetsuite.helpers.etree
 
 
 class SRUBase:
-    "Very minimal SRU implementation - just enough to access the KOOP repositories."
+    """Very minimal SRU implementation - just enough to access the KOOP repositories.
+    
+    @ivar base_url: The base URL that other things add to; added from instantiation.
+    @ivar x_connection: The x_connection attribute that some of these need; added from instantiation.
+    @ivar sru_version: hardcoded to "1.2"
+    @ivar extra_query: extra piece of query to add to the quiery you do late. This lets us representing subsets of larger repositories.
+    @ivar number_of_records: the number of results reported in the last query we did. None before you do a query. CONSIDER: changing that.
+    @ivar verbose: whether to print out things while we do them.
+    """
 
     def __init__(
         self,
@@ -36,13 +44,11 @@ class SRUBase:
         verbose=False,
     ):
         """
-        base_url should be everything up to the ?
-
-        Notes:
-          - x_connection is used to specify the collection within a server, and seems to be non-standard and required
-
-          - extra_query is used to let us AND something into the query, and is intended to restrict to a subset of documents
-            in these cases, x_connection seems to include in extra sets, and the combination is sometimes too much (?)
+        @param base_url: The base URL that other things add to. Basically everything up to the '?'
+        @param x_connection: an attribute that some of these need in the URL. Seems to be non-standard and required for these repos.
+        @param extra_query: is used to let us AND something into the query, and is intended to restrict to a subset of documents. In these cases, x_connection seems to include in extra sets, and the combination is sometimes too much (?)
+        piece of query to add to the quiery you do late. This lets us representing subsets of larger repositories.
+        @param verbose: whether to print out things while we do them.
         """
         self.base_url = base_url
         self.x_connection = x_connection
@@ -209,6 +215,7 @@ class SRUBase:
         @param callback: if not None, this function calls it for each such record node.
         You can instead wait for the entire range of fetches to conclude
         and hand you the complete list of result records.
+        @param verbose: whether to be even more verbose during this query
         """
 
         if self.extra_query is not None:
@@ -310,6 +317,7 @@ class SRUBase:
         @param wait_between_sec: a backoff sleep between each search request, to avoid hammering a server too much.
         you can lower this where you know this is overly cautious
         note that we skip this sleep if one fetch was enough
+        @param verbose: whether to be even more verbose during this query
 
         since we fetch in chunks, we may overshoot in the last fetch, by up to at_a_time amount of entries
         The code should avoid returning those.

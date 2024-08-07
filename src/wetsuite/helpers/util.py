@@ -84,7 +84,9 @@ def wetsuite_dir():
 
 
 def free_space(path=None):
-    """Says how many bytes are free on the filesystem that stores that mentioned path"""
+    """Says how many bytes are free on the filesystem that stores that mentioned path.
+    @param path: path to check for. Defaults to the directory we would store datasets into.
+    """
     import shutil
 
     if path is None:
@@ -120,6 +122,9 @@ def hash_color(string: str, on=None):
 
     To that end, this takes a string, and
     returns (css_str,r,g,b), where r,g,b are 255-scale r,g,b values for a string
+
+    @param string: the string to hash 
+    @param on: if 'dark', we try for a bright color, if 'light', we try to give a dark color, otherwise not restricted
     """
     dig = hash_hex(string.encode("utf8"), as_bytes=True)
     r, g, b = dig[0:3]
@@ -141,6 +146,8 @@ def hash_hex(data: bytes, as_bytes: bool = False):
     Returns that hash as a hex string, unless you specify as_bytes=True
 
     Deals with unicode by UTF8-encoding it, which isn't _always_ what you want.
+    @param data: the bytes to hash 
+    @param as_bytes: whether to return the hash dugest as a bytes object. Defaults to False, meaning a hex string (like 'a49d')
     """
     if isinstance(data, bytes):
         pass
@@ -159,7 +166,10 @@ def hash_hex(data: bytes, as_bytes: bool = False):
 
 
 def is_html(bytesdata) -> bool:
-    "Do these bytes look loke a HTML document? (no specific distinction to XHTML)"
+    """Do these bytes look loke a HTML document? (no specific distinction to XHTML)
+    @param bytesdata: the bytestring to check is a HTML file.
+    @return: whether it is HTML
+    """
     if not isinstance(bytesdata, bytes):
         raise TypeError("we expect a bytestring, not a %s" % type(bytesdata))
     if b"<!DOCTYPE html" in bytesdata[:1000]:
@@ -174,8 +184,14 @@ def is_xml(bytesdata, debug=False) -> bool:
 
     Note that in this context, XHTML (and valid-enough HTML) are considered NOT XML
 
-    Note: gives a stronger answer than "does it look sort of like an XML" - we could answer _that_ for a lot cheaper,
-    (than actually just parseing it, which we do -- TODO: parse only the first kilobyte or so, incrementally)
+    Note: we try to answer "is it likely you could parse this", not just "does it look vaguely like the start of an XML"
+    we could answer the latter for a lot cheaper than parsing it, but it wouldn't mean much.
+    
+    Right now _do_ actually parse it so that we get a decent answer to whether we can use it.
+    (TODO: parse only the first kilobyte or so, incrementally)
+
+    @param bytesdata: the bytestring to check is a (valid) XML file.
+    @return: whether it is XML
     """
     # arguably a simple and thorough way is to tell that
     #   it parses in a fairly strict XML/HTML parser,
@@ -219,14 +235,20 @@ def is_xml(bytesdata, debug=False) -> bool:
 
 
 def is_pdf(bytesdata: bytes) -> bool:
-    "Does this bytestring look like a PDF document?"
+    """Does this bytestring look like a PDF document?
+    @param bytesdata: the bytestring to check looks like the start of a PDF
+    @return: whether it is PDF
+    """
     if not isinstance(bytesdata, bytes):
         raise TypeError("we expect a bytestring, not a %s" % type(bytesdata))
     return bytesdata.startswith(b"%PDF")
 
 
 def is_zip(bytesdata: bytes) -> bool:
-    "Does this bytestring look like a ZIP file?"
+    """Does this bytestring look like a ZIP file?
+    @param bytesdata: the bytestring to check contains a ZIP file.
+    @return: whether it is a ZIP
+    """
     if not isinstance(bytesdata, bytes):
         raise TypeError("we expect a bytestring, not a %s" % type(bytesdata))
     if bytesdata.startswith(b"PK\x03\x04"):  # (most)
@@ -241,7 +263,10 @@ def is_zip(bytesdata: bytes) -> bool:
 
 
 def is_empty_zip(bytesdata: bytes) -> bool:
-    "Does this bytestring look like an empty ZIP file?"
+    """Does this bytestring look like an empty ZIP file?
+    @param bytesdata: the bytestring to check contains a ZIP file that stores nothing.
+    @return: whether it is an empty ZIP
+    """
     if not isinstance(bytesdata, bytes):
         raise TypeError("we expect a bytestring, not a %s" % type(bytesdata))
     if bytesdata.startswith(
@@ -256,6 +281,9 @@ def is_htmlzip(bytesdata: bytes) -> bool:
 
     Is this a ZIP file with one entry for which the name ends with .html?
     (we could test its content with is_html it but given the context we can assume it)
+
+    @param bytesdata: the bytestring to check/treat as a ZIP file.
+    @return: whether it is a ZIP containing HTML
     """
     if not isinstance(bytesdata, bytes):
         raise TypeError("we expect a bytestring, not a %s" % type(bytesdata))
@@ -278,6 +306,9 @@ def get_ziphtml(bytesdata: bytes):
     (there might also e.g. be images in there)
 
     Returns a bytestring, or raises and exception
+
+    @param bytesdata: the bytestring to treat as a ZIP file.
+    @return: the HTML file as a bytes object
     """
     if not isinstance(bytesdata, bytes):
         raise TypeError("we expect a bytestring, not a %s" % type(bytesdata))

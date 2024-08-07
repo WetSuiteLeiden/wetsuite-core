@@ -21,7 +21,8 @@ def download(
     @param tofile_path: If this is non-None, we open it as a filename and _stream_ the download to that if we can.
     @param show_progress: whether to print/show output on stderr while downloading.
     @param url: the URL to fetch data from
-    @param chunk_size:
+    @param chunk_size: chunk byte size when trying to stream.
+    @param timeout: timeout to pass on to requests.get
 
     @return: byte
     if the HTTP response code is >=400 (actually if !response.ok, see requests's documentation), we raise a ValueError

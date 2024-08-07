@@ -483,15 +483,16 @@ def debug_pretty(tree, reindent=True, strip_namespaces=True, encoding="unicode")
 
 
 class debug_color:
-    """Takes XML,
-    - applies debug_pretty
-    - returns a class that will renderer it in color in a jupyter notebook.
+    """Takes XML, parses, reindents, strip_namespaces, returns a class that will renderer it in color in a jupyter notebook (using pygments).
 
     relies on pygments; CONSIDER: removing that dependency,
     we already have much of the code in the xml-color tool
+
+    @ivar xstr: XML as a string (after reindent and namespace strip)
     """
 
     def __init__(self, tree_or_bytestring):
+        "Takes either an etree object, or a bytestring yet to be parsed"
         self.xstr = debug_pretty(tree_or_bytestring)
         # if isinstance(tree_or_bytestring, (str, bytes)):
         #    self.xstr = tree_or_bytestring # TODO: ensure bytes?

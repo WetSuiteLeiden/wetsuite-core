@@ -8,31 +8,7 @@ See the docstring on the LocalKV class for more details.
 
 This is used e.g. by various data collection, and by distributed datasets.
 
-
-BASIC USE: ::
-    mystore = LocalKV( 'docstore.db' )
-
-Notes:
-    - on the path/name argument:
-        - just a name ( without os.sep, that is, / or \\ ) will be resolved to a path 
-          where wetsuite keeps various stores
-      - an absolute path will be passed through             
-          ...but this isn't very portable until you do things like `os.path.join( myproject_data_dir, 'docstore.db')`
-        - a relative path with os.sep will be passed through  
-          ...which is only as portable as the cwd is predictable)
-        - ':memory:' is in-memory only                        
-          See also resolve_path() for more details
-
-    - by default, each write is committed individually (because SQlite3's driver defaults to autocommit)
-      If you want more performant bulk writes, 
-      use put() with commit=False, and
-      do an explicit commit() afterwards
-      ...BUT if a script borks in the middle of something uncommited, you will need to do manual cleanup.
-    
-    - you _could_ access these SQLite databses yourself, particularly when just reading.
-      Our code is mainly there for convenience and checks.     
-      Consider: `sqlite3 store.db 'select key,value from kv limit 10 ' | less`
-      It only starts getting special once you using MsgpackKV, or the extra parsing and wrapping that wetsuite.datasets adds.
+There are a lot of general notes in LocalKV's docstring (and a lot of it also applies to MsgpackKV)
 
 CONSIDER: writing a ExpiringLocalKV that cleans up old entries
 CONSIDER: writing variants that do convert specific data, letting you e.g. set/fetch dicts, or anything else you could pickle
@@ -59,7 +35,7 @@ import wetsuite.helpers.format
 
 class LocalKV:
     """
-    A key-value store backed by a local filesystem  (wrapping sqlite3).
+    A key-value store backed by a local filesystem - it's a wrapper around sqlite3.
 
     Given: ::
         db = LocalKV('path/to/dbfile')
@@ -68,6 +44,21 @@ class LocalKV:
         db.get('foo')
 
     Notes:
+      - on the path/name argument:
+        - just a name ( without os.sep, that is, / or \\ ) will be resolved to a path where wetsuite keeps various stores
+        - an absolute path will be passed through, used as-is
+          ...but this is NOT very portable until you do things like `os.path.join( myproject_data_dir, 'docstore.db')`
+        - a relative path with os.sep will be passed through  
+          ...which is only as portable as the cwd is predictable)
+        - ':memory:' is in-memory only                        
+        - See also C{resolve_path} for more details
+
+      - by default, each write is committed individually (because SQlite3's driver defaults to autocommit)
+        If you want more performant bulk writes, 
+        use put() with commit=False, and
+        do an explicit commit() afterwards
+        ...BUT if a script borks in the middle of something uncommited, you will need to do manual cleanup.
+        
       - On typing:
           - SQLite will just store what it gets, which makes it easy to store mixed types.
             To allow programmers to enforce some runtime checking,
@@ -83,17 +74,18 @@ class LocalKV:
             You could change both key and value types,
             e.g. the cached_fetch function expects a str:bytes store
 
-      - It is a good idea to open the store with the same typing each
-        or you will still confuse yourself.
-        CONSIDER: storing typing in the file in the meta table
+         - It is a good idea to open the store with the same typing every time,
+           or you will still confuse yourself.
+           CONSIDER: storing typing in the file in the meta table so we can warn you.
 
-      - doing it via functions is a little more typing yet also exposes some sqlite things
-        (using transactions, vacuum) for when you know how to use them.
-        and is arguably clearer than 'this particular dict-like happens to get stored magically'
+      - making you do CRUD via functions is a little more typing,
+        - yet is arguably clearer than 'this particular dict-like happens to get stored magically'
+        - and it lets us exposes some sqlite things (using transactions, vacuum) for when you know how to use them.
 
       - On concurrency: As per basic sqlite behaviour,
         multiple processes can read the same database,
-        but only one can write and writing is exclusive with reading.
+        but only one can write,
+        and writing is exclusive with reading.
         So
           - when you leave a writer with uncommited data for nontrivial amounts of time, readers are likely to time out
             - If you leave it on autocommit this should be a little rarer
@@ -117,6 +109,17 @@ class LocalKV:
         The last were tentative until keys(), values(), and items() started giving views.
 
         TODO: make a final decision where to sit between clean abstractions and convenience.
+
+      - yes, you _could_ access these SQLite databses yourself, particularly when just reading.
+        Our code is mainly there for convenience and checks.     
+        Consider: `sqlite3 store.db 'select key,value from kv limit 10 ' | less`
+        It only starts getting special once you using MsgpackKV, or the extra parsing and wrapping that wetsuite.datasets adds.
+        
+    @ivar conn: connection to the sqlite database that we set up
+    @ivar path: the path we opened (after resolving)
+    @ivar key_type: the key type you have set
+    @ivar value_type: the value type you have set
+    @ivar read_only: whether we have told ourselves to treat this as read-only
     """
 
     def __init__(self, path, key_type, value_type, read_only=False):
@@ -131,11 +134,8 @@ class LocalKV:
         See also the module docstring, and in particular resolve_path()'s docstring
 
         @param key_type:
-
         @param value_type:
-
         @param read_only: is only enforced in this wrapper to give slightly more useful errors. (we also give SQLite a PRAGMA)
-
         """
         self.path = path
         self.path = resolve_path(
@@ -396,9 +396,11 @@ class LocalKV:
         )  # this relies on __getitem__ which we didn't really want, maybe wrap a class to hide that?
 
     def __repr__(self):
+        "show useful representation"
         return "<LocalKV(%r)>" % (os.path.basename(self.path),)
 
     def __len__(self):
+        "Return the amount of entries in this store"
         return self.conn.execute("SELECT COUNT(*) FROM kv").fetchone()[
             0
         ]  # TODO: double check
@@ -412,7 +414,8 @@ class LocalKV:
 
     def __getitem__(
         self, key
-    ):  # this one is here only really to support the ValuesView and Itemsview
+    ):  
+        "(only meant to support ValuesView and Itemsview)"
         return self.get(key)  # which would itself raise KeyError if applicable
 
     # def __setitem__(self, key, value):
@@ -426,6 +429,7 @@ class LocalKV:
 
     # ...but we still sneakily have:
     def __contains__(self, key):
+        "will return whether the store contains a key"
         return (
             self.conn.execute("SELECT 1 FROM kv WHERE key = ?", (key,)).fetchone()
             is not None
@@ -433,9 +437,11 @@ class LocalKV:
 
     ## Used as a context manager? do a close() at the end.
     def __enter__(self):
+        "supports use as a context manager"
         return self
 
     def __exit__(self, exc_type, exc_value, exc_traceback):
+        "supports use as a context manager - close() on exit"
         self.close()
 
     ### Convenience functions, not core functionality

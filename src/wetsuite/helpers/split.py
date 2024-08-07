@@ -2,9 +2,9 @@
     This module tries to wrangle different possibly-structured-text formats into a similar intermediate format, and gives you some flexibility in how to consume those -- probably split into smallish chunks.
     
     Secondary thoughts:
-    - we were trying to be inspired by LaTeX hyphenation, which has a simple-but-pretty-great 
-      relative "this is the cost of breaking off here",
-      the analogue of which were  that makes "Hey can you break this more"
+      - we were trying to be inspired by LaTeX hyphenation, which has a simple-but-pretty-great 
+        relative "this is the cost of breaking off here",
+        the analogue of which were  that makes "Hey can you break this more"
 
     TODO: 
       - decide the API (probably make the splitting optional? or write in a way where joining is the original with (nearly) no losses?) 

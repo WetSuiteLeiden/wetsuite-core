@@ -52,6 +52,8 @@ def parse_jci(text: str):
       Note that precise interpretation, and generation of these links,
       is a little more involved,
       in that versions made small semantic changes to the meanings of some parts.
+
+    @param text: jci-style identifier as string. Will be parsed.
     """
     ret = {}
 
@@ -514,6 +516,8 @@ def is_equivalent_celex(celex1: str, celex2: str):
       - ignores sector to be able to ignore sector 0
       - tries to ignore
     This is currently based on estimation - we should read up on the details.
+    @param celex1: CELEX identifier as string. Will be parsed.
+    @param celex2: CELEX identifier as string. Will be parsed.
     """
     d1 = parse_celex(celex1)
     d2 = parse_celex(celex2)
@@ -555,6 +559,8 @@ def parse_celex(celex: str):
 
     TODO: we might be able to assist common in those cases (e.g. a test for "is this equivalent").
     I e.g. do not know whether id_nonattrans is useful or correct
+
+    @param celex: CELEX identifier as string. Will be parsed.
     """
     norm = celex.strip()
     norm = (
@@ -630,6 +636,8 @@ def parse_bekendmaking_id(s):
     AOTW still fails on ~ .01% but most of those seem to be invalid (though almost all kst- so we may be missing something).
 
     CONSIDER: also producing citation form
+
+    @param s: the string to parse.
     """
     ret = {}
     parts = s.split("-")
@@ -835,6 +843,8 @@ def parse_bekendmaking_id(s):
 def parse_kst_id(s, debug=False):
     """Parse kamerstukken identifiers like kst-26643-144-h1
     Also a helper for parse_bekendmaking_id()
+
+    @param s: kst-style identifier as string. Will be parsed.
     """
     # e.g. so that you can do 'https://zoek.officielebekendmakingen.nl/dossier/'+ d['dossiernum']
 
