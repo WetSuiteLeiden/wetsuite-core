@@ -3,7 +3,7 @@
 import sys, time
 import helpers_spacy
 
-#text = sys.stdin.read()
+# text = sys.stdin.read()
 
 text = """
 Leicester Abbey (de abdij van Leicester), ook wel de Abbey of Saint Mary de Pratis, was een abdij, gelegen ongeveer 2 kilometer ten noorden van de stad Leicester. Tegenwoordig resteert slechts een ruïne, die gelegen is in een stadspark van Leicester. 
@@ -20,8 +20,6 @@ doc = helpers_spacy.sentence_split(text)
 for sent_span in doc.sents:
     sent_text = sent_span.text.strip()
     start = time.time()
-    lang, score = helpers_spacy.detect_language( sent_text )
+    lang, score = helpers_spacy.detect_language(sent_text)
     took = time.time() - start
-    print("SENTENCE / %3s in %.2fms / %s"%(lang, 1000.*took, sent_text))
-
-
+    print("SENTENCE / %3s in %.2fms / %s" % (lang, 1000.0 * took, sent_text))
