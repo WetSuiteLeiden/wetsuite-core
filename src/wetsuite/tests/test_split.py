@@ -73,7 +73,7 @@ def test_fragments():
 #         assert len( wetsuite.helpers.split.decide( docbytes, first_only=True ) ) == 1  # ...but not if you ask for one
 
 
-def test__split_officielepublikaties_xml__start_at_none():
+def test__split_officielepublicaties_xml__start_at_none():
     "test the code path for starting at root"
     import test_split
 
@@ -82,7 +82,7 @@ def test__split_officielepublikaties_xml__start_at_none():
     )
     with open(gmb_path, "rb") as gmb_file:
         gmb_tree = wetsuite.helpers.etree.fromstring(gmb_file.read())
-        wetsuite.helpers.split._split_officielepublikaties_xml(
+        wetsuite.helpers.split._split_officielepublicaties_xml(
             gmb_tree, start_at=None
         )  # pylint: disable=protected-access
 
@@ -91,7 +91,7 @@ def test__split_officielepublikaties_xml__list_test():
     "test the code path testing for lsit"
     tree = wetsuite.helpers.etree.fromstring("<r/>")
     with pytest.raises(ValueError, match=r".*given a list.*"):
-        wetsuite.helpers.split._split_officielepublikaties_xml(
+        wetsuite.helpers.split._split_officielepublicaties_xml(
             tree, start_at=tree.xpath("/")
         )  # pylint: disable=protected-access
 
@@ -106,7 +106,7 @@ def test__split_officielepublikaties_xml__start_at_nonsemse():
     with open(gmb_path, "rb") as gmb_file:
         gmb_tree = wetsuite.helpers.etree.fromstring(gmb_file.read())
         with pytest.raises(ValueError, match=r".*Did not find.*"):
-            wetsuite.helpers.split._split_officielepublikaties_xml(
+            wetsuite.helpers.split._split_officielepublicaties_xml(
                 gmb_tree, start_at="/przewalski"
             )  # pylint: disable=protected-access
 
@@ -121,7 +121,7 @@ def test__split_officielepublikaties_xml__start_at_node():
     with open(gmb_path, "rb") as gmb_file:
         gmb_tree = wetsuite.helpers.etree.fromstring(gmb_file.read())
         node = gmb_tree.find("gemeenteblad/zakelijke-mededeling")
-        wetsuite.helpers.split._split_officielepublikaties_xml(
+        wetsuite.helpers.split._split_officielepublicaties_xml(
             gmb_tree, start_at=node
         )  # pylint: disable=protected-access
 

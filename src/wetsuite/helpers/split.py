@@ -54,7 +54,7 @@ def fix_ascii_blah(bytesdata):
     return bytesdata
 
 
-def _split_officielepublikaties_xml(tree, start_at):
+def _split_officielepublicaties_xml(tree, start_at):
     """Code shared between a lot of the officiele-publicaties XML extraction"""
     ret = []  #  (metadata, intermediate, debugsomething, text)
 
@@ -73,7 +73,7 @@ def _split_officielepublikaties_xml(tree, start_at):
             raise ValueError("Did not find %s within %s" % (start_at, tree))
     elif isinstance(start_at, list):
         raise ValueError(
-            "_split_officielepublikaties_xml() does not know what to do when given a list"
+            "_split_officielepublicaties_xml() does not know what to do when given a list"
         )
     else:  # assume it was a node in the tree you find'd or xpath'd yourself (keep in mind that xpath returns a list of nodes)
         start_at_node = start_at
@@ -113,10 +113,10 @@ _inhoud_re = re.compile(r".*\binhoud\b.*")
 _p_re = re.compile(r".*_p_.*")
 
 
-def _split_officielepublikaties_html(soup):
+def _split_officielepublicaties_html(soup):
     """Code shared between a lot of the officiele-publicaties HTML extraction"""
     ret = []
-    warnings.warn("_split_officielepublikaties_html() needs some basic refinement")
+    warnings.warn("_split_officielepublicaties_html() needs some basic refinement")
 
     # This seems to be based on varied templates/transforms over time, so this may need more work to be complete
     body = soup.find("body")
@@ -355,7 +355,7 @@ class Fragments_HTML_CVDR(Fragments):
             return 5000
 
     def fragments(self):
-        return _split_officielepublikaties_html(
+        return _split_officielepublicaties_html(
             self.soup
         )  # preliminary do-anything; TODO: this is a case where we can probably do better
 
@@ -388,7 +388,7 @@ class Fragments_HTML_OP_Stcrt(Fragments):
             return 5000
 
     def fragments(self):
-        ret = _split_officielepublikaties_html(self.soup)
+        ret = _split_officielepublicaties_html(self.soup)
         return ret
 
 
@@ -420,7 +420,7 @@ class Fragments_HTML_OP_Stb(Fragments):
             return 5000
 
     def fragments(self):
-        ret = _split_officielepublikaties_html(self.soup)
+        ret = _split_officielepublicaties_html(self.soup)
         return ret
 
 
@@ -452,7 +452,7 @@ class Fragments_HTML_OP_Gmb(Fragments):
             return 5000
 
     def fragments(self):
-        ret = _split_officielepublikaties_html(self.soup)
+        ret = _split_officielepublicaties_html(self.soup)
         return ret
 
 
@@ -484,7 +484,7 @@ class Fragments_HTML_OP_Trb(Fragments):
             return 5000
 
     def fragments(self):
-        ret = _split_officielepublikaties_html(self.soup)
+        ret = _split_officielepublicaties_html(self.soup)
         return ret
 
 
@@ -518,7 +518,7 @@ class Fragments_HTML_OP_Prb(Fragments):
             return 5000
 
     def fragments(self):
-        ret = _split_officielepublikaties_html(self.soup)
+        ret = _split_officielepublicaties_html(self.soup)
         return ret
 
 
@@ -550,7 +550,7 @@ class Fragments_HTML_OP_Wsb(Fragments):
             return 5000
 
     def fragments(self):
-        ret = _split_officielepublikaties_html(self.soup)
+        ret = _split_officielepublicaties_html(self.soup)
         return ret
 
 
@@ -585,7 +585,7 @@ class Fragments_HTML_OP_Bgr(Fragments):
             return 5000
 
     def fragments(self):
-        ret = _split_officielepublikaties_html(self.soup)
+        ret = _split_officielepublicaties_html(self.soup)
         return ret
 
 
@@ -662,7 +662,7 @@ class Fragments_XML_OP_Gmb(Fragments):
     def fragments(self):
         ret = []
         for sp in self.startpaths:
-            ret.extend(_split_officielepublikaties_xml(self.tree, sp))
+            ret.extend(_split_officielepublicaties_xml(self.tree, sp))
         return ret
 
 
@@ -707,7 +707,7 @@ class Fragments_XML_OP_Stcrt(Fragments):
     def fragments(self):
         ret = []
         for sp in self.startpaths:
-            ret.extend(_split_officielepublikaties_xml(self.tree, sp))
+            ret.extend(_split_officielepublicaties_xml(self.tree, sp))
         return ret
 
 
@@ -748,7 +748,7 @@ class Fragments_XML_OP_Stb(Fragments):
     def fragments(self):
         ret = []
         for sp in self.startpaths:
-            ret.extend(_split_officielepublikaties_xml(self.tree, sp))
+            ret.extend(_split_officielepublicaties_xml(self.tree, sp))
         return ret
 
 
@@ -787,7 +787,7 @@ class Fragments_XML_OP_Trb(Fragments):
     def fragments(self):
         ret = []
         for sp in self.startpaths:
-            ret.extend(_split_officielepublikaties_xml(self.tree, sp))
+            ret.extend(_split_officielepublicaties_xml(self.tree, sp))
         return ret
 
 
@@ -831,7 +831,7 @@ class Fragments_XML_OP_Prb(Fragments):
     def fragments(self):
         ret = []
         for sp in self.startpaths:
-            ret.extend(_split_officielepublikaties_xml(self.tree, sp))
+            ret.extend(_split_officielepublicaties_xml(self.tree, sp))
         return ret
 
 
@@ -870,7 +870,7 @@ class Fragments_XML_OP_Wsb(Fragments):
     def fragments(self):
         ret = []
         for sp in self.startpaths:
-            ret.extend(_split_officielepublikaties_xml(self.tree, sp))
+            ret.extend(_split_officielepublicaties_xml(self.tree, sp))
         return ret
 
 
@@ -912,7 +912,7 @@ class Fragments_XML_OP_Bgr(Fragments):
     def fragments(self):
         ret = []
         for sp in self.startpaths:
-            ret.extend(_split_officielepublikaties_xml(self.tree, sp))
+            ret.extend(_split_officielepublicaties_xml(self.tree, sp))
         return ret
 
 
@@ -953,7 +953,7 @@ class Fragments_XML_OP_Handelingen(Fragments):
         ret = []
         # print( self.startpaths )
         for sp in self.startpaths:
-            ret.extend(_split_officielepublikaties_xml(self.tree, sp))
+            ret.extend(_split_officielepublicaties_xml(self.tree, sp))
         return ret
 
 
@@ -1006,7 +1006,7 @@ class Fragments_XML_BUS_Kamer(Fragments):
     def fragments(self):
         ret = []
         for sp in self.startpaths:
-            ret.extend(_split_officielepublikaties_xml(self.tree, sp))
+            ret.extend(_split_officielepublicaties_xml(self.tree, sp))
         return ret
 
 
@@ -1045,7 +1045,7 @@ class Fragments_HTML_BUS_kamer(Fragments):
             return 5000
 
     def fragments(self):
-        ret = _split_officielepublikaties_html(self.soup)
+        ret = _split_officielepublicaties_html(self.soup)
         return ret
 
 
