@@ -1,4 +1,4 @@
-'''
+"""
 This is intended to store store collections of data on disk,
 relatively unobtrusive to use    (better than e.g. lots of files),
 and with quick random access     (better than e.g. JSONL).
@@ -36,7 +36,8 @@ Notes:
 
 CONSIDER: writing a ExpiringLocalKV that cleans up old entries
 CONSIDER: writing variants that do convert specific data, letting you e.g. set/fetch dicts, or anything else you could pickle
-'''
+"""
+
 import os
 import os.path
 import time
@@ -46,37 +47,38 @@ import collections.abc
 from typing import Tuple
 
 import sqlite3
+
 # msgpack should be more interoperable and safer than pickle, and slightly faster - but an extra dependency, and does a little less.
 # json is more interoperable, but slower and (also) doesn't e.g. deal with date/datetime
 import msgpack
 
-import wetsuite.helpers.util     # to get wetsuite_dir
+import wetsuite.helpers.util  # to get wetsuite_dir
 import wetsuite.helpers.net
 import wetsuite.helpers.format
 
 
 class LocalKV:
-    '''
+    """
     A key-value store backed by a local filesystem  (wrapping sqlite3).
-    
+
     Given: ::
         db = LocalKV('path/to/dbfile')
     Basic use is: ::
         db.put('foo', 'bar')
         db.get('foo')
-    
+
     Notes:
-      - On typing:        
+      - On typing:
           - SQLite will just store what it gets, which makes it easy to store mixed types.
             To allow programmers to enforce some runtime checking,
             you can specify key_type and value_type.
 
-          - This class won't do conversions for you, 
+          - This class won't do conversions for you,
             it only enforces the values that go in are of the type you said you would put in.
 
-          - This should make things more consistent, 
+          - This should make things more consistent,
             but is not a strict guaranteem, and you can subvert this easily.
-                
+
           - Some uses may wish for a specific key and value type.
             You could change both key and value types,
             e.g. the cached_fetch function expects a str:bytes store
@@ -85,14 +87,14 @@ class LocalKV:
         or you will still confuse yourself.
         CONSIDER: storing typing in the file in the meta table
 
-      - doing it via functions is a little more typing yet also exposes some sqlite things 
+      - doing it via functions is a little more typing yet also exposes some sqlite things
         (using transactions, vacuum) for when you know how to use them.
         and is arguably clearer than 'this particular dict-like happens to get stored magically'
 
-      - On concurrency: As per basic sqlite behaviour, 
+      - On concurrency: As per basic sqlite behaviour,
         multiple processes can read the same database,
-        but only one can write and writing is exclusive with reading. 
-        So 
+        but only one can write and writing is exclusive with reading.
+        So
           - when you leave a writer with uncommited data for nontrivial amounts of time, readers are likely to time out
             - If you leave it on autocommit this should be a little rarer
           - and a very slow read through the database might time out a write.
@@ -100,81 +102,95 @@ class LocalKV:
       - It wouldn't be hard to also make it act largely like a dict,
         implementing __getitem__, __setitem__, and __delitem__
         but this muddies the waters as to its semantics,
-        in particular when things you set are actually saved. 
+        in particular when things you set are actually saved.
 
-        So we try to avoid a leaky abstraction, by making you write out all the altering operatiopns, 
+        So we try to avoid a leaky abstraction, by making you write out all the altering operatiopns,
         and actually all of them, e.g.  get(), put(),  keys(), values(), and items(),
-        because those can at least have docstrings to warn you, rather than breaking your reasonable expectations. 
+        because those can at least have docstrings to warn you, rather than breaking your reasonable expectations.
 
         ...exceptions are
         __len__        for amount of items                   CONSIDER: making that len()
         __contains__   backing 'is this key in the store'),  CONSIDER: making that e.g. has_key() instead
         and also:
         __iter__       which is actually iterkeys()         CONSIDER: removing it
-        __getitem__    supports the views-with-a-len  
-        The last were tentative until keys(), values(), and items() started giving views.  
+        __getitem__    supports the views-with-a-len
+        The last were tentative until keys(), values(), and items() started giving views.
 
         TODO: make a final decision where to sit between clean abstractions and convenience.
-    '''
+    """
+
     def __init__(self, path, key_type, value_type, read_only=False):
-        ''' Specify the path to the database file to open. 
+        """Specify the path to the database file to open.
 
-            key_type and value_type do not have defaults, 
-            so that you think about how you are using these,
-            but we often use   str,str  and  str,bytes
+        key_type and value_type do not have defaults,
+        so that you think about how you are using these,
+        but we often use   str,str  and  str,bytes
 
-            @param path: database name/pat. File will be created if it does not yet exist, 
-            so you proably want think to think about repeating the same path in absolute sense.
-            See also the module docstring, and in particular resolve_path()'s docstring
+        @param path: database name/pat. File will be created if it does not yet exist,
+        so you proably want think to think about repeating the same path in absolute sense.
+        See also the module docstring, and in particular resolve_path()'s docstring
 
-            @param key_type:
+        @param key_type:
 
-            @param value_type: 
+        @param value_type:
 
-            @param read_only: is only enforced in this wrapper to give slightly more useful errors. (we also give SQLite a PRAGMA)
+        @param read_only: is only enforced in this wrapper to give slightly more useful errors. (we also give SQLite a PRAGMA)
 
-        '''
+        """
         self.path = path
-        self.path = resolve_path(self.path)   # tries to centralize the absolute/relative path handling code logic
+        self.path = resolve_path(
+            self.path
+        )  # tries to centralize the absolute/relative path handling code logic
 
         self.read_only = read_only
-        #self.use_wal = use_wal
+        # self.use_wal = use_wal
 
         self._open()
         # here in part to remind us that we _could_ be using converters  https://docs.python.org/3/library/sqlite3.html#sqlite3-converters
         if key_type not in (str, bytes, int, None):
-            raise TypeError("We are currently a little overly paranoid about what to allow as key types (%r not allowed)"%key_type.__name__)
+            raise TypeError(
+                "We are currently a little overly paranoid about what to allow as key types (%r not allowed)"
+                % key_type.__name__
+            )
         if value_type not in (str, bytes, int, float, None):
-            raise TypeError("We are currently a little overly paranoid about what to allow as value types (%r not allowed)"%value_type.__name__)
+            raise TypeError(
+                "We are currently a little overly paranoid about what to allow as value types (%r not allowed)"
+                % value_type.__name__
+            )
 
         self.key_type = key_type
         self.value_type = value_type
 
         self._in_transaction = False
 
-
     def _open(self, timeout=3.0):
-        ''' Open the path previously set by init.
-            This function could probably be merged into init, it was separated mostly with the idea that we could keep it closed when not using it. 
+        """Open the path previously set by init.
+        This function could probably be merged into init, it was separated mostly with the idea that we could keep it closed when not using it.
 
-            timeout: how long wait on opening. 
-            Lowered from the default just to avoid a lot of waiting half a minte when it was usually just accidentally left locked.
-            (note that this is different from busy_timeout)
-        '''
-        #make_tables = (self.path==':memory:')  or  ( not os.path.exists( self.path ) )
+        timeout: how long wait on opening.
+        Lowered from the default just to avoid a lot of waiting half a minte when it was usually just accidentally left locked.
+        (note that this is different from busy_timeout)
+        """
+        # make_tables = (self.path==':memory:')  or  ( not os.path.exists( self.path ) )
         #    will be creating that file, or are using an in-memory database ?  Also how to combine with read_only?
-        self.conn = sqlite3.connect( self.path, timeout=timeout )
+        self.conn = sqlite3.connect(self.path, timeout=timeout)
         # Note: curs.execute is the regular DB-API way,  conn.execute is a shorthand that gets a temporary cursor
         with self.conn:
             if self.read_only:
-                self.conn.execute("PRAGMA query_only = true")   # https://www.sqlite.org/pragma.html#pragma_query_only
+                self.conn.execute(
+                    "PRAGMA query_only = true"
+                )  # https://www.sqlite.org/pragma.html#pragma_query_only
                 # if read-only, we assume you are opening something that was aleady created before, so we don't do...
             else:
                 # TODO: see that the auto_vacuum pragma does what I think it does    https://www.sqlite.org/pragma.html#pragma_auto_vacuum
                 self.conn.execute("PRAGMA auto_vacuum = INCREMENTAL")
 
-                self.conn.execute("CREATE TABLE IF NOT EXISTS meta (key text unique NOT NULL, value text)")
-                self.conn.execute("CREATE TABLE IF NOT EXISTS kv   (key text unique NOT NULL, value text)")
+                self.conn.execute(
+                    "CREATE TABLE IF NOT EXISTS meta (key text unique NOT NULL, value text)"
+                )
+                self.conn.execute(
+                    "CREATE TABLE IF NOT EXISTS kv   (key text unique NOT NULL, value text)"
+                )
 
                 # if self.use_wal:
                 #     self.conn.execute("pragma journal_mode=WAL")
@@ -183,217 +199,226 @@ class LocalKV:
                 #     # - using use_wal once persists with a database, in that future opens will use it even if you don't ask for it
                 #     # - WAL requires sqlite >=3.7.0, but this seems fine because python's sqlite3 requires >=3.7.15
 
-
     def _checktype_key(self, val):
-        ' checks a value according to the key_type you handed into the constructor '
-        if self.key_type is not None  and  not isinstance(val, self.key_type): # None means don't check
-            raise TypeError('You specified that only keys of type %s are allowed, and now gave a %s'%(self.key_type.__name__, type(val).__name__))
-
+        "checks a value according to the key_type you handed into the constructor"
+        if self.key_type is not None and not isinstance(
+            val, self.key_type
+        ):  # None means don't check
+            raise TypeError(
+                "You specified that only keys of type %s are allowed, and now gave a %s"
+                % (self.key_type.__name__, type(val).__name__)
+            )
 
     def _checktype_value(self, val):
-        ' checks a value according to the value_type you handed into the constructor '
-        if self.value_type is not None  and  not isinstance(val, self.value_type):
-            raise TypeError('You specidied that only values of type %s are allowed, and now gave a %s'%(self.value_type.__name__, type(val).__name__))
+        "checks a value according to the value_type you handed into the constructor"
+        if self.value_type is not None and not isinstance(val, self.value_type):
+            raise TypeError(
+                "You specidied that only values of type %s are allowed, and now gave a %s"
+                % (self.value_type.__name__, type(val).__name__)
+            )
 
-
-    def get(self, key, missing_as_none:bool=False):
-        ''' Gets value for key. 
-            The key type is checked against how you constructed this localKV class (doesn't guarantee it matches what's in the database)
-            If not present, this will raise KeyError (by default) or return None (if you set missing_as_None=True)
-            (this is unlike a dict.get, which has a default=None)
-        '''
+    def get(self, key, missing_as_none: bool = False):
+        """Gets value for key.
+        The key type is checked against how you constructed this localKV class (doesn't guarantee it matches what's in the database)
+        If not present, this will raise KeyError (by default) or return None (if you set missing_as_None=True)
+        (this is unlike a dict.get, which has a default=None)
+        """
         self._checktype_key(key)
         curs = self.conn.cursor()
-        curs.execute("SELECT value FROM kv WHERE key=?", (key,) )
+        curs.execute("SELECT value FROM kv WHERE key=?", (key,))
         row = curs.fetchone()
         if row is None:
             if missing_as_none:
                 return None
             else:
-                raise KeyError("Key %r not found"%key)
+                raise KeyError("Key %r not found" % key)
         else:
             return row[0]
 
+    def put(self, key, value, commit: bool = True):
+        """Sets/updates value for a key.
 
-    def put(self, key, value, commit:bool=True):
-        ''' Sets/updates value for a key. 
-            
-            Types will be checked according to what you inited this class with.
-            
-            commit=False lets us do bulk commits, mostly when you want to a load of small changes without becoming IOPS bound.
-            If you care less about speed, and/or more about parallel access, you can ignore this.
+        Types will be checked according to what you inited this class with.
 
-            CONSIDER: making commit take an integer as well, meaning 'commit every X operations'
-        '''
+        commit=False lets us do bulk commits, mostly when you want to a load of small changes without becoming IOPS bound.
+        If you care less about speed, and/or more about parallel access, you can ignore this.
+
+        CONSIDER: making commit take an integer as well, meaning 'commit every X operations'
+        """
         if self.read_only:
-            raise RuntimeError('Attempted put() on a store that was opened read-only.  (you can subvert that but may not want to)')
+            raise RuntimeError(
+                "Attempted put() on a store that was opened read-only.  (you can subvert that but may not want to)"
+            )
 
         self._checktype_key(key)
         self._checktype_value(value)
 
         curs = self.conn.cursor()
-        if not commit  and  not self._in_transaction:
-            curs.execute('BEGIN')
+        if not commit and not self._in_transaction:
+            curs.execute("BEGIN")
             self._in_transaction = True
 
-        curs.execute('INSERT INTO kv (key, value) VALUES (?, ?)  ON CONFLICT (key) DO UPDATE SET value=?', (key,value, value) )
+        curs.execute(
+            "INSERT INTO kv (key, value) VALUES (?, ?)  ON CONFLICT (key) DO UPDATE SET value=?",
+            (key, value, value),
+        )
         if commit:
             self.commit()
 
+    def delete(self, key, commit: bool = True):
+        """delete item by key.
 
-    def delete(self, key, commit:bool=True):
-        ''' delete item by key.
-
-            Note that you should not expect the file to shrink until you do a vacuum()  (which will need to rewrite the file).
-        '''
+        Note that you should not expect the file to shrink until you do a vacuum()  (which will need to rewrite the file).
+        """
         if self.read_only:
-            raise RuntimeError('Attempted delete() on a store that was opened read-only.  (you can subvert that but may not want to)')
+            raise RuntimeError(
+                "Attempted delete() on a store that was opened read-only.  (you can subvert that but may not want to)"
+            )
 
         self._checktype_key(key)
 
-        curs = self.conn.cursor() # TODO: check that's correct when commit==False
-        if not commit  and  not self._in_transaction:
-            curs.execute('BEGIN')
+        curs = self.conn.cursor()  # TODO: check that's correct when commit==False
+        if not commit and not self._in_transaction:
+            curs.execute("BEGIN")
             self._in_transaction = True
-        curs.execute('DELETE FROM kv where key=?', ( key,) )
+        curs.execute("DELETE FROM kv where key=?", (key,))
         if commit:
             self.commit()
 
+    def _get_meta(self, key: str, missing_as_none=False):
+        """For internal use, preferably don't use.
 
-    def _get_meta(self, key:str, missing_as_none=False):
-        ''' For internal use, preferably don't use.
+        This is an extra str:str table in there that is intended to be separate,
+        with some keys special to these classes.
+        ...you could abuse this for your own needs if you wish, but try not to.
 
-            This is an extra str:str table in there that is intended to be separate,
-            with some keys special to these classes.
-            ...you could abuse this for your own needs if you wish, but try not to.
-
-            If the key is not present, raises an exception - unless missing_as_none is set,
-            in which case in returns None.
-        '''
+        If the key is not present, raises an exception - unless missing_as_none is set,
+        in which case in returns None.
+        """
         curs = self.conn.cursor()
-        curs.execute("SELECT value FROM meta WHERE key=?", (key,) )
+        curs.execute("SELECT value FROM meta WHERE key=?", (key,))
         row = curs.fetchone()
         curs.close()
         if row is None:
             if missing_as_none:
                 return None
             else:
-                raise KeyError("Key %r not found"%key)
+                raise KeyError("Key %r not found" % key)
         else:
             return row[0]
 
-
-    def _put_meta(self, key:str, value:str):
-        ''' For internal use, preferably don't use.   See also _get_meta(), _delete_meta().   Note this does an implicit commit() '''
+    def _put_meta(self, key: str, value: str):
+        """For internal use, preferably don't use.   See also _get_meta(), _delete_meta().   Note this does an implicit commit()"""
         if self.read_only:
-            raise RuntimeError('Attempted _put_meta() on a store that was opened read-only.  (you can subvert that but may not want to)')
+            raise RuntimeError(
+                "Attempted _put_meta() on a store that was opened read-only.  (you can subvert that but may not want to)"
+            )
         curs = self.conn.cursor()
-        curs.execute('BEGIN')
-        curs.execute('INSERT INTO meta (key, value) VALUES (?, ?)  ON CONFLICT (key) DO UPDATE SET value=?', (key,value, value) )
+        curs.execute("BEGIN")
+        curs.execute(
+            "INSERT INTO meta (key, value) VALUES (?, ?)  ON CONFLICT (key) DO UPDATE SET value=?",
+            (key, value, value),
+        )
         self.commit()
         curs.close()
 
-
-    def _delete_meta(self, key:str):
-        ''' For internal use, preferably don't use.   See also _get_meta(), _delete_meta().   Note this does an implicit commit() '''
+    def _delete_meta(self, key: str):
+        """For internal use, preferably don't use.   See also _get_meta(), _delete_meta().   Note this does an implicit commit()"""
         if self.read_only:
-            raise RuntimeError('Attempted _put_meta() on a store that was opened read-only.  (you can subvert that but may not want to)')
-        curs = self.conn.cursor() # TODO: check that's correct when commit==False
-        curs.execute('DELETE FROM meta where key=?', ( key,) )
+            raise RuntimeError(
+                "Attempted _put_meta() on a store that was opened read-only.  (you can subvert that but may not want to)"
+            )
+        curs = self.conn.cursor()  # TODO: check that's correct when commit==False
+        curs.execute("DELETE FROM meta where key=?", (key,))
         self.commit()
         curs.close()
-
 
     def commit(self):
-        ' commit changes - for when you use put() or delete() with commit=False to do things in a larger transaction '
+        "commit changes - for when you use put() or delete() with commit=False to do things in a larger transaction"
         self.conn.commit()
         self._in_transaction = False
 
-
     def rollback(self):
-        ' roll back changes '
+        "roll back changes"
         # maybe only if _in_transaction?
         self.conn.rollback()
         self._in_transaction = False
 
-
     def close(self):
-        ' Closes file if still open. Note that if there was a transaction still open, it will be rolled back, not committed. '
+        "Closes file if still open. Note that if there was a transaction still open, it will be rolled back, not committed."
         if self._in_transaction:
             self.rollback()
         self.conn.close()
 
-
-    #TODO: see if the view's semantics in keys(), values(), and items() are actually correct.
+    # TODO: see if the view's semantics in keys(), values(), and items() are actually correct.
     #      Note there's a bunch of implied heavy lifting in hnading self to those view classes,
     #         which require that that relies on __iter__ and __getitem__ to be there
 
     def iterkeys(self):
-        """ Returns a generator that yields all keus
-            If you wanted a list with all keys, use list( store.keys() )
+        """Returns a generator that yields all keus
+        If you wanted a list with all keys, use list( store.keys() )
         """
         curs = self.conn.cursor()
-        for row in curs.execute('SELECT key FROM kv'):
+        for row in curs.execute("SELECT key FROM kv"):
             yield row[0]
         curs.close()
-
 
     def keys(self):
-        """ Returns an iterable of all keys.  (a view with a len, rather than just a generator) """
-        return collections.abc.KeysView( self ) # TODO: check that this is enough
-
+        """Returns an iterable of all keys.  (a view with a len, rather than just a generator)"""
+        return collections.abc.KeysView(self)  # TODO: check that this is enough
 
     def itervalues(self):
-        """ Returns a generator that yields all values. 
-            If you wanted a list with all the values, use list( store.values )
+        """Returns a generator that yields all values.
+        If you wanted a list with all the values, use list( store.values )
         """
         curs = self.conn.cursor()
-        for row in curs.execute('SELECT value FROM kv'):
+        for row in curs.execute("SELECT value FROM kv"):
             yield row[0]
         curs.close()
 
-
     def values(self):
-        """ Returns an iterable of all values.  (a view with a len, rather than just a generator)  """
-        return collections.abc.ValuesView( self )
-
+        """Returns an iterable of all values.  (a view with a len, rather than just a generator)"""
+        return collections.abc.ValuesView(self)
 
     def iteritems(self):
-        """ Returns a generator that yields all items """
+        """Returns a generator that yields all items"""
         curs = self.conn.cursor()
-        try: # TODO: figure out whether this is necessary
-            for row in curs.execute('SELECT key, value FROM kv'):
+        try:  # TODO: figure out whether this is necessary
+            for row in curs.execute("SELECT key, value FROM kv"):
                 yield row[0], row[1]
         finally:
             curs.close()
 
     def items(self):
-        """ Returns an iteralble of all items.    (a view with a len, rather than just a generator)  """
-        return collections.abc.ItemsView( self ) # this relies on __getitem__ which we didn't really want, maybe wrap a class to hide that?
-
+        """Returns an iteralble of all items.    (a view with a len, rather than just a generator)"""
+        return collections.abc.ItemsView(
+            self
+        )  # this relies on __getitem__ which we didn't really want, maybe wrap a class to hide that?
 
     def __repr__(self):
-        return '<LocalKV(%r)>'%( os.path.basename(self.path), )
-
+        return "<LocalKV(%r)>" % (os.path.basename(self.path),)
 
     def __len__(self):
-        return self.conn.execute('SELECT COUNT(*) FROM kv').fetchone()[0]  # TODO: double check
-
+        return self.conn.execute("SELECT COUNT(*) FROM kv").fetchone()[
+            0
+        ]  # TODO: double check
 
     # Choice not to actually have it behave like a dict - this seems like a leaky abstraction,
     # so we make you write out the .get and .put to make you realize it's different behaviour not like a real dict
 
-    def __iter__(self): # TODO: check
-        " Using this object as an iterator yields its keys (equivalent to .iterkeys()) "
+    def __iter__(self):  # TODO: check
+        "Using this object as an iterator yields its keys (equivalent to .iterkeys())"
         return self.iterkeys()
 
-    def __getitem__(self, key): # this one is here only really to support the ValuesView and Itemsview
-        return self.get(key) # which would itself raise KeyError if applicable
+    def __getitem__(
+        self, key
+    ):  # this one is here only really to support the ValuesView and Itemsview
+        return self.get(key)  # which would itself raise KeyError if applicable
 
-    #def __setitem__(self, key, value):
+    # def __setitem__(self, key, value):
     #    self.put(key, value)
 
-    #def __delitem__(self, key):
+    # def __delitem__(self, key):
     #    # TODO: check whether we can ignore it not being there, or must raise KeyError for interface correctness
     #    #if key not in self:
     #    #    raise KeyError(key)
@@ -401,24 +426,25 @@ class LocalKV:
 
     # ...but we still sneakily have:
     def __contains__(self, key):
-        return self.conn.execute('SELECT 1 FROM kv WHERE key = ?', (key,)).fetchone() is not None
-
+        return (
+            self.conn.execute("SELECT 1 FROM kv WHERE key = ?", (key,)).fetchone()
+            is not None
+        )
 
     ## Used as a context manager? do a close() at the end.
     def __enter__(self):
         return self
 
-    def __exit__(self, exc_type,exc_value, exc_traceback):
+    def __exit__(self, exc_type, exc_value, exc_traceback):
         self.close()
-
-
 
     ### Convenience functions, not core functionality
 
     def estimate_waste(self):
-        ' Estimate how many bytes might be cleaned by a .vacuum() '
-        return self.conn.execute('SELECT (freelist_count*page_size) as FreeSizeEstimate  FROM pragma_freelist_count, pragma_page_size').fetchone()[0]
-
+        "Estimate how many bytes might be cleaned by a .vacuum()"
+        return self.conn.execute(
+            "SELECT (freelist_count*page_size) as FreeSizeEstimate  FROM pragma_freelist_count, pragma_page_size"
+        ).fetchone()[0]
 
     # def incremental_vacuum(self):
     #     ''' assuming we created with "PRAGMA auto_vacuum = INCREMENTAL" we can do cleanup.
@@ -430,60 +456,61 @@ class LocalKV:
     #         self.commit()
     #     self.conn.execute('PRAGMA schema.incremental_vacuum')
 
-
     def bytesize(self) -> int:
-        ''' Returns the approximate amount of the contained data, in bytes  
-            (may be a few dozen kilobytes off, or more, because it counts in pages) 
-        '''
-        #if self.path == ':memory:'
+        """Returns the approximate amount of the contained data, in bytes
+        (may be a few dozen kilobytes off, or more, because it counts in pages)
+        """
+        # if self.path == ':memory:'
         curs = self.conn.cursor()
-        curs.execute("select page_size, page_count from pragma_page_count, pragma_page_size")
+        curs.execute(
+            "select page_size, page_count from pragma_page_count, pragma_page_size"
+        )
         page_size, page_count = curs.fetchone()
         curs.close()
-        return   page_size * page_count
-        #else:
+        return page_size * page_count
+        # else:
         #    return os.stat( self.path ).st_size
 
+    def summary(self, get_num_items: bool = False):
+        """Gives the byte size, and optionally the number of items and average size
 
-    def summary(self, get_num_items:bool=False):
-        ''' Gives the byte size, and optionally the number of items and average size
-            
-            Note that the byte size includes waste, so this will over-estimate if you
-            have altered/removed without doing a vacuum().
+        Note that the byte size includes waste, so this will over-estimate if you
+        have altered/removed without doing a vacuum().
 
-            @param get_num_items: Also find the amount of items, and calculate average size. 
-            Is slower than not doing this (proportionally slower with underlying size),
-            adds entries like: ::
-                'num_items':     856716,
-                'avgsize_bytes': 63585,
-                'avgsize_readable': '62K',
+        @param get_num_items: Also find the amount of items, and calculate average size.
+        Is slower than not doing this (proportionally slower with underlying size),
+        adds entries like: ::
+            'num_items':     856716,
+            'avgsize_bytes': 63585,
+            'avgsize_readable': '62K',
 
-            @return: a dictionary with at least::
-                {'size_bytes':     54474244096,
-                 'size_readable': '54G'}
-        '''
+        @return: a dictionary with at least::
+            {'size_bytes':     54474244096,
+             'size_readable': '54G'}
+        """
         # CONSIDER: a fast get_num_items via and-sqlite_stat1 if it exists
         # (and considering ANALYZE if it does not)
         # which after ANALYZE should always have a row like
         # tbl='kv',idx='sqlite_autoindex_kv_1', stat='1234 1'
         # (because our structure has a UNIQUE constraint on kv's key)
         # this would be more valid for unchanging datasets
-        ret={}
+        ret = {}
         bytesize = self.bytesize()
-        ret['size_bytes'] = bytesize
-        ret['size_readable'] = wetsuite.helpers.format.kmgtp( bytesize, kilo=1024 )+'B'
+        ret["size_bytes"] = bytesize
+        ret["size_readable"] = wetsuite.helpers.format.kmgtp(bytesize, kilo=1024) + "B"
         if get_num_items:
-            ret['num_items'] = len( self )
-            if ret['num_items'] == 0:
-                ret['avgsize_bytes'] = 0
+            ret["num_items"] = len(self)
+            if ret["num_items"] == 0:
+                ret["avgsize_bytes"] = 0
             else:
-                ret['avgsize_bytes'] = round( float(bytesize) / ret['num_items'] )
-            ret['avgsize_readable'] = wetsuite.helpers.format.kmgtp(ret['avgsize_bytes'], kilo=1024)+'B'
+                ret["avgsize_bytes"] = round(float(bytesize) / ret["num_items"])
+            ret["avgsize_readable"] = (
+                wetsuite.helpers.format.kmgtp(ret["avgsize_bytes"], kilo=1024) + "B"
+            )
         return ret
 
-
     # def _copy(self, path, commit=False):
-    #     ''' 
+    #     '''
     #         Copy the contents to another store of the same type.
 
     #         Was intended to make it easier to work in memory and go to disk later, e.g. to replace code like:
@@ -495,8 +522,8 @@ class LocalKV:
     #         with:
     #           memkv = LocalKV(':memory:', key_type=str, value_type=oldkv.str)
     #           memkv._copy( path )
-            
-    #         @param path:   will be handed into LocalKV            
+
+    #         @param path:   will be handed into LocalKV
     #         @param commit: like put's: False will delay commits
     #     '''
     #     newkv = LocalKV(path, key_type=self.key_type, value_type=self.value_type)
@@ -505,238 +532,244 @@ class LocalKV:
     #     if commit is False:
     #         newkv.commit()
 
-
     def vacuum(self):
-        ''' After a lot of deletes you could compact the store with vacuum().
-            WARNING: rewrites the entire file, so the more data you store, the longer this takes.
-            NOTE: f we were left in a transaction (due to commit=False), ths is commit()ed first.
-        '''
+        """After a lot of deletes you could compact the store with vacuum().
+        WARNING: rewrites the entire file, so the more data you store, the longer this takes.
+        NOTE: f we were left in a transaction (due to commit=False), ths is commit()ed first.
+        """
         if self._in_transaction:
             self.commit()  # CONSIDER: think about the most sensible behaviour - maybe raising an error instead?
-        self.conn.execute('vacuum')
-
+        self.conn.execute("vacuum")
 
     def truncate(self, vacuum=True):
-        ''' remove all kv entries.
-            If we were still in a transaction, we roll that back first
-        '''
-        curs = self.conn.cursor() # TODO: check that's correct when commit==False
+        """remove all kv entries.
+        If we were still in a transaction, we roll that back first
+        """
+        curs = self.conn.cursor()  # TODO: check that's correct when commit==False
         if self._in_transaction:
             self.rollback()
-        curs.execute('DELETE FROM kv')  # https://www.techonthenet.com/sqlite/truncate.php
+        curs.execute(
+            "DELETE FROM kv"
+        )  # https://www.techonthenet.com/sqlite/truncate.php
         self.commit()
         if vacuum:
             self.vacuum()
 
-
     def random_choice(self):
-        ''' Returns a single (key, value) item from the store, selected randomly.
-        
-            Convenience function, because doing this properly yourself takes two or three lines 
-            (you can't random.choice/random.sample a view,  
-            so to do it properly you basically have to materialize all keys - and not accidentally all values)
-            BUT assume this is slower than working on the keys yourself.
-        '''
-        all_keys = list( self.keys() )
-        chosen_key = random.choice( all_keys )
+        """Returns a single (key, value) item from the store, selected randomly.
+
+        Convenience function, because doing this properly yourself takes two or three lines
+        (you can't random.choice/random.sample a view,
+        so to do it properly you basically have to materialize all keys - and not accidentally all values)
+        BUT assume this is slower than working on the keys yourself.
+        """
+        all_keys = list(self.keys())
+        chosen_key = random.choice(all_keys)
         return chosen_key, self.get(chosen_key)
 
-
     def random_sample(self, amount):
-        ''' Returns an amount of [(key, value), ...] list from the store, selected randomly.
-        
-            Convenience function, because you can do this yourself, though it takes two or three;
-            while you can't random.choice/random.sample a view,
-            to do it properly you basically have to materialize all keys (and probably not accidentally all values)
-            
-            BUT 
-                - assume this is slower than working on the keys yourself,
-                - assume this is is unnecessarily RAM intensive when you want a _lot_ of items.
-        '''
-        all_keys = list( self.keys() )
-        amount = min(amount, len(all_keys) )
-        chosen_keys = random.sample( all_keys, amount )
-        return list( (chosen_key, self.get(chosen_key))  for chosen_key in chosen_keys)
+        """Returns an amount of [(key, value), ...] list from the store, selected randomly.
 
+        Convenience function, because you can do this yourself, though it takes two or three;
+        while you can't random.choice/random.sample a view,
+        to do it properly you basically have to materialize all keys (and probably not accidentally all values)
+
+        BUT
+            - assume this is slower than working on the keys yourself,
+            - assume this is is unnecessarily RAM intensive when you want a _lot_ of items.
+        """
+        all_keys = list(self.keys())
+        amount = min(amount, len(all_keys))
+        chosen_keys = random.sample(all_keys, amount)
+        return list((chosen_key, self.get(chosen_key)) for chosen_key in chosen_keys)
 
     def random_keys(self, n=10):
-        ''' Returns a amount of keys in a list, selected randomly.
-            Can be faster/cheaper to do than random_sample When the values are large
-        '''
-        all_keys = list( self.keys() )
-        chosen_keys = random.sample( all_keys, min(n, len(all_keys)) )
+        """Returns a amount of keys in a list, selected randomly.
+        Can be faster/cheaper to do than random_sample When the values are large
+        """
+        all_keys = list(self.keys())
+        chosen_keys = random.sample(all_keys, min(n, len(all_keys)))
         return chosen_keys
 
 
-
 class MsgpackKV(LocalKV):
-    ''' Like localKV but the value can be a nested python type (serialized via msgpack)
+    """Like localKV but the value can be a nested python type (serialized via msgpack)
 
-        Will be a bit slower because it's doing that on the fly, 
-        but lets you more transparently store things like nested python dicts
-        ...but only of primitive types, and not e.g. datetime.
+    Will be a bit slower because it's doing that on the fly,
+    but lets you more transparently store things like nested python dicts
+    ...but only of primitive types, and not e.g. datetime.
 
-        Typing is fixed, to str:bytes 
+    Typing is fixed, to str:bytes
 
-        msgpack is used as a somewhat faster alternative to json and pickle
-        (though that barely matters for smaller values)
-    
-        Note that this does _not_ change how the meta table works.
-    '''
+    msgpack is used as a somewhat faster alternative to json and pickle
+    (though that barely matters for smaller values)
+
+    Note that this does _not_ change how the meta table works.
+    """
+
     def __init__(self, path, key_type=str, value_type=None, read_only=False):
-        ''' value_type is ignored; I need to restructure this
-        '''
-        super().__init__( path, key_type=key_type, value_type=value_type, read_only=read_only )
+        """value_type is ignored; I need to restructure this"""
+        super().__init__(
+            path, key_type=key_type, value_type=value_type, read_only=read_only
+        )
 
         # this is meant to be able to detect/signal incorrect interpretation, not fully used yet
-        if self._get_meta('valtype', missing_as_none=True) is None:
-            self._put_meta('valtype','msgpack')
+        if self._get_meta("valtype", missing_as_none=True) is None:
+            self._put_meta("valtype", "msgpack")
 
+    def get(self, key: str, missing_as_none=False):
+        """Note that unpickling could fail
 
-    def get(self, key:str, missing_as_none=False):
-        ''' Note that unpickling could fail 
-            
-            Note also that you may wish to never explicitly store just None, 
-            and/or never use missing_as_none,
-            unless you like ambiguity.
-        '''
+        Note also that you may wish to never explicitly store just None,
+        and/or never use missing_as_none,
+        unless you like ambiguity.
+        """
         if missing_as_none:
-            value = super().get( key, missing_as_none=True )
+            value = super().get(key, missing_as_none=True)
             if value is None:
                 return None
             # else value is a still-packed value
         else:
-            value = super().get( key, missing_as_none=False ) # may raise
+            value = super().get(key, missing_as_none=False)  # may raise
 
         unpacked = msgpack.loads(value)
         return unpacked
 
-
-    def put(self, key:str, value, commit:bool=True):
-        " See LocalKV.put().   Unlike that, value is not checked for type, just serialized. Which can fail with an exception. "
+    def put(self, key: str, value, commit: bool = True):
+        "See LocalKV.put().   Unlike that, value is not checked for type, just serialized. Which can fail with an exception."
         packed = msgpack.dumps(value)
-        super().put( key, packed, commit )
-
+        super().put(key, packed, commit)
 
     def itervalues(self):
         curs = self.conn.cursor()
-        for row in curs.execute('SELECT value FROM kv'):
-            yield msgpack.loads( row[0], strict_map_key=False )
-
+        for row in curs.execute("SELECT value FROM kv"):
+            yield msgpack.loads(row[0], strict_map_key=False)
 
     def iteritems(self):
         curs = self.conn.cursor()
-        for row in curs.execute('SELECT key, value FROM kv'):
-            yield row[0], msgpack.loads( row[1], strict_map_key=False )
+        for row in curs.execute("SELECT key, value FROM kv"):
+            yield row[0], msgpack.loads(row[1], strict_map_key=False)
 
 
+def cached_fetch(
+    store: LocalKV,
+    url: str,
+    force_refetch: bool = False,
+    sleep_sec: float = None,
+    commit: bool = True,
+) -> Tuple[bytes, bool]:
+    """Helper to fetch URL contents into str-to-bytes (url-to-content) LocalKV store:
+      - if URL is a key in the given store,
+        fetch from the store and return its value
+      - if URL is not a key in the store,
+        do wetsuite.helpers.net.download(url),
+        store in store,
+        and return its value.
+          - note that it will do a commit, unless you tell it not to.
 
+    Arguably belongs in a mixin or such, but for now its usefulness puts it here.
 
-def cached_fetch(store:LocalKV, url:str, force_refetch:bool=False, sleep_sec:float=None, commit:bool=True) -> Tuple[bytes, bool]:
-    ''' Helper to fetch URL contents into str-to-bytes (url-to-content) LocalKV store:
-          - if URL is a key in the given store, 
-            fetch from the store and return its value
-          - if URL is not a key in the store,   
-            do wetsuite.helpers.net.download(url), 
-            store in store,
-            and return its value.
-              - note that it will do a commit, unless you tell it not to.
+    @param store:     a store to get/put data from
+    @param url:       an URL string to fetch
+    @param sleep_sec: whenever we fetch (rather than return from cache), sleep this long,
+    so that when you use this in scraping, we can be nicer to a server.
+    @return: (data:bytes, whether_it_came_from_cache:bool)
 
-        Arguably belongs in a mixin or such, but for now its usefulness puts it here.
-
-        @param store:     a store to get/put data from
-        @param url:       an URL string to fetch
-        @param sleep_sec: whenever we fetch (rather than return from cache), sleep this long,
-        so that when you use this in scraping, we can be nicer to a server.
-        @return: (data:bytes, whether_it_came_from_cache:bool)
-
-        May raise 
-          - whatever requests.get may raise (e.g. "timeout waiting for store" type things)
-          - ValueError when networking says C{(not response.ok)}, or if the HTTP code is >=400
-            (which is behaviour from wetsuite.helpers.net.download())
-            ...to force us to deal with issues and not store error pages.
-    '''
+    May raise
+      - whatever requests.get may raise (e.g. "timeout waiting for store" type things)
+      - ValueError when networking says C{(not response.ok)}, or if the HTTP code is >=400
+        (which is behaviour from wetsuite.helpers.net.download())
+        ...to force us to deal with issues and not store error pages.
+    """
     if not isinstance(store, LocalKV):
-        raise TypeError('the store parameter should be a LocalKV or descendant, not %r'%( type(store) ) )
+        raise TypeError(
+            "the store parameter should be a LocalKV or descendant, not %r"
+            % (type(store))
+        )
 
-    if store.key_type not in (str,None)  or  store.value_type not in (bytes, None):
-        raise TypeError('cached_fetch() expects a str:bytes store (or for you to disable checks with None,None),  not a %r:%r'%(
-            store.key_type.__name__,
-            store.value_type.__name__
-        ))
+    if store.key_type not in (str, None) or store.value_type not in (bytes, None):
+        raise TypeError(
+            "cached_fetch() expects a str:bytes store (or for you to disable checks with None,None),  not a %r:%r"
+            % (store.key_type.__name__, store.value_type.__name__)
+        )
     # yes, the following could be a few lines shorter, but this is arguably a little more readable
     if force_refetch is False:
-        try: # use cache?
+        try:  # use cache?
             ret = store.get(url)
             return ret, True
-        except KeyError: # get() notices it's not there, so fetch it ourselves
-            data = wetsuite.helpers.net.download( url ) # note that this can error out, which we don't handle
-            store.put( url, data, commit=commit )
+        except KeyError:  # get() notices it's not there, so fetch it ourselves
+            data = wetsuite.helpers.net.download(
+                url
+            )  # note that this can error out, which we don't handle
+            store.put(url, data, commit=commit)
             if sleep_sec is not None:
-                time.sleep( sleep_sec )
+                time.sleep(sleep_sec)
             return data, False
-    else: # force_refetch is True
-        data = wetsuite.helpers.net.download( url )
-        store.put( url, data, commit=commit )
+    else:  # force_refetch is True
+        data = wetsuite.helpers.net.download(url)
+        store.put(url, data, commit=commit)
         if sleep_sec is not None:
-            time.sleep( sleep_sec )
+            time.sleep(sleep_sec)
         return data, False
 
 
+def resolve_path(name: str):
+    """Note: the KV classes call this internally.
+    This is here less for you to use directly, more explain why.
 
-def resolve_path( name:str ):
-    ''' Note: the KV classes call this internally. 
-        This is here less for you to use directly, more explain why.
+    For context, handing a pathless base name to underlying sqlite would just put it in the current directory
+    which isn't always where you think, so is likely to sprinkle databases all over the place.
+    This is common point of confusion/mistake around sqlite (and files in general),
+    so we make it harder to do accidentally, so that this doesn't become your problem.
 
-        For context, handing a pathless base name to underlying sqlite would just put it in the current directory
-        which isn't always where you think, so is likely to sprinkle databases all over the place.
-        This is common point of confusion/mistake around sqlite (and files in general),
-        so we make it harder to do accidentally, so that this doesn't become your problem.
+    Using this function makes it a little more controlled where things go:
+        - Given a **bare name**, e.g. 'extracted.db', this returns an absolute path
+            within a "this is where wetsuite keeps its stores directory" within your user profile,
+            e.g. /home/myuser/.wetsuite/stores/extracted.db or C:\\Users\\myuser\\AppData\\Roaming\\.wetsuite\\stores\\extracted.db
+            Most of the point is that handing in the same name will lead to opening the same store, regardless of details.
 
-        Using this function makes it a little more controlled where things go:     
-            - Given a **bare name**, e.g. 'extracted.db', this returns an absolute path 
-                within a "this is where wetsuite keeps its stores directory" within your user profile,
-                e.g. /home/myuser/.wetsuite/stores/extracted.db or C:\\Users\\myuser\\AppData\\Roaming\\.wetsuite\\stores\\extracted.db
-                Most of the point is that handing in the same name will lead to opening the same store, regardless of details.
+        - hand in **`:memory:`** if you wanted a memory-only store, not backed by disk
 
-            - hand in **`:memory:`** if you wanted a memory-only store, not backed by disk
+        - given an absolute path, it will use that
+            so if you actually _wanted_ it in the current directory, instead of this function
+            consider something like  `os.path.abspath('mystore.db')`
 
-            - given an absolute path, it will use that
-                so if you actually _wanted_ it in the current directory, instead of this function 
-                consider something like  `os.path.abspath('mystore.db')`
+        - given a relative path, it will pass that through -- which will open it relative to the current directory
 
-            - given a relative path, it will pass that through -- which will open it relative to the current directory
+    Notes:
+        - should be idempotent, so shouldn't hurt to call this more than once on the same path
+            (in that it _should_ always produce a path with os.sep (...or :memory: ...),
+            which it would pass through the second time)
 
-        Notes:
-            - should be idempotent, so shouldn't hurt to call this more than once on the same path 
-                (in that it _should_ always produce a path with os.sep (...or :memory: ...), 
-                which it would pass through the second time)
+        - When you rely on the 'base name means it goes to a wetsuite directory',
+            it is suggested that you use descriptive names (e.g. 'rechtspraaknl_extracted.db', not 'extracted.db')
+            so that you don't open existing stores without meaning to.
 
-            - When you rely on the 'base name means it goes to a wetsuite directory', 
-                it is suggested that you use descriptive names (e.g. 'rechtspraaknl_extracted.db', not 'extracted.db') 
-                so that you don't open existing stores without meaning to.
+        - us figuring out a place in your use profile for you
+        This _is_ double-edged, though, in that we will get fair questions like
+          - "I can't tell why my user profile is full" and
+          - "I can't find my files"   (sorry, they're not so useful to access directly)
 
-            - us figuring out a place in your use profile for you
-            This _is_ double-edged, though, in that we will get fair questions like
-              - "I can't tell why my user profile is full" and 
-              - "I can't find my files"   (sorry, they're not so useful to access directly)
-
-        CONSIDER: 
-            - listening to a WETSUITE_BASE_DIR to override our "put in user's homedir" behaviour,
-            this might make more sense e.g. to point it at distributed storage without 
-            e.g. you having to do symlink juggling
-    '''
+    CONSIDER:
+        - listening to a WETSUITE_BASE_DIR to override our "put in user's homedir" behaviour,
+        this might make more sense e.g. to point it at distributed storage without
+        e.g. you having to do symlink juggling
+    """
     # deal with pathlib arguments by flattening it to a string
     if isinstance(name, pathlib.Path):
         name = str(name)
 
-    if name == ':memory:':  # special-case the sqlite value of ':memory:' (pass it through)
+    if (
+        name == ":memory:"
+    ):  # special-case the sqlite value of ':memory:' (pass it through)
         return name
-    elif os.sep in name:    # assume it's an absolute path, or a relative one you _want_ resolved relative to cwd
+    elif (
+        os.sep in name
+    ):  # assume it's an absolute path, or a relative one you _want_ resolved relative to cwd
         return name
-    else:                     # bare name, do our "put in homedir" logic
+    else:  # bare name, do our "put in homedir" logic
         dirs = wetsuite.helpers.util.wetsuite_dir()
-        return os.path.join( dirs['stores_dir'], name )
+        return os.path.join(dirs["stores_dir"], name)
 
 
 # def open_store(dbname:str, key_type, value_type, inst=LocalKV, read_only=False) -> LocalKV:
@@ -763,83 +796,89 @@ def resolve_path( name:str ):
 #     return ret
 
 
-def list_stores( skip_table_check:bool=True, get_num_items:bool=False, look_under=None ):
-    ''' Checks a directory for files that seem to be our stores (does filesystem access and IO reading to do so),
-        also lists some basic details about it.
-    
-        By default look in the directory that (everything that uses) resolve_path() puts things in,
-        you can give it another directory to look in.
+def list_stores(
+    skip_table_check: bool = True, get_num_items: bool = False, look_under=None
+):
+    """Checks a directory for files that seem to be our stores (does filesystem access and IO reading to do so),
+    also lists some basic details about it.
 
-        Will only look at direct contents of that directory.
+    By default look in the directory that (everything that uses) resolve_path() puts things in,
+    you can give it another directory to look in.
 
-        @param skip_table_check: if true, only tests whether it's a sqlite file, not whether it contains the table we expect.
-        because when it's in the stores directory, chances are we put it there, and we can avoid IO and locking.
-        
-        @param get_num_items: does not by default get the number of items, because that can need a bunch of IO, and locking.
+    Will only look at direct contents of that directory.
 
-        @param look_under: a dict with details for each store
- 
-        @return: a dict with details for each store, like::
-            {
-                'path': '/home/example/.wetsuite/stores/thing.db',
-                'basename': 'thing.db',
-                'size_bytes': 40980480,
-                'size_readable': '41M',
-                'description': None
-            },
-    '''
+    @param skip_table_check: if true, only tests whether it's a sqlite file, not whether it contains the table we expect.
+    because when it's in the stores directory, chances are we put it there, and we can avoid IO and locking.
+
+    @param get_num_items: does not by default get the number of items, because that can need a bunch of IO, and locking.
+
+    @param look_under: a dict with details for each store
+
+    @return: a dict with details for each store, like::
+        {
+            'path': '/home/example/.wetsuite/stores/thing.db',
+            'basename': 'thing.db',
+            'size_bytes': 40980480,
+            'size_readable': '41M',
+            'description': None
+        },
+    """
     ret = []
 
     if look_under is None:
         dirs = wetsuite.helpers.util.wetsuite_dir()
-        look_under = dirs['stores_dir']
+        look_under = dirs["stores_dir"]
 
-    for basename in os.listdir( look_under ):
-        abspath = os.path.join( look_under, basename )
-        if os.path.isfile( abspath ):
-            if is_file_a_store( abspath, skip_table_check=skip_table_check ):
+    for basename in os.listdir(look_under):
+        abspath = os.path.join(look_under, basename)
+        if os.path.isfile(abspath):
+            if is_file_a_store(abspath, skip_table_check=skip_table_check):
                 kv = LocalKV(abspath, key_type=None, value_type=None, read_only=True)
                 itemdict = {
-                    'path':abspath,        # should be the same as kv.path ?
-                    'basename':basename,   # should be the same as os.path.basename( kv.path ) ?
+                    "path": abspath,  # should be the same as kv.path ?
+                    "basename": basename,  # should be the same as os.path.basename( kv.path ) ?
                 }
-                itemdict.update( kv.summary(get_num_items=get_num_items) )
+                itemdict.update(kv.summary(get_num_items=get_num_items))
 
                 try:
-                    itemdict['valtype'] = kv._get_meta('valtype')            # pylint: disable=protected-access
+                    itemdict["valtype"] = kv._get_meta(
+                        "valtype"
+                    )  # pylint: disable=protected-access
                 except KeyError:
                     pass
 
-                itemdict['description'] = kv._get_meta('description', True)  # pylint: disable=protected-access
-                ret.append( itemdict )
+                itemdict["description"] = kv._get_meta(
+                    "description", True
+                )  # pylint: disable=protected-access
+                ret.append(itemdict)
                 kv.close()
     return ret
 
 
-def is_file_a_store(path, skip_table_check:bool=False):
-    ''' Checks that the path seems to point to one of our stores.
-        More specifailly: whether it is an sqlite(3) database, and has a table called 'kv'
+def is_file_a_store(path, skip_table_check: bool = False):
+    """Checks that the path seems to point to one of our stores.
+    More specifailly: whether it is an sqlite(3) database, and has a table called 'kv'
 
-        You can skip the latter test. It avoids opening the file, so avoids a possible timeout on someone else having the store open for writing.
-    '''
+    You can skip the latter test. It avoids opening the file, so avoids a possible timeout on someone else having the store open for writing.
+    """
     if not os.path.isfile(path):
         return False
 
     is_sqlite3 = None
-    with open(path, 'rb') as f:
-        is_sqlite3 =   f.read(15) == b'SQLite format 3' # check file magic
+    with open(path, "rb") as f:
+        is_sqlite3 = f.read(15) == b"SQLite format 3"  # check file magic
     if not is_sqlite3:
         return False
 
     if skip_table_check:
-        return True # good enough for us, then
+        return True  # good enough for us, then
 
     has_kv_table = None
-    conn = sqlite3.connect( path )
+    conn = sqlite3.connect(path)
     curs = conn.cursor()
     curs.execute("SELECT name  FROM sqlite_master  WHERE type='table'")
-    for tablename, in curs.fetchall():
-        if tablename=='kv':
+    for (tablename,) in curs.fetchall():
+        if tablename == "kv":
             has_kv_table = True
     conn.close()
     return has_kv_table

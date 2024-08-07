@@ -1,1 +1,1 @@
-' A collection of small singular tools,  useful when composing more complex tasks ' 
+" A collection of small singular tools,  useful when composing more complex tasks "
