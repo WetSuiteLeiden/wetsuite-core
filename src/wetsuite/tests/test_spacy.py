@@ -1,7 +1,8 @@
-''' test spacy-related functions
+""" test spacy-related functions
     
-'''
-#import pytest
+"""
+
+# import pytest
 
 import spacy
 import spacy.tokens.doc
@@ -10,48 +11,48 @@ import spacy.tokens.span
 import wetsuite.helpers.spacy
 
 
-
-#def load_nl():
+# def load_nl():
 #    download_if_necessary("nl_core_news_sm")
 
-def get_model(lang='nl'):
-    ' helpers: get empty model of given Language '
-    return spacy.blank( lang )
+
+def get_model(lang="nl"):
+    "helpers: get empty model of given Language"
+    return spacy.blank(lang)
 
 
 def get_simpledoc():
-    ' TODO: finish this or remove '
+    "TODO: finish this or remove"
     nlp = get_model()
-    doc = spacy.tokens.doc.Doc( vocab=nlp.vocab, words=["Smeer", "de", "zonnebrand"] )
+    doc = spacy.tokens.doc.Doc(vocab=nlp.vocab, words=["Smeer", "de", "zonnebrand"])
     # this is some rather poor and incomplete mocking
-    doc[0].pos_ = 'VERB'
-    doc[1].pos_ = 'DET'
-    doc[2].pos_ = 'NOUN'
+    doc[0].pos_ = "VERB"
+    doc[1].pos_ = "DET"
+    doc[2].pos_ = "NOUN"
     return doc
 
 
-
 def test_simpledoc():
-    " test that that get_simpledoc vaguely works "
+    "test that that get_simpledoc vaguely works"
     for _ in get_simpledoc():
         pass
 
+
 def test_span_as_doc():
-    " test that that get_simpledoc vaguely works, part 2 "
+    "test that that get_simpledoc vaguely works, part 2"
     doc = get_simpledoc()
-    assert isinstance( doc, spacy.tokens.doc.Doc )
+    assert isinstance(doc, spacy.tokens.doc.Doc)
 
     span = doc[2:3]
-    assert isinstance( span, spacy.tokens.span.Span )
+    assert isinstance(span, spacy.tokens.span.Span)
     asdoc = wetsuite.helpers.spacy.span_as_doc(span)
 
-    assert isinstance( asdoc, spacy.tokens.doc.Doc )
+    assert isinstance(asdoc, spacy.tokens.doc.Doc)
 
 
 def test_parse():
-    " test that a parse doesn't fail "
+    "test that a parse doesn't fail"
     nlp = get_model()
-    for _ in nlp('I like cheese'):
+    for _ in nlp("I like cheese"):
         pass
 
 
@@ -61,10 +62,11 @@ def test_parse():
 
 
 def test_ipython_content_visualisation():
-    ' for now just test that it does not bork out '
+    "for now just test that it does not bork out"
     doc = get_simpledoc()
-    wetsuite.helpers.spacy.ipython_content_visualisation(doc)._repr_html_()  # pylint: disable=protected-access
-
+    wetsuite.helpers.spacy.ipython_content_visualisation(
+        doc
+    )._repr_html_()  # pylint: disable=protected-access
 
 
 # def test_interesting_words():

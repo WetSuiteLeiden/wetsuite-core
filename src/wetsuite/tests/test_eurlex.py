@@ -1,28 +1,32 @@
-' test eurlex fetching and parsing code '
+" test eurlex fetching and parsing code "
 import os
 import wetsuite.datacollect.eurlex
 import wetsuite.helpers.net
 
 
 def test_extract_html():
-    ''' test whether parsing basically works. 
-        TODO: more cases that deal with absence of parts, and more coverage of details.
-    '''
-    #htmlbytes = wetsuite.helpers.net.download('https://eur-lex.europa.eu/eli/reg/2016/679/oj')
-    import test_eurlex   #import for self-reference is intentional, pylint: disable=W0406
-    with open( os.path.join( os.path.dirname( test_eurlex.__file__ ),'testfiles','eurlex.html' ), 'rb') as f:
+    """test whether parsing basically works.
+    TODO: more cases that deal with absence of parts, and more coverage of details.
+    """
+    # htmlbytes = wetsuite.helpers.net.download('https://eur-lex.europa.eu/eli/reg/2016/679/oj')
+    import test_eurlex  # import for self-reference is intentional, pylint: disable=W0406
+
+    with open(
+        os.path.join(os.path.dirname(test_eurlex.__file__), "testfiles", "eurlex.html"),
+        "rb",
+    ) as f:
         htmlbytes = f.read()
-    d = wetsuite.datacollect.eurlex.extract_html( htmlbytes )
-    assert d['celex'] == '32016R0679'
+    d = wetsuite.datacollect.eurlex.extract_html(htmlbytes)
+    assert d["celex"] == "32016R0679"
 
 
 # def test_fetch_by_resource_type():
 #     ' test that fetching from the sparql API does not return an error (does not do anything with the data) '
 #     wetsuite.datacollect.eurlex.fetch_by_resource_type('LET') # choosing something with very little output
-    # bindings = ret.get('results').get('bindings')
-    #
-    # for item_dict in bindings:
-    #     url = item_dict.get('work').get('value')
+# bindings = ret.get('results').get('bindings')
+#
+# for item_dict in bindings:
+#     url = item_dict.get('work').get('value')
 
 
 ### for reference, as of somewhere late 2023:

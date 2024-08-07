@@ -1,14 +1,16 @@
-''' Test some functions of the wetsuite.datacollect.tweedekamer_nl module '''
-#import pytest
+""" Test some functions of the wetsuite.datacollect.tweedekamer_nl module """
+
+# import pytest
 import wetsuite.datacollect.tweedekamer_nl
 
-def DISABLED_test_fetch_all(): # because it takes 20 sec
-#def test_fetch_all():
-    ' test that we can fetch and merge '
-    #etrees = wetsuite.datacollect.tweedekamer_nl.fetch_all( 'Zaal') #, break_actually=True )
-    etrees = wetsuite.datacollect.tweedekamer_nl.fetch_all( 'Zaal', break_actually=True )
-    merged_tree = wetsuite.datacollect.tweedekamer_nl.merge_etrees( etrees )
-    wetsuite.datacollect.tweedekamer_nl.entry_dicts( merged_tree )
+
+def DISABLED_test_fetch_all():  # because it takes 20 sec
+    # def test_fetch_all():
+    "test that we can fetch and merge"
+    # etrees = wetsuite.datacollect.tweedekamer_nl.fetch_all( 'Zaal') #, break_actually=True )
+    etrees = wetsuite.datacollect.tweedekamer_nl.fetch_all("Zaal", break_actually=True)
+    merged_tree = wetsuite.datacollect.tweedekamer_nl.merge_etrees(etrees)
+    wetsuite.datacollect.tweedekamer_nl.entry_dicts(merged_tree)
 
 
 # def test_fetch_resource():

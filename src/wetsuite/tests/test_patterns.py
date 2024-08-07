@@ -1,25 +1,29 @@
-''' Tests relating to the patterns module
-'''
-from wetsuite.helpers.patterns import find_identifier_references, find_nonidentifier_references
+""" Tests relating to the patterns module
+"""
+
+from wetsuite.helpers.patterns import (
+    find_identifier_references,
+    find_nonidentifier_references,
+)
 
 
 def test_reference_parse():
-    ' test that some basic refernces get parsed '
-    matches = find_nonidentifier_references('artikel 5:9, aanhef en onder b, Awb')
-    d = matches[0]['details']
-    assert d['artikel'] == '5:9'
+    "test that some basic refernces get parsed"
+    matches = find_nonidentifier_references("artikel 5:9, aanhef en onder b, Awb")
+    d = matches[0]["details"]
+    assert d["artikel"] == "5:9"
 
+    matches = find_nonidentifier_references(
+        "artikel 4, tweede lid, aanhef en onder d, van het reglement van orde voor de ministerraad"
+    )
+    d = matches[0]["details"]
+    assert d["artikel"] == "4"
+    assert "tweede" in d["lid"]
+    assert 2 in d["lid_num"]
+    assert d["aanhefonder"] == "aanhef en onder d"
 
-    matches = find_nonidentifier_references('artikel 4, tweede lid, aanhef en onder d, van het reglement van orde voor de ministerraad')
-    d = matches[0]['details']
-    assert d['artikel'] == '4'
-    assert 'tweede' in d['lid']
-    assert 2 in d['lid_num']
-    assert d['aanhefonder'] == 'aanhef en onder d'
-
-    #with pytest.raises(ValueError, match=r'.*of type.*'):
+    # with pytest.raises(ValueError, match=r'.*of type.*'):
     #    date_range( (2022,1,1), (2022,1,1) )
-
 
 
 # def test_cleanup_basics():
@@ -35,44 +39,66 @@ def test_reference_parse():
 #         ) == 'Wet milieubeheer'
 
 
-
-
-
 def test_identifier_parse():
-    ' find each type in isolation '
+    "find each type in isolation"
 
     for test_string, expect in (
-        ('asdf ECLI:NL:CBB:1996:ZG0749 asdf'         , {'type':'ecli',         'text':'ECLI:NL:CBB:1996:ZG0749'}),
-        ('asdf Stb. 2005 asdf'                       , {'type':'vindplaats',   'text':'Stb. 2005'     } ),
-        ('asdf 33684R2020 asdf'                      , {'type':'celex',        'text':'33684R2020'    } ),
-        ('asdf Trb.\xa01966 asdf'                    , {'type':'vindplaats',   'text':'Trb.\xa01966'  } ),
-        ('asdf Trb. 1966, 91 asdf'                   , {'type':'vindplaats',   'text':'Trb. 1966, 91' } ),
-        ('asdf Kamerstukken II 1992/1993, 22 asdf'   , {'type':'kamerstukken', 'text':'Kamerstukken II 1992/1993, 22'} ),
-        ('asdf BB7360 asdf'                          , {'type':'ljn',          'text':'BB7360'        } ),
-        #('asdf BB 7360 asdf'                         , {'type':'ljn',          'text':'BB 7360'       } ),
+        (
+            "asdf ECLI:NL:CBB:1996:ZG0749 asdf",
+            {"type": "ecli", "text": "ECLI:NL:CBB:1996:ZG0749"},
+        ),
+        ("asdf Stb. 2005 asdf", {"type": "vindplaats", "text": "Stb. 2005"}),
+        ("asdf 33684R2020 asdf", {"type": "celex", "text": "33684R2020"}),
+        ("asdf Trb.\xa01966 asdf", {"type": "vindplaats", "text": "Trb.\xa01966"}),
+        ("asdf Trb. 1966, 91 asdf", {"type": "vindplaats", "text": "Trb. 1966, 91"}),
+        (
+            "asdf Kamerstukken II 1992/1993, 22 asdf",
+            {"type": "kamerstukken", "text": "Kamerstukken II 1992/1993, 22"},
+        ),
+        ("asdf BB7360 asdf", {"type": "ljn", "text": "BB7360"}),
+        # ('asdf BB 7360 asdf'                         , {'type':'ljn',          'text':'BB 7360'       } ),
         # TODO: complete
-
-        #('asdf Stb 2005 asdf'                       ),
-        #('asdf Kamerstukken 1992/1993, 22 asdf'     ),
+        # ('asdf Stb 2005 asdf'                       ),
+        # ('asdf Kamerstukken 1992/1993, 22 asdf'     ),
     ):
 
-        found = find_identifier_references( test_string,
-            ljn=True, ecli=True, celex=True, kamerstukken=True, vindplaatsen=True, nonidentifier=True, euoj=True, eudir=True
+        found = find_identifier_references(
+            test_string,
+            ljn=True,
+            ecli=True,
+            celex=True,
+            kamerstukken=True,
+            vindplaatsen=True,
+            nonidentifier=True,
+            euoj=True,
+            eudir=True,
         )
         for key, value in expect.items():
-            assert found[0].get( key ) == value
+            assert found[0].get(key) == value
 
 
 def test_identifier_almost():
-    ' test that it does not accept things that are close but not quite '
+    "test that it does not accept things that are close but not quite"
     for test_string in (
-        ('asdf 3684R2020 asdf'                      ),
-        #('asdf ECLI:N:CBB:1996:ZG0749 asdf'         ),
+        ("asdf 3684R2020 asdf"),
+        # ('asdf ECLI:N:CBB:1996:ZG0749 asdf'         ),
     ):
-        assert len( find_identifier_references( test_string,
-            ljn=True, ecli=True, celex=True, kamerstukken=True, vindplaatsen=True, nonidentifier=True, euoj=True, eudir=True
-        ) ) == 0
-
+        assert (
+            len(
+                find_identifier_references(
+                    test_string,
+                    ljn=True,
+                    ecli=True,
+                    celex=True,
+                    kamerstukken=True,
+                    vindplaatsen=True,
+                    nonidentifier=True,
+                    euoj=True,
+                    eudir=True,
+                )
+            )
+            == 0
+        )
 
 
 # # TODO: decide what to do with these
