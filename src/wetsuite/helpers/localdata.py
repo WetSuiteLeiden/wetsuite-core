@@ -479,8 +479,31 @@ class LocalKV:
             else:
                 ret['avgsize_bytes'] = round( float(bytesize) / ret['num_items'] )
             ret['avgsize_readable'] = wetsuite.helpers.format.kmgtp(ret['avgsize_bytes'], kilo=1024)+'B'
-
         return ret
+
+
+    # def _copy(self, path, commit=False):
+    #     ''' 
+    #         Copy the contents to another store of the same type.
+
+    #         Was intended to make it easier to work in memory and go to disk later, e.g. to replace code like:
+    #           memkv = LocalKV(':memory:', key_type=str, value_type=oldkv.str)
+    #           # do a bunch of stuff with memkv
+    #           diskkv = LocalKV(newpath, key_type=oldkv.key_type, value_type=oldkv.value_type)
+    #           for k, v in memkv.items():
+    #             diskkv.put( k, v )
+    #         with:
+    #           memkv = LocalKV(':memory:', key_type=str, value_type=oldkv.str)
+    #           memkv._copy( path )
+            
+    #         @param path:   will be handed into LocalKV            
+    #         @param commit: like put's: False will delay commits
+    #     '''
+    #     newkv = LocalKV(path, key_type=self.key_type, value_type=self.value_type)
+    #     for k, v in self.items():
+    #         newkv.put( k, v,commit=commit )
+    #     if commit is False:
+    #         newkv.commit()
 
 
     def vacuum(self):
