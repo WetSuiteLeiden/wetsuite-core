@@ -48,17 +48,17 @@ class LocalKV:
         - just a name ( without os.sep, that is, / or \\ ) will be resolved to a path where wetsuite keeps various stores
         - an absolute path will be passed through, used as-is
           ...but this is NOT very portable until you do things like `os.path.join( myproject_data_dir, 'docstore.db')`
-        - a relative path with os.sep will be passed through  
+        - a relative path with os.sep will be passed through
           ...which is only as portable as the cwd is predictable)
-        - ':memory:' is in-memory only                        
+        - ':memory:' is in-memory only
         - See also C{resolve_path} for more details
 
       - by default, each write is committed individually (because SQlite3's driver defaults to autocommit)
-        If you want more performant bulk writes, 
+        If you want more performant bulk writes,
         use put() with commit=False, and
         do an explicit commit() afterwards
         ...BUT if a script borks in the middle of something uncommited, you will need to do manual cleanup.
-        
+
       - On typing:
           - SQLite will just store what it gets, which makes it easy to store mixed types.
             To allow programmers to enforce some runtime checking,
@@ -111,10 +111,10 @@ class LocalKV:
         TODO: make a final decision where to sit between clean abstractions and convenience.
 
       - yes, you _could_ access these SQLite databses yourself, particularly when just reading.
-        Our code is mainly there for convenience and checks.     
+        Our code is mainly there for convenience and checks.
         Consider: `sqlite3 store.db 'select key,value from kv limit 10 ' | less`
         It only starts getting special once you using MsgpackKV, or the extra parsing and wrapping that wetsuite.datasets adds.
-        
+
     @ivar conn: connection to the sqlite database that we set up
     @ivar path: the path we opened (after resolving)
     @ivar key_type: the key type you have set
@@ -412,9 +412,7 @@ class LocalKV:
         "Using this object as an iterator yields its keys (equivalent to .iterkeys())"
         return self.iterkeys()
 
-    def __getitem__(
-        self, key
-    ):  
+    def __getitem__(self, key):
         "(only meant to support ValuesView and Itemsview)"
         return self.get(key)  # which would itself raise KeyError if applicable
 

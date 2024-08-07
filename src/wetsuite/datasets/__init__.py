@@ -83,7 +83,7 @@ def fetch_index():
 
 def list_datasets():
     """fetch index, report dataset names _only_.
-    If you also want the details, 
+    If you also want the details,
     see C{fetch_index} if you care about the data form,
     or C{print_dataset_summary} if want it printed on the console/notebook output.
 
@@ -140,10 +140,10 @@ class Dataset:
         self.data = data
         self.description = description
         self.name = name
-        self.num_items = len(self.data) # TODO: don't rely on that being possible.
+        self.num_items = len(self.data)  # TODO: don't rely on that being possible.
 
     def __str__(self):
-        'String representation that mentions the name and the number of items'
+        "String representation that mentions the name and the number of items"
         return "<wetsuite.datasets.Dataset name=%r num_items=%r>" % (
             self.name,
             self.num_items,
@@ -470,10 +470,9 @@ def load(dataset_name: str, verbose=None, force_refetch=False, check_free_space=
 
 
 def generated_today_text():
-    """Used when generating datasets 
+    """Used when generating datasets
     @return: a string like 'This dataset was generated on 2024-02-02'
     """
     return "This dataset was generated on %s" % (
         wetsuite.helpers.date.date_today().strftime("%Y-%m-%d")
     )
-

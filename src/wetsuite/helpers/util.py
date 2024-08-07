@@ -125,7 +125,7 @@ def hash_color(string: str, on=None):
     To that end, this takes a string, and
     returns (css_str,r,g,b), where r,g,b are 255-scale r,g,b values for a string
 
-    @param string: the string to hash 
+    @param string: the string to hash
     @param on: if 'dark', we try for a bright color, if 'light', we try to give a dark color, otherwise not restricted
     """
     dig = hash_hex(string.encode("utf8"), as_bytes=True)
@@ -148,7 +148,7 @@ def hash_hex(data: bytes, as_bytes: bool = False):
     Returns that hash as a hex string, unless you specify as_bytes=True
 
     Deals with unicode by UTF8-encoding it, which isn't _always_ what you want.
-    @param data: the bytes to hash 
+    @param data: the bytes to hash
     @param as_bytes: whether to return the hash dugest as a bytes object. Defaults to False, meaning a hex string (like 'a49d')
     """
     if isinstance(data, bytes):
@@ -188,7 +188,7 @@ def is_xml(bytesdata, debug=False) -> bool:
 
     Note: we try to answer "is it likely you could parse this", not just "does it look vaguely like the start of an XML"
     we could answer the latter for a lot cheaper than parsing it, but it wouldn't mean much.
-    
+
     Right now _do_ actually parse it so that we get a decent answer to whether we can use it.
     (TODO: parse only the first kilobyte or so, incrementally)
 

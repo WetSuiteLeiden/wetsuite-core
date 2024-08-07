@@ -1439,9 +1439,9 @@ def decide(docbytes, thresh=1000, first_only=False, debug=False):
 
 def feeling_lucky(docbytes):
     """If you are sure we understand a particular document format, you can hand it in here,
-    and it will returns a list of strings for a document. 
+    and it will returns a list of strings for a document.
     No control, just text.
-    This needs to be renamed. 
+    This needs to be renamed.
     """
     ret = []
     for score, fragclass in decide(docbytes):
@@ -1452,7 +1452,7 @@ def feeling_lucky(docbytes):
 
 
 class SplitDebug:
-    """A notebook-style formatter that does little more than take a list of tuple of three things  
+    """A notebook-style formatter that does little more than take a list of tuple of three things
     (meant for the output of fragments()), and print them in a table.
     """
 
@@ -1462,6 +1462,7 @@ class SplitDebug:
 
     def _repr_html_(self):
         "Takes the tuples we were initiated with, show in a HTML table"
+
         def oe(o):
             "decide how exactly to print object in HTML, dependin on its type"
             if isinstance(o, str):
