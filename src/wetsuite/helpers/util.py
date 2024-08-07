@@ -95,12 +95,14 @@ def free_space(path=None):
 
 
 def unified_diff(before: str, after: str, strip_header=True, context_n=999) -> str:
-    """Returns an unified-diff-like indication of how two pieces of text differ,
-    as a single string and with initial header cut off,
+    """Returns an unified-diff-like difference between two strings
+    Not meant for actual patching, just for quick debug-printing of changes.
 
-    Not meant for actual patching, just for quick debug printing of changes.
-
-    context_n defaults to something high enough that it'll probably print everything
+    @param before: a string to treat as the original
+    @param after: a string  to treat as the new version
+    @param strip_header: whether to strip the first lines
+    @param context_n: how much context to include. Defaults to something high so that it omits little to nothing.
+    @return: a string that contains plain text unified-diff-like output (with initial header cut off)
     """
     lines = list(
         difflib.unified_diff(
