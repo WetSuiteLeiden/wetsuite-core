@@ -27,7 +27,7 @@ import wetsuite.helpers.etree
 
 class SRUBase:
     """Very minimal SRU implementation - just enough to access the KOOP repositories.
-    
+
     @ivar base_url: The base URL that other things add to; added from instantiation.
     @ivar x_connection: The x_connection attribute that some of these need; added from instantiation.
     @ivar sru_version: hardcoded to "1.2"
