@@ -1,13 +1,10 @@
 """
-    This module tries to 
-    - wrangle a few different formats into a similar intermediate
-    - allow you some flexibility in terms of how to take those chunks
+    This module tries to wrangle different possibly-structured-text formats into a similar intermediate format, and gives you some flexibility in how to consume those -- probably split into smallish chunks.
     
     Secondary thoughts:
     - we were trying to be inspired by LaTeX hyphenation, which has a simple-but-pretty-great 
       relative "this is the cost of breaking off here",
       the analogue of which were  that makes "Hey can you break this more"
-
 
     TODO: 
       - decide the API (probably make the splitting optional? or write in a way where joining is the original with (nearly) no losses?) 
@@ -20,7 +17,6 @@
         - 'seems like page footnotes, <TEXT>'
         ...so that you, or a helper function, can group into different-sized chunks as you need it.
 
-    
     This module should eventuall grow a basic "we know about this type of document" 
     to cover all common-enough documents and their varian formats.
 
