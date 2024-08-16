@@ -103,7 +103,7 @@ def print_dataset_summary():
     for name, details in fetch_index().items():
         real_size_human = details.get("real_size_human")
         print(
-            f"{name:<40}\t{real_size_human:>8s}\t{details.get('description_short').strip()}"
+            f"{name:<40}\t{real_size_human:>8s}\t{details.get('description_short','').strip()}"
         )
 
 
