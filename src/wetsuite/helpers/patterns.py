@@ -60,9 +60,9 @@ def find_identifier_references(
             ret.append(match)
 
     if ecli:
-        for rematch in wetsuite.helpers.meta._RE_ECLIFIND.finditer(
+        for rematch in wetsuite.helpers.meta._RE_ECLIFIND.finditer( # pylint: disable=protected-access
             text
-        ):  # pylint: disable=protected-access
+        ):
             match = {}
             match["type"] = "ecli"
             match["start"] = rematch.start()
@@ -108,9 +108,9 @@ def find_identifier_references(
             ret.append(match)
 
     if celex:
-        for rematch in wetsuite.helpers.meta._RE_CELEX.finditer(
+        for rematch in wetsuite.helpers.meta._RE_CELEX.finditer( # pylint: disable=protected-access
             text
-        ):  # pylint: disable=protected-access
+        ):
             match = {}
             match["type"] = "celex"
             match["start"] = rematch.start()

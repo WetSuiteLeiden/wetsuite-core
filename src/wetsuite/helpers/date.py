@@ -147,9 +147,7 @@ def find_dates_in_text(text: str):
         try:
             parsed = parse(dtt)  # we coung on this
             ret_dt.append(parsed)
-        except (
-            Exception
-        ) as e:  # unsure which exceptions exactly, so for now this is fine  pylint: disable=broad-exception-caught
+        except Exception as e:  # unsure which exceptions exactly, so for now this is fine  pylint: disable=broad-exception-caught
             print("ERROR: %s" % e)  # raise
             ret_dt.append(None)
     assert len(ret_text) == len(ret_dt)

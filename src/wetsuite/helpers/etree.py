@@ -1,8 +1,7 @@
 """
 Helpers to deal with XML data, largely a wrapper around lxml and its ElementTree interface.
 
-TODO: minimize the amount of "will break because we use the lxml flavour of ElementTree",
-and add tests for that.
+TODO: minimize the amount of "will break because we use the lxml flavour of ElementTree", and add more tests for that.
     
 Some general helpers.    
 ...including some helper functions shared by some debug scripts.
@@ -16,7 +15,7 @@ import copy
 import warnings
 
 import lxml.etree
-from lxml.etree import (
+from lxml.etree import (  # pylint: disable=no-name-in-module,unused-import
     ElementTree,
     fromstring,
     tostring,
@@ -118,7 +117,7 @@ SOME_NS_PREFIXES = {  # CONSIDER: renaming to something like _some_ns_prefixes_p
 }
 """ some readable XML prefixes, for friendlier display.  
     This is ONLY for consistent pretty-printing in debug,
-    and will NOT be correct according to the document definition. """
+    and WILL NOT BE CORRECT according to the document definition. """
 # It might be useful to find namespaces from many XML files, with something like:
 #   locate .xml | tr '\n' '\0' | xargs -0 grep -oh 'xmlns:[^ >]*'
 # with an eventual
@@ -236,7 +235,6 @@ def strip_namespace(tree, remove_from_attr=True):
       - namespaces from attribute names (default, but optional)
       - default namespaces (TODO: test that properly)
 
-
     @param tree:             The node under which to remove things
     (you would probably hand in the root)
     @param remove_from_attr: Whether to remove namespaces from attributes as well.
@@ -256,7 +254,7 @@ def strip_namespace(tree, remove_from_attr=True):
         raise ValueError("Handed None to strip_namespace()")
 
     # make copy, an check it's of the right type
-    if not isinstance(tree, lxml.etree._Element):  # pylint: disable=W0212,I1101
+    if not isinstance(tree, lxml.etree._Element): # pylint: disable=protected-access,c-extension-no-member
         # we assume that means we're using a non-lxml etree  (and not that you handed in something completely unrelated)
         warnings.warn(
             "Trying to work around potential issues from non-lxml etrees by converting to it, which might be unnecessarily slow. "
@@ -267,7 +265,7 @@ def strip_namespace(tree, remove_from_attr=True):
 
             if isinstance(tree, xml.etree.ElementTree.Element):
                 # We want a copy anyway, so this isn't too wasteful.   Maybe there is a faster way, though.
-                tree = lxml.etree.fromstring(xml.etree.ElementTree.tostring(tree))
+                tree = lxml.etree.fromstring(xml.etree.ElementTree.tostring(tree)) # pylint: disable=c-extension-no-member
             # implied else: we don't know what that was, and we hope for the best
         except ImportError:
             pass  # xml.etree is stdlib in py3 so this should never happen, but we can fall back to do nothing
@@ -314,7 +312,7 @@ def _strip_namespace_inplace(tree, remove_from_attr=True):
             for delete_key in to_delete:
                 elem.attrib.pop(delete_key)
             elem.attrib.update(to_set)
-    lxml.etree.cleanup_namespaces(
+    lxml.etree.cleanup_namespaces( # pylint: disable=c-extension-no-member
         tree
     )  # remove unused namespace declarations. Will only work on lxml etree objects, hence the code above.
     return ret
@@ -379,12 +377,12 @@ def path_between(under_node, element, excluding: bool = False):
     @return:
     """
     if excluding is False:
-        letree = lxml.etree.ElementTree(
+        letree = lxml.etree.ElementTree( # pylint: disable=c-extension-no-member
             under_node
         )  # it does, actually, so pylint: disable=I1101
         return letree.getpath(element)
     else:
-        letree = lxml.etree.ElementTree(
+        letree = lxml.etree.ElementTree( # pylint: disable=c-extension-no-member
             under_node
         )  # it does, actually, so pylint: disable=I1101
         path = letree.getpath(element)
@@ -471,7 +469,7 @@ def debug_pretty(tree, reindent=True, strip_namespaces=True, encoding="unicode")
     if isinstance(
         tree, bytes
     ):  # if you gave it an unparsed doc instead (as bytes, not str)
-        tree = lxml.etree.fromstring(tree)
+        tree = lxml.etree.fromstring(tree) # pylint: disable=c-extension-no-member
 
     if strip_namespaces:
         tree = strip_namespace(tree)
@@ -502,7 +500,7 @@ class debug_color:
     def _repr_html_(self):
         # try:
         from pygments.lexers.html import XmlLexer
-        from pygments.formatters import HtmlFormatter
+        from pygments.formatters import HtmlFormatter # pylint: disable=no-name-in-module
         from pygments import highlight
 
         html = highlight(self.xstr, XmlLexer(), HtmlFormatter())

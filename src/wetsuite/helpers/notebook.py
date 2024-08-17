@@ -32,7 +32,7 @@ def detect_env():
 
     try:  # probably slightly less nasty than by-classname below
         # pylint disable,  because it not being available or not is the thing under test, and the point
-        import google.colab  # pylint: disable=E0401,E0611,C0415,W0611
+        import google.colab #   pylint: disable=unused-import
 
         ret["ipython"] = True
         ret["interactive"] = True
@@ -366,6 +366,6 @@ if is_notebook():
     try:
         import setproctitle
 
-        setproctitle.setproctitle("wetsuite-notebook")
+        setproctitle.setproctitle("wetsuite-notebook") # pylint: disable=c-extension-no-member
     except ImportError:
         pass
