@@ -284,11 +284,11 @@ _xx_sent_model = None
 
 
 def sentence_split(text: str, as_plain_sents=False):
-    """A language-agnostic sentence splitter based on the xx_sent_ud_sm model.
+    """A language-agnostic sentence splitter based on the `xx_sent_ud_sm` model.
 
-    If you hacen't installed it:  python3 -m spacy download xx_sent_ud_sm
-
-    Returns a Doc with mainly just the .sents attribute (in case you wanted to feed it into something else TODO: see if that matters)
+    @return:
+      - if as_plain_sents==False: a Doc so you can pick out the .sents attribute
+      - if as_plain_sents==False: a sequence of strings (from each sentence Span)
     """
     import spacy
 
