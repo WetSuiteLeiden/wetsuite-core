@@ -22,8 +22,9 @@ import wetsuite.helpers.strings
 _RE_JCIFIND = re.compile(
     r'(?:jci)?([0-9.]+):([a-z]):(BWB[RV][0-9]+)([^\s;"\']*)'
 )  # NOTE: not meant for finding in free-form text
+
 _RE_ECLIFIND = re.compile(
-    r"ECLI:[A-Za-z]{2}:[A-Z-z0-9.]{1,7}:[0-9]{,4}:[A-Z-z0-9.]{,25}"
+    r"ECLI:[A-Za-z]{2}:[A-Za-z0-9.]{1,7}:[0-9]{1,4}:[A-Z-z0-9.]{1,25}"
 )
 
 
