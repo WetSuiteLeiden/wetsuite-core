@@ -322,3 +322,36 @@ def get_ziphtml(bytesdata: bytes):
             if zipinfo.filename.endswith(".html"):
                 return z.read(zipinfo)
     raise ValueError("ZIP file without a .html")
+
+
+def is_doc(bytesdata: bytes) -> bool:
+    """Does this seem like some kind of office document type?
+    This is currently quick and dirty based on some observations that may not even be correct.
+    TODO: improve
+    """
+    if bytesdata.startswith('\xD0\xCF\x11\xE0\xA1\xB1\x1A\xE1'):  # cfbf, assume early office document
+        return True
+    if is_zip(bytesdata):
+        # Then it can be Office Open XML, OpenOffice.org XML, OpenDocument
+        with zipfile.ZipFile(io.BytesIO(bytesdata)) as z:
+            for zipinfo in z.filelist:
+                if zipinfo.filename == "_rels": # Office Open XML
+                    return True
+                if zipinfo.filename == "mimetype": # likely odt we can also open that, to find something like 'application/vnd.oasis.opendocument.text'
+                    return True
+    return False
+
+
+def _filetype(docbytes):
+    ' describe which of these basic types a bytes object contains '
+    if is_pdf(docbytes):
+        return 'pdf'
+    if is_html(docbytes):
+        return 'html'
+    if is_xml(docbytes):
+        return 'xml'
+    if is_zip(docbytes):
+        return 'zip'
+    if is_doc(docbytes):
+        return 'doc'
+    return 'other'
