@@ -26,6 +26,22 @@
     It should also have a reasonable fallback for each document type.
 """
 
+# There was an earlier idea to specify pattern matchers entirely as data, like:
+#
+#     presets = {
+#         'beleidsregels': {
+#             'body': { 'name': 'div', 'id': 'PaginaContainer' },
+#             'keep_headers_html': True,
+#             'keep_tables_html': True,
+#         },
+#     }
+#
+# with a 'this is how to select for the document' and 'this is how to get the body from it', etc.
+# which is worth re-visiting, because it may be more easily altered in the long run, and more portable than this code currently is.
+# The largest limitation might be expressing more complex selection
+
+
+
 import re
 import warnings
 import pprint
@@ -1072,7 +1088,9 @@ class Fragments_HTML_BUS_kamer(Fragments):
 
 
 class Fragments_XML_Rechtspraak(Fragments):
-    "turn rechtspraak.nl's XML form into fragments"
+    "turn rechtspraak.nl's open-rechtspraak XML form into fragments"
+    # examples:
+    # https://data.rechtspraak.nl/uitspraken/content?id=ECLI:NL:RBDHA:2023:18504
 
     def __init__(self, docbytes, debug=False):
         Fragments.__init__(self, docbytes, debug)
@@ -1094,12 +1112,7 @@ class Fragments_XML_Rechtspraak(Fragments):
     def fragments(self):
         ret = []
 
-        # examples:
-        # https://data.rechtspraak.nl/uitspraken/content?id=ECLI:NL:RBDHA:2023:18504
-        #    uitspraak.info, section+
-        #
-
-        # ii = tree_nonamespaces.find('inhoudsindicatie')
+        # we currently ignore the 'inhoudsindicatie', being a sumamry, but it might be worth adding
         # if ii is not None:
         #     print( '[%s]  %s'%(
         #         'inhoudsindicatie', ' '.join( wetsuite.datacollect.rechtspraaknl._para_text( ii ) )
