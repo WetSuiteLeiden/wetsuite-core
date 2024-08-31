@@ -7,15 +7,18 @@
         the analogue of which were  that makes "Hey can you break this more"
 
     TODO: 
-      - decide the API (probably make the splitting optional? or write in a way where joining is the original with (nearly) no losses?) 
-        because this overlap with just "read contents document of type X"
+      - decide the API 
+        probably make the splitting optional? 
+        or write in a way where joining is the original with (nearly) no losses? 
+        ...because all of this code overlap with just "read contents document of type X",
+        and arguably should do that separately.
 
-      - Maybe we shouldn't make too many decisions for you, and merely yield suggestions (often-ignorable) 
+      - Maybe we shouldn't make too many decisions for you, and merely yield suggestions you can easily ignore, e.g.
         - 'seems like same section, <TEXT>'
         - 'seems like new section, <TEXT>'
         - 'seems like page header/footer, <TEXT>'
         - 'seems like page footnotes, <TEXT>'
-        ...so that you, or a helper function, can group into different-sized chunks as you need it.
+        ...so that you, or a helper function, can group into different-sized chunks in the way you need it.
 
     This module should eventuall grow a basic "we know about this type of document" 
     to cover all common-enough documents and their varian formats.
@@ -40,7 +43,7 @@ import wetsuite.datacollect.rechtspraaknl
 header_tag_names = ("h1", "h2", "h3", "h4", "h5", "h6")
 
 
-def fix_ascii_blah(bytesdata):
+def fix_ascii_blah(bytesdata: bytes):
     """There are a bunch of XMLs that are invalid _only_ because they contain UTF8 but say they are US-ASCII.
     This seems constrained to some parliamentary XMLs.
 
@@ -195,6 +198,7 @@ def _split_officielepublicaties_html(soup):
 
 class Fragments:
     "Abstractish base class explaining the purpose of implementing this"
+    # CONSIDER: adding a function that describes the parser
 
     def __init__(self, docbytes: bytes, debug: bool = False):
         """Hand the document bytestring into this. Nothing happens yet; you call accepts(), then suitableness(), then possibly fragments() -- see example use in decide()."""
@@ -1136,8 +1140,8 @@ class Fragments_XML_Rechtspraak(Fragments):
                         meta["nr"] = nr.text.strip()
                         nr.text = ""  # so that it doesn't land in flat_text
                         last_nr = nr
-                    if last_nr is not None:
-                        meta["lastnr"] = last_nr
+                    if last_nr is not None and last_nr.text is not None:
+                        meta["lastnr"] = last_nr.text.strip()
 
                     if ch.tag == "title":  # title = ch.find('title')
                         # if title is not None:
@@ -1211,9 +1215,9 @@ class Fragments_HTML_Fallback(Fragments):
         return 500
 
     def fragments(self):
-        ret = []
+        #ret = []
         raise NotImplementedError("TODO: implement this fallback")
-        return ret
+        #return ret
 
 
 class Fragments_XML_Fallback(Fragments):
@@ -1230,14 +1234,14 @@ class Fragments_XML_Fallback(Fragments):
         return 500
 
     def fragments(self):
-        ret = []
+        #ret = []
         raise NotImplementedError("TODO: implement this fallback")
         # ret.append( (
         #    {},
         #    {},
         #    (' '.join( wetsuite.helpers.etree.all_text_fragments( ch ) )) .strip(),
         # ))
-        return ret
+        #return ret
 
 
 class Fragments_PDF_Fallback(Fragments):
@@ -1440,11 +1444,13 @@ def decide(docbytes, thresh=1000, first_only=False, debug=False):
 def feeling_lucky(docbytes):
     """If you are sure we understand a particular document format, you can hand it in here,
     and it will returns a list of strings for a document.
-    No control, just text.
+    No control, just text from whatever said it applied best.
     This needs to be renamed.
+    
+    @return: a list of strings
     """
     ret = []
-    for score, fragclass in decide(docbytes):
+    for _, fragclass in decide(docbytes):
         for _, _, textfrag in fragclass.fragments():
             ret.append(textfrag)
         break
@@ -1464,7 +1470,7 @@ class SplitDebug:
         "Takes the tuples we were initiated with, show in a HTML table"
 
         def oe(o):
-            "decide how exactly to print object in HTML, dependin on its type"
+            "decide how exactly to print object in HTML, depending on its type"
             if isinstance(o, str):
                 return o
             elif isinstance(o, (list, tuple, dict)):
@@ -1472,7 +1478,6 @@ class SplitDebug:
                 return pprint.pformat(o, width=50)
             else:
                 return str(o)
-                return repr(o)
             #    raise TypeError('blah %s'%type(o))
 
         ret = ['<table border="1">']
