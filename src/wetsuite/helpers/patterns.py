@@ -27,6 +27,7 @@ import re
 import collections
 import textwrap
 
+import wetsuite.datasets
 import wetsuite.helpers.strings
 import wetsuite.helpers.meta
 
@@ -37,10 +38,7 @@ def find_identifier_references(
     celex=True,  # more identifier-y
     ljn=False,
     vindplaatsen=True,
-    kamerstukken=True,
-    euoj=True,
-    eudir=True,  # more textual
-    nonidentifier=True,  # even more textual
+    #nonidentifier=True,  # even more textual
 ):
     """TODO: rename to find_references or something else that's clear
 
@@ -52,6 +50,7 @@ def find_identifier_references(
         for rematch in re.finditer(
             r"\b[A-Z][A-Z][0-9][0-9][0-9][0-9](,[\n\s]+[0-9]+)?\b", text, flags=re.M
         ):
+            # CONSIDER: we could add a "is it _not_ part of an ECLI" check
             match = {}
             match["type"] = "ljn"
             match["start"] = rematch.start()
@@ -89,24 +88,6 @@ def find_identifier_references(
             match["text"] = rematch.group(0)
             ret.append(match)
 
-    if kamerstukken:
-        # I'm not sure about the standard here, and the things I've found seem frequently violated
-        for rematch in re.finditer(
-            r"(Kamerstukken|Aanhangsel Handelingen|Handelingen)( I| II)? ([0-9]+/[0-9]+)(@, [0-9]+( [XVI]+)?|@, item [0-9]|@, nr. [0-9]+|@, p. [0-9-]+|@, [A-Z]+)*".replace(
-                " ", r"[\n\s]+"
-            ).replace(
-                "@", r"[\n\s]*"
-            ),
-            text,
-            flags=re.M,
-        ):
-            match = {}
-            match["type"] = "kamerstukken"
-            match["start"] = rematch.start()
-            match["end"] = rematch.end()
-            match["text"] = rematch.group(0)
-            ret.append(match)
-
     if celex:
         for rematch in wetsuite.helpers.meta._RE_CELEX.finditer( # pylint: disable=protected-access
             text
@@ -119,57 +100,18 @@ def find_identifier_references(
             match["details"] = wetsuite.helpers.meta.parse_celex(rematch.group(0))
             ret.append(match)
 
-    # TODO: figure out what variations there are (to the degree there is standardization at all)
-    _RE_EUOJ = re.compile(
-        r"(OJ|Official Journal)[\s]?(C|CA|CI|CE|L|LI|LA|LM|A|P) [0-9]+([\s]?[A-Z]|/[0-9])*(, p. [0-9](\s*[\u2013-]\s*[0-9]+)*|, [0-9]{1,2}[./][0-9]{1,2}[./][0-9][0-9]{2,4})".replace(
-            " ", r"[\s\n]+"
-        ),
-        flags=re.M,
-    )
-
-    if euoj:
-        for rematch in _RE_EUOJ.finditer(text):
-            match = {}
-            match["type"] = "euoj"
-            match["start"] = rematch.start()
-            match["end"] = rematch.end()
-            match["text"] = rematch.group(0)
-            ret.append(match)
-
-    _RE_EUDIR = re.compile(
-        r"(Directive) [0-9]{2,4}/[0-9]+(/EC|EEC|EU)?".replace(" ", r"[\s\n]+"),
-        flags=re.M,
-    )
-
-    if eudir:
-        for rematch in _RE_EUDIR.finditer(text):
-            match = {}
-            match["type"] = "eudir"
-            match["start"] = rematch.start()
-            match["end"] = rematch.end()
-            match["text"] = rematch.group(0)
-            ret.append(match)
-
-    if nonidentifier:
-        for match in find_nonidentifier_references(text):
-            match["type"] = "nonidentifier"  # not the best name
-            match["details"] = list(match["details"].items())
-            ret.append(match)
-
     ret.sort(key=lambda m: m["start"])
 
     return ret
 
 
-# Ideally, replace the above Kamerstukken matcher with this more flexible variant -- assuming it's noticeably better
-_RE_KST = re.compile(
-    r"([Kkamerstukken]{3,13}) (I|II|1|2) ((?:19|20)[0-9][0-9]/(?:19|20)?[0-9][0-9][\s,]+)+\s*([0-9][0-9]\s?[0-9][0-9][0-9][,]?\s?)(\snr[.]?[\s]?[0-9]+)"
-)
-# _RE_HDL = re.compile(r'([Hhandeingen]{4,12}) (I|II|1|2) ((?:19|20)[0-9][0-9]/(?:19|20)?[0-9][0-9][\s,]+)+\s*([0-9][0-9]\s?[0-9][0-9][0-9][,]?\s?)(\snr[.]?[\s]?[0-9]+)')
 
-
-def find_semistructured_references(text):
+def find_semistructured_references(text, kamerstukken=True, euoj=True, eudir=True): # TODO: merge with its duplicate above?
     """
+    These are more textual, and more varied, so more easily miss parts.
+    
+    ...and which may benefit from _not_ being implemented with regexps, even if they currently are.
+
     e.g. from https://zoek.officielebekendmakingen.nl/stb-2001-580.html
       - Kamerstukken II 2015/16, 34442, nr. 3, p. 7.
       - Kamerstukken I 1995/96, 23700, nr. 188b, p. 3.
@@ -178,20 +120,89 @@ def find_semistructured_references(text):
       - Kamerstukken I 2000/2001, 26 855 (250, 250a); 2001/2002, 26 855 (16, 16a, 16b, 16c).
 
     Leidraad voor juridische auteurs
+
+    Returns a list of docuts, each with at least
+      - "type"            - type of reference, e.g. "kst"
+      - "start" and "end" - character offsets
+      - "text"            -  rematch.group(0)
     """
     ret = []
 
-    for rematch in _RE_KST.finditer(text):
-        match = {}
-        match["type"] = "kst"
-        match["start"] = rematch.start()
-        match["end"] = rematch.end()
-        match["text"] = rematch.group(0)
-        match["groups"] = rematch.groups()  # TODO: deal with nested grouping
-        ret.append(match)
+    if kamerstukken:
+        # I'm not sure about the standard here, and the things I've found seem frequently violated
+        # vergaderjaar is required
+        # the rest is technically made optional here, though in practice some of them must be there
+        # allow abbreviations/misspellings?
+        #                                                                         _____________________________________  ________________________________________________________________________
+        kre = r"(Kamerstukken|Aanhangsel Handelingen|Handelingen)( I| II| 1| 2)?@(,?@(?:vergaderjaar )?[0-9]+[/-][0-9]+)(@,@[0-9]+(?: [XVI]+)?|@, item [0-9]+|@, (nr|p|blz)[.]@[0-9-]+|@, [A-Z]+)*"
+        # these two replaces imply:
+        # - ' ' actually means one or more newline-or-space
+        # - '@' actually means zero or more newline-or-space
+        kre = kre.replace( " ", r"[\n\s]+" ).replace( "@", r"[\n\s]*" )
+        #print(kre)
+        for rematch in re.finditer( kre, text, flags=re.M):
+            match = {}
+            match["type"] = "kamerstukken"
+            match["start"] = rematch.start()
+            match["end"] = rematch.end()
+            match["text"] = rematch.group(0)
+            # TODO: add parsed details
+            ret.append(match)
+
+    # TODO: figure out what variations there are  (to the degree there is standardization at all)
+    if euoj:
+        _RE_EUOJ = re.compile(
+            r"(OJ|Official Journal)[\s]?(C|CA|CI|CE|L|LI|LA|LM|A|P) [0-9]+([\s]?[A-Z]|/[0-9])*(, p. [0-9\u2013-]+(\s*[\u2013-]\s*[0-9-]+)*|, [0-9]{1,2}[./][0-9]{1,2}[./][0-9][0-9]{2,4})+".replace(
+                " ", r"[\s\n]+"
+            ),
+            flags=re.M,
+        )
+        for rematch in _RE_EUOJ.finditer(text):
+            match = {}
+            match["type"] = "euoj"
+            match["start"] = rematch.start()
+            match["end"] = rematch.end()
+            match["text"] = rematch.group(0)
+            # TODO: add parsed details
+            ret.append(match)
+
+    if eudir:
+        _RE_EUDIR = re.compile(
+            r"(Council )?(Directive) [0-9]{2,4}/[0-9]+(/EC|/EEC|/EU)?".replace(" ", r"[\s\n]+"),
+            flags=re.M,
+        )
+
+        for rematch in _RE_EUDIR.finditer(text):
+            match = {}
+            match["type"] = "eudir"
+            match["start"] = rematch.start()
+            match["end"] = rematch.end()
+            match["text"] = rematch.group(0)
+            # TODO: parse details
+            ret.append(match)
 
     ret.sort(key=lambda m: m["start"])
     return ret
+
+
+def _wetnamen():
+    " a dict from law name to law BWB-id, mostly to try to match the names in find_nonidentifier_references "
+    ret = collections.defaultdict( list )
+    for bwbid, (betternamelist, iffynamelist) in wetsuite.datasets.load('wetnamen').data.items():
+        for name in betternamelist+iffynamelist:
+            if name in ('artikel',):
+                continue
+            if len(name) > 1  and  len(name) < 150:
+                ret[ name ].append( bwbid )
+    return ret
+
+_mw = r'[\s,]+(%s)'%('|'.join( re.escape(wetnaam)   for wetnaam in sorted(_wetnamen(), key=lambda x:len(x), reverse=True) ) )  # pylint: disable=unnecessary-lambda
+_mw_re = re.compile( _mw, flags=re.I )
+#def _match_wetnamen(text):
+#    return _mw_re.match(text)
+#        if m is not None:
+#            overallmatch_en += m.endpos
+
 
 
 def find_nonidentifier_references(
@@ -204,17 +215,16 @@ def find_nonidentifier_references(
     @return: a list of (matched_text, parsed_details_dict)
 
 
-    This is not a formalized format,
-    and while the law ( https://wetten.overheid.nl/BWBR0005730/ ) that suggests the format of these
-    suggests succinctness and has near-templates, that is not what real-world use looks like.
+    Such referencs are not a formalized format,
+    and while the law ( https://wetten.overheid.nl/BWBR0005730/ ) that suggests 
+    the format of these should be succinctness and might have near-templates,
+    that is not what real-world use looks like.
 
-
-    One reasonable approach might be
-    include each real-world variant explicitly,
+    One reasonable approach might be include each real-world variant format explicitly,
     as it lets you put stronger patterns first and fall back on fuzzier,
     it makes it clear what is being matched, and it's easier to see how common each is.
 
-    However, it easily leads to false negatives -- missing real things.
+    However, that easily leads to false negatives -- missing real references.
 
     Instead, we
         - start by finding some strong anchors
@@ -232,7 +242,7 @@ def find_nonidentifier_references(
         - check whether the estimated law (Wet werk en bijstand - BWBR0015703) has an article 81
         - check, in some semantic way, whether Wet werk en bijstand makes any sense in context of the text
 
-    ...also so that we can return some estimation of
+    TODO: ...also so that we can return some estimation of
         - how sure we are this is a reference,
         - how complete a reference is, and/or
         - how easy to resolve a reference is.
@@ -262,30 +272,27 @@ def find_nonidentifier_references(
         wider_end = min(overallmatch_st + context_amt, len(text))
 
         # Look for some specific strings around the matched 'artikel', (and record whether they came before or after)
-        find_things = {  # match before and/or after,   include or exclude,    (uncompiled) regexp
-            # these are not used yet, but are meant to set hard borders when seen before/after the anchor match
-            "grond": ["B", "E", r"\bgrond(?: van)?\b"],
-            "bedoeld": ["B", "E", r"\bbedoeld in\b"],
+        find_things = {
+            # name -> ( match before and/or after,  include or exclude in match,    regexp to match)
+            # the before/after, inclide/exclude are not used yet, but are meant to set hard borders when seen before/after the anchor match
+            "grond":       ["B", "E", r"\bgrond(?: van)?\b"],
+            "bedoeld":     ["B", "E", r"\bbedoeld in\b"],
             #'komma':          [  '.',  re.compile(r',')                                         ],
-            "hoofdstuk": ["A", "I", r"\bhoofdstuk#\b"],
-            "paragraaf": ["A", "I", r"\bparagraaf#\b"],
-            "aanwijzing": ["A", "I", r"\b(?:aanwijzing|aanwijzingen)#\b"],
-            "onderdeel": ["A", "I", r"\b(?:onderdeel|onderdelen)\b"],
-            "lid": ["A", "I", r"\b(?:lid_(#)|(L)_(?:lid|leden))"],
-            "aanhefonder": [
-                "A",
-                "I",
-                r"\b((?:\baanhef_en_)?onder_[a-z]+)",
-            ],  # "en onder d en g"
-            "sub": ["A", "I", r"\bsub [a-z]\b"],
-            #'vandh':          [  'E',  r'\bvan (?:het|de)\b'                                    ],
+            "hoofdstuk":   ["A", "I", r"\bhoofdstuk#\b"],
+            "paragraaf":   ["A", "I", r"\bparagraaf#\b"],
+            "aanwijzing":  ["A", "I", r"\b(?:aanwijzing|aanwijzingen)#\b"],
+            "onderdeel":   ["A", "I", r"\b(?:onderdeel|onderdelen)\b"],
+            "lid":         ["A", "I", r"\b(?:lid_(#)|(L)_(?:lid|leden))"],
+            "aanhefonder": ["A", "I", r"\b((?:\baanhef_en_)?onder_[a-z0-9\u00ba]{1,2})"],  # "en onder d en g"    CONSIDER: deal with "aanhef en onder a of c"
+            "sub":         ["A", "I", r"\bsub [a-z0-9\u00ba]+\b"],
+            'vandh':       ['A', 'I',  r'\bvan (?:het|de)\b'                                    ],
             ##'dezewet':       [  'I',  r'\bde(?:ze)? wet\b'                                     ],
             #'hierna':          [ 'A', 'E',  r'\b[(]?hierna[:\s]'                                ],
         }
 
-        # re_some_ordinals = '(?:%s)'%( '|'.join( wetsuite.helpers.strings.ordinal_nl_20 ) )
+        # numbers in words form
         re_some_ordinals = "(?:%s)" % (
-            "|".join(wetsuite.helpers.strings.ordinal_nl(i) for i in range(100))
+            "|".join(wetsuite.helpers.strings.ordinal_nl(i)  for i in range(100))
         )
 
         for k, (_, _, res) in find_things.items():
@@ -305,6 +312,7 @@ def find_nonidentifier_references(
 
             compiled = re.compile(res, flags=re.I | re.M)
             find_things[k][2] = compiled
+
 
         ## the main "keep adding things" loop
         range_was_widened = True
@@ -427,17 +435,93 @@ def find_nonidentifier_references(
                     except ValueError:
                         pass
 
-        ret.append(
-            {
-                "start": overallmatch_st,
-                "end": overallmatch_en,
-                "text": text[overallmatch_st:overallmatch_en],
-                # 'contexttext':text,
-                "details": details,
-            }
-        )
+        #print(details)
+        #if len(details) > 1: # if it's more details than just "artikel 81"
+        try:
+            text_after = text[overallmatch_en:overallmatch_en+1000]
+            m = _mw_re.match( text_after )
+            if m is not None:
+                #print( m.group(0) )
+                overallmatch_en += len( m.group(0) )
+                details['law'] = m.group(0).strip(', ')
+        except Exception as e: #if any art of that fails, don't do it
+            pass
+            #print( 'BLAH',e )
+            #raise ValueError( "Something failed traing to match law names" ) from e
+
+        ret.append( {
+            "type": 'artikel',
+            "start": overallmatch_st,
+            "end": overallmatch_en,
+            "text": text[overallmatch_st:overallmatch_en],
+            #"text_after": text_after[:100],# might be useful
+            # 'contexttext':text,
+            "details": details,
+        } )
 
     return ret
+
+
+def find_references( text, ecli=True, celex=True, ljn=False, vindplaatsen=True, semistructured=True, nonidentifier=True, kamerstukken=True, euoj=True, eudir=True, debug=False):
+    ''' joins and sorts the results of find_identifier_references(), find_semistructured_references(), and find_nonidentifier_references() 
+        CONSIDER: merge them, we have all these controlling arguments anyway?
+    '''
+    ret = []
+
+    ret.extend( find_identifier_references(
+        text,
+        ecli=ecli, celex=celex, ljn=ljn, vindplaatsen=vindplaatsen
+    ) )
+
+    if semistructured:
+        ret.extend( find_semistructured_references(text, kamerstukken=kamerstukken, euoj=euoj, eudir=eudir) )
+
+    if nonidentifier:
+        ret.extend( find_nonidentifier_references(text, debug=debug) )
+
+    ret.sort(key=lambda d:d['start'])
+    return ret
+
+
+def mark_references_spacy(doc, # replace=True,
+                          ecli=True, celex=True, ljn=False, vindplaatsen=True, semistructured=True, nonidentifier=True, kamerstukken=True, euoj=True, eudir=True
+                          ):
+    ''' Takes a spacy Doc, finds text that is references, marks it as entities. 
+        _Replaces_ the currently marked entities, to avoid overlap.
+
+        Bases this on the plain text, and then trying to find all the tokens necessary to cover that
+        (that code needs some double checking).
+    '''
+    import spacy
+    # most of the work is figuring out character index to token index.
+
+    ref_spans = []
+    start_tok_i, end_tok_i = 0, 0
+
+    for reference_dict in wetsuite.helpers.patterns.find_references( doc.text,
+        ecli=ecli, celex=celex, ljn=ljn, vindplaatsen=vindplaatsen, semistructured=semistructured, nonidentifier=nonidentifier, kamerstukken=kamerstukken, euoj=euoj, eudir=eudir):
+        #print('Looking for %r'%reference_dict['text'], end='')
+        start_char_offset, end_char_offset = reference_dict['start'], reference_dict['end']
+        #print( ' at char offsets %d..%d'%(start, end) )
+
+        # in theory can start with the same start as the last round's start, because references might overlap and are sorted
+        # but actually, spacy doesn't like overlapping entities, so we use the previous round's end:
+        start_tok_i = end_tok_i
+        tokamt = len(doc)
+
+        # TODO: think about this more. There are bugs here.
+        while start_tok_i < tokamt  and  doc[start_tok_i].idx < start_char_offset:
+            start_tok_i += 1
+
+        end_tok_i = start_tok_i
+        while end_tok_i < tokamt  and  doc[end_tok_i].idx < end_char_offset:
+            end_tok_i += 1
+        ref_spans.append( spacy.tokens.Span( doc, start_tok_i, end_tok_i, reference_dict['type'].upper() ) )
+
+    #if replace==True:
+    doc.set_ents( ref_spans )
+    #else: # currently hopes for no overlap; we could actiely prefer one or the other
+    #    doc.set_ents( list(doc.ents)+spans )
 
 
 def simple_tokenize(text: str):
