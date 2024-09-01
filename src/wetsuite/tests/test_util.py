@@ -283,20 +283,6 @@ def test_get_ziphtml():
 def test_is_doc():
     "test that we can fish the .html out of 'HTMLfile-in-a-zipfile' (that KOOP uses) in the presence of other files (the test example also contains a .png)"
     import test_util
-
-    for testfn in (
-        "empty.docx", 
-        "empty.odt"
-    ):
-        test_ffn = os.path.join( os.path.dirname(test_util.__file__), "testfiles", testfn )
-        with open( test_ffn, 'rb' ) as f:
-            filedata = f.read()
-            #assert( repr(type(filedata)) )
-            assert wetsuite.helpers.util.is_doc( filedata )
-
-def test_is_doc():
-    "test that we can fish the .html out of 'HTMLfile-in-a-zipfile' (that KOOP uses) in the presence of other files (the test example also contains a .png)"
-    import test_util
     for testfn in (
         "empty.doc",
         "empty.docx",
