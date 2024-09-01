@@ -391,7 +391,7 @@ def _find_nonidentifier_references(
 
 
 def find_references(text,
-                    bwbid=True,
+                    bwb=True,
                     cvdr=True,
                     ecli=True,
                     celex=True,
@@ -410,7 +410,7 @@ def find_references(text,
     ret = []
 
     ### More on the identifier side #######################################################
-    if bwbid:
+    if bwb:
         _RE_BWBFIND = re.compile( r'(BWB[RV][0-9]+)', flags=re.M )
 
         for rematch in _RE_BWBFIND.finditer( text ): # pylint: disable=protected-access
