@@ -329,21 +329,27 @@ def is_doc(bytesdata: bytes) -> bool:
     This is currently quick and dirty based on some observations that may not even be correct.
     TODO: improve
     """
-    if bytesdata.startswith('\xD0\xCF\x11\xE0\xA1\xB1\x1A\xE1'):  # cfbf, assume early office document
+    # an empty docx seems to have at least
+    if bytesdata.startswith(b'\xD0\xCF\x11\xE0\xA1\xB1\x1A\xE1'):  # cfbf, assume early office document
         return True
     if is_zip(bytesdata):
         # Then it can be Office Open XML, OpenOffice.org XML, OpenDocument
         with zipfile.ZipFile(io.BytesIO(bytesdata)) as z:
             for zipinfo in z.filelist:
-                if zipinfo.filename == "_rels": # Office Open XML
+                #if debug:
+                #    print(zipinfo)
+                if "_rels/" in zipinfo.filename: # likely Office Open XML
                     return True
-                if zipinfo.filename == "mimetype": # likely odt we can also open that, to find something like 'application/vnd.oasis.opendocument.text'
+                if zipinfo.filename == "mimetype": # other things to match include meta.xml, styles.xml, META-INF/manifest.xml 
+                # the mimetype file's contest may be interesting, to find something like 'application/vnd.oasis.opendocument.text'
                     return True
     return False
 
 
-def _filetype(docbytes):
+def _filetype(docbytes: bytes):
     ' describe which of these basic types a bytes object contains '
+    if is_doc(docbytes): # should appear before is_zip
+        return 'doc'
     if is_pdf(docbytes):
         return 'pdf'
     if is_html(docbytes):
@@ -352,6 +358,4 @@ def _filetype(docbytes):
         return 'xml'
     if is_zip(docbytes):
         return 'zip'
-    if is_doc(docbytes):
-        return 'doc'
     return 'other'
