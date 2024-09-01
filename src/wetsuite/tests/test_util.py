@@ -297,10 +297,10 @@ def test_is_doc():
 def test_is_doc():
     "test that we can fish the .html out of 'HTMLfile-in-a-zipfile' (that KOOP uses) in the presence of other files (the test example also contains a .png)"
     import test_util
-
     for testfn in (
-        "empty.docx", 
-        "empty.odt"
+        "empty.doc",
+        "empty.docx",
+        "empty.odt",
     ):
         test_ffn = os.path.join( os.path.dirname(test_util.__file__), "testfiles", testfn )
         with open( test_ffn, 'rb' ) as f:
@@ -312,10 +312,11 @@ def test_is_doc():
 
 def test__filetype():
     import test_util
-
     for testfn, expected_type_str in (
+        ("empty.doc",  'doc'),
         ("empty.docx", 'doc'),
         ("empty.odt",  'doc'),
+        ("gmb.html",   'html'),
         ("prb.xml",    'xml'),
         ("eggs.pdf",   'pdf'),
         ("empty.zip",  'zip'),
@@ -324,4 +325,3 @@ def test__filetype():
         with open( test_ffn, 'rb' ) as f:
             filedata = f.read()
             assert wetsuite.helpers.util._filetype( filedata ) == expected_type_str
-
