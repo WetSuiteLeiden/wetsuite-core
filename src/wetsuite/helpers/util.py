@@ -330,8 +330,14 @@ def is_doc(bytesdata: bytes) -> bool:
     TODO: improve
     """
     # an empty docx seems to have at least
-    if bytesdata.startswith(b'\xD0\xCF\x11\xE0\xA1\xB1\x1A\xE1'):  # cfbf, assume early office document
+
+    if bytesdata.startswith(b'\xD0\xCF\x11\xE0\xA1\xB1\x1A\xE1'):  # cfbf, assume early office document - or encrypted docx
         return True
+        #Note: Apparently encrypted docx is stored within cfbf, not plain zip ?        if '\x57\x00\x6f\x00\x72\x00\x64\x00\x44\x00\x6f\x00\x63'
+
+    if bytesdata.startswith(b'<?xml')  and  b'http://schemas.uof.org/cn/2003/uof' in bytesdata[:1000]: # quick and dirty and probably incomplete (due to e.g. encoding?)
+        return True
+    
     if is_zip(bytesdata):
         # Then it can be Office Open XML, OpenOffice.org XML, OpenDocument
         with zipfile.ZipFile(io.BytesIO(bytesdata)) as z:

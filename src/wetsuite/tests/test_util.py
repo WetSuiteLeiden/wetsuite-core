@@ -313,13 +313,16 @@ def test_is_doc():
 def test__filetype():
     import test_util
     for testfn, expected_type_str in (
-        ("empty.doc",  'doc'),
-        ("empty.docx", 'doc'),
-        ("empty.odt",  'doc'),
-        ("gmb.html",   'html'),
-        ("prb.xml",    'xml'),
-        ("eggs.pdf",   'pdf'),
-        ("empty.zip",  'zip'),
+        ("empty.doc",     'doc'),
+        ("empty-pw.doc",  'doc'),
+        ("empty.docx",    'doc'),
+        ("empty-pw.docx", 'doc'),
+        ("empty.odt",     'doc'),
+        ("empty.uot",     'doc'),
+        ("gmb.html",      'html'),
+        ("prb.xml",       'xml'),
+        ("eggs.pdf",      'pdf'),
+        ("empty.zip",     'zip'),
     ):
         test_ffn = os.path.join( os.path.dirname(test_util.__file__), "testfiles", testfn )
         with open( test_ffn, 'rb' ) as f:
