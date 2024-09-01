@@ -1,16 +1,17 @@
 """
-Extracting specific patterns of text, 
-mostly but not only aimed at references to citations 
-  - by identifier 
-    - BWB-ID
-    - CVDR-ID
-    - ECLI
-    - CELEX
-    - other EU references
+Extracting specific patterns of text, primarily aimed at identfiers and references
+  - BWB-ID
+  - CVDR-ID
+  - ECLI
+  - LJN
+  - CELEX, 
+  - EU OJ references
+  - EU Directive references,
+  - vindplaats (decentralized style)
+  - Kamerstukken references
+  - "artikel 3, ..." style references
 
-  - also to and less-formal references to dutch laws)
-
-
+  
 It exists in part to point out that while probably useful,
 they deal with things that aren't formalized via EBNF or whatnot,
 so are probably best-effort, and contain copious hardcoding and messines.
@@ -32,81 +33,8 @@ import wetsuite.helpers.strings
 import wetsuite.helpers.meta
 
 
-def find_identifier_references(
-    text,
-    ecli=True,
-    celex=True,  # more identifier-y
-    ljn=False,
-    vindplaatsen=True,
-    #nonidentifier=True,  # even more textual
-):
-    """TODO: rename to find_references or something else that's clear
 
-    There is a good argument to make this more pluggable, rather than one tangle of a function.
-    """
-    ret = []
-
-    if ljn:
-        for rematch in re.finditer(
-            r"\b[A-Z][A-Z][0-9][0-9][0-9][0-9](,[\n\s]+[0-9]+)?\b", text, flags=re.M
-        ):
-            # CONSIDER: we could add a "is it _not_ part of an ECLI" check
-            match = {}
-            match["type"] = "ljn"
-            match["start"] = rematch.start()
-            match["end"] = rematch.end()
-            match["text"] = rematch.group(0)
-            ret.append(match)
-
-    if ecli:
-        for rematch in wetsuite.helpers.meta._RE_ECLIFIND.finditer( # pylint: disable=protected-access
-            text
-        ):
-            match = {}
-            match["type"] = "ecli"
-            match["start"] = rematch.start()
-            match["end"] = rematch.end()
-            match["text"] = rematch.group(0)
-            match["details"] = wetsuite.helpers.meta.parse_ecli(rematch.group(0))
-            try:
-                wetsuite.helpers.meta.parse_ecli(match["text"])
-            except ValueError:
-                match["invalid"] = True
-            ret.append(match)
-
-    if vindplaatsen:
-        # https://www.kcbr.nl/beleid-en-regelgeving-ontwikkelen/aanwijzingen-voor-de-regelgeving/hoofdstuk-3-aspecten-van-vormgeving/ss-33-aanhaling-en-verwijzing/aanwijzing-345-vermelding-vindplaatsen-staatsblad-ed
-        for rematch in re.finditer(
-            r"\b((Trb|Stb|Stcrt)[.]?[\n\s]+[0-9\u2026.]+(,[\n\s]+[0-9\u2026.]+)?)",
-            text,
-            flags=re.M,
-        ):
-            match = {}
-            match["type"] = "vindplaats"
-            match["start"] = rematch.start()
-            match["end"] = rematch.end()
-            match["text"] = rematch.group(0)
-            ret.append(match)
-
-    if celex:
-        for rematch in wetsuite.helpers.meta._RE_CELEX.finditer( # pylint: disable=protected-access
-            text
-        ):
-            match = {}
-            match["type"] = "celex"
-            match["start"] = rematch.start()
-            match["end"] = rematch.end()
-            match["text"] = rematch.group(0)
-            match["details"] = wetsuite.helpers.meta.parse_celex(rematch.group(0))
-            ret.append(match)
-
-    ret.sort(key=lambda m: m["start"])
-
-    return ret
-
-
-
-def find_semistructured_references(text, kamerstukken=True, euoj=True, eudir=True): # TODO: merge with its duplicate above?
+def _find_semistructured_references(text, kamerstukken=True, euoj=True, eudir=True): # TODO: merge with its duplicate above?
     """
     These are more textual, and more varied, so more easily miss parts.
     
@@ -185,8 +113,9 @@ def find_semistructured_references(text, kamerstukken=True, euoj=True, eudir=Tru
     return ret
 
 
+
 def _wetnamen():
-    " a dict from law name to law BWB-id, mostly to try to match the names in find_nonidentifier_references "
+    " a dict from law name to law BWB-id, mostly to try to match the names in find_nonidentifier_references.  Used by find_nonidentifier_references "
     ret = collections.defaultdict( list )
     for bwbid, (betternamelist, iffynamelist) in wetsuite.datasets.load('wetnamen').data.items():
         for name in betternamelist+iffynamelist:
@@ -204,8 +133,7 @@ _mw_re = re.compile( _mw, flags=re.I )
 #            overallmatch_en += m.endpos
 
 
-
-def find_nonidentifier_references(
+def _find_nonidentifier_references(
     text, context_amt=60, debug=False
 ):  # TODO: needs a better name
     """Attempts to find references like ::
@@ -462,22 +390,109 @@ def find_nonidentifier_references(
     return ret
 
 
-def find_references( text, ecli=True, celex=True, ljn=False, vindplaatsen=True, semistructured=True, nonidentifier=True, kamerstukken=True, euoj=True, eudir=True, debug=False):
-    ''' joins and sorts the results of find_identifier_references(), find_semistructured_references(), and find_nonidentifier_references() 
-        CONSIDER: merge them, we have all these controlling arguments anyway?
-    '''
+def find_references(text,
+                    bwbid=True,
+                    cvdr=True,
+                    ecli=True,
+                    celex=True,
+                    ljn=False,
+                    vindplaatsen=True,
+                    semistructured=True,
+                    nonidentifier=True,
+                    kamerstukken=True,
+                    euoj=True,
+                    eudir=True,
+                    debug=False):
+    ''' joins and sorts the results of various underlying matchers. '''
     ret = []
 
-    ret.extend( find_identifier_references(
-        text,
-        ecli=ecli, celex=celex, ljn=ljn, vindplaatsen=vindplaatsen
-    ) )
+    # There is a good argument to make this funcion call a more pluggable set of functions, rather than be one tangle of a function.
+    ret = []
 
+    ### More on the identifier side #######################################################
+    if bwbid:
+        _RE_BWBFIND = re.compile( r'(BWB[RV][0-9]+)', flags=re.M )
+
+        for rematch in _RE_BWBFIND.finditer( text ): # pylint: disable=protected-access
+            match = {}
+            match["type"] = "bwb"
+            match["start"] = rematch.start()
+            match["end"] = rematch.end()
+            match["text"] = rematch.group(0)
+            ret.append(match)
+
+    if cvdr:
+        _RE_CVDRFIND = re.compile("(CVDR)([0-9]+)([/_][0-9]+)?")
+        for rematch in _RE_CVDRFIND.finditer( text ):
+            match = {}
+            match["type"] = "cvdr"
+            match["start"] = rematch.start()
+            match["end"] = rematch.end()
+            match["text"] = rematch.group(0)
+            ret.append(match)
+
+
+    if ljn:
+        for rematch in re.finditer(
+            r"\b[A-Z][A-Z][0-9][0-9][0-9][0-9](,[\n\s]+[0-9]+)?\b", text, flags=re.M
+        ):
+            # CONSIDER: we could add a "is it _not_ part of an ECLI" check
+            match = {}
+            match["type"] = "ljn"
+            match["start"] = rematch.start()
+            match["end"] = rematch.end()
+            match["text"] = rematch.group(0)
+            ret.append(match)
+
+    if ecli:
+        for rematch in wetsuite.helpers.meta._RE_ECLIFIND.finditer( # pylint: disable=protected-access
+            text
+        ):
+            match = {}
+            match["type"] = "ecli"
+            match["start"] = rematch.start()
+            match["end"] = rematch.end()
+            match["text"] = rematch.group(0)
+            match["details"] = wetsuite.helpers.meta.parse_ecli(rematch.group(0))
+            try:
+                wetsuite.helpers.meta.parse_ecli(match["text"])
+            except ValueError:
+                match["invalid"] = True
+            ret.append(match)
+
+    if celex:
+        for rematch in wetsuite.helpers.meta._RE_CELEX.finditer( # pylint: disable=protected-access
+            text
+        ):
+            match = {}
+            match["type"] = "celex"
+            match["start"] = rematch.start()
+            match["end"] = rematch.end()
+            match["text"] = rematch.group(0)
+            match["details"] = wetsuite.helpers.meta.parse_celex(rematch.group(0))
+            ret.append(match)
+
+    if vindplaatsen:
+        # https://www.kcbr.nl/beleid-en-regelgeving-ontwikkelen/aanwijzingen-voor-de-regelgeving/hoofdstuk-3-aspecten-van-vormgeving/ss-33-aanhaling-en-verwijzing/aanwijzing-345-vermelding-vindplaatsen-staatsblad-ed
+        for rematch in re.finditer(
+            r"\b((Trb|Stb|Stcrt)[.]?[\n\s]+[0-9\u2026.]+(,[\n\s]+[0-9\u2026.]+)?)",
+            text,
+            flags=re.M,
+        ):
+            match = {}
+            match["type"] = "vindplaats"
+            match["start"] = rematch.start()
+            match["end"] = rematch.end()
+            match["text"] = rematch.group(0)
+            ret.append(match)
+
+    ### Less structured #################################################
     if semistructured:
-        ret.extend( find_semistructured_references(text, kamerstukken=kamerstukken, euoj=euoj, eudir=eudir) )
+        ret.extend( _find_semistructured_references(text, kamerstukken=kamerstukken, euoj=euoj, eudir=eudir) )
 
+    ### Less structured yet #############################################
     if nonidentifier:
-        ret.extend( find_nonidentifier_references(text, debug=debug) )
+        ret.extend( _find_nonidentifier_references(text, debug=debug) )
 
     ret.sort(key=lambda d:d['start'])
     return ret
