@@ -11,17 +11,20 @@ Extracting specific patterns of text, primarily aimed at identfiers and referenc
   - Kamerstukken references
   - "artikel 3, ..." style references
 
-  
-It exists in part to point out that while probably useful,
-they deal with things that aren't formalized via EBNF or whatnot,
-so are probably best-effort, and contain copious hardcoding and messines.
 
-So They may miss things.
+
+It's more of a proof of concept of each,
+best-effort, and contain copious hardcoding and messines,
+and _will_ miss things.
+
+The only real metric is making a list of _everything_ you want to catch
+and seeing how well you do. Exactly how we implement that is of secondary importance.
+
+Right now it's mostly regexes -- which aren't great for this.
+But so aren't formal grammars, because real-world variation will be missed.
+
 
 Ideally, each function further notes how much can and can't expect from it.
-
-Contributions are welcome, though in the interest of not immediately making a mess,
-we may want contributions to go to a contrib/ at least at first     
 """
 
 import re
@@ -142,6 +145,7 @@ def _find_nonidentifier_references(
 
     @return: a list of (matched_text, parsed_details_dict)
 
+    TODO: make context part of each match
 
     Such referencs are not a formalized format,
     and while the law ( https://wetten.overheid.nl/BWBR0005730/ ) that suggests 
@@ -197,26 +201,33 @@ def _find_nonidentifier_references(
 
         # based on that anchoring match, define a range to search in
         wider_start = max(0, overallmatch_st - context_amt)
-        wider_end = min(overallmatch_st + context_amt, len(text))
+        wider_end = min(
+            overallmatch_st + context_amt, 
+            len(text),
+        )
+        nextartikel = text.find('artikel', overallmatch_st+5) # hard cut at the next 'artikel'. Ideally not special case, but good enough for now.
+        if nextartikel != -1:
+            wider_end = min( wider_end, nextartikel)
 
         # Look for some specific strings around the matched 'artikel', (and record whether they came before or after)
         find_things = {
             # name -> ( match before and/or after,  include or exclude in match,    regexp to match)
             # the before/after, inclide/exclude are not used yet, but are meant to set hard borders when seen before/after the anchor match
-            "grond":       ["B", "E", r"\bgrond(?: van)?\b"],
-            "bedoeld":     ["B", "E", r"\bbedoeld in\b"],
+            "grond":       ["B", "E", r"\bgrond(?:_van)?\b"],
+            "bedoeld":     ["B", "E", r"\bbedoeld_in\b"],
             #'komma':          [  '.',  re.compile(r',')                                         ],
             "hoofdstuk":   ["A", "I", r"\bhoofdstuk#\b"],
             "paragraaf":   ["A", "I", r"\bparagraaf#\b"],
             "aanwijzing":  ["A", "I", r"\b(?:aanwijzing|aanwijzingen)#\b"],
-            "onderdeel":   ["A", "I", r"\b(?:onderdeel|onderdelen)\b"],
             "lid":         ["A", "I", r"\b(?:lid_(#)|(L)_(?:lid|leden))"],
-            "aanhefonder": ["A", "I", r"\b((?:\baanhef_en_)?onder_[a-z0-9\u00ba]{1,2})"],  # "en onder d en g"    CONSIDER: deal with "aanhef en onder a of c"
-            "sub":         ["A", "I", r"\bsub [a-z0-9\u00ba]+\b"],
-            'vandh':       ['A', 'I',  r'\bvan (?:het|de)\b'                                    ],
-            ##'dezewet':       [  'I',  r'\bde(?:ze)? wet\b'                                     ],
-            #'hierna':          [ 'A', 'E',  r'\b[(]?hierna[:\s]'                                ],
+            "aanhefonder": ["A", "I", r"((?:\baanhef_en_)?(onder|onderdeel|onderdelen)_[a-z0-9\u00ba]{1,2})"],  # CONSIDER: "en onder d en g", "aanhef en onder a of c"
+            "sub":         ["A", "I", r"\bsub_[a-z0-9\u00ba]+\b"],
+            'vandh':       ['A', 'I',  r'\bvan_(?:het|de)\b'                                    ],
+            ##'dezewet':       [  'I',  r'\bde(?:ze)? wet\b'                                    ],
+            #'hierna':          [ 'A', 'E',  r'\b[(]?hierna[:\s]'                               ],
+            #'artikel':          [ 'A', 'E',  r'\bartikel'                                      ],
         }
+        # https://wetten.overheid.nl/jci1.3:c:BWBR0005730&hoofdstuk=3&paragraaf=3.3&aanwijzing=3.29
 
         # numbers in words form
         re_some_ordinals = "(?:%s)" % (
@@ -266,19 +277,15 @@ def _find_nonidentifier_references(
                 )
 
             for rng_st, rng_en, where in (
-                (wider_start, overallmatch_st, "before"),
-                (overallmatch_en, wider_end, "after"),
+                (wider_start,      overallmatch_st,  "before"),
+                (overallmatch_en,  wider_end,        "after"),
             ):
-                for find_name, (
-                    before_andor_after,
-                    incl_excl,
-                    find_re,
-                ) in find_things.items():
+                for find_name, ( before_andor_after, incl_excl, find_re ) in find_things.items():
                     # print('looking for %s %s current match (so around %s..%s)'%(find_re, where, rng_st, rng_en))
                     if "A" not in before_andor_after and where == "after":
-                        continue
+                        continue # not what we're currently doing
                     if "B" not in before_andor_after and where == "before":
-                        continue
+                        continue # not what we're currently doing
 
                     # TODO: ideally, we use the closest match; right now we assume there will be only one in range (TODO: fix that)
                     for now_mo in re.compile(find_re).finditer(
@@ -291,6 +298,7 @@ def _find_nonidentifier_references(
                             #   (not all that different from just not seeing something)
                             # print( 'NMATCH', find_name )
                             pass
+
                         elif incl_excl == "I":
                             nng = list(s for s in now_mo.groups() if s is not None)
                             if len(nng) > 0:
@@ -501,7 +509,8 @@ def find_references(text,
 def mark_references_spacy(doc, # replace=True,
                           ecli=True, celex=True, ljn=False, vindplaatsen=True, semistructured=True, nonidentifier=True, kamerstukken=True, euoj=True, eudir=True
                           ):
-    ''' Takes a spacy Doc, finds text that is references, marks it as entities. 
+    ''' Takes a spacy Doc, uses find_references(), marks it as entities. 
+
         _Replaces_ the currently marked entities, to avoid overlap.
 
         Bases this on the plain text, and then trying to find all the tokens necessary to cover that
@@ -513,7 +522,7 @@ def mark_references_spacy(doc, # replace=True,
     ref_spans = []
     start_tok_i, end_tok_i = 0, 0
 
-    for reference_dict in wetsuite.helpers.patterns.find_references( doc.text,
+    for reference_dict in find_references( doc.text,
         ecli=ecli, celex=celex, ljn=ljn, vindplaatsen=vindplaatsen, semistructured=semistructured, nonidentifier=nonidentifier, kamerstukken=kamerstukken, euoj=euoj, eudir=eudir):
         #print('Looking for %r'%reference_dict['text'], end='')
         start_char_offset, end_char_offset = reference_dict['start'], reference_dict['end']
