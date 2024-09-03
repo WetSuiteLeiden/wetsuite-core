@@ -446,10 +446,15 @@ def load(dataset_name: str, verbose=None, force_refetch=False, check_free_space=
 
     dataname_matches = fnmatch.filter(all_dataset_names, dataset_name)
     if len(dataname_matches) == 0:
+        import wetsuite.helpers.strings
+        closest_names = wetsuite.helpers.strings.ngram_sort_by_matches(dataset_name, all_dataset_names)
         raise ValueError(
-            "Your dataset name/pattern %r matched none of %s"
-            % (dataset_name, ", ".join(all_dataset_names))
+            "No exact match for dataset name %r, closest is %r, full list is %s"
+            % (dataset_name, 
+               closest_names[0],
+               ", ".join(all_dataset_names))
         )
+        # CONSIDER: noting closest match (n-gram style)
 
     elif len(dataname_matches) == 1:
         data_path = _load_bare(
