@@ -27,8 +27,8 @@ def test_load():
 
 def test_load_noexist():
     "test whether it complains about a non-existing dataset"
-    with pytest.raises(ValueError, match=r".*matched none.*"):
-        wetsuite.datasets.load("sjkldfghghuiwser")
+    with pytest.raises(ValueError, match=r".*match for.*"):
+        wetsuite.datasets.load("twker")
 
 
 def test_generated_today_text():
