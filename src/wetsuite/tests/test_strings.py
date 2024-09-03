@@ -6,93 +6,65 @@ from wetsuite.helpers.strings import (
     contains_all_of,
     ordered_unique,
     findall_with_context,
-)
-from wetsuite.helpers.strings import (
+
     is_numeric,
     is_mainly_numeric,
     has_text,
     count_unicode_categories,
     remove_diacritics,
-)
-from wetsuite.helpers.strings import (
+
     interpret_ordinal_nl,
     ordinal_nl,
     simple_tokenize,
     simplify_whitespace,
+
+    ngram_generate,
+    ngram_count,
+    ngram_matchcount,
+    ngram_sort_by_matches
 )
 
 
 def test_contains_any_of():
     'test some basic cases for the "matches any of these strings/patterns" function'
-    assert contains_any_of("microfishkes", ["mikrofi", "microfi", "fiches"]) is True
-    assert contains_any_of("microforks", ["mikrofi", "microfi", "fiches"]) is False
-    assert (
-        contains_any_of(
-            "CASe",
-            [
-                "case",
-            ],
-            case_sensitive=False,
-        )
-        is True
-    )
+    assert contains_any_of("microfishkes", ["mikrofi", "microfi", "fiches"])                      is True
+    assert contains_any_of("microforks", ["mikrofi", "microfi", "fiches"])                        is False
+    assert contains_any_of( "CASe", [ "case", ], case_sensitive=False )                           is True
 
     # test whether strings work as regexp
-    assert (
-        contains_any_of("microfish", ["mikrofi", "microfi", "fiches"], regexp=True)
-        is True
-    )
-    assert (
-        contains_any_of(
-            "CASe",
-            [
-                r"case\b",
-            ],
-            case_sensitive=False,
-            regexp=True,
-        )
-        is True
-    )
+    assert contains_any_of("microfish", ["mikrofi", "microfi", "fiches"], regexp=True)            is True
+    
+    assert ( contains_any_of( "CASe",   [ r"case\b", ],  case_sensitive=False, regexp=True ) )    is True
 
     # test interpretation
-    assert contains_any_of("microforks", [r"fork$", r"forks$"], regexp=False) is False
-    assert contains_any_of("microforks", [r"fork$", r"forks$"], regexp=True) is True
-    assert contains_any_of("microfork", [r"forks$"], regexp=True) is False
-    assert contains_any_of("forks micro", [r"forks$"], regexp=True) is False
+    assert contains_any_of("microforks", [r"fork$", r"forks$"], regexp=False)                     is False
+    assert contains_any_of("microforks", [r"fork$", r"forks$"], regexp=True)                      is True
+    assert contains_any_of("microfork", [r"forks$"], regexp=True)                                 is False
+    assert contains_any_of("forks micro", [r"forks$"], regexp=True)                               is False
 
 
 def test_contains_all_of():
     'test some basic cases for the "matches all of these strings/patterns" function'
-    assert contains_all_of("AA (BB/CCC)", ("AA", "BB", "CC")) is True
-    assert contains_all_of("AA (B/CCC)", ("AA", "BB", "CC")) is False
-    assert contains_all_of("AA (B/CCC)", ("aa", "BB"), case_sensitive=False) is False
+    assert contains_all_of("AA (BB/CCC)", ("AA", "BB", "CC"))                                     is True
+    assert contains_all_of("AA (B/CCC)", ("AA", "BB", "CC"))                                      is False
+    assert contains_all_of("AA (B/CCC)", ("aa", "BB"), case_sensitive=False)                      is False
 
-    assert contains_all_of("AA (BB/CCC)", ("AA", "BB", "CC"), regexp=True) is True
-    assert contains_all_of("AA (BB/CCC)", ("^AA", "BB", "CC"), regexp=False) is False
+    assert contains_all_of("AA (BB/CCC)", ("AA", "BB", "CC"), regexp=True)                        is True
+    assert contains_all_of("AA (BB/CCC)", ("^AA", "BB", "CC"), regexp=False)                      is False
 
-    assert contains_all_of("AA (BB/CCC)", ("^AA", "BB", "CC"), regexp=True) is True
-    assert contains_all_of("AA (BB/CCC)", ("^AA", "BB", "CC"), regexp=True) is True
-    assert contains_all_of("AA (BB/CCC)", ("^AA", "^BB", "CC"), regexp=True) is False
-    assert (
-        contains_all_of(
-            "AA (BB/CCC)", ("^AA", "bb", "CC"), case_sensitive=True, regexp=True
-        )
-        is False
-    )
-    assert (
-        contains_all_of(
-            "AA (BB/CCC)", ("^AA", "bb", "CC"), case_sensitive=False, regexp=True
-        )
-        is True
-    )
+    assert contains_all_of("AA (BB/CCC)", ("^AA", "BB", "CC"), regexp=True)                       is True
+    assert contains_all_of("AA (BB/CCC)", ("^AA", "BB", "CC"), regexp=True)                       is True
+    assert contains_all_of("AA (BB/CCC)", ("^AA", "^BB", "CC"), regexp=True)                      is False
+    assert contains_all_of("AA (BB/CCC)", ("^AA", "bb", "CC"), case_sensitive=True, regexp=True)  is False
+    assert contains_all_of("AA (BB/CCC)", ("^AA", "bb", "CC"), case_sensitive=False, regexp=True) is True
 
 
 def test_contains_bytes():
     "decode bytes from (default) utf8"
     assert contains_all_of(b"AA (BB/CCC)", (b"^AA",), regexp=True) is True
     # these two are dangerously inconsistent of you, but hey...
-    assert contains_all_of("AA (BB/CCC)", (b"^AA",), regexp=True) is True
-    assert contains_all_of(b"AA (BB/CCC)", ("^AA",), regexp=True) is True
+    assert contains_all_of("AA (BB/CCC)", (b"^AA",), regexp=True)  is True
+    assert contains_all_of(b"AA (BB/CCC)", ("^AA",), regexp=True)  is True
 
 
 def test_contains_other():
@@ -233,3 +205,30 @@ def test_ordinal_nl_bad():
 
     with pytest.raises(ValueError):
         ordinal_nl(111)  # not yet
+
+
+def test_ngram_generate():
+    assert list( ngram_generate('foo 1', 2) ) == ['fo', 'oo', 'o ', ' 1']
+    assert list( ngram_generate('foo 1', 3) ) == ['foo', 'oo ', 'o 1']
+    assert list( ngram_generate('foo 1', 6) ) == []
+
+
+def test_ngram_count():
+    assert ngram_count('foo fo', (2,3)) == {'fo': 2, 'oo': 1, 'o ': 1, ' f': 1, 'foo': 1, 'oo ': 1, 'o f': 1, ' fo': 1}
+
+
+def test_ngram_matchcount():
+    score = ngram_matchcount(
+        ngram_count('foo fo', (2,)),
+        ngram_count('foo bar', (2,)),
+    )
+
+    assert score > 0.63 and score < 0.64 # 0.6363636363636365
+   
+
+def test_ngram_sort_by_matches():
+    assert ngram_sort_by_matches( 'for', ['spork', 'knife', 'spoon', 'fork'])[0] == 'fork'
+
+
+
+    

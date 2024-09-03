@@ -428,3 +428,93 @@ def ordinal_nl(i: int):
         i10 = i - i1  # round(-1) may be clearer?
         return "%s%s" % (_tigste1_rev[i1], _tigste10_rev[i10])
     raise ValueError("can't yet do integers > 99")
+
+
+
+####
+
+
+def ngram_generate(s:str, n:int):
+    ''' Gives all n-grams of a specific length.
+        Generator function.
+        Quick and dirty version.
+
+        Treats input as sequence, so will work on characters from strings, 
+        lists of strings (e.g. already-split words from sentences)
+    '''
+    for spos in range( len(s)-n+1 ):
+        yield s[spos:spos+n]
+
+
+def ngram_count(s:str, gramlens=(2,3,4), splitfirst=False):
+    ''' Takes a string, figures out the n-grams, 
+        Returns a dict from n-gram strings to how often they occur in this string.
+
+        splitfirst is here if you want to apply it to words
+    '''
+    if splitfirst:
+        l = re.split( r'[\s!@#$%^&*()-_=+\'";:\[\{\]\}]', s )
+    else:
+        l = [s]
+    count = {}
+    for s in l:
+        for n in gramlens:
+            if len(s)<n:
+                continue
+            for i in range(len(s)-(n-1)):
+                tg = s[i:i+n]
+                if tg not in count:
+                    count[tg]=1
+                else:
+                    count[tg]+=1
+    return count
+
+
+def ngram_matchcount(count1, count2, lengthweight=True):
+    ' score by overlapping n-grams (outputs of ngram_count()) '
+    totalcount = 0
+    matchcount = 0
+    for st, cnt in count1.items():
+        if lengthweight:
+            totalcount+=cnt*len(st)**1.3
+        else:
+            totalcount+=cnt
+    for st, cnt in count2.items():
+        if lengthweight:
+            totalcount+=cnt*len(st)**1.3
+        else:
+            totalcount+=cnt
+    k1 = set(count1.keys())
+    k2 = set(count2.keys())
+    inboth = k1.intersection(k2)
+    for st in inboth:
+        if lengthweight:
+            matchcount += count1[st]*len(st)**1.3
+            matchcount += count2[st]*len(st)**1.3
+        else:
+            matchcount += count1[st]
+            matchcount += count2[st]
+    return float(matchcount) / totalcount
+
+
+
+
+def ngram_sort_by_matches(input_string, option_strings,  gramlens=(1,2,3,4)):
+    ''' sort items in string-list l by how well they match string s
+        is one [0] away from being a 'closest_string'
+    '''
+    string_counts = ngram_count(input_string, gramlens=gramlens)
+    options_with_score = []
+    for option in option_strings:
+        score = 0
+        ec = ngram_count(option, gramlens=gramlens)
+        for ecs in ec:
+            if ecs in string_counts:
+                if len(ecs) == 1: # tiny weight in comparison. Only really does anything when nothing longer matches, which is the point.
+                    score += 1
+                else:
+                    score += len(ecs)*string_counts[ecs]*ec[ecs]
+        options_with_score.append( (option, score) )
+
+    options_with_score.sort(key=lambda x: x[1], reverse=True)
+    return list(e[0]   for e in options_with_score)
