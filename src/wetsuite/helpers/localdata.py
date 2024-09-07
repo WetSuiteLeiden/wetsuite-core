@@ -574,7 +574,7 @@ class LocalKV:
     def random_sample(self, amount):
         """Returns an amount of [(key, value), ...] list from the store, selected randomly.
 
-        Convenience function, because you can do this yourself, though it takes two or three;
+        Convenience function, because you can do this yourself, though it takes two or three lines of code;
         while you can't random.choice/random.sample a view,
         to do it properly you basically have to materialize all keys (and probably not accidentally all values)
 
@@ -583,7 +583,9 @@ class LocalKV:
             - assume this is is unnecessarily RAM intensive when you want a _lot_ of items.
         """
         all_keys = list(self.keys())
-        amount = min(amount, len(all_keys))
+        amount = min(amount, len(all_keys)) # maybe actually raise, to be consistent with random.sample?
+        #if amount > len(all_keys):
+        #    raise ValueError(f"Sample larger than population (you asked for {amount}, we have {len(all_keys)})")
         chosen_keys = random.sample(all_keys, amount)
         return list((chosen_key, self.get(chosen_key)) for chosen_key in chosen_keys)
 
