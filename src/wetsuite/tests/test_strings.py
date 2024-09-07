@@ -21,7 +21,10 @@ from wetsuite.helpers.strings import (
     ngram_generate,
     ngram_count,
     ngram_matchcount,
-    ngram_sort_by_matches
+    ngram_sort_by_matches,
+
+    count_normalized,
+    count_case_insensitive
 )
 
 
@@ -33,7 +36,7 @@ def test_contains_any_of():
 
     # test whether strings work as regexp
     assert contains_any_of("microfish", ["mikrofi", "microfi", "fiches"], regexp=True)            is True
-    
+
     assert ( contains_any_of( "CASe",   [ r"case\b", ],  case_sensitive=False, regexp=True ) )    is True
 
     # test interpretation
@@ -208,27 +211,110 @@ def test_ordinal_nl_bad():
 
 
 def test_ngram_generate():
+    "Test that it generates the n-grams we expect"
     assert list( ngram_generate('foo 1', 2) ) == ['fo', 'oo', 'o ', ' 1']
     assert list( ngram_generate('foo 1', 3) ) == ['foo', 'oo ', 'o 1']
-    assert list( ngram_generate('foo 1', 6) ) == []
+    assert len( list( ngram_generate('foo 1', 6) ) ) == 0
 
 
 def test_ngram_count():
+    "Test that it generates and counts the n-grams we expect"
     assert ngram_count('foo fo', (2,3)) == {'fo': 2, 'oo': 1, 'o ': 1, ' f': 1, 'foo': 1, 'oo ': 1, 'o f': 1, ' fo': 1}
 
 
 def test_ngram_matchcount():
+    "Test that it scores like it did at first"
     score = ngram_matchcount(
         ngram_count('foo fo', (2,)),
         ngram_count('foo bar', (2,)),
     )
 
     assert score > 0.63 and score < 0.64 # 0.6363636363636365
-   
+
 
 def test_ngram_sort_by_matches():
+    "test that fork is put in front of that list"
     assert ngram_sort_by_matches( 'for', ['spork', 'knife', 'spoon', 'fork'])[0] == 'fork'
 
 
+def test_count_normalized():
+    "test the count-normalized-form function"
 
-    
+    ci = count_normalized("a A A a A A a B b b B b".split())
+    assert ci["a"] == 3
+    assert ci["A"] == 4
+    assert ci["b"] == 3
+    assert ci["B"] == 2
+
+    cs = count_normalized(
+        "a A A a A A a B b b B b".split(), normalize_func=lambda s: s.lower()
+    )
+    assert cs["A"] == 7
+    assert cs["b"] == 5
+
+    cs = count_case_insensitive("a A A a A A a B b b B b".split())
+    assert cs["A"] == 7
+    assert cs["b"] == 5
+
+    cs = count_case_insensitive(
+        "aa A A aa A A aa B bb bb B bb cc cc dd".split(), min_word_length=2, min_count=2
+    )
+    assert cs["aa"] == 3
+    assert cs["bb"] == 3
+    assert cs["cc"] == 2
+    assert "d" not in cs
+
+
+def test_stop():
+    "test that count_normalized stopword functionality seems to work"
+    cs = count_normalized(
+        "a A A a A A a B b b B b".split(),
+        normalize_func=lambda s: s.lower(),
+        stopwords=(),
+        stopwords_i=(),
+    )
+    assert cs == {"A": 7, "b": 5}
+
+    cs = count_normalized(
+        "a A A a A A a B b b B b".split(),
+        normalize_func=lambda s: s.lower(),
+        stopwords=("a",),
+        stopwords_i=(),
+    )
+    assert cs == {"A": 4, "b": 5}
+
+    cs = count_normalized(
+        "a A A a A A a B b b B b".split(),
+        normalize_func=lambda s: s.lower(),
+        stopwords=(),
+        stopwords_i=("a",),
+    )
+    assert cs == {"b": 5}
+
+    cs = count_case_insensitive(
+        ["the", "een"], stopwords=True
+    )  #  asks for some (english and stuch)
+    assert len(cs) == 0
+
+
+def test_count_normalized_min():
+    "test that the minimum threshold seems to work"
+    cs = count_normalized("a a a a b b b c".split(), min_count=2)
+    assert cs["a"] == 4
+    assert cs["b"] == 3
+    assert "c" not in cs
+
+    cs = count_normalized("a a a a b b b c".split(), min_count=2.0)
+    assert cs["a"] == 4
+    assert cs["b"] == 3
+    assert "c" not in cs
+
+    cs = count_normalized("a a a a b b b c".split(), min_count=3.5)
+    assert cs["a"] == 4
+    assert "b" not in cs
+    assert "c" not in cs
+
+    cs = count_normalized("a a a a b b b c".split(), min_count=0.3)
+    assert cs["a"] == 4
+    assert cs["b"] == 3
+    assert "c" not in cs

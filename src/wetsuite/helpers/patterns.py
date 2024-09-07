@@ -34,10 +34,10 @@ import textwrap
 import wetsuite.datasets
 import wetsuite.helpers.strings
 import wetsuite.helpers.meta
+from typing import List
 
 
-
-def _find_semistructured_references(text, kamerstukken=True, euoj=True, eudir=True): # TODO: merge with its duplicate above?
+def _find_semistructured_references(text:str, kamerstukken:bool=True, euoj:bool=True, eudir:bool=True): # TODO: merge with its duplicate above?
     """
     These are more textual, and more varied, so more easily miss parts.
     
@@ -136,8 +136,8 @@ _mw_re = re.compile( _mw, flags=re.I )
 #            overallmatch_en += m.endpos
 
 
-def _find_nonidentifier_references(
-    text, context_amt=60, debug=False
+def find_artikel_references(
+    text:str, context_amt:int=60, debug:bool=False
 ):  # TODO: needs a better name
     """Attempts to find references like ::
         "artikel 5.1, tweede lid, aanhef en onder i, van de Woo"
@@ -182,22 +182,22 @@ def _find_nonidentifier_references(
     ret = []
     artikel_matches = []
 
-    for artikel_mo in re.finditer(
+    for artikel_matchobject in re.finditer(
         r"\b(?:[Aa]rt(?:ikel|[.]|\b)\s*([0-9.:]+[a-z]*))", text
     ):
-        artikel_matches.append(artikel_mo)
+        artikel_matches.append(artikel_matchobject)
 
     # note to self: just the article bit also good for creating an anchor for test cases later,
     #               to see what we miss and roughly why
 
-    for artikel_mo in artikel_matches:  # these should be unique references
+    for matchnum, artikel_matchobject in enumerate(artikel_matches):  # these should be unique references
         details = collections.OrderedDict()
-        details["artikel"] = artikel_mo.group(1)
+        details["artikel"] = artikel_matchobject.group(1)
         # if debug:
         #    print('------')
         #    print(artikel_mo)
 
-        overallmatch_st, overallmatch_en = artikel_mo.span()
+        overallmatch_st, overallmatch_en = artikel_matchobject.span()
 
         # based on that anchoring match, define a range to search in
         wider_start = max(0, overallmatch_st - context_amt)
@@ -205,9 +205,10 @@ def _find_nonidentifier_references(
             overallmatch_st + context_amt, 
             len(text),
         )
-        nextartikel = text.find('artikel', overallmatch_st+5) # hard cut at the next 'artikel'. Ideally not special case, but good enough for now.
-        if nextartikel != -1:
-            wider_end = min( wider_end, nextartikel)
+
+        if matchnum + 1 < len(artikel_matches): # hard cut at the next 'artikel'. Ideally not special case, but good enough for now.
+            nextmatch = artikel_matches[ matchnum + 1 ]
+            wider_end = min( wider_end, nextmatch.start())
 
         # Look for some specific strings around the matched 'artikel', (and record whether they came before or after)
         find_things = {
@@ -379,8 +380,8 @@ def _find_nonidentifier_references(
             if m is not None:
                 #print( m.group(0) )
                 overallmatch_en += len( m.group(0) )
-                details['law'] = m.group(0).strip(', ')
-        except Exception as e: #if any art of that fails, don't do it
+                details['nameref'] = m.group(0).strip(', ')
+        except Exception as e: #if any any of that fails, don't do it
             pass
             #print( 'BLAH',e )
             #raise ValueError( "Something failed traing to match law names" ) from e
@@ -398,20 +399,21 @@ def _find_nonidentifier_references(
     return ret
 
 
-def find_references(text,
-                    bwb=True,
-                    cvdr=True,
-                    ecli=True,
-                    celex=True,
-                    ljn=False,
-                    vindplaatsen=True,
-                    semistructured=True,
-                    nonidentifier=True,
-                    kamerstukken=True,
-                    euoj=True,
-                    eudir=True,
-                    debug=False):
-    ''' joins and sorts the results of various underlying matchers. '''
+def find_references(text:str,
+                    bwb:bool=True,
+                    cvdr:bool=True,
+                    ecli:bool=True,
+                    celex:bool=True,
+                    ljn:bool=False,
+                    vindplaatsen:bool=True,
+                    semistructured:bool=True,
+                    nonidentifier:bool=True,
+                    kamerstukken:bool=True,
+                    euoj:bool=True,
+                    eudir:bool=True,
+                    debug:bool=False):
+    ''' joins and sorts the results of various underlying matchers. 
+    '''
     ret = []
 
     # There is a good argument to make this funcion call a more pluggable set of functions, rather than be one tangle of a function.
@@ -461,9 +463,8 @@ def find_references(text,
             match["start"] = rematch.start()
             match["end"] = rematch.end()
             match["text"] = rematch.group(0)
-            match["details"] = wetsuite.helpers.meta.parse_ecli(rematch.group(0))
             try:
-                wetsuite.helpers.meta.parse_ecli(match["text"])
+                match["details"] = wetsuite.helpers.meta.parse_ecli(match["text"])
             except ValueError:
                 match["invalid"] = True
             ret.append(match)
@@ -500,14 +501,14 @@ def find_references(text,
 
     ### Less structured yet #############################################
     if nonidentifier:
-        ret.extend( _find_nonidentifier_references(text, debug=debug) )
+        ret.extend( find_artikel_references(text, debug=debug) )
 
     ret.sort(key=lambda d:d['start'])
     return ret
 
 
 def mark_references_spacy(doc, # replace=True,
-                          ecli=True, celex=True, ljn=False, vindplaatsen=True, semistructured=True, nonidentifier=True, kamerstukken=True, euoj=True, eudir=True
+                          ecli:bool=True, celex:bool=True, ljn:bool=False, vindplaatsen:bool=True, semistructured:bool=True, nonidentifier:bool=True, kamerstukken:bool=True, euoj:bool=True, eudir:bool=True
                           ):
     ''' Takes a spacy Doc, uses find_references(), marks it as entities. 
 
@@ -691,38 +692,63 @@ def abbrev_find(text: str):
     return matches
 
 
-def abbrev_count_results(l, remove_dots=True):
-    """In case you have a lot of data, you can get reduced yet cleaner results
+def abbrev_count_results(l, remove_dots:bool=False, case_insensitive_explanations=False):
+    """In case you have a lot of data, you can get cleaner (but reduced!) results
     by reporting how many distinct documents report the same specific explanation
-    (note: NOT how often we saw this explanation).
 
-    Takes a list of document results,
-    where each such result is what find_abbrevs() returned, i.e. a list of items like ::
-        ('ww', ['word', 'word'])
+    @param l: A nested structure, where 
+    - the top level is a list where each item represents a document
+    - Each of those is what find_abbrevs() returned, i.e. a list of items like ::
+        ('AE', ['Abbreviation', 'Explanation'])
 
-    Returns something like: ::
-      { 'ww' : {['word','word']: 3,  ['word','wordle']: 1 } }
-    where that 3 would be how mant documents had this explanation.
+    @param remove_dots: whether to normalize the abbreviated form by removing any dots.
 
-    CONSIDER:
-      - case insensitive mode where it counts lowercase, but report whatever the most common capitalisation is
+    @param case_insensitive_explanations: whether we consider the explanatory words in a case insensitive way while counting.
+    We report whatever the most common capitalisation is.
+
+    @return: something like: ::
+        { 'AE' : {
+            ['Abbreviation', 'Explanation']: 3,  
+            ['Abbreviation', 'Erroneous']: 1 
+        } }
+    where that number would be how many documents had this explanation (NOT how often we saw this explanation).
     """
-    ret = {}
+
+    # If case_insensitive_explanations, then we should transform that data list OR decided how to map, _before_ we count
+    #TODO: go over this again, and add tests, I'm not yet sure it's correct
+    variant_map = {}
+    if case_insensitive_explanations:
+        # count all the forms
+        most_common_counter = collections.defaultdict(list) # tup_lower -> list of tup_real
+        for doc_result in l:
+            for _, wordlist in doc_result:
+                most_common_counter[ tuple(w.lower() for w in wordlist) ].append( tuple(wordlist) )
+        # decide which we prefer, and map from each
+        for tupreal_list in most_common_counter.values(): # the key doesn't matter anymore, it was only used to group
+            most_common_tup, _ = collections.Counter(tupreal_list).most_common(1)[0]
+            for tupreal in tupreal_list:
+                variant_map[tupreal] = most_common_tup
+
+    intermediate = {} # abbrev ->  (explanatorywordlist -> set of docs that have that)
     for doc_result in l:
         for ab, words in doc_result:
-            words = tuple(words)
+            words = tuple(words)      # (to make it hashable)
             if remove_dots:
                 ab = ab.replace(".", "")
-                if ab not in ret:
-                    ret[ab] = {}
-                if words not in ret[ab]:
-                    ret[ab][words] = set()
-                ret[ab][words].add(id(doc_result))
 
-    counted = (
-        {}
-    )  # could do this with syntax-fu, but this is probably more more readable
-    for abbrev, word_idlist in ret.items():
+            if case_insensitive_explanations:
+                words = variant_map[words]
+
+            if ab not in intermediate:
+                intermediate[ab] = {}
+            if words not in intermediate[ab]:
+                intermediate[ab][words] = set()
+
+            intermediate[ab][words].add( id(doc_result) )
+
+    # we could do this with syntax-fu, but this is probably more more readable
+    counted = {}
+    for abbrev, word_idlist in intermediate.items():
         counted[abbrev] = {}
         for word, idlist in word_idlist.items():
             counted[abbrev][word] = len(idlist)
