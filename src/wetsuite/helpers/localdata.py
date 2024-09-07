@@ -660,6 +660,7 @@ def cached_fetch(
     url: str,
     force_refetch: bool = False,
     sleep_sec: float = None,
+    timeout: float = 20,
     commit: bool = True,
 ) -> Tuple[bytes, bool]:
     """Helper to fetch URL contents into str-to-bytes (url-to-content) LocalKV store:
@@ -675,8 +676,9 @@ def cached_fetch(
 
     @param store:     a store to get/put data from
     @param url:       an URL string to fetch
-    @param sleep_sec: whenever we fetch (rather than return from cache), sleep this long,
-    so that when you use this in scraping, we can be nicer to a server.
+    @param sleep_sec: sleep this long whenever we did an actual fetch (and not when we return data from cache), 
+    so that when you use this in scraping, we can easily be nicer to a server.
+    @param timeout:   timeout of te fetch
     @return: (data:bytes, whether_it_came_from_cache:bool)
 
     May raise
@@ -703,14 +705,18 @@ def cached_fetch(
             return ret, True
         except KeyError:  # get() notices it's not there, so fetch it ourselves
             data = wetsuite.helpers.net.download(
-                url
+                url,
+                timeout=timeout
             )  # note that this can error out, which we don't handle
             store.put(url, data, commit=commit)
             if sleep_sec is not None:
                 time.sleep(sleep_sec)
             return data, False
     else:  # force_refetch is True
-        data = wetsuite.helpers.net.download(url)
+        data = wetsuite.helpers.net.download(
+            url,
+            timeout=timeout
+        )
         store.put(url, data, commit=commit)
         if sleep_sec is not None:
             time.sleep(sleep_sec)
