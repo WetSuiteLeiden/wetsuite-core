@@ -427,8 +427,8 @@ def load(dataset_name: str, verbose=None, force_refetch=False, check_free_space=
     dataset naming should prevent the need for this (except if you're the wetsuite programmer)
 
     @return: a Dataset object - which is a container object with little more than
-      - a .description, which is a string
-      - a .data member, some kind of iterable of items.
+      - a C{.description} (a string)
+      - a C{.data} member, some kind of iterable of items.
         The .description should mention what .data will contain
         and should give an example of how to use it.
     """
