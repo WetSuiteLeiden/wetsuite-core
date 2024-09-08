@@ -132,6 +132,12 @@ def test_has_text():
     assert not has_text("C-189922", mincount=2)
 
 
+def test_has_text_float():
+    'test that "float for fraction of length" works'
+    assert has_text("C-189922", 0.1)
+    assert not has_text("C-189922", mincount=0.5)
+
+
 def test_count_unicode_categories_1():
     "more character focused"
     simpler, longer = count_unicode_categories("Fisher 99 \u2222 \uc3a9 \U0001F9C0")
@@ -222,6 +228,12 @@ def test_ngram_count():
     assert ngram_count('foo fo', (2,3)) == {'fo': 2, 'oo': 1, 'o ': 1, ' f': 1, 'foo': 1, 'oo ': 1, 'o f': 1, ' fo': 1}
 
 
+def test_ngram_count_splitfirst():
+    "Test the 'split first so we don't collect across word boundaries' argument"
+    assert ngram_count('fooo baar', (2,3), splitfirst=True) == {'fo': 1, 'foo': 1, 'oo': 2, 'ooo': 1,   'ba': 1, 'baa': 1,  'aa': 1, 'aar': 1, 'ar': 1, }
+
+
+
 def test_ngram_matchcount():
     "Test that it scores like it did at first"
     score = ngram_matchcount(
@@ -234,7 +246,14 @@ def test_ngram_matchcount():
 
 def test_ngram_sort_by_matches():
     "test that fork is put in front of that list"
-    assert ngram_sort_by_matches( 'for', ['spork', 'knife', 'spoon', 'fork'])[0] == 'fork'
+    assert ngram_sort_by_matches( 'for', ['spork', 'knife', 'spoon', 'fork'])[0] == 'fork' # here mainly to point out that's a use
+    assert ngram_sort_by_matches( 'for', ['spork', 'knife', 'spoon', 'fork']) == ['fork', 'spork', 'knife', 'spoon']
+
+
+def test_ngram_sort_by_matches_with_scores():
+    "test that fork is put in front of that list"
+    assert ngram_sort_by_matches( 'for', ['spork', 'knife', 'spoon', 'fork'], with_scores=True) == [('fork', 10), ('spork', 4), ('knife', 1), ('spoon', 1)] 
+    # those scores might change with the implementation, maybe only test that we have str,int tuples?
 
 
 def test_count_normalized():
@@ -252,6 +271,9 @@ def test_count_normalized():
     assert cs["A"] == 7
     assert cs["b"] == 5
 
+
+def test_count_case_insensitive():
+    ' test the case-insensitive variation '
     cs = count_case_insensitive("a A A a A A a B b b B b".split())
     assert cs["A"] == 7
     assert cs["b"] == 5
@@ -263,6 +285,15 @@ def test_count_normalized():
     assert cs["bb"] == 3
     assert cs["cc"] == 2
     assert "d" not in cs
+
+
+def test_count_normalized_mincount_wut():
+    ' test that it errors out on things not int or float '
+    with pytest.raises(TypeError):
+        count_normalized("a A A a A A a B b b B b".split(), min_count=None)
+
+    with pytest.raises(TypeError):
+        count_normalized("a A A a A A a B b b B b".split(), min_count='cheese')
 
 
 def test_stop():
