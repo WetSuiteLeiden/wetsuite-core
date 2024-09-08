@@ -465,7 +465,7 @@ def find_references(text:str,
             match["text"] = rematch.group(0)
             try:
                 match["details"] = wetsuite.helpers.meta.parse_ecli(match["text"])
-            except ValueError:
+            except ValueError: # as of this writing this seems impossible as all the things it checks for are also the thing _RE_ECLIFIND matches on, but it's a good check to have should either change.
                 match["invalid"] = True
             ret.append(match)
 
