@@ -501,7 +501,7 @@ def ngram_count(string:str, gramlens:List[int]=(2,3,4), splitfirst:bool=False):
 
         @param string: the string to count n-grams from 
         @param gramlens: list of lengths you want (defaults to (2,3,4): 2-grams, 3-grams and 4-grams)
-        @param splitfirst: is here if you want to apply it to words
+        @param splitfirst: is here if you want to apply it to words - that is, do a (dumb) split so that we don't collect n-grams across word boundaries
         @return: a dict with string : occurences
     """
     if splitfirst:
