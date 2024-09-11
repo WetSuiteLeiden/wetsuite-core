@@ -166,13 +166,26 @@ def all_text_fragments(
     ignore_tags=(),
     join: str = None,
     stop_at: list = None,
-):  # , add_spaces=['extref',]
+    # , add_spaces=['extref',]
+):  
     """Returns all fragments of text contained in a subtree, as a list of strings.
 
     For example,  all_text_fragments( fromstring('<a>foo<b>bar</b></a>') ) == ['foo', 'bar']
 
-    Note that this is a convenience function that lets you be pragmatic with creative HTML-like nesting,
-    and perhaps should not be used for things that are strictly data.
+    Note that:
+      - for simpler uses, this is itertext() with extra steps. You may not need this.
+      - this is a convenience function that lets you be pragmatic with creative HTML-like nesting,
+        and perhaps should not be used for things that are strictly data.
+
+    TODO: more tests, I'm moderately sure strip doesn't do quite what it should.
+
+    TODO: add add_spaces - an acknowledgment that in non-HTML,
+    as well as equally free-form documents like this project often handles,
+    that element should be considered to split a word (e.g. p in HTML) or
+    that element probably doesn't split a word (e.g. em, sup in HTML)
+    The idea would be that you can specify which elements get spaces inserted and which do not.
+    Probably with defaults for us, which are creative and not necessarily correct, 
+    but on average makes fewer weird mistakes (would need to figure that out from the various schemas)
 
     @param strip: is what to remove at the edges of each .text and .tail
     ...handed to strip(), and note that the default, None, is to strip whitespace
@@ -186,17 +199,8 @@ def all_text_fragments(
     If a tag name is in this sequence, we stop walking the tree entirely.
     (note that it would still include that tag's tail; CONSIDER: changing that)
 
-
-    TODO: more tests, I'm moderately sure strip doesn't do quite what it should.
-
-    TODO: add_spaces - an acknowledgment that in non-HTML,
-    as well as equally free-form documents like this project often handles,
-    that element should be considered to split a word (e.g. p in HTML) or
-    that element probably doesn't split a word (e.g. em, sup in HTML)
-
-    Here you specify the things where we add spaces (maybe prepend to .text and .tail).
-    This is creative and not necessarily correct, but on average makes fewer weird mistakes
-    TODO: figure out a decent default from the various schemas
+    @return: if join==None (the default), a list of text fragments. 
+    If join is a string, a single string (joined on that string)
     """
     ret = []
     for elem in under_node.iter():  # walks the subtree
