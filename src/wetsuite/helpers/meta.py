@@ -617,15 +617,14 @@ def _is_all_digits(s):  # perhaps could be helpers.strings.is_numeric?
     return len(s.strip("0123456789")) == 0
 
 
+_re_bekendid = re.compile(r"((?:ag-tk|ag-ek|ag-vv|ag|ah-tk|ah-ek|ah-tk|h-ek|h-tk|kv-tk|kv|blg|kst|stcrt|stb|gmb|prb|wsb|bgr|trb|nds-tk|nds-ek|nds)-[a-z0-9-]+)")
+
 def findall_bekendmaking_ids(instring: str):
     """Look for identifiers like 'stcrt-2009-9231' and 'ah-tk-20082009-2945'
     Might find a few things that are not.
     """
     # Note that knowing most of the variants, we could refine this and avoid some false positives
-    return re.findall(
-        "((?:ag-tk|ag-ek|ag-vv|ag|ah-tk|ah-ek|ah-tk|h-ek|h-tk|kv-tk|kv|blg|kst|stcrt|stb|gmb|prb|wsb|bgr|trb|nds-tk|nds-ek|nds)-[a-z0-9-]+)",
-        instring,
-    )
+    return _re_bekendid.findall( instring )
 
 
 def parse_bekendmaking_id(s):
