@@ -571,22 +571,24 @@ class LocalKV:
         chosen_key = random.choice(all_keys)
         return chosen_key, self.get(chosen_key)
 
-    def random_sample(self, amount):
+    def random_sample(self, n):
         """Returns an amount of [(key, value), ...] list from the store, selected randomly.
+
+        Note that when you ask for a larger sample than the entire population, you get the entire population
+        (and unlike random.sample, we don't raise a ValueError to point out this is no longer really random)
 
         Convenience function, because you can do this yourself, though it takes two or three lines of code;
         while you can't random.choice/random.sample a view,
         to do it properly you basically have to materialize all keys (and probably not accidentally all values)
-
         BUT
-            - assume this is slower than working on the keys yourself,
-            - assume this is is unnecessarily RAM intensive when you want a _lot_ of items.
+            - assume this is slower than cleverly working on the keys yourself,
+            - assume this is is unnecessarily RAM intensive / extra work when you want a _lot_ of items anyway.
         """
         all_keys = list(self.keys())
-        amount = min(amount, len(all_keys)) # maybe actually raise, to be consistent with random.sample?
-        #if amount > len(all_keys):
+        n = min(n, len(all_keys)) 
+        #if amount > len(all_keys): # doing this would be consistent with random.sample?
         #    raise ValueError(f"Sample larger than population (you asked for {amount}, we have {len(all_keys)})")
-        chosen_keys = random.sample(all_keys, amount)
+        chosen_keys = random.sample(all_keys, n)
         return list((chosen_key, self.get(chosen_key)) for chosen_key in chosen_keys)
 
     def random_keys(self, n=10):
@@ -596,6 +598,17 @@ class LocalKV:
         all_keys = list(self.keys())
         chosen_keys = random.sample(all_keys, min(n, len(all_keys)))
         return chosen_keys
+
+    def random_values(self, n=10):
+        """Returns a amount of values in a list, selected randomly.
+        Be aware that for large samples, you can probably keep memory use down a bunch by 
+        by getting random_keys(), then fetching the value one by one.
+        """
+        ret = []
+        for key, value in self.random_sample(n=n):
+            # could yield? but no real point.
+            ret.append(value)
+        return ret
 
 
 class MsgpackKV(LocalKV):
@@ -782,30 +795,6 @@ def resolve_path(name: str):
     else:  # bare name, do our "put in homedir" logic
         dirs = wetsuite.helpers.util.wetsuite_dir()
         return os.path.join(dirs["stores_dir"], name)
-
-
-# def open_store(dbname:str, key_type, value_type, inst=LocalKV, read_only=False) -> LocalKV:
-#     ''' For notes on key_type and value_type, see LocalKV.__init__()
-
-#         dbname can be
-#         - :memory:
-#         - an absolute path (you decide where to put it)
-#         - a relative path with os.sep in it (resolved relative to cwd)
-#         - a bare name without os.sep in it (we place it somewhere in your home dir)
-
-#         inst is currently a hack, this might actually need to become a factory
-#     '''
-#     # CONSIDER: sanitize filename?
-#     if dbname == ':memory:':  # special-case the sqlite value of ':memory:' (pass it through)
-#         ret = inst( dbname, key_type=key_type, value_type=value_type, read_only=read_only )
-
-#     elif os.sep in dbname:
-#         ret = inst( dbname, key_type=key_type, value_type=value_type )
-
-#     else: # bare name,
-#         _docstore_path = store_in_profile(dbname)
-#         ret = inst( _docstore_path, key_type=key_type, value_type=value_type, read_only=read_only )
-#     return ret
 
 
 def list_stores(
