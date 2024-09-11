@@ -71,9 +71,29 @@ def test_moreapi():
 
     repr(kv)
 
+
+def test_moreapi_random():
+    "More API stuff, randomness related"
+    kv = wetsuite.helpers.localdata.LocalKV(":memory:", str, str)
+    kv.put("a", "b")
+    kv.put("c", "d")
+
     kv.random_choice()
 
+
     kv.random_sample(1)
+
+    kv.random_keys(1)
+
+    kv.random_values(1)
+
+    # more than we have
+    assert len( kv.random_sample(99) ) == 2
+
+    kv.random_keys(99)
+
+    kv.random_values(99)
+
 
 
 def test_list():
@@ -393,6 +413,7 @@ def test_cached_fetch_type():
 
     with pytest.raises(TypeError, match=r".*descend*"):  # complaint about type
         wetsuite.helpers.localdata.cached_fetch("https://www.google.com/", kv)
+
     with pytest.raises(TypeError, match=r".*descend*"):  # complaint about type
         wetsuite.helpers.localdata.cached_fetch({}, kv)
 
