@@ -1,120 +1,36 @@
 """
-Extracting specific patterns of text, primarily aimed at identfiers and references
-  - BWB-ID
-  - CVDR-ID
-  - ECLI
-  - LJN
-  - CELEX, 
-  - EU OJ references
-  - EU Directive references,
-  - vindplaats (decentralized style)
-  - Kamerstukken references
-  - "artikel 3, ..." style references
+Extracting specific patterns of text.
 
 
+Much of the code in here is aimed at identfiers and references - 
+identifiers like BWB-ID, CVDR-ID, ECLI, and CELEX,
+more textual ones like EU OJ and directive references, vindplaats, kamerstukken, and "artikel 3" style references 
+-- see in particular the C{find_references} function for a little more detail
 
-It's more of a proof of concept of each,
-best-effort, and contain copious hardcoding and messines,
-and _will_ miss things.
+Currently a best-effort proof of concept of each of those matchers,
+and contain copious hardcoding and messiness.
 
-The only real metric is making a list of _everything_ you want to catch
-and seeing how well you do. Exactly how we implement that is of secondary importance.
+We _will_ miss things, as most things like this do. Arguably the only real metric 
+is making a list of _everything_ you want to catch and seeing how well you do.
 
-Right now it's mostly regexes -- which aren't great for this.
-But so aren't formal grammars, because real-world variation will be missed.
+Right now the implementation is mostly regexes -- which aren't great for some of these.
+(But so aren't formal grammars, because real-world variation will be missed)
 
 
-Ideally, each function further notes how much can and can't expect from it.
+Note that if refined further, this should probably be restructured in a way
+where each matcher can register itself, 
+so that there _isn't_ one central controller function to entangle everything
 """
 
 import re
 import collections
 import textwrap
+#from typing import List
 
 import wetsuite.datasets
 import wetsuite.helpers.strings
 import wetsuite.helpers.meta
-from typing import List
-
-
-def _find_semistructured_references(text:str, kamerstukken:bool=True, euoj:bool=True, eudir:bool=True): # TODO: merge with its duplicate above?
-    """
-    These are more textual, and more varied, so more easily miss parts.
-    
-    ...and which may benefit from _not_ being implemented with regexps, even if they currently are.
-
-    e.g. from https://zoek.officielebekendmakingen.nl/stb-2001-580.html
-      - Kamerstukken II 2015/16, 34442, nr. 3, p. 7.
-      - Kamerstukken I 1995/96, 23700, nr. 188b, p. 3.
-      - Kamerstukken I 2014/15, 33802, C, p. 3.
-      - Kamerstukken II 1999/2000, 2000/2001, 2001/2002, 26 855.
-      - Kamerstukken I 2000/2001, 26 855 (250, 250a); 2001/2002, 26 855 (16, 16a, 16b, 16c).
-
-    Leidraad voor juridische auteurs
-
-    Returns a list of docuts, each with at least
-      - "type"            - type of reference, e.g. "kst"
-      - "start" and "end" - character offsets
-      - "text"            -  rematch.group(0)
-    """
-    ret = []
-
-    if kamerstukken:
-        # I'm not sure about the standard here, and the things I've found seem frequently violated
-        # vergaderjaar is required
-        # the rest is technically made optional here, though in practice some of them must be there
-        # allow abbreviations/misspellings?
-        #                                                                         _____________________________________  ________________________________________________________________________
-        kre = r"(Kamerstukken|Aanhangsel Handelingen|Handelingen)( I| II| 1| 2)?@(,?@(?:vergaderjaar )?[0-9]+[/-][0-9]+)(@,@[0-9]+(?: [XVI]+)?|@, item [0-9]+|@, (nr|p|blz)[.]@[0-9-]+|@, [A-Z]+)*"
-        # these two replaces imply:
-        # - ' ' actually means one or more newline-or-space
-        # - '@' actually means zero or more newline-or-space
-        kre = kre.replace( " ", r"[\n\s]+" ).replace( "@", r"[\n\s]*" )
-        #print(kre)
-        for rematch in re.finditer( kre, text, flags=re.M):
-            match = {}
-            match["type"] = "kamerstukken"
-            match["start"] = rematch.start()
-            match["end"] = rematch.end()
-            match["text"] = rematch.group(0)
-            # TODO: add parsed details
-            ret.append(match)
-
-    # TODO: figure out what variations there are  (to the degree there is standardization at all)
-    if euoj:
-        _RE_EUOJ = re.compile(
-            r"(OJ|Official Journal)[\s]?(C|CA|CI|CE|L|LI|LA|LM|A|P) [0-9]+([\s]?[A-Z]|/[0-9])*(, p. [0-9\u2013-]+(\s*[\u2013-]\s*[0-9-]+)*|, [0-9]{1,2}[./][0-9]{1,2}[./][0-9][0-9]{2,4})+".replace(
-                " ", r"[\s\n]+"
-            ),
-            flags=re.M,
-        )
-        for rematch in _RE_EUOJ.finditer(text):
-            match = {}
-            match["type"] = "euoj"
-            match["start"] = rematch.start()
-            match["end"] = rematch.end()
-            match["text"] = rematch.group(0)
-            # TODO: add parsed details
-            ret.append(match)
-
-    if eudir:
-        _RE_EUDIR = re.compile(
-            r"(Council )?(Directive) [0-9]{2,4}/[0-9]+(/EC|/EEC|/EU)?".replace(" ", r"[\s\n]+"),
-            flags=re.M,
-        )
-
-        for rematch in _RE_EUDIR.finditer(text):
-            match = {}
-            match["type"] = "eudir"
-            match["start"] = rematch.start()
-            match["end"] = rematch.end()
-            match["text"] = rematch.group(0)
-            # TODO: parse details
-            ret.append(match)
-
-    ret.sort(key=lambda m: m["start"])
-    return ret
-
+import wetsuite.helpers.koop_parse
 
 
 def _wetnamen():
@@ -138,25 +54,24 @@ _mw_re = re.compile( _mw, flags=re.I )
 
 def find_artikel_references(
     text:str, context_amt:int=60, debug:bool=False
-):  # TODO: needs a better name
+):
     """Attempts to find references like ::
         "artikel 5.1, tweede lid, aanhef en onder i, van de Woo"
     and parse and resolve as much as it can.
 
-    @return: a list of (matched_text, parsed_details_dict)
+    This is a a separate function because it is more complex than most others, 
+    but if you want to look for more than just these, 
+    then you probably want to wield it via C{find_references}.
 
-    TODO: make context part of each match
-
-    Such referencs are not a formalized format,
+    These  references are not a formalized format,
     and while the law ( https://wetten.overheid.nl/BWBR0005730/ ) that suggests 
-    the format of these should be succinctness and might have near-templates,
+    the format of these should be succinct, and sometimes it looks like these have near-templates,
     that is not what real-world use looks like.
 
-    One reasonable approach might be include each real-world variant format explicitly,
-    as it lets you put stronger patterns first and fall back on fuzzier,
+    Another reasonable approach might be include each real-world variant format explicitly,
+    as it lets you put stronger patterns first and fall back on fuzzier ones,
     it makes it clear what is being matched, and it's easier to see how common each is.
-
-    However, that easily leads to false negatives -- missing real references.
+    However, that also easily leads to false negatives -- missing real references.
 
     Instead, we
         - start by finding some strong anchors
@@ -164,8 +79,7 @@ def find_artikel_references(
         "artikel 5.1,"   "tweede lid,"   "aanhef en onder i"
         - then seeing what text is around it, which should be at least the law name
 
-
-    Neither will deal with the briefest forms, e.g. "(81 WWB)"
+    Neither will deal well with the briefest forms, e.g. C{"(81 WWB)"}
     which is arguably only reasonable to recognize when you recognize either side
     (by known law name, which is harder for abbreviations in that it probably leads to false positives)
     ...and in that example, we might want to
@@ -177,7 +91,13 @@ def find_artikel_references(
     TODO: ...also so that we can return some estimation of
         - how sure we are this is a reference,
         - how complete a reference is, and/or
-        - how easy to resolve a reference is.
+        - how easy to resolve a reference is.    
+
+    @param text: the text to look in
+
+    @param context_amt: how much context to find another piece in (TODO: make this part of internal parameters)
+    
+    @return: a list of dict matches, as also mentioned on find_references()
     """
     ret = []
     artikel_matches = []
@@ -202,7 +122,7 @@ def find_artikel_references(
         # based on that anchoring match, define a range to search in
         wider_start = max(0, overallmatch_st - context_amt)
         wider_end = min(
-            overallmatch_st + context_amt, 
+            overallmatch_st + context_amt,
             len(text),
         )
 
@@ -221,6 +141,7 @@ def find_artikel_references(
             "paragraaf":   ["A", "I", r"\bparagraaf#\b"],
             "aanwijzing":  ["A", "I", r"\b(?:aanwijzing|aanwijzingen)#\b"],
             "lid":         ["A", "I", r"\b(?:lid_(#)|(L)_(?:lid|leden))"],
+            "volzin":      ["A", "I", r"\b(?:volzin_(#)|(L)_(?:volzin|volzinnen))"],
             "aanhefonder": ["A", "I", r"((?:\baanhef_en_)?(onder|onderdeel|onderdelen)_[a-z0-9\u00ba]{1,2})"],  # CONSIDER: "en onder d en g", "aanhef en onder a of c"
             "sub":         ["A", "I", r"\bsub_[a-z0-9\u00ba]+\b"],
             'vandh':       ['A', 'I',  r'\bvan_(?:het|de)\b'                                    ],
@@ -243,7 +164,7 @@ def find_artikel_references(
             res = res.replace("#", r"([0-9.:]+[a-z]*)")
 
             if "L" in res:
-                # print('BEF',res)
+                # TODO: recall what this... is... doing.
                 rrr = r"(?:O(?:,?_O)*(?:,?_en_O)?)".replace("_", r"[\s\n]+").replace(
                     "O", re_some_ordinals
                 )
@@ -348,40 +269,46 @@ def find_artikel_references(
             text[overallmatch_st:overallmatch_en].upper(),
             text[overallmatch_en:wider_end],
         )
-        # print( 'SETTLED ON')
-        # print( '\n'.join( textwrap.wrap(s_art_context.strip(),
-        #               width=70, initial_indent='     ', subsequent_indent='     ') ) )
-        # print( details )
+        # if debug:
+        #     print( 'SETTLED ON')
+        #     print( '\n'.join( textwrap.wrap(s_art_context.strip(),
+        #                 width=70, initial_indent='     ', subsequent_indent='     ') ) )
+        #     print( details )
 
-        if "lid" in details:
-            details["lid_num"] = []
-            lidtext = details["lid"]
-            words = list(
-                s.strip()
-                for s in re.split(r"[\s\n]*(?:,| en\b)", lidtext, flags=re.M)
-                if len(s.strip()) > 0
-            )
-            for part in words:
-                try:
-                    details["lid_num"].append(int(part))
-                except ValueError:
+        # parse ordinals in certain fields:
+        for key, target in (
+            ('lid', 'lid_num'),
+            ('volzin', 'volzin_num'),
+        ):
+            if key in details:
+                details[target] = []
+                lidtext = details[key]
+                words = list(
+                    s.strip()
+                    for s in re.split(r"[\s\n]*(?:,| en\b)", lidtext, flags=re.M)
+                    if len(s.strip()) > 0
+                )
+                for part in words:
                     try:
-                        details["lid_num"].append(
-                            wetsuite.helpers.strings.interpret_ordinal_nl(part)
-                        )
+                        details[target].append(int(part))
                     except ValueError:
-                        pass
+                        try:
+                            details[target].append(
+                                wetsuite.helpers.strings.interpret_ordinal_nl(part)
+                            )
+                        except ValueError:
+                            pass
 
-        #print(details)
         #if len(details) > 1: # if it's more details than just "artikel 81"
+        # Try to see if the text right after is a known name reference
         try:
-            text_after = text[overallmatch_en:overallmatch_en+1000]
+            text_after = text[overallmatch_en:overallmatch_en+1000].lstrip(',;. ')
             m = _mw_re.match( text_after )
             if m is not None:
                 #print( m.group(0) )
                 overallmatch_en += len( m.group(0) )
                 details['nameref'] = m.group(0).strip(', ')
-        except Exception as e: #if any any of that fails, don't do it
+        except Exception: #if any any of that fails, don't do it    for now, pylint: disable=broad-exception-caught
             pass
             #print( 'BLAH',e )
             #raise ValueError( "Something failed traing to match law names" ) from e
@@ -391,8 +318,6 @@ def find_artikel_references(
             "start": overallmatch_st,
             "end": overallmatch_en,
             "text": text[overallmatch_st:overallmatch_en],
-            #"text_after": text_after[:100],# might be useful
-            # 'contexttext':text,
             "details": details,
         } )
 
@@ -405,14 +330,54 @@ def find_references(text:str,
                     ecli:bool=True,
                     celex:bool=True,
                     ljn:bool=False,
+                    bekendmaking_ids:bool=False,
                     vindplaatsen:bool=True,
-                    semistructured:bool=True,
-                    nonidentifier:bool=True,
+                    artikel:bool=True,
                     kamerstukken:bool=True,
                     euoj:bool=True,
                     eudir:bool=True,
+                    eureg:bool=True,
                     debug:bool=False):
-    ''' joins and sorts the results of various underlying matchers. 
+    ''' Looks for various different kinds of references in the given text, sorts the results. 
+
+    Note that there is a gliding scale between 'is this and identifier and will we probably find most of them'
+    and 'is this more textual, more varied, so more easily miss parts'
+    (...and should this perhaps not be implemented with regexes as it currently is)
+
+    See also:
+      - Leidraad voor juridische auteurs
+
+    @param text: the string to look in. Note that matches return offsets within this string.
+    @param bwb: whether to look for BWB identifiers, e.g. BWBR0006501
+    @param cvdr: whether to look for CVDR work and expression identifiers, e.g. CVDR101405_1  CVDR101405/1  CVDR101405
+    @param ecli: whether to look for ECLI identifiers, e.g. ECLI:NL:HR:2005:AT4537
+    @param celex: whether to look for CELEX identifiers, e.g. 32000L0060 and some variations
+    @param ljn: whether to look for LJN identifiers, e.g. AT4537
+    (disabled by default because we want you to be explicitly aware of false negatives. Also they aren't used anymore)
+    @param bekendmaking_ids: whether to look for bekendmaking-ids like kst-26643-144-h1 and h-tk-20082009-7140-7144.
+    Disabled by default because you're not usally seeing these in text.
+    @param vindplaatsen: whether to look for vindplaatsen for Trb, Stb, Stcrt, e.g. C{"Stb. 2011, 35"} are actually quite regular (mostly by merit of being simple)
+    @param artikel: whether to look for B{artikel 3, lid 3, aanhef en onder c} style references
+    @param kamerstukken: whether to look for kamerstukken references, the ones that look like::
+      Kamerstukken I 1995/96, 23700, nr. 188b, p. 3.
+      Kamerstukken I 2014/15, 33802, C, p. 3.
+      Kamerstukken II 1999/2000, 2000/2001, 2001/2002, 26 855.
+      Kamerstukken I 2000/2001, 26 855 (250, 250a); 2001/2002, 26 855 (16, 16a, 16b, 16c).
+    @param euoj: whether to look for EU Official Journal references, the ones that look like::
+        OJ L 69, 13.3.2013, p. 1
+        OJ L 168, 30.6.2009, p. 41–47
+    @param eudir: whether to look for EU directive references, the ones that look like::
+        Council Directive 93/42/EEC of 14 June 1993
+        Directive 93/42/EEC of 14 June 1993
+    @param debug: whether to look for
+
+    @return:
+    A list of dicts (sorted by the value of `start`), each with at least the keys
+      - C{"type"}               - type of reference, e.g. "kst", "euoj", "artikel"
+      - C{"start"} and C{"end"} - character offsets of the match
+      - C{"text"}               - all the matched text
+    and probably
+      - C{"details"}, with contents that are mostly specific to the type of reference
     '''
     ret = []
 
@@ -439,8 +404,13 @@ def find_references(text:str,
             match["start"] = rematch.start()
             match["end"] = rematch.end()
             match["text"] = rematch.group(0)
-            ret.append(match)
+            try:
+                workid, expressionid = wetsuite.helpers.koop_parse.cvdr_parse_identifier(rematch.group(0))
+                match["details"] = {'workid':workid, 'expressionid':expressionid}
+            except Exception: # for now, pylint: disable=broad-exception-caught
+                pass
 
+            ret.append(match)
 
     if ljn:
         for rematch in re.finditer(
@@ -478,13 +448,32 @@ def find_references(text:str,
             match["start"] = rematch.start()
             match["end"] = rematch.end()
             match["text"] = rematch.group(0)
-            match["details"] = wetsuite.helpers.meta.parse_celex(rematch.group(0))
+            try:
+                match["details"] = wetsuite.helpers.meta.parse_celex(rematch.group(0))
+            except ValueError:
+                match["invalid"] = True
             ret.append(match)
+
+    if bekendmaking_ids:
+        for rematch in wetsuite.helpers.meta._re_bekendid.finditer( # pylint: disable=protected-access
+            text
+        ):
+            match = {}
+            match["type"] = "bekend"
+            match["start"] = rematch.start()
+            match["end"] = rematch.end()
+            match["text"] = rematch.group(0)
+            try:
+                match["details"] = wetsuite.helpers.meta.parse_bekendmaking_id(rematch.group(0))
+            except Exception: # for now, pylint: disable=broad-exception-caught
+                match["invalid"] = True
+            ret.append(match)
+
 
     if vindplaatsen:
         # https://www.kcbr.nl/beleid-en-regelgeving-ontwikkelen/aanwijzingen-voor-de-regelgeving/hoofdstuk-3-aspecten-van-vormgeving/ss-33-aanhaling-en-verwijzing/aanwijzing-345-vermelding-vindplaatsen-staatsblad-ed
         for rematch in re.finditer(
-            r"\b((Trb|Stb|Stcrt)[.]?[\n\s]+[0-9\u2026.]+(,[\n\s]+[0-9\u2026.]+)?)",
+            r"\b((Trb|Stb|Stcrt)[.]?[\n\s]+([0-9\u2026.]+)(?:,[\n\s]+([0-9\u2026.]+))?)",
             text,
             flags=re.M,
         ):
@@ -493,38 +482,129 @@ def find_references(text:str,
             match["start"] = rematch.start()
             match["end"] = rematch.end()
             match["text"] = rematch.group(0)
+            try:
+                match["details"] = {}
+                match["details"]['what']   = rematch.groups()[1]
+                match["details"]['jaar']   = rematch.groups()[2]
+                match["details"]['nummer'] = rematch.groups()[3]
+            except Exception: # for now, pylint: disable=broad-exception-caught
+                pass
             ret.append(match)
 
     ### Less structured #################################################
-    if semistructured:
-        ret.extend( _find_semistructured_references(text, kamerstukken=kamerstukken, euoj=euoj, eudir=eudir) )
+    if kamerstukken:
+        # I'm not sure about the standard here, and the things I've found seem frequently violated
+        # vergaderjaar is required
+        # the rest is technically made optional here, though in practice some of them must be there
+        # allow abbreviations/misspellings?
+        #                                                                         _____________________________________  ________________________________________________________________________
+        kre = r"(Kamerstukken|Aanhangsel Handelingen|Handelingen)( I\b| II\b| 1\b| 2\b)?@(,?@(?:vergaderjaar )?[0-9]+[/-][0-9]+)((?:@,@[0-9]+(?: [XVI]+)?|@, item [0-9]+|@, (?:nr|p|blz)[.]@[0-9-]+|@, [A-Z]+)*)"
+        # these two replaces imply:
+        # - ' ' actually means one or more newline-or-space
+        # - '@' actually means zero or more newline-or-space
+        kre = kre.replace( " ", r"[\n\s]+" ).replace( "@", r"[\n\s]*" )
+        #print(kre)
+        for rematch in re.finditer(kre, text, flags=re.M):
+            match = {}
+            match["type" ] = "kamerstukken"
+            match["start"] = rematch.start()
+            match["end"]   = rematch.end()
+            match["text"]  = rematch.group(0)
+            # try: # CONSIDER: we have to consider all the optional parts, so this would probably change
+            #     groups = rematch.groups()
+            #     match["details"] = {}
+            #     #match["details"]['groups']  = groups
+            #     match["details"]['what']    = groups[0]
+            #     match["details"]['whatnum'] = groups[1]
+            #     match["details"]['jaar']    = groups[2]
+            #     match["details"]['rest']    = groups[3]
+            # except Exception as e:
+            #     pass
+            ret.append(match)
+
+    if euoj:
+        # Turns out there is a lot more variation than want I initially found
+        # TODO: figure out what variations there are  (to the degree there is standardization at all)
+        # OJ C, C/2024/5510, 11.9.2024
+        # OJ L 69, 13.3.2013, p. 1
+        # OJ L 168, 30.6.2009, p. 41–47
+        _RE_EUOJ = re.compile(
+            r"(OJ|Official Journal)[\s]?(C|CA|CI|CE|L|LI|LA|LM|A|P) [0-9]+([\s]?[A-Z]|/[0-9])*(,? p. [0-9\u2013-]+(\s*[\u2013-]\s*[0-9-]+)*|, [0-9]{1,2}[./][0-9]{1,2}[./][0-9][0-9]{2,4})+".replace(
+                " ", r"[\s\n]+"
+            ),
+            flags=re.M,
+        )
+        for rematch in _RE_EUOJ.finditer(text):
+            match = {}
+            match["type"] = "euoj"
+            match["start"] = rematch.start()
+            match["end"] = rematch.end()
+            match["text"] = rematch.group(0)
+            # TODO: add parsed details
+            ret.append(match)
+
+    if eudir:
+        # TODO: figure out real variation
+        _RE_EUDIR = re.compile(
+            r"(?:Council )?(Directive) [0-9]{2,4}/[0-9]+(/EC|/EEC|/EU)?".replace(" ", r"[\s\n]+"),
+            flags=re.M,
+        )
+
+        for rematch in _RE_EUDIR.finditer(text):
+            match = {}
+            match["type"] = "eudir"
+            match["start"] = rematch.start()
+            match["end"] = rematch.end()
+            match["text"] = rematch.group(0)
+            # TODO: parse details
+            ret.append(match)
+
+    if eureg:
+        # eureg like "Council Regulation (EEC) No 2658/87"
+        # TODO: find more real examples, this regex is guessing
+        _RE_EUREG = re.compile(
+            r"(?:Council )?(Regulation) [(]?(EC|EEC|EU)[)] (No.? [0-9/]+)".replace(" ", r"[\s\n]+"),
+            flags=re.M,
+        )
+        for rematch in _RE_EUREG.finditer(text):
+            match = {}
+            match["type"] = "eureg"
+            match["start"] = rematch.start()
+            match["end"] = rematch.end()
+            match["text"] = rematch.group(0)
+            try:
+                match["details"] = {}
+                match["details"]['what'] = rematch.groups()[1]
+                match["details"]['number'] = rematch.groups()[2]
+            except Exception: # for now, pylint: disable=broad-exception-caught
+                pass
+            ret.append(match)
 
     ### Less structured yet #############################################
-    if nonidentifier:
+    if artikel:
         ret.extend( find_artikel_references(text, debug=debug) )
 
     ret.sort(key=lambda d:d['start'])
     return ret
 
 
-def mark_references_spacy(doc, # replace=True,
-                          ecli:bool=True, celex:bool=True, ljn:bool=False, vindplaatsen:bool=True, semistructured:bool=True, nonidentifier:bool=True, kamerstukken:bool=True, euoj:bool=True, eudir:bool=True
+def mark_references_spacy(doc, matches, # replace=True,
                           ):
-    ''' Takes a spacy Doc, uses find_references(), marks it as entities. 
+    ''' Takes a spacy Doc, and matches from you calling C{find_references}, marks it as entities. 
 
-        _Replaces_ the currently marked entities, to avoid overlap.
+        *Replaces* the currently marked entities, to avoid overlap.
+        (CONSIDER: marking up in spans instead)
 
         Bases this on the plain text, and then trying to find all the tokens necessary to cover that
         (that code needs some double checking).
     '''
-    import spacy
+    import spacy # (local import so that this module could be taken out of this context more easily)
     # most of the work is figuring out character index to token index.
 
     ref_spans = []
     start_tok_i, end_tok_i = 0, 0
 
-    for reference_dict in find_references( doc.text,
-        ecli=ecli, celex=celex, ljn=ljn, vindplaatsen=vindplaatsen, semistructured=semistructured, nonidentifier=nonidentifier, kamerstukken=kamerstukken, euoj=euoj, eudir=eudir):
+    for reference_dict in matches:
         #print('Looking for %r'%reference_dict['text'], end='')
         start_char_offset, end_char_offset = reference_dict['start'], reference_dict['end']
         #print( ' at char offsets %d..%d'%(start, end) )
@@ -550,7 +630,7 @@ def mark_references_spacy(doc, # replace=True,
 
 
 def simple_tokenize(text: str):
-    "quick and dirty splitter into words. Mainly used by abbrev_find()"
+    "quick and dirty splitter into words. Mainly used by C{abbrev_find}"
     l = re.split(
         '[\\s!@#$%^&*":;/,?\xab\xbb\u2018\u2019\u201a\u201b\u201c\u201d\u201e\u201f\u2039\u203a\u2358\u275b\u275c\u275d\u275e\u275f\u2760\u276e\u276f\u2e42\u301d\u301e\u301f\uff02\U0001f676\U0001f677\U0001f678-]+',
         text,
@@ -559,8 +639,8 @@ def simple_tokenize(text: str):
 
 
 def abbrev_find(text: str):
-    """Works on plain a string - TODO: accept spacy objects as well
-
+    """Finds abbreviations with explanations next to them.
+    
     Looks for patterns like
       -  "Word Combination (WC)"
       -  "Wet Oven Overheid (Woo)"
@@ -569,6 +649,9 @@ def abbrev_find(text: str):
 
       -  "BT (Bracketed terms)"
       -  "(Bracketed terms) BT"    (probably rare)
+
+    Will both over- and under-accept, so if you want clean results, consider e.g. reporting only things present in multiple documents.
+    see e.g. merge_results()
 
     CONSIDER:
       - how permissive to be with capitalization. Maybe make that a parameter?
@@ -600,12 +683,9 @@ def abbrev_find(text: str):
         These seem to be more structured, in particular when you use (de|het) as a delimiter
         This seems overly specific, but works well to extract a bunch of these
 
+    @param text: python string to look in.  CONSIDER: accept spacy objects as well
 
-    @return: a list of ('ww', ['word', 'word']) tuples,
-    pretty much as-is so it (intentionally) contains duplicates
-
-    Will both over- and under-accept, so if you want clean results, consider e.g. reporting only things present in multiple documents.
-    see e.g. merge_results()
+    @return: a list of ('ww', ['word', 'word']) tuples, pretty much as-is so it (intentionally) contains duplicates
     """
     matches = []
 
@@ -697,8 +777,8 @@ def abbrev_count_results(l, remove_dots:bool=False, case_insensitive_explanation
     by reporting how many distinct documents report the same specific explanation
 
     @param l: A nested structure, where 
-    - the top level is a list where each item represents a document
-    - Each of those is what find_abbrevs() returned, i.e. a list of items like ::
+      - the top level is a list where each item represents a document
+      - Each of those is what find_abbrevs() returned, i.e. a list of items like ::
         ('AE', ['Abbreviation', 'Explanation'])
 
     @param remove_dots: whether to normalize the abbreviated form by removing any dots.
