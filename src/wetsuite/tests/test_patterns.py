@@ -1,8 +1,5 @@
-""" Tests relating to the patterns module
-"""
-
+""" Tests relating to the patterns module - mostly reference finding """
 from wetsuite.helpers.patterns import find_references, mark_references_spacy, abbrev_find, abbrev_count_results
-
 
 
 def test_identifier_parse():
@@ -39,7 +36,7 @@ def test_identifier_parse():
             celex=True,
             kamerstukken=True,
             vindplaatsen=True,
-            nonidentifier=True,
+            artikel=True,
             euoj=True,
             eudir=True,
         )
@@ -64,21 +61,21 @@ def test_nearly():
             celex=True,
             kamerstukken=True,
             vindplaatsen=True,
-            nonidentifier=True,
+            artikel=True,
             euoj=True,
             eudir=True,
         )
         assert len(found) == 0
 
 
-def test_reference_parse():
+def test_artikel_parse():
     "test that some basic refernces get parsed"
-    matches = find_references("artikel 5:9, aanhef en onder b, Awb", nonidentifier=True)
+    matches = find_references("artikel 5:9, aanhef en onder b, Awb", artikel=True)
     d = matches[0]["details"]
     assert d["artikel"] == "5:9"
 
     matches = find_references(
-        "artikel 4, tweede lid, aanhef en onder d, van het reglement van orde voor de ministerraad", nonidentifier=True
+        "artikel 4, tweede lid, aanhef en onder d, van het reglement van orde voor de ministerraad", artikel=True
     )
     d = matches[0]["details"]
     assert d["artikel"] == "4"
@@ -129,7 +126,8 @@ def test_mark_up_spacy():
     import spacy
     nlp = spacy.blank('nl')
     doc = nlp.make_doc("Nee, artikel 3; vla")
-    mark_references_spacy(doc)
+    matches = find_references(doc.text)
+    mark_references_spacy(doc, matches)
     assert doc.ents[0].text == 'artikel 3'
 
 
