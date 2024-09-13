@@ -18,7 +18,6 @@ that, for the most part, making it easier to get started analysing legal text.
 
 
 ## If you are interesting in using the library
-
 As this code is part of an installable library, 
 you do not have to do anything directly with this repository.
 
@@ -26,7 +25,7 @@ The introductory notebooks will explain how,
 so if you are looking around the repositories, 
 you may wish to move onto the [wetsuite-notebooks](https://github.com/knobs-dials/wetsuite-notebooks) repository.
 
-There is also a notebook that gets into how to install this library.
+There is also a notebook that gets into [how to install this library](https://github.com/WetSuiteLeiden/example-notebooks/blob/main/library_install_instructions.ipynb).
 
 
 ## If you are interesting in specific code inside `src`
@@ -34,7 +33,6 @@ There is also a notebook that gets into how to install this library.
 
 
 ### `datasets/`
-
 Perhaps most interesting is the `datasets.load()` function that downloads our pre-made datasets.
 
 If these prove to not be _quite_ what you wanted,
@@ -42,7 +40,6 @@ look to the [datacollect repository](https://github.com/WetSuiteLeiden/data-coll
 
 
 ### `helpers/`
-
 A collection of helper functiont to deal with 
 text and pattern recognition, text parsing, 
 XML data loading an manipulation, dates, local storage,
@@ -53,7 +50,6 @@ to suppor all the examples in the [example notebooks repository](https://github.
 
 
 ### `extras/`
-
 Arguably part of helpers, but set apart to note that code is
 _not_ considered core functionality,
 not necessarily supported by us,
@@ -66,11 +62,10 @@ This includes
 
 
 ### `datacollect/`
+For the most part, this is code we needed to support our dataset collection,
+which is mostly public in [the data collection notebooks repository](https://github.com/WetSuiteLeiden/data-collection).
 
-For the most part, it is all the things that we needed
-to support all the examples in the [data collection notebooks repository](https://github.com/WetSuiteLeiden/data-collection).
-
-Arguably part of helpers, except that little of this is use anywhere else.
+Arguably part of helpers, except that little of this is use outside a very specific data source.
 
 
 
