@@ -41,7 +41,6 @@
 # The largest limitation might be expressing more complex selection
 
 
-
 import re
 import warnings
 import pprint
@@ -1209,7 +1208,7 @@ class Fragments_HTML_Fallback(Fragments):
 
     def __init__(self, docbytes, debug=False):
         Fragments.__init__(self, docbytes, debug)
-        self.soup = None
+        self.etree = None
 
     def accepts(self):
         if wetsuite.helpers.util.is_html(self.docbytes):
@@ -1222,15 +1221,19 @@ class Fragments_HTML_Fallback(Fragments):
         return False
 
     def suitableness(self):
-        with warnings.catch_warnings():  # meant to ignore the "It looks like you're parsing an XML document using an HTML parser." warning
-            warnings.simplefilter("ignore")
-            self.soup = bs4.BeautifulSoup(self.docbytes, features="lxml")
+        " Mostly just says we're a bad example but we'll try; our accepts() is the real filter here "
+        # TODO: see whether lxml.html seems to creatively make it work regardless, or whether there are exceptions to catch and return worse scores
+        self.etree = wetsuite.helpers.etree.parse_html(self.docbytes)
         return 500
 
     def fragments(self):
-        #ret = []
-        raise NotImplementedError("TODO: implement this fallback")
-        #return ret
+        " No metadata at all, just text split by \n\n"
+        ret = []
+        onestring = wetsuite.helpers.etree.html_text(self.etree, join=True)
+        for plain in re.split( r'[\n]{2,}', onestring) : # as of this writing, .split('\n\n') should be functionally identical, but assume parse_html may change.
+            ret.append( ({},{},plain) )
+        return ret
+
 
 
 class Fragments_XML_Fallback(Fragments):
@@ -1422,9 +1425,10 @@ _registered_fragment_parsers = [
     # Fragments_HTML_Rechtspraak,
     Fragments_PDF_Fallback,
     # opendocument fallback?
+
     # CONSIDER: Only add the following two once they give output: (except one of the tests, test_firstonly, relies on it being there, so...)
-    # Fragments_XML_Fallback,
-    # Fragments_HTML_Fallback,
+    #Fragments_XML_Fallback,
+    Fragments_HTML_Fallback,
 ]
 
 
