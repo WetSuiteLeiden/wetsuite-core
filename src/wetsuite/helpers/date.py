@@ -117,20 +117,24 @@ def find_dates_in_text(text: str):
     we know have mainly/only contain dates, and have relatively well formatted dates,
     mostly to normalize those.
 
-    ...because "try to find everthing, hope for the best" is likely to have false positives.
-    TODO: add such a freer mode in here anyway, just not as the default.
+    ...because "try to find everthing, hope for the best" is likely to 
+    have false positives (identify things as dates that aren't)
+    as well as false negatives (miss things that are ).
+    CONSIDER: still, add such a freer mode in here anyway, just not as the default.
 
     Currently looks only for three specific patterns:
       - 1980-01-01
       - 1 jan 1980
       - jan 1 1980
-    ...the latter two in both Dutch and English,
+    ...the latter two with both Dutch and English month naming.
 
     @param text:  the string to find dates in
     @return: two lists:
      - list of each found date, as strings
      - according list where each is a date object -- or None where dateutil didn't manage
        (it usually does, particularly if we pre-filter like this, but it's not a guarantee)
+
+    CONSIDER: also match objects so that we have positions?
     """
     text_with_pos = []
     for testre in (_re_isolike_date, _re_dutch_date_1, _re_dutch_date_2):
