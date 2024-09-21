@@ -85,7 +85,7 @@ def wetsuite_dir():
 
 def free_space(path=None):
     """Says how many bytes are free on the filesystem that stores that mentioned path.
-    @param path: path to check for. Defaults to the directory we would store datasets into.
+    @param path: path to check for (shutil will figure out what filesystem that is on), defaults to the directory we would store datasets into.
     """
     import shutil
 
