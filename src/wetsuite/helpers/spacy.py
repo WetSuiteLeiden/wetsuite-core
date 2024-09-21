@@ -9,6 +9,7 @@ TODO: cleanup
 """
 
 # import time, json, collections
+import re
 
 
 def reload():
@@ -30,6 +31,8 @@ class ipython_content_visualisation:
     """
 
     def __init__(self, doc, mark_oov=True, highlight_content=True):
+        if isinstance(doc, (str, list)):
+            raise TypeError('This visualization takes a spacy doc object, not a %s'%type(doc))
         self.doc = doc
         self.mark_oov = mark_oov
         self.highlight_content = highlight_content
@@ -139,10 +142,10 @@ def interesting_words(
         elif tok.pos_ in ignore_pos_:
             pass
         elif tok.pos_ in ("NOUN", "PROPN", "NUM"):
-            ret.append(spacy.tokens.span.Span(docref, tok.i, tok.i + 1))
+            ret.append(spacy.tokens.span.Span(docref, tok.i, tok.i + 1))  # pylint: disable=c-extension-no-member
             # print( '1 %s/%s'%(tok.text, tok.pos_) )
         elif tok.pos_ in ("ADJ", "VERB", "ADP", "ADV"):
-            ret.append(spacy.tokens.span.Span(docref, tok.i, tok.i + 1))
+            ret.append(spacy.tokens.span.Span(docref, tok.i, tok.i + 1))  # pylint: disable=c-extension-no-member
             # print( '2 %s/%s'%(tok.text, tok.pos_) )
         else:
             pass
@@ -241,8 +244,8 @@ def en_noun_chunks(text: str, load_model_name: str = "en_core_web_trf") -> list:
     return ret
 
 
-_langdet_model = None
 
+_langdet_model = None
 
 def detect_language(text: str):  #  -> tuple(str, float)
     """Note that this depends on the spacy_fastlang library, which depends on the fasttext library.
@@ -257,13 +260,13 @@ def detect_language(text: str):  #  -> tuple(str, float)
     """
     # monkey patch done before the import to suppress "`load_model` does not return WordVectorModel or SupervisedModel any more, but a `FastText` object which is very similar."
     try:
-        import fasttext  # we depend on spacy_fastlang and fasttext
+        import fasttext
 
         fasttext.FastText.eprint = lambda x: None
     except ImportError:
         pass
 
-    import spacy_fastlang  # it is used, spacy just does it in an obscured way     pylint: disable=unused-import
+    import spacy_fastlang # if this fails, you may need a    pip install spacy_fastlang     (also, yes pylint, it is used, spacy just does it in an obscured way     pylint: disable=unused-import)
     import spacy
 
     global _langdet_model
@@ -294,7 +297,7 @@ def sentence_split(text: str, as_plain_sents=False):
 
     global _xx_sent_model
     if _xx_sent_model is None:
-        _xx_sent_model = spacy.load("xx_sent_ud_sm")
+        _xx_sent_model = spacy.load("xx_sent_ud_sm") # if this fails, you may need   python3 -m spacy download xx_sent_ud_sm
 
     doc = _xx_sent_model(text)
     if as_plain_sents:
@@ -312,3 +315,43 @@ def sentence_split(text: str, as_plain_sents=False):
 #         _xx_ner_model  = spacy.load("xx_ent_wiki_sm")
 #     doc = _xx_ner_model(text)
 #     return doc
+
+
+def list_installed_models():
+    ''' List loadable spacy model names.
+        Spacy models are regular python packages, so this is somewhat tricky to do directly, 
+        but was implemented in spacy.util in version 3.something.
+        
+        @return: model names, as a list of strings
+    '''
+    import spacy.util
+    return spacy.util.get_installed_models()
+
+
+def installed_model_for_language(lang, prefer=('_lg$','_md$','_sm$')):
+    ''' Picks an installed model for the given language (where language is the initial string in the model name, e.g. 'en' or 'nl')
+        You can crudely give some preference as to which among multiple model names to prefer.
+
+        @param lang:   a language string, like 'nl' or 'en'
+        @param prefer: a list treated as regexes to be matched against each model name, where matches earlier in that list are preferred
+        @return: the model name that seems to match best.  Raises a ValueError if there are no models for the given language.
+    '''
+    scoring = {}
+    for i, string in enumerate(prefer):
+        scoring[string] = i # note: lower is better
+
+    scores = {}
+    for model_name in list_installed_models():
+        model_lang = model_name.split('_',1)[0]
+        if model_lang != lang:
+            continue
+        for pre, score in scoring.items():
+            if re.search(pre, model_name) is not None:
+                scores[model_name] = score
+
+    if len(scores)==0:
+        raise ValueError("We seem to have no installed models for language %r"%lang)
+
+    scoso = sorted( (score, name)  for name, score in scores.items() )
+
+    return scoso[0][1] # name for the lowest score
