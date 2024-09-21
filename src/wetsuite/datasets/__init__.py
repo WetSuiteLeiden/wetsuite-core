@@ -32,9 +32,10 @@ import zipfile
 
 import wetsuite.helpers.util
 import wetsuite.helpers.net
+import wetsuite.helpers.strings
 import wetsuite.helpers.date
 import wetsuite.helpers.localdata
-from wetsuite.helpers.notebook import is_interactive
+import wetsuite.helpers.notebook
 
 
 ### Index of current datasets
@@ -302,7 +303,8 @@ def _load_bare(
         _index_data = fetch_index()
 
     if verbose is None:
-        verbose = is_interactive()  # only show if interactive
+        # even when not asked, show some extra feedback -- (only) if we are in an itneractive setting
+        verbose = wetsuite.helpers.notebook.is_interactive()
 
     if dataset_name not in _index_data:
         raise ValueError("Do not know dataset name %r" % dataset_name)
@@ -329,17 +331,17 @@ def _load_bare(
             ds != rs
         ):  # assume that we will need to store both the compressed and uncompressed size, if only for a moment
             needed_space_byteamt = ds + rs
-        else:  # assume ds==rs means it's not compressed
+        else:  # assume ds==rs means it's not compressed, and we download it into place
             needed_space_byteamt = ds
         free_space_byteamt = wetsuite.helpers.util.free_space(path=datasets_dir)
         if needed_space_byteamt > free_space_byteamt:
-            MB = 1024 * 1024
+            mebibyte = 1024 * 1024
             raise IOError(
-                "To fetch %r we would need %.1f MByte free. We have only %.1f MByte in the directory we would place it."
+                "To fetch %r we would need %.1f MiByte free. We have only %.1f MiByte in the directory we would place it."
                 % (
                     dataset_name,
-                    needed_space_byteamt / MB,
-                    free_space_byteamt / MB,
+                    needed_space_byteamt / mebibyte,
+                    free_space_byteamt / mebibyte,
                 )
             )
 
@@ -446,13 +448,13 @@ def load(dataset_name: str, verbose=None, force_refetch=False, check_free_space=
 
     dataname_matches = fnmatch.filter(all_dataset_names, dataset_name)
     if len(dataname_matches) == 0:
-        import wetsuite.helpers.strings
         closest_names = wetsuite.helpers.strings.ngram_sort_by_matches(dataset_name, all_dataset_names)
         raise ValueError(
-            "No exact match for dataset name %r, closest is %r, full list is %s"
-            % (dataset_name, 
-               closest_names[0],
-               ", ".join(all_dataset_names))
+            "No exact match for dataset name %r. Options include (sorted by similarity): %r"
+            % (
+                dataset_name,
+               ", ".join(closest_names)
+            )
         )
         # CONSIDER: noting closest match (n-gram style)
 
