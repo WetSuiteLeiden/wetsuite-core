@@ -22,7 +22,9 @@ def get_model(lang="nl"):
 
 def get_simpledoc():
     "TODO: finish this or remove"
+
     nlp = get_model()
+    #doc = nlp.make_doc("Smeer de zonnebrand")
     doc = spacy.tokens.doc.Doc(vocab=nlp.vocab, words=["Smeer", "de", "zonnebrand"])
     # this is some rather poor and incomplete mocking
     doc[0].pos_ = "VERB"
@@ -61,10 +63,10 @@ def test_parse():
 #     wetsuite.helpers.spacy.reload()
 
 
-def test_ipython_content_visualisation():
+def test_notebook_content_visualisation():
     "for now just test that it does not bork out"
     doc = get_simpledoc()
-    wetsuite.helpers.spacy.ipython_content_visualisation(
+    wetsuite.helpers.spacy.notebook_content_visualisation(
         doc
     )._repr_html_()  # pylint: disable=protected-access
 

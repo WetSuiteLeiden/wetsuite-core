@@ -25,7 +25,7 @@ def span_as_doc(span):
     return span.as_doc()
 
 
-class ipython_content_visualisation:
+class notebook_content_visualisation:
     """Python notebook visualisation to give some visual idea of contents:
     marks out-of-vocabulary tokens red, and highlight the more interesting words (by POS).
     """
@@ -54,10 +54,15 @@ class ipython_content_visualisation:
                 ):
                     style += ";opacity:0.3"
                 elif token.pos_ in (
+                    "NOUN",
+                    "PROPN",
+                ):
+                    style += ";opacity:0.9;color:#fafaff"
+                elif token.pos_ in (
                     "ADP",
                     "VERB",
                 ):
-                    style += ";opacity:0.7"
+                    style += ";opacity:0.7;color:#fee"
             if self.mark_oov and token.is_oov and token.pos_ not in ("SPACE",):
                 style += ";background-color:#833"
             ret.append(
