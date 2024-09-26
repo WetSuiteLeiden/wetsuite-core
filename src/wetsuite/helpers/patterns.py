@@ -594,7 +594,8 @@ def mark_references_spacy(doc, matches, # replace=True,
 
         *Replaces* the currently marked entities, to avoid overlap.
         (CONSIDER: marking up in spans instead)
-
+        (...also because char_span() with alignment_mode='expand' probably makes this easier.
+        
         Bases this on the plain text, and then trying to find all the tokens necessary to cover that
         (that code needs some double checking).
     '''
