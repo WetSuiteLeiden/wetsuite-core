@@ -100,11 +100,12 @@ def spacy_parse(text, force_model=None, force_language=None, detection_fallback=
     '''
     Takes text and returns a spacy document for it.
 
-    By default, it guesses the language (based on a specific language detectin model)
-    and picks an already-installed model (based on the determined/given language and the installed models).
-
+    By default, it 
+    - estimates the language (based on a specific language detectin model)
+    - picks an already-installed model of that determined language
+    
     In general you might care for the reproducability of explicitly loading a model yourself, 
-    but this can be handy to parse some fragments of text with less typing.
+    but this can be handy in experiments, to parse some fragments of text with less typing.
     
     @param text: string to parse
     @param force_model: if None, detect model; if not None, load this one
