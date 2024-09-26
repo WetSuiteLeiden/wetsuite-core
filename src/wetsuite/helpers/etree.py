@@ -573,6 +573,10 @@ def html_text(etree, join=True):
 
     (inspiration was taken from the html-text module)
 
+    While we're being creative, though, we might consider also adding logic such as that in jusText,
+    to remove boilerplate content based on a few - though unless that becomes part of the node handling
+    that would be better to separate.
+
     @param etree: the tree to take from.
     
     @param join: If True, returns a single string (with a little more polishing, of spaces after newlines)
