@@ -13,9 +13,11 @@ CONSIDER:
 
 import copy
 import warnings
+import re
 
 import lxml.etree
-from lxml.etree import (  # pylint: disable=no-name-in-module,unused-import
+import lxml.html
+from lxml.etree import (  # to expose them as if they are our own members     pylint: disable=no-name-in-module,unused-import
     ElementTree,
     fromstring,
     tostring,
@@ -23,7 +25,7 @@ from lxml.etree import (  # pylint: disable=no-name-in-module,unused-import
     Element,
     _Comment,
     _ProcessingInstruction,
-)  # there is, and not actually (respectively), so  pylint: disable=E0611,W0611
+)
 
 SOME_NS_PREFIXES = {  # CONSIDER: renaming to something like _some_ns_prefixes_presetation_only
     # Web and data
@@ -158,77 +160,6 @@ def kvelements_to_dict(under_node, strip_text=True, ignore_tagnames=()) -> dict:
             ret[ch.tag] = text
     return ret
 
-
-def all_text_fragments(
-    under_node,
-    strip: str = None,
-    ignore_empty: bool = False,
-    ignore_tags=(),
-    join: str = None,
-    stop_at: list = None,
-    # , add_spaces=['extref',]
-):  
-    """Returns all fragments of text contained in a subtree, as a list of strings.
-
-    For example,  all_text_fragments( fromstring('<a>foo<b>bar</b></a>') ) == ['foo', 'bar']
-
-    Note that:
-      - for simpler uses, this is itertext() with extra steps. You may not need this.
-      - this is a convenience function that lets you be pragmatic with creative HTML-like nesting,
-        and perhaps should not be used for things that are strictly data.
-
-    TODO: more tests, I'm moderately sure strip doesn't do quite what it should.
-
-    TODO: add add_spaces - an acknowledgment that in non-HTML,
-    as well as equally free-form documents like this project often handles,
-    that element should be considered to split a word (e.g. p in HTML) or
-    that element probably doesn't split a word (e.g. em, sup in HTML)
-    The idea would be that you can specify which elements get spaces inserted and which do not.
-    Probably with defaults for us, which are creative and not necessarily correct, 
-    but on average makes fewer weird mistakes (would need to figure that out from the various schemas)
-
-    @param strip: is what to remove at the edges of each .text and .tail
-    ...handed to strip(), and note that the default, None, is to strip whitespace
-    if you want it to strip nothing at all, pass in '' (empty string)
-
-    @param ignore_empty: removes strings that are empty when after that stripping
-
-    @param ignore_tags: ignores direct/first .text content of named tags (does not ignore .tail, does not ignore the subtree)
-
-    @param stop_at: should be None or a list of tag names.
-    If a tag name is in this sequence, we stop walking the tree entirely.
-    (note that it would still include that tag's tail; CONSIDER: changing that)
-
-    @return: if join==None (the default), a list of text fragments. 
-    If join is a string, a single string (joined on that string)
-    """
-    ret = []
-    for elem in under_node.iter():  # walks the subtree
-        if isinstance(elem, _Comment) or isinstance(elem, _ProcessingInstruction):
-            continue
-        # print("tag %r in ignore_tags (%r): %s"%(elem.tag, ignore_tags, elem.tag in ignore_tags))
-        if elem.text is not None:
-            if (
-                elem.tag not in ignore_tags
-            ):  # only ignore contents of ignored tags; tail is considered outside
-                etss = elem.text.strip(strip)
-                if ignore_empty and len(etss) == 0:
-                    pass
-                else:
-                    ret.append(etss)
-        if elem.tail is not None:
-            etss = elem.tail.strip(strip)
-            if ignore_empty and len(etss) == 0:
-                pass
-            else:
-                ret.append(etss)
-
-        if stop_at is not None and elem.tag in stop_at:
-            break
-
-    if join is not None:
-        ret = join.join(ret)
-    return ret
 
 
 def strip_namespace(tree, remove_from_attr=True):
@@ -516,3 +447,301 @@ class debug_color:
         # except ImportError:
         #    fall back to escaped
         #    return escape.  xstr
+
+
+
+
+# def remove_nodes_by_name(tree, nodenames):
+#     """ Takes an etree, and removes nodes of a specific name from the tree.
+#         This is mostly used as an fewer-lines equivalent of 'do an iter where we avoid iterating into certain nodes',
+#     """
+#     # code currently makes two assumptions that aren't really verified:
+#     # - iter would gets confused if we remove things while iterating
+#     # - we can remove elements from their parents even if they technically were removed from the tree already
+#     to_remove = []
+#     for element in tree.iter():
+#         if element.tag in nodenames:
+#             to_remove.append( element )
+#     for el in to_remove:
+#         el.getparent().remove(el) # note that this will also remove .tail, which may not be what you want
+#     return tree
+
+
+
+
+def all_text_fragments(
+    under_node,
+    strip: str = None,
+    ignore_empty: bool = False,
+    ignore_tags=(),
+    join: str = None,
+    stop_at: list = None,
+):
+    """Returns all fragments of text contained in a subtree, as a list of strings.
+
+    For the simplest uses, you may just want to use 
+
+    Note that for simpler uses, this is itertext() with extra steps. You may not need this.
+
+    For example,  all_text_fragments( fromstring('<a>foo<b>bar</b></a>') ) == ['foo', 'bar']
+
+    Note that:
+      - If your source is XML, 
+      - this is a convenience function that lets you be pragmatic with creative HTML-like nesting,
+        and perhaps should not be used for things that are strictly data.
+
+    TODO: more tests, I'm moderately sure strip doesn't do quite what it should.
+
+    TODO: add add_spaces - an acknowledgment that in non-HTML,
+    as well as equally free-form documents like this project often handles,
+    that element should be considered to split a word (e.g. p in HTML) or
+    that element probably doesn't split a word (e.g. em, sup in HTML)
+    The idea would be that you can specify which elements get spaces inserted and which do not.
+    Probably with defaults for us, which are creative and not necessarily correct, 
+    but on average makes fewer weird mistakes (would need to figure that out from the various schemas)
+
+    @param strip: is what to remove at the edges of each .text and .tail
+    ...handed to strip(), and note that the default, None, is to strip whitespace
+    if you want it to strip nothing at all, pass in '' (empty string)
+
+    @param ignore_empty: removes strings that are empty when after that stripping
+
+    @param ignore_tags: ignores direct/first .text content of named tags (does not ignore .tail, does not ignore the subtree)
+
+    @param stop_at: should be None or a list of tag names.
+    If a tag name is in this sequence, we stop walking the tree entirely.
+    (note that it would still include that tag's tail; CONSIDER: changing that)
+
+    @return: if join==None (the default), a list of text fragments. 
+    If join is a string, a single string (joined on that string)
+    """
+    ret = []
+    for elem in under_node.iter():  # walks the subtree
+        if isinstance(elem, _Comment) or isinstance(elem, _ProcessingInstruction):
+            continue
+        # print("tag %r in ignore_tags (%r): %s"%(elem.tag, ignore_tags, elem.tag in ignore_tags))
+        if elem.text is not None:
+            if (
+                elem.tag not in ignore_tags
+            ):  # only ignore direct .text contents of ignored tags; tail is considered outside
+                etss = elem.text.strip(strip)
+                if ignore_empty and len(etss) == 0:
+                    pass
+                else:
+                    ret.append(etss)
+        if elem.tail is not None:
+            etss = elem.tail.strip(strip)
+            if ignore_empty and len(etss) == 0:
+                pass
+            else:
+                ret.append(etss)
+
+        if stop_at is not None and elem.tag in stop_at:
+            break
+
+    if join is not None:
+        ret = join.join(ret)
+    return ret
+
+
+def parse_html(htmlbytes:bytes):
+    """ Parses HTML into an etree.
+    
+        Differs from etree.fromstring only in that we use a parser
+        
+        Consider also 
+        - beautifulsoup as an interface you might prefer to etree's
+        - elementsoup to take more broken html into etree via beautifulsoup
+        See also https://lxml.de/lxmlhtml.html
+        
+        @param htmlbytes: a HTML file as a bytestring
+
+        @return: an etree object
+    """
+    parser = lxml.html.HTMLParser(recover=True, encoding='utf8')
+    return lxml.etree.fromstring(htmlbytes, parser=parser)
+
+
+def html_text(etree, join=True):
+    ''' Take an etree presumed to contain elements with HTML names,
+    and try to produce a plain test string,
+    with awarenesss of which which HTML elements should be considered to split words,
+    and split paragraphs (will selectively insert ' ', '\n', or '\n\n').
+
+    Various steps of this are... more creative than some might like.
+    If you want less creativity, look at C{all_text_fragments} or just using itertext.
+
+    (inspiration was taken from the html-text module)
+
+    @param etree: the tree to take from.
+    
+    @param join: If True, returns a single string (with a little more polishing, of spaces after newlines)
+    If False, returns the fragments it collected and added.   Due to the insertion and handing of whitespace, this bears only limited relation to the parts.
+    '''
+    todo = {
+        # (note that this isn't "skip everything in subtree", though we might want that instead?)
+        #      usecontents prepend append removesubtree
+        'html':      (False, None, None,   False  ),
+        'body':      (True,  None, None,   False  ),
+
+        'script':    (False, None, None,   True   ),
+        'noscript':  (False, None, None,   True   ), # arguable?
+        'style':     (False, None, None,   True   ),
+        'svg':       (False, None, None,   True   ),
+        'iframe':    (False, None, None,   True   ), # probably doesn't contain anything anyway
+
+        'form':      (False, None, None,   False  ),
+        'input':     (False, None, None,   False  ),
+        'textarea':  (True,  None, '\n\n', False  ),
+        'select':    (False, None, None,   False  ),
+        'option':    (False, None, None,   False  ),
+        'label':     (False, None, None,   False  ),
+        'button':    (False, None, None,   False  ),
+
+        'link':      (True,  None, ' ',    False   ),
+
+        'img':       (False, None, None,   True   ),
+
+        'abbr':      (True,  None, None,    False  ),
+        'main':      (True,  '\n', '\n',   False  ),
+        'article':   (True,  '\n', '\n',   False  ), 
+        'nav':       (False, '\n', '\n',   True   ), 
+        'aside':     (True,  None, '\n',   False  ), 
+        'section':   (True,  None, '\n',   False  ), 
+        'time':      (True,  None, None,   False  ), 
+
+        'details':   (True,  None, '\n',   False  ), 
+        'footer':    (True,  None, '\n',   True   ), # arguable on the remove 
+        'header':    (True,  None, '\n',   True   ), 
+        'br':        (True,  None, '\n',   False  ), 
+        'nobr':      (True,  None, None,   False  ), 
+        'dd':        (True,  None, '\n',   False  ), 
+        'dt':        (True,  None, '\n',   False  ), 
+        'fieldset':  (True,  None, '\n',   False  ),
+        'figcaption':(True,  None, '\n',   False  ), 
+        'hr':        (True,  None, '\n',   False  ), 
+        'legend':    (True,  None, '\n',   False  ), 
+        'li':        (True,  None, '\n',   False  ), 
+        'table':     (True,  '\n', '\n',   False  ),
+        'tbody':     (True,  None, None,   False  ),
+        'thead':     (True,  None, None,   False  ),
+        'tfoot':     (True,  None, None,   False  ),
+        'tr':        (True,  None, '\n',   False  ),
+        'td':        (True,  None, ' ',    False  ),
+        'th':        (True,  None, ' ',    False  ),
+        'p':         (True,  None, '\n\n', False  ),
+        'div':       (True,  None, '\n',   False  ),
+        'span':      (True,  None, None,   False  ),
+        'blockquote':(True,  None, '\n\n', False  ),
+        'figure':    (True,  None, '\n\n', False  ),
+        'title':     (True,  None, '\n\n', False  ),
+        'h1':        (True,  None, '\n\n', False  ),
+        'h2':        (True,  None, '\n\n', False  ),
+        'h3':        (True,  None, '\n\n', False  ),
+        'h4':        (True,  None, '\n\n', False  ),
+        'h5':        (True,  None, '\n\n', False  ),
+        'h6':        (True,  None, '\n\n', False  ),
+        'dl':        (True,  None, '\n\n', False  ),
+        'ol':        (True,  '\n', '\n', False  ),
+        'ul':        (True,  '\n', '\n', False  ),
+        'pre':       (True,  None, '\n\n', False  ),
+
+        'a':         (True,  None, None, False), 
+
+        'small':     (True,  None, None, False), 
+        'b':         (True,  None, None, False), 
+        'strong':    (True,  None, None, False), 
+        'i':         (True,  None, None, False), 
+        'sup':       (True,  None, None, False), 
+        'sub':       (True,  None, None, False), 
+        'em':        (True,  None, None, False), 
+        'tt':        (True,  None, None, False), 
+        'code':      (True,  None, None, False), # inline, but arguably should get a space?
+        'cite':      (True,  None, ' ',  False), # arguable
+    }
+
+    ## To through the tree to remove what is requested.
+    # (yes, it would be more efficient to do that in the same treewalk, but that would require some rewrite)
+    #etree.remove_nodes_by_name(self.etree, tuple( tagname  for tagname, (_,_,_,rem) in todo.items()  if rem==True  ))
+    toremove = []
+    for element in etree.iter():
+        if element.tag in todo  and  todo[element.tag][3]:
+            toremove.append( element )
+            #print('removing %r from %r'%(element.tag, element.getparent().tag))
+    for el in toremove:
+        el.drop_tree() # which is more correct than el.getparent().remove(el)  due to its handing of tail
+
+    collect = []
+
+    def add_text(tagtext, tagname):
+        if tagname in todo:
+            if tagtext is not None:
+                tagtext = re.sub(r'[\s]+', ' ', tagtext) # squeeze whitespace (and remove newlines)
+                add_text, _, _, _ = todo[tagname]
+                if add_text:
+                    #print("adding %r"%(tagtext))
+                    collect.append( tagtext )
+        else:
+            print('TODO: add %r'%tagname)
+
+    def add_ws_before(tag):
+        if tag.tag in todo:
+            _, add_before, _, _ = todo[tag.tag]
+            if add_before is not None:
+                collect.append( add_before )
+
+    def add_ws_after(tag):
+        if tag.tag in todo:
+            _, _, add_after, _ = todo[tag.tag]
+            if add_after is not None:
+                #print("adding %r after %r"%(add_after, tag.tag))
+                collect.append( add_after )
+
+    body = etree.find('body')
+    for event, el in lxml.etree.iterwalk(body, events=('start', 'end')):
+        # TODO: check that this block isn't wrong
+        if event == 'start':
+            add_ws_before(el)
+            add_text( el.text, el.tag)
+        elif event == 'end':
+            add_ws_after(el)
+            add_text( el.tail, el.tag)
+
+
+    ## Reduce whitespace from what we just collected
+    # There are several possible reasons for a _lot_ of whitepace, such as
+    # the indentation in the document, and some of the stuff we add ourselves
+    def is_only_whitespace(s):
+        if len(re.sub(r'[\r\n\t\s]','',s))==0:
+            return True
+        return False
+
+    ret = []
+    #prev_iow = False
+    combine = ''
+    for string in collect:
+        iow = is_only_whitespace( string )
+        if not iow: # add (collected whitespace) and this text
+            if len(combine)>0:
+                #ret.append( combine )
+                cnl = combine.count('\n')
+                if cnl>=2:
+                    ret.append('\n\n')
+                if cnl==1:
+                    ret.append('\n')
+                else:
+                    ret.append(' ')
+                combine = ''
+            ret.append(string)
+        else:
+            #print( "IOW, adding %r"%string)
+            combine += string
+        #if iow and prev_iow:
+        #prev_iow=iow
+
+    if join:
+        ret = ''.join( ret )
+        ret = re.sub(r'\n[\ ]+', '\n', ret.strip())
+        return ret
+    else:
+        return ret
