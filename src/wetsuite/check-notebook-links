@@ -1,0 +1,72 @@
+#!/usr/bin/python3
+""" Finds links in the markedown that seem to be to other notebooks, and see if those seem broken.
+"""
+import os
+import re
+import json
+import sys
+import urllib.parse
+import pathlib
+
+### TODO: proper argument parsing
+show_context_line_amt = 3
+# large py-like files are usually data, not code
+max_cellsize = 51200
+
+def main():
+    ' takes directories from command line arguments. These are also the '
+    args = sys.argv[1:]
+
+    if len(args) == 0:  # pragma: no cover
+        print(
+            "We need paths to work on.   Did you mean:\n %s ."
+            % os.path.basename(sys.argv[0])
+        )
+
+    for rootdir in args:  # pragma: no cover
+
+        rootdir = os.path.abspath(rootdir)
+        print('===> %r'%rootdir)
+
+        for r, _ds, fs in os.walk(rootdir):
+
+            # not sure why it's misdetecting that as a constant; pylint: disable=C0103
+            for fn in fs:
+                ffn = os.path.join(r, fn)
+                if ffn.endswith(".ipynb"):
+                    #print( ffn )
+                    with open(ffn, "rb") as nbfile:
+                        d = json.loads(nbfile.read())
+                        for _cell_number, cell in enumerate(d["cells"]):
+                            cell_type = cell.get("cell_type")
+                            if cell_type == "markdown":
+                                source = '\n'.join( cell.get('source') ) # CHECK
+                                if len(source) > max_cellsize:
+                                    print( "Skipping cell that is %d chars large"%len(source) )
+                                    continue
+
+                                for mo in re.finditer(r'[\[]([^\]]+)[\]][(]([^)]+)[)]', source): # I am deeply sorry for that regex. Works decently though, and avoids dependency on a markdown parser.
+                                    #print( mo )
+                                    _title, rawlink = mo.groups()
+                                    if rawlink.startswith('http'):
+                                        continue
+
+                                    link = rawlink.split('#')[0]  # ignore #-only links (CONSIDER: resolving those)
+                                    link = urllib.parse.unquote(link)
+                                    if len(link.strip())>0: # ignore #-only links (CONSIDER: resolving those)
+                                        resolved = (pathlib.Path(ffn).parents[0] / link).resolve() # pathlib is an easier way to deal with .. and such
+                                        exists = resolved.exists()
+
+                                        if not exists:
+                                            print( f'{ffn}\n   has a link to       {rawlink}\n   which would become  {resolved}\n   file exists?        {str(exists).upper()}\n')
+
+                            elif cell_type == "code":
+                                pass
+                            else:
+                                raise ValueError("Don't recognize cell_type=%r" % cell_type)
+                else:
+                    continue
+
+
+if __name__ == '__main__':
+    main()
