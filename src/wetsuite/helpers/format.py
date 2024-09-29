@@ -26,6 +26,8 @@ def kmgtp(
          '%sB'%kmgtp(19342342324, kilo=1024)                == '18GiB'
          '%sB'%kmgtp(19342342324, kilo=1024, extradigits=1) == '18GiB'  (because of rstrip0)
 
+    @param amount: the number to summarize
+
     @param kilo: Uses decimal/SI kilos by default, so useful beyond bytes.
     Specify kilo=1024 if you want binary kilos, as still frequently used for storage sizes. By default this also adds the i.
 
@@ -38,6 +40,8 @@ def kmgtp(
 
     @param extradigits: lets you (unconditionally) see a less-rounded number with 1 or sometimes more.
     (though note rstrip can still apply)
+
+    @param i_for_1024: whether to add an i if kilo==1024
 
     @param rstrip0:     whether to take off '.0' if present (defaults to true)
     @param append:      is mostly meant for optional space between number and unit you add yourself

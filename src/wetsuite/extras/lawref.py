@@ -25,19 +25,19 @@ _deeplink_resolved_bwbs         = wetsuite.helpers.localdata.LocalKV( 'redirect_
 
 def resolve_deeplink_bwbid(url, use_cache=True):
     """ 
-        CVDR has links to laws that look like:
+        CVDR has links to laws that look like::
             http://wetten.overheid.nl/cgi-bin/deeplink/law1/title=Burgerlijk%20Wetboek%20Boek%201
             http://wetten.overheid.nl/cgi-bin/deeplink/law1/bwbid=BWBR0005537/article=1:2
-        that go to:
+        that go to::
             https://wetten.overheid.nl/BWBR0002656/2024-01-01
             https://wetten.overheid.nl/BWBR0005537/2024-09-01/#Hoofdstuk1_Titeldeel1.1_Artikel1:2
 
         While 'deeplink' may not be the best name for 'resolver', it's thet term that is used.
         Note that the resolver it quieries live can be SLOW, 
-        so this function is equally slow to respond the first time we see such a link.
-        We cache results on disk, so that later reponses can be fast,
-        but keep in mind that over time the resolver's answer may change.
-
+        so this function is equally slow to respond.
+        
+        ...the first time we see such a link, because we cache results on disk so that later reponses can be fast,
+        but keep in mind that in theory, the resolver's answer may change over time.
     """
     if 'http://wetten.overheid.nl/cgi-bin/deeplink/law1' not in url:
         raise ValueError("We only deal with URLs that start with http://wetten.overheid.nl/cgi-bin/deeplink/law1")

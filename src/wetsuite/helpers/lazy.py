@@ -59,22 +59,7 @@ def etree(xmlbytes, strip_namespace=True):
 def known_doc_split(cbytes):
     """ Given a 
     """
-
-def xml_html_text(cbytes):
-    """Given XML or HTML, try to give us the interesting text.
-    Tries to guess what kind of document it is.
-
-    This is just a 
-
-    @param pdfbytes: PDF document, as bytes object
-    @param pdfbytes: PDF document, as bytes object
-
-
-    """
-    if "<?xml" in cbytes[:100]:
-        return xml_text(cbytes)
-    else:
-        return html_text(cbytes)
+    wetsuite.helpers.split
 
 
 def html_text(htmlbytes):
@@ -85,6 +70,24 @@ def html_text(htmlbytes):
     """
     etree = wetsuite.helpers.etree.parse_html(htmlbytes)
     return wetsuite.helpers.etree.html_text(etree, join=True)
+
+
+def xml_html_text(docbytes):
+    """Given XML or HTML, try to give us the interesting text.
+    Tries to guess whether it is XML or HTML.
+
+    Note that HTML gives _some_ indication of what is main text
+    via how we typically use element names.
+
+    In XML we probably end up giving a lot more crud. 
+
+    @param docbytes: HTML or XML document, as bytes object
+    """
+    if "<?xml" in docbytes[:100]:
+        return xml_text(docbytes)
+    else:
+        return html_text(docbytes)
+
 
 
 def xml_text(xmlbytes):
@@ -101,8 +104,8 @@ def spacy_parse(text, force_model=None, force_language=None, detection_fallback=
     Takes text and returns a spacy document for it.
 
     By default, it 
-    - estimates the language (based on a specific language detectin model)
-    - picks an already-installed model of that determined language
+      - estimates the language (based on a specific language detectin model)
+      - picks an already-installed model of that determined language
     
     In general you might care for the reproducability of explicitly loading a model yourself, 
     but this can be handy in experiments, to parse some fragments of text with less typing.

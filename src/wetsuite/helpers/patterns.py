@@ -53,7 +53,7 @@ _mw_re = re.compile( _mw, flags=re.I )
 
 
 def find_artikel_references(
-    text:str, context_amt:int=60, debug:bool=False
+    string:str, context_amt:int=60, debug:bool=False
 ):
     """Attempts to find references like ::
         "artikel 5.1, tweede lid, aanhef en onder i, van de Woo"
@@ -93,7 +93,7 @@ def find_artikel_references(
         - how complete a reference is, and/or
         - how easy to resolve a reference is.    
 
-    @param text: the text to look in
+    @param string: the text to look in
 
     @param context_amt: how much context to find another piece in (TODO: make this part of internal parameters)
     
@@ -103,7 +103,7 @@ def find_artikel_references(
     artikel_matches = []
 
     for artikel_matchobject in re.finditer(
-        r"\b(?:[Aa]rt(?:ikel|[.]|\b)\s*([0-9.:]+[a-z]*))", text
+        r"\b(?:[Aa]rt(?:ikel|[.]|\b)\s*([0-9.:]+[a-z]*))", string
     ):
         artikel_matches.append(artikel_matchobject)
 
@@ -123,7 +123,7 @@ def find_artikel_references(
         wider_start = max(0, overallmatch_st - context_amt)
         wider_end = min(
             overallmatch_st + context_amt,
-            len(text),
+            len(string),
         )
 
         if matchnum + 1 < len(artikel_matches): # hard cut at the next 'artikel'. Ideally not special case, but good enough for now.
@@ -182,9 +182,9 @@ def find_artikel_references(
 
             if debug:
                 s_art_context = "%s[%s]%s" % (
-                    text[wider_start:overallmatch_st],
-                    text[overallmatch_st:overallmatch_en].upper(),
-                    text[overallmatch_en:wider_end],
+                    string[wider_start:overallmatch_st],
+                    string[overallmatch_st:overallmatch_en].upper(),
+                    string[overallmatch_en:wider_end],
                 )
                 print(
                     "SOFAR",
@@ -211,7 +211,7 @@ def find_artikel_references(
 
                     # TODO: ideally, we use the closest match; right now we assume there will be only one in range (TODO: fix that)
                     for now_mo in re.compile(find_re).finditer(
-                        text, pos=rng_st, endpos=rng_en
+                        string, pos=rng_st, endpos=rng_en
                     ):  # TODO: check whether inclusive or exclusive
                         # now_size = now_mo.end() - now_mo.start()
 
@@ -239,7 +239,7 @@ def find_artikel_references(
                                 howmuch = now_mo.start() - overallmatch_en  #
                                 overallmatch_en = now_mo.end()  #  extend match
                                 wider_end = min(
-                                    wider_end + howmuch, len(text)
+                                    wider_end + howmuch, len(string)
                                 )  #  extend search range
 
                             range_was_widened = True
@@ -265,9 +265,9 @@ def find_artikel_references(
                 #    break # break before/after
 
         s_art_context = "%s[%s]%s" % (
-            text[wider_start:overallmatch_st],
-            text[overallmatch_st:overallmatch_en].upper(),
-            text[overallmatch_en:wider_end],
+            string[wider_start:overallmatch_st],
+            string[overallmatch_st:overallmatch_en].upper(),
+            string[overallmatch_en:wider_end],
         )
         # if debug:
         #     print( 'SETTLED ON')
@@ -302,7 +302,7 @@ def find_artikel_references(
         #if len(details) > 1: # if it's more details than just "artikel 81"
         # Try to see if the text right after is a known name reference
         try:
-            text_after = text[overallmatch_en:overallmatch_en+1000].lstrip(',;. ')
+            text_after = string[overallmatch_en:overallmatch_en+1000].lstrip(',;. ')
             m = _mw_re.match( text_after )
             if m is not None:
                 #print( m.group(0) )
@@ -317,14 +317,14 @@ def find_artikel_references(
             "type": 'artikel',
             "start": overallmatch_st,
             "end": overallmatch_en,
-            "text": text[overallmatch_st:overallmatch_en],
+            "text": string[overallmatch_st:overallmatch_en],
             "details": details,
         } )
 
     return ret
 
 
-def find_references(text:str,
+def find_references(string:str,
                     bwb:bool=True,
                     cvdr:bool=True,
                     ecli:bool=True,
@@ -347,7 +347,7 @@ def find_references(text:str,
     See also:
       - Leidraad voor juridische auteurs
 
-    @param text: the string to look in. Note that matches return offsets within this string.
+    @param string: the string to look in. Note that matches return offsets within this string.
     @param bwb: whether to look for BWB identifiers, e.g. BWBR0006501
     @param cvdr: whether to look for CVDR work and expression identifiers, e.g. CVDR101405_1  CVDR101405/1  CVDR101405
     @param ecli: whether to look for ECLI identifiers, e.g. ECLI:NL:HR:2005:AT4537
@@ -369,7 +369,8 @@ def find_references(text:str,
     @param eudir: whether to look for EU directive references, the ones that look like::
         Council Directive 93/42/EEC of 14 June 1993
         Directive 93/42/EEC of 14 June 1993
-    @param debug: whether to look for
+    @param eureg: whether to look for EU regulation references, the ones that look like:: 
+        Council Regulation (EEC) No 2658/87
 
     @return:
     A list of dicts (sorted by the value of `start`), each with at least the keys
@@ -388,7 +389,7 @@ def find_references(text:str,
     if bwb:
         _RE_BWBFIND = re.compile( r'(BWB[RV][0-9]+)', flags=re.M )
 
-        for rematch in _RE_BWBFIND.finditer( text ): # pylint: disable=protected-access
+        for rematch in _RE_BWBFIND.finditer( string ): # pylint: disable=protected-access
             match = {}
             match["type"] = "bwb"
             match["start"] = rematch.start()
@@ -398,7 +399,7 @@ def find_references(text:str,
 
     if cvdr:
         _RE_CVDRFIND = re.compile("(CVDR)([0-9]+)([/_][0-9]+)?")
-        for rematch in _RE_CVDRFIND.finditer( text ):
+        for rematch in _RE_CVDRFIND.finditer( string ):
             match = {}
             match["type"] = "cvdr"
             match["start"] = rematch.start()
@@ -414,7 +415,7 @@ def find_references(text:str,
 
     if ljn:
         for rematch in re.finditer(
-            r"\b[A-Z][A-Z][0-9][0-9][0-9][0-9](,[\n\s]+[0-9]+)?\b", text, flags=re.M
+            r"\b[A-Z][A-Z][0-9][0-9][0-9][0-9](,[\n\s]+[0-9]+)?\b", string, flags=re.M
         ):
             # CONSIDER: we could add a "is it _not_ part of an ECLI" check
             match = {}
@@ -426,7 +427,7 @@ def find_references(text:str,
 
     if ecli:
         for rematch in wetsuite.helpers.meta._RE_ECLIFIND.finditer( # pylint: disable=protected-access
-            text
+            string
         ):
             match = {}
             match["type"] = "ecli"
@@ -441,7 +442,7 @@ def find_references(text:str,
 
     if celex:
         for rematch in wetsuite.helpers.meta._RE_CELEX.finditer( # pylint: disable=protected-access
-            text
+            string
         ):
             match = {}
             match["type"] = "celex"
@@ -456,7 +457,7 @@ def find_references(text:str,
 
     if bekendmaking_ids:
         for rematch in wetsuite.helpers.meta._re_bekendid.finditer( # pylint: disable=protected-access
-            text
+            string
         ):
             match = {}
             match["type"] = "bekend"
@@ -474,7 +475,7 @@ def find_references(text:str,
         # https://www.kcbr.nl/beleid-en-regelgeving-ontwikkelen/aanwijzingen-voor-de-regelgeving/hoofdstuk-3-aspecten-van-vormgeving/ss-33-aanhaling-en-verwijzing/aanwijzing-345-vermelding-vindplaatsen-staatsblad-ed
         for rematch in re.finditer(
             r"\b((Trb|Stb|Stcrt)[.]?[\n\s]+([0-9\u2026.]+)(?:,[\n\s]+([0-9\u2026.]+))?)",
-            text,
+            string,
             flags=re.M,
         ):
             match = {}
@@ -504,7 +505,7 @@ def find_references(text:str,
         # - '@' actually means zero or more newline-or-space
         kre = kre.replace( " ", r"[\n\s]+" ).replace( "@", r"[\n\s]*" )
         #print(kre)
-        for rematch in re.finditer(kre, text, flags=re.M):
+        for rematch in re.finditer(kre, string, flags=re.M):
             match = {}
             match["type" ] = "kamerstukken"
             match["start"] = rematch.start()
@@ -534,7 +535,7 @@ def find_references(text:str,
             ),
             flags=re.M,
         )
-        for rematch in _RE_EUOJ.finditer(text):
+        for rematch in _RE_EUOJ.finditer(string):
             match = {}
             match["type"] = "euoj"
             match["start"] = rematch.start()
@@ -550,7 +551,7 @@ def find_references(text:str,
             flags=re.M,
         )
 
-        for rematch in _RE_EUDIR.finditer(text):
+        for rematch in _RE_EUDIR.finditer(string):
             match = {}
             match["type"] = "eudir"
             match["start"] = rematch.start()
@@ -560,13 +561,12 @@ def find_references(text:str,
             ret.append(match)
 
     if eureg:
-        # eureg like "Council Regulation (EEC) No 2658/87"
         # TODO: find more real examples, this regex is guessing
         _RE_EUREG = re.compile(
             r"(?:Council )?(Regulation) [(]?(EC|EEC|EU)[)] (No.? [0-9/]+)".replace(" ", r"[\s\n]+"),
             flags=re.M,
         )
-        for rematch in _RE_EUREG.finditer(text):
+        for rematch in _RE_EUREG.finditer(string):
             match = {}
             match["type"] = "eureg"
             match["start"] = rematch.start()
@@ -582,7 +582,7 @@ def find_references(text:str,
 
     ### Less structured yet #############################################
     if artikel:
-        ret.extend( find_artikel_references(text, debug=debug) )
+        ret.extend( find_artikel_references(string, debug=debug) )
 
     ret.sort(key=lambda d:d['start'])
     return ret
@@ -630,16 +630,18 @@ def mark_references_spacy(doc, matches, # replace=True,
     #    doc.set_ents( list(doc.ents)+spans )
 
 
-def simple_tokenize(text: str):
-    "quick and dirty splitter into words. Mainly used by C{abbrev_find}"
+def simple_tokenize(string: str):
+    """ Quick and dirty splitter into words. Mainly used by C{abbrev_find}
+    @param string: the string to split up.    
+    """
     l = re.split(
         '[\\s!@#$%^&*":;/,?\xab\xbb\u2018\u2019\u201a\u201b\u201c\u201d\u201e\u201f\u2039\u203a\u2358\u275b\u275c\u275d\u275e\u275f\u2760\u276e\u276f\u2e42\u301d\u301e\u301f\uff02\U0001f676\U0001f677\U0001f678-]+',
-        text,
+        string,
     )
     return list(e.strip("'") for e in l if len(e) > 0)
 
 
-def abbrev_find(text: str):
+def abbrev_find(string: str):
     """Finds abbreviations with explanations next to them.
     
     Looks for patterns like
@@ -684,13 +686,13 @@ def abbrev_find(text: str):
         These seem to be more structured, in particular when you use (de|het) as a delimiter
         This seems overly specific, but works well to extract a bunch of these
 
-    @param text: python string to look in.  CONSIDER: accept spacy objects as well
+    @param string: python string to look in.  CONSIDER: accept spacy objects as well
 
     @return: a list of ('ww', ['word', 'word']) tuples, pretty much as-is so it (intentionally) contains duplicates
     """
     matches = []
 
-    toks = simple_tokenize(text)
+    toks = simple_tokenize(string)
     toks_lower = list(tok.lower() for tok in toks)
 
     ### Patterns where the abbreviation is bracketed

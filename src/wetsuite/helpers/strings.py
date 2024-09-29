@@ -998,3 +998,35 @@ def count_case_insensitive(
 #                 # TODO: involve weigh_deps
 
 #     return dict(counts)
+
+
+def remove_deheteen(string, remove=(r'de\b',r'het\b',r'een\b')):
+    """ remove 'de', 'het', and 'een' as words from the start of a string - meant to normalize phrases 
+    @param string:
+    @param remove:
+    @return: 
+    """
+    return remove_initial(string, remove, re.I)
+
+
+def remove_initial(string:str, remove_relist, flags=re.I):
+    """ remove strings from the start of a string, based on a list of regexps 
+    @param string:
+    @param remove_relist:
+    @param flags:
+    @return: 
+    """
+    changed = True
+    while changed:
+        changed = False
+        rrr = '(%s)'%('|'.join(remove_relist)) # TODO: escape properly
+        m = re.match( rrr, string, flags=flags)
+        if m is not None:
+            string = string[m.end():].strip()
+            changed = True
+    return string
+
+
+
+def remove_initial_short_sentences(stringwithnewlines):
+    pass

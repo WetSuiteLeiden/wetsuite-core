@@ -1,44 +1,69 @@
 """
-    This module tries to wrangle different possibly-structured-text formats into a similar intermediate format, and gives you some flexibility in how to consume those -- probably split into smallish chunks.
-    
-    Secondary thoughts:
-      - we were trying to be inspired by LaTeX hyphenation, which has a simple-but-pretty-great 
-        relative "this is the cost of breaking off here",
-        the analogue of which were  that makes "Hey can you break this more"
+    This module tries to wrangle 
+    - varied documents (structured or not, from HTML to PDF)
+    - ...via an intermediate that e.g. captures that possible structure
+    - ...into plain text we can consume more easily.
 
-    TODO: 
-      - decide the API 
-        probably make the splitting optional? 
-        or write in a way where joining is the original with (nearly) no losses? 
-        ...because all of this code overlap with just "read contents document of type X",
-        and arguably should do that separately.
+    It also tries to give those into smallish chunks, 
+    ideally informed by the document structure.
 
-      - Maybe we shouldn't make too many decisions for you, and merely yield suggestions you can easily ignore, e.g.
-        - 'seems like same section, <TEXT>'
-        - 'seems like new section, <TEXT>'
-        - 'seems like page header/footer, <TEXT>'
-        - 'seems like page footnotes, <TEXT>'
-        ...so that you, or a helper function, can group into different-sized chunks in the way you need it.
 
-    This module should eventuall grow a basic "we know about this type of document" 
-    to cover all common-enough documents and their varian formats.
+    It is a somwhat modular design to let us easily add more formats later.
+    You won't care about that until you want to add your own,
+    but it does have some implications to use:
+      - decide(docbytes) will give you (score, splitter_object) tuples
+        - you can avoid looser-structured splitters by testing for bad scores, _or_ by using C{decide}'s thresh to the same effect.
+      
+      - each splitter object, when called, gives (metadata, intermediate, flat_text) tuples
+        - flat_text is a string. Sometimes you care about only this
+        - the other two are more source-specific
+          - intermeiate tends to be the structure that that flat_text is from, in case that 
+          - metadata i
 
-    It should also have a reasonable fallback for each document type.
+    So if you just want text, with litthe control over the details::
+        string_list = feeling_lucky( docbytes )
+         
+    So if you want all the control, the code would be somehing like::
+        for score, splitter in wetsuite.helpers.split.decide( docbytes ):
+            for metadata, intermediate, text in splitter.fragments
+                print( text )
+                print( '--------------------' )
+        
+    CONSIDER: 
+      - Ideally, this module gets ongoing attention to cover all the documents the project cares about.
+      - always have a reasonable fallback for each document type (TODO: XML?)
+
+      - settling the intermediates more?
+        - Maybe we shouldn't make too many decisions for you, and merely yield suggestions you can easily ignore, e.g.
+            - 'seems like same section, <TEXT>'
+            - 'seems like new section, <TEXT>'
+            - 'seems like page header/footer, <TEXT>'
+            - 'seems like page footnotes, <TEXT>'
+        - ...so that you, or a helper function, can group into different-sized chunks in the way you need it.
+
+      - parameters, like "OCR that PDF if you have to"
+
+      - maybe rename feeling_lucky, maybe move it to lazy?
+
+      - think about separating the "read document at lower level" 
+        so that if you want that reading for different ends, you don't have to rip it out.
+
+      - we were trying to be inspired by LaTeX hyphenation, 
+          which has a simple-but-pretty-great "this is the cost of breaking off here"
+          the analogue of which wo7uld make "Hey can you break this to different degrees (sections, paragraphs)" possible
+
+      - There was an earlier idea to specify pattern matchers entirely as data, like::
+            presets = {
+                'beleidsregels': {
+                    'body': { 'name': 'div', 'id': 'PaginaContainer' },
+                    'keep_headers_html': True,
+                    'keep_tables_html':  True,
+                },
+            }
+        - with a 'this is how to select for the document' and 'this is how to get the body from it', etc.
+        - which is worth re-visiting, because it may be more easily altered in the long run, and more portable than this code currently is.
+        - a limitation might be expressing more complex selection
 """
-
-# There was an earlier idea to specify pattern matchers entirely as data, like:
-#
-#     presets = {
-#         'beleidsregels': {
-#             'body': { 'name': 'div', 'id': 'PaginaContainer' },
-#             'keep_headers_html': True,
-#             'keep_tables_html': True,
-#         },
-#     }
-#
-# with a 'this is how to select for the document' and 'this is how to get the body from it', etc.
-# which is worth re-visiting, because it may be more easily altered in the long run, and more portable than this code currently is.
-# The largest limitation might be expressing more complex selection
 
 
 import re
@@ -1462,7 +1487,8 @@ def feeling_lucky(docbytes):
     """If you are sure we understand a particular document format, you can hand it in here,
     and it will returns a list of strings for a document.
     No control, just text from whatever said it applied best.
-    This needs to be renamed.
+
+    This needs to be renamed. Maybe this needs to go to wetsuite.helpers.lazy instead.
     
     @return: a list of strings
     """

@@ -500,6 +500,8 @@ def all_text_fragments(
     Probably with defaults for us, which are creative and not necessarily correct, 
     but on average makes fewer weird mistakes (would need to figure that out from the various schemas)
 
+    @param under_node: an etree node to work under
+
     @param strip: is what to remove at the edges of each .text and .tail
     ...handed to strip(), and note that the default, None, is to strip whitespace
     if you want it to strip nothing at all, pass in '' (empty string)
@@ -507,6 +509,8 @@ def all_text_fragments(
     @param ignore_empty: removes strings that are empty when after that stripping
 
     @param ignore_tags: ignores direct/first .text content of named tags (does not ignore .tail, does not ignore the subtree)
+
+    @param join: if None, return a list of text fragments; if a string, we return a single tring, joined on that 
 
     @param stop_at: should be None or a list of tag names.
     If a tag name is in this sequence, we stop walking the tree entirely.
@@ -547,11 +551,12 @@ def all_text_fragments(
 def parse_html(htmlbytes:bytes):
     """ Parses HTML into an etree.
     
-        Differs from etree.fromstring only in that we use a parser
+        Differs from etree.fromstring only in that we use a parser more aware of HTML
+        and deals with minor incorrectness.
         
-        Consider also 
-        - beautifulsoup as an interface you might prefer to etree's
-        - elementsoup to take more broken html into etree via beautifulsoup
+        If you are doing this, consider also 
+          - beautifulsoup as slightly more HTML-aware parse, and an alternative API you might prefer to etree's
+          - elementsoup to take more broken html into etree via beautifulsoup
         See also https://lxml.de/lxmlhtml.html
         
         @param htmlbytes: a HTML file as a bytestring
@@ -559,21 +564,22 @@ def parse_html(htmlbytes:bytes):
         @return: an etree object
     """
     parser = lxml.html.HTMLParser(recover=True, encoding='utf8')
-    return lxml.etree.fromstring(htmlbytes, parser=parser)
+    return lxml.etree.fromstring(htmlbytes, parser=parser) # pylint: disable=c-extension-no-member
 
 
 def html_text(etree, join=True):
-    ''' Take an etree presumed to contain elements with HTML names,
-    and try to produce a plain test string,
+    ''' 
+    Take an etree presumed to contain elements with HTML names,
+    try to produce a plain test string,
     with awarenesss of which which HTML elements should be considered to split words,
-    and split paragraphs (will selectively insert ' ', '\n', or '\n\n').
+    and split paragraphs - it will selectively insert spaces and newlines.
 
     Various steps of this are... more creative than some might like.
-    If you want less creativity, look at C{all_text_fragments} or just using itertext.
+    If you want less creativity, look at C{all_text_fragments} here, 
+    or using etree's C{itertext} yourself.
 
-    (inspiration was taken from the html-text module)
-
-    While we're being creative, though, we might consider also adding logic such as that in jusText,
+    Inspiration was taken from the html-text module. 
+    While we're being creative, we might consider also takes inspiration from jusText,
     to remove boilerplate content based on a few - though unless that becomes part of the node handling
     that would be better to separate.
 
@@ -582,86 +588,84 @@ def html_text(etree, join=True):
     @param join: If True, returns a single string (with a little more polishing, of spaces after newlines)
     If False, returns the fragments it collected and added.   Due to the insertion and handing of whitespace, this bears only limited relation to the parts.
     '''
-    todo = {
-        # (note that this isn't "skip everything in subtree", though we might want that instead?)
-        #      usecontents prepend append removesubtree
-        'html':      (False, None, None,   False  ),
-        'body':      (True,  None, None,   False  ),
+    todo = {#  usecontents prepend append removesubtree
+        'html':      ( False, None, None,   False ),
+        'body':      ( True,  None, None,   False ),
 
-        'script':    (False, None, None,   True   ),
-        'noscript':  (False, None, None,   True   ), # arguable?
-        'style':     (False, None, None,   True   ),
-        'svg':       (False, None, None,   True   ),
-        'iframe':    (False, None, None,   True   ), # probably doesn't contain anything anyway
+        'script':    ( False, None, None,   True  ),
+        'noscript':  ( False, None, None,   True  ), # arguable?
+        'style':     ( False, None, None,   True  ),
+        'svg':       ( False, None, None,   True  ),
+        'iframe':    ( False, None, None,   True  ), # probably doesn't contain anything anyway
 
-        'form':      (False, None, None,   False  ),
-        'input':     (False, None, None,   False  ),
-        'textarea':  (True,  None, '\n\n', False  ),
-        'select':    (False, None, None,   False  ),
-        'option':    (False, None, None,   False  ),
-        'label':     (False, None, None,   False  ),
-        'button':    (False, None, None,   False  ),
+        'form':      ( False, None, None,   False ),
+        'input':     ( False, None, None,   False ),
+        'textarea':  ( True,  None, '\n\n', False ),
+        'select':    ( False, None, None,   False ),
+        'option':    ( False, None, None,   False ),
+        'label':     ( False, None, None,   False ),
+        'button':    ( False, None, None,   False ),
 
-        'link':      (True,  None, ' ',    False   ),
+        'link':      ( True,  None, ' ',    False ),
 
-        'img':       (False, None, None,   True   ),
+        'img':       ( False, None, None,   True  ),
 
-        'abbr':      (True,  None, None,    False  ),
-        'main':      (True,  '\n', '\n',   False  ),
-        'article':   (True,  '\n', '\n',   False  ), 
-        'nav':       (False, '\n', '\n',   True   ), 
-        'aside':     (True,  None, '\n',   False  ), 
-        'section':   (True,  None, '\n',   False  ), 
-        'time':      (True,  None, None,   False  ), 
+        'abbr':      ( True,  None, None,   False ),
+        'main':      ( True,  '\n', '\n',   False ),
+        'article':   ( True,  '\n', '\n',   False ), 
+        'nav':       ( False, '\n', '\n',   True  ), 
+        'aside':     ( True,  None, '\n',   False ), 
+        'section':   ( True,  None, '\n',   False ), 
+        'time':      ( True,  None, None,   False ), 
 
-        'details':   (True,  None, '\n',   False  ), 
-        'footer':    (True,  None, '\n',   True   ), # arguable on the remove 
-        'header':    (True,  None, '\n',   True   ), 
-        'br':        (True,  None, '\n',   False  ), 
-        'nobr':      (True,  None, None,   False  ), 
-        'dd':        (True,  None, '\n',   False  ), 
-        'dt':        (True,  None, '\n',   False  ), 
-        'fieldset':  (True,  None, '\n',   False  ),
-        'figcaption':(True,  None, '\n',   False  ), 
-        'hr':        (True,  None, '\n',   False  ), 
-        'legend':    (True,  None, '\n',   False  ), 
-        'li':        (True,  None, '\n',   False  ), 
-        'table':     (True,  '\n', '\n',   False  ),
-        'tbody':     (True,  None, None,   False  ),
-        'thead':     (True,  None, None,   False  ),
-        'tfoot':     (True,  None, None,   False  ),
-        'tr':        (True,  None, '\n',   False  ),
-        'td':        (True,  None, ' ',    False  ),
-        'th':        (True,  None, ' ',    False  ),
-        'p':         (True,  None, '\n\n', False  ),
-        'div':       (True,  None, '\n',   False  ),
-        'span':      (True,  None, None,   False  ),
-        'blockquote':(True,  None, '\n\n', False  ),
-        'figure':    (True,  None, '\n\n', False  ),
-        'title':     (True,  None, '\n\n', False  ),
-        'h1':        (True,  None, '\n\n', False  ),
-        'h2':        (True,  None, '\n\n', False  ),
-        'h3':        (True,  None, '\n\n', False  ),
-        'h4':        (True,  None, '\n\n', False  ),
-        'h5':        (True,  None, '\n\n', False  ),
-        'h6':        (True,  None, '\n\n', False  ),
-        'dl':        (True,  None, '\n\n', False  ),
-        'ol':        (True,  '\n', '\n', False  ),
-        'ul':        (True,  '\n', '\n', False  ),
-        'pre':       (True,  None, '\n\n', False  ),
+        'details':   ( True,  None, '\n',   False ), 
+        'footer':    ( True,  None, '\n',   True  ), # arguable on the remove 
+        'header':    ( True,  None, '\n',   True  ), 
+        'br':        ( True,  None, '\n',   False ), 
+        'nobr':      ( True,  None, None,   False ), 
+        'dd':        ( True,  None, '\n',   False ), 
+        'dt':        ( True,  None, '\n',   False ), 
+        'fieldset':  ( True,  None, '\n',   False ),
+        'figcaption':( True,  None, '\n',   False ), 
+        'hr':        ( True,  None, '\n',   False ), 
+        'legend':    ( True,  None, '\n',   False ), 
+        'li':        ( True,  None, '\n',   False ), 
+        'table':     ( True,  '\n', '\n',   False ),
+        'tbody':     ( True,  None, None,   False ),
+        'thead':     ( True,  None, None,   False ),
+        'tfoot':     ( True,  None, None,   False ),
+        'tr':        ( True,  None, '\n',   False ),
+        'td':        ( True,  None, ' ',    False ),
+        'th':        ( True,  None, ' ',    False ),
+        'p':         ( True,  None, '\n\n', False ),
+        'div':       ( True,  None, '\n',   False ),
+        'span':      ( True,  None, None,   False ),
+        'blockquote':( True,  None, '\n\n', False ),
+        'figure':    ( True,  None, '\n\n', False ),
+        'title':     ( True,  None, '\n\n', False ),
+        'h1':        ( True,  None, '\n\n', False ),
+        'h2':        ( True,  None, '\n\n', False ),
+        'h3':        ( True,  None, '\n\n', False ),
+        'h4':        ( True,  None, '\n\n', False ),
+        'h5':        ( True,  None, '\n\n', False ),
+        'h6':        ( True,  None, '\n\n', False ),
+        'dl':        ( True,  None, '\n\n', False ),
+        'ol':        ( True,  '\n', '\n',   False ),
+        'ul':        ( True,  '\n', '\n',   False ),
+        'pre':       ( True,  None, '\n\n', False ),
 
-        'a':         (True,  None, None, False), 
+        'a':         ( True,  None, None,   False ), 
 
-        'small':     (True,  None, None, False), 
-        'b':         (True,  None, None, False), 
-        'strong':    (True,  None, None, False), 
-        'i':         (True,  None, None, False), 
-        'sup':       (True,  None, None, False), 
-        'sub':       (True,  None, None, False), 
-        'em':        (True,  None, None, False), 
-        'tt':        (True,  None, None, False), 
-        'code':      (True,  None, None, False), # inline, but arguably should get a space?
-        'cite':      (True,  None, ' ',  False), # arguable
+        'small':     ( True,  None, None,   False ), 
+        'b':         ( True,  None, None,   False ), 
+        'strong':    ( True,  None, None,   False ), 
+        'i':         ( True,  None, None,   False ), 
+        'sup':       ( True,  None, None,   False ), 
+        'sub':       ( True,  None, None,   False ), 
+        'em':        ( True,  None, None,   False ), 
+        'tt':        ( True,  None, None,   False ), 
+        'code':      ( True,  None, None,   False ), # inline, but arguably should get a space?
+        'cite':      ( True,  None, ' ',    False ), # arguable
     }
 
     ## To through the tree to remove what is requested.
@@ -702,7 +706,7 @@ def html_text(etree, join=True):
                 collect.append( add_after )
 
     body = etree.find('body')
-    for event, el in lxml.etree.iterwalk(body, events=('start', 'end')):
+    for event, el in lxml.etree.iterwalk(body, events=('start', 'end')): # pylint: disable=c-extension-no-member
         # TODO: check that this block isn't wrong
         if event == 'start':
             add_ws_before(el)

@@ -689,12 +689,14 @@ def cached_fetch(
 
     Arguably belongs in a mixin or such, but for now its usefulness puts it here.
 
-    @param store:     a store to get/put data from
-    @param url:       an URL string to fetch
-    @param sleep_sec: sleep this long whenever we did an actual fetch (and not when we return data from cache), 
+    @param store:         a store to get/put data from
+    @param url:           an URL string to fetch
+    @param force_refetch: fetch even if we had it already
+    @param sleep_sec:     sleep this long whenever we did an actual fetch (and not when we return data from cache), 
     so that when you use this in scraping, we can easily be nicer to a server.
-    @param timeout:   timeout of te fetch
-    @return: (data:bytes, whether_it_came_from_cache:bool)
+    @param timeout:       timeout of te fetch
+    @param commit:        whether to put() with an immediate commit (False can help some faster bulk updates)
+    @return:              (data:bytes, whether_it_came_from_cache:bool)
 
     May raise
       - whatever requests.get may raise (e.g. "timeout waiting for store" type things)
@@ -779,6 +781,9 @@ def resolve_path(name: str):
         - listening to a WETSUITE_BASE_DIR to override our "put in user's homedir" behaviour,
         this might make more sense e.g. to point it at distributed storage without
         e.g. you having to do symlink juggling
+
+    @param name: the name or path to inrepret
+
     """
     # deal with pathlib arguments by flattening it to a string
     if isinstance(name, pathlib.Path):
@@ -861,6 +866,10 @@ def is_file_a_store(path, skip_table_check: bool = False):
     More specifailly: whether it is an sqlite(3) database, and has a table called 'kv'
 
     You can skip the latter test. It avoids opening the file, so avoids a possible timeout on someone else having the store open for writing.
+
+    @param path: the filesystem path to test
+    @param skip_table_check: don't check for the right table name, e.g. to make it faster or avoid opening a store
+    @return: Whether it seems like a store we could open
     """
     if not os.path.isfile(path):
         return False

@@ -22,6 +22,7 @@ def nodetext(text, if_none=None):
     (is actually equivalent to html.escape, previously known as cgi.escape)
 
     @param text: text to escape (as str or bytes)
+    @param if_none: a value to return if text is None (meant to simplify certain calling logic)
     @return: always returns a str, even if given a bytes (Passes unicode through)
     """
     if text is None:
@@ -88,6 +89,9 @@ def uri(text, same_type=True):
     (quote() defaults to encoding to UTF8)
 
     @param text: URI, as string or bytes object
+    
+    @param same_type: if you handed in bytes, we will return bytes (containing UTF-8 if necessary)
+
     @returns: bytes if it was given bytes, str if given str
     """
     given_bytes = isinstance(text, bytes)
@@ -106,6 +110,9 @@ def uri_component(text, same_type=True):
 
     @param text: URI, as string or bytes object
     (unicode in an input str is converted into url-encoded UTF8 bytes first (quote() defaults to encoding to UTF8))
+
+    @param same_type: if you handed in bytes, we will return bytes (containing UTF-8 if necessary)
+
     @returns: bytes if it was given bytes, str if given str. If same_type==false it gives it as a str always.
     """
     given_bytes: bool = isinstance(text, bytes)

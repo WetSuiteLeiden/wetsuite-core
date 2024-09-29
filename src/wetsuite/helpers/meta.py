@@ -91,9 +91,11 @@ def parse_jci(text: str):
 # CONSIDER: adding the lists of dutch courts. It might change over time, but is still useful.
 
 
-def findall_ecli(s: str, rstrip_dot=True):
+def findall_ecli(string: str, rstrip_dot=True):
     """Within plain text, this tries to find all occurences of things
     that look like an ECLI identifier
+
+    @param string: the string to look in
 
     @param rstrip_dot: whether to return the match stripped of any final dot(s).
     While dots are valid in an ECLI (typically used as a separator),
@@ -106,14 +108,14 @@ def findall_ecli(s: str, rstrip_dot=True):
     @return: a list of strings.
     """
     ret = []
-    for match_str in _RE_ECLIFIND.findall(s):
+    for match_str in _RE_ECLIFIND.findall(string):
         if rstrip_dot:
             match_str = match_str.rstrip(".")
         ret.append(match_str)
     return ret
 
 
-def parse_ecli(text: str):
+def parse_ecli(string: str):
     """Parses something we know is an ECLI, reports the parts in a dict.
 
     Currently hardcoded to remove any final period.
@@ -130,16 +132,18 @@ def parse_ecli(text: str):
 
     As an experiment, we try to report more about the court in question,
     but note the key ('court_details') is not guaranteed to be there.
+
+    @param string: the string to parse as an ECLI
     """
     ret = {}
 
     # in case you gave something in running text...
-    m = re.search(r"[^A-Za-z0-9:.]", text)
+    m = re.search(r"[^A-Za-z0-9:.]", string)
     if m is not None:
-        ret["removed_pre"] = text[m.end() :]
-        text = text[: m.end() - 1]
+        ret["removed_pre"] = string[m.end() :]
+        string = string[: m.end() - 1]
 
-    ecli_list = text.strip().split(":")
+    ecli_list = string.strip().split(":")
 
     # :DOC or :INH stuck on an ECLI is an internal convention at... was it open-rechtspraak?
     if len(ecli_list) == 6 and ecli_list[-1] in ("DOC", "INH"):
@@ -149,13 +153,13 @@ def parse_ecli(text: str):
     if len(ecli_list) != 5:
         raise ValueError(
             "ECLI is expected to have 5 elements (not %d) separated by four colons, %r does not"
-            % (len(ecli_list), text)
+            % (len(ecli_list), string)
         )
 
     uppercase_ecli, country_code, court_code, year, caseid = ecli_list
 
     if uppercase_ecli.upper() != "ECLI":
-        raise ValueError(f"First ECLI string isn't 'ECLI' in {repr(text)}")
+        raise ValueError(f"First ECLI string isn't 'ECLI' in {repr(string)}")
 
     if len(country_code) != 2:
         raise ValueError(f"ECLI country {repr(country_code)} isn't two characters")
@@ -165,7 +169,7 @@ def parse_ecli(text: str):
 
     mo_caseid = re.match(r"([A-Z-z0-9.]{1,25})", caseid)
     if mo_caseid is None:
-        raise ValueError(f"Does not look like a valid ECLI: {repr(text)}")
+        raise ValueError(f"Does not look like a valid ECLI: {repr(string)}")
 
     end = mo_caseid.end()
     while end > 0 and caseid[end - 1] == ".":
@@ -231,6 +235,7 @@ CELEX_COUNTRIES = [
     "ROU",
     "HRV",
 ]
+" The three-letter codes that CELEX uses to refer to countryies "
 
 CELEX_SECTORS = {
     "1": "Treaties",
@@ -246,6 +251,8 @@ CELEX_SECTORS = {
     "C": "OJC Documents",
     "E": "EFTA Documents",
 }
+" The sectors defined within CELEX "
+
 
 # https://eur-lex.europa.eu/content/tools/TableOfSectors/types_of_documents_in_eurlex.html
 
@@ -501,6 +508,7 @@ CELEX_DOCTYPES = (
     ("E", "X", "Information and communications"),
     ("E", "O", "Other acts"),
 )
+" The document types defined within CELEX sectors "
 
 
 def _celex_doctype(sector_number: str, document_type: str):
@@ -622,6 +630,8 @@ _re_bekendid = re.compile(r"((?:ag-tk|ag-ek|ag-vv|ag|ah-tk|ah-ek|ah-tk|h-ek|h-tk
 def findall_bekendmaking_ids(instring: str):
     """Look for identifiers like 'stcrt-2009-9231' and 'ah-tk-20082009-2945'
     Might find a few things that are not.
+    @param instring: the string to look in
+    @return: a list o
     """
     # Note that knowing most of the variants, we could refine this and avoid some false positives
     return _re_bekendid.findall( instring )
@@ -639,7 +649,8 @@ def parse_bekendmaking_id(s):
 
     CONSIDER: also producing citation form
 
-    @param s: the string to parse.
+    @param s: the string to parse as a single identifier.
+    @return: if it is a known type of identifier: parse of its basic details, with keys like jaar, docnum
     """
     ret = {}
     parts = s.split("-")
@@ -842,17 +853,18 @@ def parse_bekendmaking_id(s):
     return ret
 
 
-def parse_kst_id(s, debug=False):
+def parse_kst_id(string:str, debug:bool=False):
     """Parse kamerstukken identifiers like kst-26643-144-h1
     Also a helper for parse_bekendmaking_id()
 
     @param s: kst-style identifier as string. Will be parsed.
+    @param debug: whether to point out some debug
     """
     # e.g. so that you can do 'https://zoek.officielebekendmakingen.nl/dossier/'+ d['dossiernum']
 
     ret = {}  # {'input':s}
     dossiernum = []
-    parts = s.split("-")
+    parts = string.split("-")
 
     #    ret['_var'] = 'e'
     #    return ret
@@ -860,7 +872,7 @@ def parse_kst_id(s, debug=False):
     if parts[0] == "kst":
         ret["type"] = parts.pop(0)
     else:
-        raise ValueError("Does not start with kst: %r" % s)
+        raise ValueError("Does not start with kst: %r" % string)
 
     if len(parts[0]) == 8:
         # this is a solid source, but we only sometimes have it
@@ -871,7 +883,7 @@ def parse_kst_id(s, debug=False):
     if len(parts[0]) == 5:
         dossiernum.append(parts.pop(0))
     else:
-        raise ValueError("ERR1 Don't know what to do with %r - %r" % (s, parts))
+        raise ValueError("ERR1 Don't know what to do with %r - %r" % (string, parts))
 
     # in the context of a kst- identifier, we know we are referring to a document so can make some assumptions
     if len(parts) == 0:
@@ -914,7 +926,7 @@ def parse_kst_id(s, debug=False):
         # raise ValueError("ERR3 Don't know what to do with %r - %r"%(s, parts))
 
     else:
-        raise ValueError("ERR4 Don't know what to do with %r - %r" % (s, parts))
+        raise ValueError("ERR4 Don't know what to do with %r - %r" % (string, parts))
 
     ret["dossiernum"] = "-".join(dossiernum)
 
