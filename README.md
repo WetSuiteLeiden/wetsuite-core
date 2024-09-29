@@ -1,17 +1,19 @@
-
 # wetsuite core library
 
-This is part of a wider project with wider aims, [introduced here](https://github.com/WetSuiteLeiden),
+This repo contains a core library, 
+that is part of a wider project with wider aims, [introduced here](https://github.com/WetSuiteLeiden).
+
+That project aims to be a toolset to make it easier for researchers to apply natural language processing and other analysis to legal text - much of it specific to Dutch governmental documents, though some of it translates well to other souces.
 
 That project includes:
-- a website that guides you into starting a project
-- helper functions to ease some common tasks, such as loading data and processing text
-- accessing datasets to work on,
-- notebooks that 
-  - introduce data sources
-  - demonstrate our added helpers
-  - demonstrate some common methods
-  - give some examples of "if you had this question, this is how you might go about solving it"
+  - a website that guides you into starting a project
+  - helper functions to ease some common tasks, such as loading data and processing text
+  - accessing datasets to work on,
+  - notebooks that 
+    - introduce data sources
+    - demonstrate our added helpers
+    - demonstrate some common methods
+    - give some examples of "if you had this question, this is how you might go about solving it"
 
 This particular repository is only that second item there - the helper functions
 that, for the most part, making it easier to get started analysing legal text.
@@ -29,8 +31,6 @@ There is also a notebook that gets into [how to install this library](https://gi
 
 
 ## If you are interesting in specific code inside `src`
-
-
 
 ### `datasets/`
 Perhaps most interesting is the `datasets.load()` function that downloads our pre-made datasets.
