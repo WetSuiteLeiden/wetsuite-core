@@ -99,7 +99,7 @@ def xml_text(xmlbytes):
 
 _loaded_models = {} # name -> model object    so we can be a little faster than bare load() because it's likely you will call spacy_parse in quick succession
 
-def spacy_parse(text, force_model=None, force_language=None, detection_fallback='nl'):
+def spacy_parse(string, force_model=None, force_language=None, detection_fallback='nl'):
     '''
     Takes text and returns a spacy document for it.
 
@@ -110,7 +110,7 @@ def spacy_parse(text, force_model=None, force_language=None, detection_fallback=
     In general you might care for the reproducability of explicitly loading a model yourself, 
     but this can be handy in experiments, to parse some fragments of text with less typing.
     
-    @param text: string to parse
+    @param string: string to parse
     @param force_model: if None, detect model; if not None, load this one
     @param force_language: if None, detect language; if not None, assume this one
     @param detection_fallback: if language detection fails (e.g. because _its_ model was not installed), fall back to use this language
@@ -124,7 +124,7 @@ def spacy_parse(text, force_model=None, force_language=None, detection_fallback=
         if force_language is None:
             #print("Detecting language")
             try:
-                lang, _score = wetsuite.helpers.spacy.detect_language( text )
+                lang, _score = wetsuite.helpers.spacy.detect_language( string )
             except Exception as e:
                 warnings.warn('spacy_parse language detection failed (%s), falling back to %r'%(str(e), detection_fallback))
                 lang = detection_fallback
@@ -142,4 +142,4 @@ def spacy_parse(text, force_model=None, force_language=None, detection_fallback=
         model = spacy.load(force_model)
         _loaded_models[force_model] = model
 
-    return model(text)
+    return model(string)

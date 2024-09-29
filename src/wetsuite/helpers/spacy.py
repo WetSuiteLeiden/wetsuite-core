@@ -252,7 +252,7 @@ def en_noun_chunks(text: str, load_model_name: str = "en_core_web_trf") -> list:
 
 _langdet_model = None
 
-def detect_language(text: str):  #  -> tuple(str, float)
+def detect_language(string: str):  #  -> tuple(str, float)
     """Note that this depends on the spacy_fastlang library, which depends on the fasttext library.
 
     Returns (lang, score)
@@ -262,6 +262,8 @@ def detect_language(text: str):  #  -> tuple(str, float)
     Depends on spacy_fastlang and loads it on first call of this function.  Which will fail if not installed.
 
     CONSIDER: truncate the text to something reasonable to not use too much memory.   On parameter?
+
+    @param string: the text to determine the language of 
     """
     # monkey patch done before the import to suppress "`load_model` does not return WordVectorModel or SupervisedModel any more, but a `FastText` object which is very similar."
     try:
@@ -283,7 +285,7 @@ def detect_language(text: str):  #  -> tuple(str, float)
     # else:
     #    print("Using loaded spacy_fastlang")
 
-    doc = _langdet_model(text)
+    doc = _langdet_model(string)
 
     return doc._.language, doc._.language_score
 
@@ -291,8 +293,10 @@ def detect_language(text: str):  #  -> tuple(str, float)
 _xx_sent_model = None
 
 
-def sentence_split(text: str, as_plain_sents=False):
+def sentence_split(string: str, as_plain_sents=False):
     """A language-agnostic sentence splitter based on the `xx_sent_ud_sm` model.
+
+    @param string: the text to split into sentences
 
     @return:
       - if as_plain_sents==False: a Doc so you can pick out the .sents attribute
@@ -304,7 +308,7 @@ def sentence_split(text: str, as_plain_sents=False):
     if _xx_sent_model is None:
         _xx_sent_model = spacy.load("xx_sent_ud_sm") # if this fails, you may need   python3 -m spacy download xx_sent_ud_sm
 
-    doc = _xx_sent_model(text)
+    doc = _xx_sent_model(string)
     if as_plain_sents:
         return list(sent.text for sent in doc.sents)
     else:
