@@ -1,5 +1,4 @@
 
-
 ## [helpers/](helpers)
 Code that should be of wider use.
 
@@ -20,3 +19,10 @@ that might be unusually specific.
 
 ## [tests/](tests)
 Unit and regression tests for much of this library's code.
+
+
+## API docs
+
+More detailed answers should be summarized decently by the API documentation. 
+
+Right now those are  [here](https://wetsuite.knobs-dials.com/apidocs/) but they would likely move.
