@@ -28,6 +28,8 @@ def span_as_doc(span):
 class notebook_content_visualisation:
     """Python notebook visualisation to give some visual idea of contents:
     marks out-of-vocabulary tokens red, and highlight the more interesting words (by POS).
+
+    Uses a sort of dark-mode scheme
     """
 
     def __init__(self, doc, mark_oov=True, highlight_content=True):
@@ -57,7 +59,7 @@ class notebook_content_visualisation:
                     "NOUN",
                     "PROPN",
                 ):
-                    style += ";opacity:0.9;color:#fafaff"
+                    style += ";opacity:0.9;color:#fafaff; "
                 elif token.pos_ in (
                     "ADP",
                     "VERB",
@@ -74,7 +76,7 @@ class notebook_content_visualisation:
                 )
             )
             ret.append("<span>%s</span>" % token.whitespace_)
-        return "".join(ret)
+        return '<div style="background:#3b3759">%s</div>'%("".join(ret),)
 
 
 def sentence_complexity_spacy(span):
