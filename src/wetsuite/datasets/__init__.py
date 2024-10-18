@@ -5,15 +5,8 @@ Fetch and load already-created datasets that we provide. (to see a list of actua
 As this is often structured data, each dataset may work a little differently, 
 so there is an describe() to get you started, that each dataset should fill out.
 
-CONSIDER:
-  - "treat collections of files as datasets?" or is that your own responsibility
-    ...i.e. more of a notebook "how to deal with pdf, odt, and make that a thing to iterate through"
-
-
 TODO: 
-  - decide how often to re-fetch the index client-side. 
-    Each interpreter (which is what it does right now)?   
-    Store and base on mtime with possible override? 
+  - think more about the robustness around re-fetching indices.
     Decide it's cheap enough to fetch each time? (but fall back onto stored?)
   - decide how to store and access. For very large datasets we may want something like HDF5 
     because right now we don't have a choice but to have all the dataset in RAM
@@ -48,16 +41,16 @@ _index_fetch_no_more_often_than_sec = 600
 
 
 def fetch_index():
-    """Index is expected to be a list of dicts, each with keys includin
-      - url
-      - version             (should probably become semver)
-      - description_short   one-line summary of what this is
-      - description         longer description, perhaps with some example data
-      - download_size       how much transfer you'll need
-      - real_size           Disk storage we expect to need once decompressed
-      - download_size_human, real_size_human: more readable version,
-        e.g. where real_size might be the integer 397740, real_size_human would be 388KiB
-      - type                content type of dataset
+    """Index is expected to be a list of dicts, each with keys including
+      - C{url}
+      - C{version}             (should probably become semver)
+      - C{description_short}   one-line summary of what this is
+      - C{description}         longer description, perhaps with some example data
+      - C{download_size}       how much transfer you'll need
+      - C{real_size}           Disk storage we expect to need once decompressed
+      - C{download_size_human}, real_size_human: more readable version,
+        e.g. where C{real_size} might be the integer 397740, C{real_size_human} would be 388KiB
+      - C{type}                content type of dataset
 
     TODO: an example
 
@@ -71,7 +64,7 @@ def fetch_index():
     ):
         # print('FETCHING INDEX')
         # try:
-        _fetched_data = wetsuite.helpers.net.download(_INDEX_URL)
+        _fetched_data = wetsuite.helpers.net.download(_INDEX_URL) # this could raise
         _index_data = json.loads(_fetched_data)
         # print("Fetched index")
         _index_fetch_time = time.time()
