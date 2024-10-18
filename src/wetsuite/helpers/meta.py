@@ -857,7 +857,7 @@ def parse_kst_id(string:str, debug:bool=False):
     """Parse kamerstukken identifiers like kst-26643-144-h1
     Also a helper for parse_bekendmaking_id()
 
-    @param s: kst-style identifier as string. Will be parsed.
+    @param string: kst-style identifier as string. Will be parsed.
     @param debug: whether to point out some debug
     """
     # e.g. so that you can do 'https://zoek.officielebekendmakingen.nl/dossier/'+ d['dossiernum']
