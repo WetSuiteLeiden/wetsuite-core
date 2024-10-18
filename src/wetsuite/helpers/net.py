@@ -10,10 +10,10 @@ import wetsuite.helpers.format
 def download(
     url: str, tofile_path: str = None, show_progress=None, chunk_size=131072, timeout=10
 ):
-    """Mostly just requests.get(), for byte-data download, with some optional extras,
-    that make it a little more specifically useful for downloading.
+    """Mostly just requests.get(), for byte-data download, 
+    with some options that make it a little more specifically useful for downloading.
 
-    the main addition is the option to stream-download to filesystem:
+    The main addition is the option to stream-download to filesystem:
       - if tofile is not None, we stream-save to that file path, by name  (and return None)
       - if tofile is None      we return the data as a bytes object (which means we kept it in RAM, which may not be wise for huge downloads)
     uses requests's stream=True, which seems chunked HTTP transfer, or just a TCP window? TOCHECK
