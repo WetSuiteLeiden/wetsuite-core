@@ -120,20 +120,18 @@ def sentence_complexity_spacy(span):
 
 
 def interesting_words(
-    span, ignore_stop=True, ignore_pos_=("PUNCT", "SPACE", "X", "AUX", "DET", "CCONJ")
+    span, ignore_stop=True, ignore_pos_=("PUNCT", "SPACE", "X", "AUX", "DET", "CCONJ"), as_text=False
 ):
-    """Takes a spacy span (or something else that iterates as tokens),
+    """
+    Takes a spacy span (or something else that iterates as tokens),
     returns only the more interesting tokens, ignoring stopwords, function words, and such.
 
-    Note that this will return a regular python array, so you can't use this in e.g. .similar() comparisons
-    (using a SpanGroup wouldn't change that?)
+    Currently tries to include only tokens where pos_ in "NOUN", "PROPN", "NUM", "ADJ", "VERB", "ADP", "ADV"  
 
-    Since spacy makes a point to always keep representing the original input,
-    we have to choose to
-      - return the indices - more flexible but more work
-      - return only the text -
-      - return a new... something.
-    e.g. spangroups   (use weakrefs so when the document gets collected, the returned spangroup breaks)
+    @param span: the doc, sentence, or other span to iterate for Tokens
+    @param ignore_stop: whether to ignore what spacy considers is_stop
+    @param ignore_pos_: what list of pos_ to ignore (meant to avoid the things that it would normally include)
+    @param as_text: return a list of strings, rather than a list of spans
     """
     # import spacy
     import spacy.tokens.span_group
@@ -149,15 +147,23 @@ def interesting_words(
         elif tok.pos_ in ignore_pos_:
             pass
         elif tok.pos_ in ("NOUN", "PROPN", "NUM"):
-            ret.append(spacy.tokens.span.Span(docref, tok.i, tok.i + 1))  # pylint: disable=c-extension-no-member
+            if as_text:
+                ret.append( tok.text )
+            else:
+                ret.append(spacy.tokens.span.Span(docref, tok.i, tok.i + 1))  # pylint: disable=c-extension-no-member
             # print( '1 %s/%s'%(tok.text, tok.pos_) )
         elif tok.pos_ in ("ADJ", "VERB", "ADP", "ADV"):
-            ret.append(spacy.tokens.span.Span(docref, tok.i, tok.i + 1))  # pylint: disable=c-extension-no-member
+            if as_text:
+                ret.append( tok.text )
+            else:
+                ret.append(spacy.tokens.span.Span(docref, tok.i, tok.i + 1))  # pylint: disable=c-extension-no-member
             # print( '2 %s/%s'%(tok.text, tok.pos_) )
         else:
             pass
             # print( '? %s/%s'%(tok.text, tok.pos_) )
     return ret
+
+
 
 
 def subjects_in_doc(doc):
