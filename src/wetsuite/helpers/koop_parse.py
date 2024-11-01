@@ -146,18 +146,18 @@ def cvdr_meta(tree, flatten=False):
 
 def cvdr_parse_identifier(text: str, prepend_cvdr: bool = False):
     """Given a CVDR style identifier string (sometimes called JCDR),
-    gives a normalized -- without the
+    gives a more normalized version, e.g. useful for indexing.
 
-    If it makes _no_ sense as a CVDR number, it may raise a ValueError.
+    For example:
+        cvdr_parse_identifier('101404_1')     ==  ('101404', '101404_1')
+        cvdr_parse_identifier('CVDR101405_1') ==  ('101405', '101405_1')
+        cvdr_parse_identifier('CVDR101406')   ==  ('101406',  None     )
+        cvdr_parse_identifier('1.0:101407_1') ==  ('101407', '101407_1')
 
     @param text:         the thing to parse
     @param prepend_cvdr: whether to put 'CVDR' in front of the work and the expression. Defaults to false.
-    @return: a tuple of strings: (work ID, expression ID), the latter of which will be None if input was a work ID.
-    Examples: ::
-        101404_1      -->  ('101404', '101404_1')
-        CVDR101405_1  -->  ('101405', '101405_1')
-        CVDR101406    -->  ('101406',  None     )
-        1.0:101407_1  -->  ('101407', '101407_1')
+    @return: a tuple of strings: (work ID, expression ID), the latter of which will be None if input was a work ID; see the examples above.
+    If it makes _no_ sense as a CVDR number, it may raise a ValueError instead.
     """
     if ":" in text:
         text = text.split(":", 1)[1]
@@ -175,8 +175,10 @@ def cvdr_parse_identifier(text: str, prepend_cvdr: bool = False):
 
 
 def cvdr_normalize_expressionid(text: str):
-    """When indexing, you may care to transform a CVDRid in a more fixed form (just the number, underscore) than they appear
-    Actually just returns the second thing that cvdr_parse_identifier() returns
+    """When indexing, you may care to transform a CVDRid in a more fixed form (just the number, underscore) than they appear.
+
+    Actually just returns the second thing that cvdr_parse_identifier() returns -- so excludes the 'CVDR'
+    
     Does not work on workids
     """
     nex = cvdr_parse_identifier(text, prepend_cvdr=True)[1]
