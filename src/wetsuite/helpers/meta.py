@@ -3,8 +3,8 @@
     Specifically for things not tied to a singular API or data source, 
     or we otherwise expect to see some reuse of.
 
-    Things that are more specific live in places like koop_parse
-
+    Things that are more specific live in other places,
+    e.g. things relatively specific to KOOP's presentations BWB, CVDR, and OP sits in helpers.koop_parse
 
     The function name should give you some indication how what it associates with, 
     and how specific it is.
