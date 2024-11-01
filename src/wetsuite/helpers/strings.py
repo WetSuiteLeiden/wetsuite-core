@@ -792,9 +792,15 @@ stopwords_nl = (
     "wordt",
     "in",
     "deze",
+    "Deze",
     "dan",
     "is",
     "dat",
+    "zijn",
+    "De",
+    "met",
+    "uit",
+    "er",
 )
 " some Dutch stopwords  "
 
@@ -907,7 +913,7 @@ def count_normalized(
 
 
 def count_case_insensitive(
-    strings: List[str], min_count=1, min_word_length=0, stopwords=(), **kwargs
+    strings: List[str], min_count=1, min_word_length=0, stopwords=(), stopwords_i=(), **kwargs
 ):
     """Calls count_normalized()  with  normalize_func=lambda s:s.lower()
     which means it is case insensitive in counting strings,
@@ -928,76 +934,10 @@ def count_case_insensitive(
         min_word_length=min_word_length,
         normalize_func=lambda s: s.lower(),
         stopwords=stopwords,
+        stopwords_i=stopwords_i,
         **kwargs
     )
 
-
-# commented because it's not used yet
-# def count_from_spacy_document(doc_or_sequence_of_docs,
-#                               remove_stop=True,
-#                               restrict_to_tags=('NOUN', 'PROPN', 'ADJ', 'ADV', 'VERB'),
-#                               add_ents=True,
-#                               add_ncs=True,
-#                               weigh_deps={'nsubj':5, 'obj':3} ):
-#     ''' Takes a spacy document, returns a string->count dict
-
-#         Does a lot of fairly specific things (a bit too specific to smush into one function, really)
-#         to be smart about removing low-content words, and focusing on terms.
-
-#         @param restrict_to_tags:  removes if not in this POS list - which defaults to nouns, adjectives, adverbs,
-#                                   and verbs (and removes a lot of fillter words)
-#         @param remove_stop:       removes according to Token.is_stop
-
-#         @param add_ents:          whether to add phrases from Doc.ents
-#         @param add_ncs:           whether to add phrases from Doc.noun_chunks
-
-#         @param weigh_deps:        exists to weigh words/ent/ncs stronger
-#         when they are/involve the sentence's subject or object
-
-#         CONSIDER: make this a filter instead, so we can feed the result to count_normalized()
-#         CONSIDER: whether half of that can be part of some topic-modeling filtering.  And how filters might work around spacy.
-#     '''
-#     counts = collections.defaultdict(int)
-
-#     if isinstance(doc_or_sequence_of_docs, collections.Sequence): # that seems slightly more general than type in (tuple, list)
-#         things = doc_or_sequence_of_docs
-#     else:
-#         things = [doc_or_sequence_of_docs]
-
-#     # TODO: REVIEW THE BELOW BLOCK, IT WAS CERTAINLY INCORRECT BEFORE
-#     for thing in things:
-#         for token in thing:
-#             if remove_stop and token.is_stop:
-#                 #print( "SKIP %r - is stopword"%token.text)
-#                 continue
-#             if restrict_to_tags is not None  and  token.pos_ not in restrict_to_tags:
-#                 #print( "SKIP %r - based on tag %s"%(token.text, token.pos_))
-#                 continue
-
-#             counts[ token.text  ] += 1
-
-#             # TODO: take dict of weighs
-
-#             # TODO: make the following conditional
-#             if hasattr(token, 'dep_'):
-#                 if token.dep_ in weigh_deps:
-#                     counts[ token.text ] += weigh_deps[token.dep_]
-#                 else:
-#                     counts[ token.text ] += 1
-
-#             if add_ents  and  hasattr(thing, 'ents'): # TODO: tests
-#                 for ent in  thing.ents:
-#                     #print( "ENT %s"%ent.text )
-#                     counts[ ent.text ] += 2
-#                 # TODO: involve weigh_deps
-
-#             if add_ncs  and  hasattr(thing, 'noun_chunks'): # TODO: tests
-#                 for nc in thing.noun_chunks:
-#                     #print( "NC %s"%nc.text )
-#                     counts[ nc.text ] += 2
-#                 # TODO: involve weigh_deps
-
-#     return dict(counts)
 
 
 def remove_deheteen(string, remove=(r'de\b',r'het\b',r'een\b')):
@@ -1026,7 +966,3 @@ def remove_initial(string:str, remove_relist, flags=re.I):
             changed = True
     return string
 
-
-
-def remove_initial_short_sentences(stringwithnewlines):
-    pass
