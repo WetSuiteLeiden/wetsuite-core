@@ -10,25 +10,21 @@ so this (thin) wrapper module exists largely to separate out the counting,
 That image will look a bunch cleaner when you have cleaned up the string:count,
 so take a look at using the counting helper functions in helpers.strings.
 """
+import collections
 import warnings
 from typing import List
 
 import wetsuite.helpers.strings
 
-
-# The wordcloud module imports matplotlib so we might need to ensure a non-graphical backend
+# The wordcloud module imports matplotlib so we might need to ensure a non-graphical backend by doing that _first_
 #   TODO: read up, IIRC it's good to do this conditionally and lazily?
-
 with warnings.catch_warnings():
-    warnings.simplefilter("ignore")  # meant to ignore some deprecation warnings
+    #warnings.simplefilter("ignore")  # meant to ignore some deprecation warnings
     import matplotlib
-
     matplotlib.use("Agg")
 
 import wordcloud  #  if not installed, do  pip3 install wordcloud       also this is intentionally after the previous, so:   pylint: disable=C0413
 
-# note that it draws in matplotlib, numpy, and PIL
-# and unlike the linter suggests, it should _NOT_ be above the matplotlib import
 
 
 def wordcloud_from_freqs(
@@ -60,6 +56,10 @@ def wordcloud_from_stringlist(string_list: List[str], counter=wetsuite.helpers.s
     freqs = counter( string_list )
     return wordcloud_from_freqs(freqs,**kwargs)
 
+def count_from_stringlist(string_list: List[str], stopwords=(), stopwords_i=()):
+    return wetsuite.helpers.strings.count_case_insensitive( string_list, stopwords=stopwords, stopwords_i=stopwords_i)
+
+
 
 # TODO: clarify the args
 def wordcloud_from_string(s:str, tokenizer=wetsuite.helpers.strings.simple_tokenize, counter=wetsuite.helpers.strings.count_case_insensitive, **kwargs):
@@ -67,3 +67,14 @@ def wordcloud_from_string(s:str, tokenizer=wetsuite.helpers.strings.simple_token
     """
     string_list = tokenizer(s)
     return wordcloud_from_stringlist( string_list, counter=counter, **kwargs )
+
+def count_from_string(s:str, tokenizer=wetsuite.helpers.strings.simple_tokenize, stopwords=(), stopwords_i=()):
+    string_list = tokenizer(s)
+    return count_from_stringlist(string_list, stopwords=stopwords, stopwords_i=stopwords_i)
+
+
+def merge_counts(count_dicts: List[dict]):
+    count = collections.Counter()
+    for count_dict in count_dicts:
+        count += collections.Counter( count_dict )
+    return count
