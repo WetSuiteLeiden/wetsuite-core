@@ -8,7 +8,7 @@ import wetsuite.helpers.format
 
 
 def download(
-    url: str, tofile_path: str = None, show_progress=None, chunk_size=131072, timeout=10
+    url: str, tofile_path: str = None, show_progress=None, chunk_size=131072, params=None, timeout=10
 ):
     """Mostly just requests.get(), for byte-data download, 
     with some options that make it a little more specifically useful for downloading.
@@ -22,6 +22,7 @@ def download(
     @param show_progress: whether to print/show output on stderr while downloading.
     @param url: the URL to fetch data from
     @param chunk_size: chunk byte size when trying to stream.
+    @param params: passed through to requests.get(): a dictionary, list of tuples or bytes to send as a query string.
     @param timeout: timeout to pass on to requests.get
 
     @return: byte
@@ -60,6 +61,7 @@ def download(
         headers={
             "User-Agent": "Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:124.0) Gecko/20100101 Firefox/124.0"
         },
+        params=params,
         timeout=timeout,
     )
     total_length = response.headers.get("content-length")
