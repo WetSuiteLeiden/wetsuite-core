@@ -88,7 +88,7 @@ def fetch_by_resource_type(typ="JUDG"):
         ]
     )
 
-    resp = wetsuite.helpers.net.download(url, timeout=30)
+    resp = wetsuite.helpers.net.download(url, timeout=120)
     return json.loads(resp)
 
 
