@@ -4,6 +4,8 @@ import os
 
 import pytest
 
+import wetsuite.helpers.etree
+
 from wetsuite.helpers.koop_parse import (
     cvdr_parse_identifier,
     cvdr_meta,
@@ -11,12 +13,16 @@ from wetsuite.helpers.koop_parse import (
     cvdr_sourcerefs,
     cvdr_param_parse,
     cvdr_normalize_expressionid,
+
+    bwb_title_looks_boring,
+
+    prefer_types, parse_op_metafile,
+    alineas_with_selective_path
 )
-from wetsuite.helpers.koop_parse import prefer_types, parse_op_metafile
-from wetsuite.helpers.koop_parse import alineas_with_selective_path
+
 import wetsuite.datacollect.koop_sru
-from wetsuite.datacollect.koop_sru import BWB, CVDR
 from wetsuite.datacollect.koop_sru import (
+    BWB, CVDR,
     SamenwerkendeCatalogi,
     LokaleBekendmakingen,
     TuchtRecht,
@@ -24,9 +30,8 @@ from wetsuite.datacollect.koop_sru import (
     PLOOI,
     PUCOpenData,
     EuropeseRichtlijnen,
+    StatenGeneraalDigitaal  # , Belastingrecht
 )
-from wetsuite.datacollect.koop_sru import StatenGeneraalDigitaal  # , Belastingrecht
-import wetsuite.helpers.etree
 
 
 def test_koop_sru_object_constructor():
@@ -258,6 +263,15 @@ def test_more_parsing():
     toe_usefuls = wetsuite.helpers.koop_parse.bwb_toestand_usefuls(toe_etree)
     wetsuite.helpers.koop_parse.bwb_toestand_text(toe_etree)  # (not used here)
 
+    toe_etree = get_test_etree("bwb_toestand_4.xml")
+    toe_usefuls = wetsuite.helpers.koop_parse.bwb_toestand_usefuls(toe_etree)
+    wetsuite.helpers.koop_parse.bwb_toestand_text(toe_etree)  # (not used here)
+
+    toe_etree = get_test_etree("bwb_toestand_5.xml")
+    toe_usefuls = wetsuite.helpers.koop_parse.bwb_toestand_usefuls(toe_etree)
+    wetsuite.helpers.koop_parse.bwb_toestand_text(toe_etree)  # (not used here)
+
+
     wti_etree = get_test_etree("bwb_wti.xml")
     wti_usefuls = wetsuite.helpers.koop_parse.bwb_wti_usefuls(wti_etree)
 
@@ -363,3 +377,12 @@ def test_alineas_with_selective_path():
 
     assert res[1]["path"] == "/body/al[2]"
     assert res[1]["text-flat"] == "test2"
+
+
+def test_bwb_title_looks_boring():
+    ' Just a substring test at this point.  TODO: more serious cases '
+    assert bwb_title_looks_boring("Veegwet wonen") is True
+    assert bwb_title_looks_boring("Burgerlijk Wetboek Boek 7") is False
+
+
+#TODO: iter_chunks_xml

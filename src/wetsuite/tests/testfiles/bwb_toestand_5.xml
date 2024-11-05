@@ -1,0 +1,2479 @@
+<?xml version="1.0" encoding="UTF-8"?><toestand xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" bwb-ng-vast-deel="http://wetten.overheid.nl/id/BWBR0008326/2011-01-01/0" xsi:noNamespaceSchemaLocation="https://repository.officiele-overheidspublicaties.nl/Schema/BWB-toestand/2016-1/xsd/toestand_2016-1.xsd" bwb-id="BWBR0008326" inwerkingtreding="2011-01-01"><bwb-inputbestand>BWBR0008326_2006-04-14_0</bwb-inputbestand><bwb-wijzigingen/><redactionele-correcties><redactionele-correctie label-id="4348934" oud-revisie-id="16561151" nieuw-revisie-id="35731271"/><redactionele-correctie label-id="4348814" oud-revisie-id="6919911" nieuw-revisie-id="32116361"/><redactionele-correctie label-id="4348924" oud-revisie-id="28893621" nieuw-revisie-id="35730961"/></redactionele-correcties><wetgeving dtdversie="2.0" soort="ministeriele-regeling" xml:lang="nl" stam-id="4370463" versie-id="6137162" id="C6341371" label-id="4348944" inwerkingtredingsdatum="1997-01-01">
+  <intitule bwb-ng-variabel-deel="/Intitule" stam-id="4370483" versie-id="6137012" id="C6341221" label-id="4348794" inwerking="1997-01-01" bron="Stcrt.1996-239" effect="nieuwe-regeling" ondertekening_bron="1996-11-14" publicatie_bron="1996-12-10" publicatie_iwt="1996-12-10" status="goed">Regeling belastingcapaciteit<meta-data><brondata><oorspronkelijk><publicatie effect="nieuwe-regeling" soort="Stcrt" urlidentifier=""><publicatiejaar>1996</publicatiejaar><publicatienr>239</publicatienr><uitgiftedatum isodatum="1996-12-10">10-12-1996</uitgiftedatum><ondertekeningsdatum isodatum="1996-11-14">14-11-1996</ondertekeningsdatum><kenmerk>VFO93/4/U354</kenmerk></publicatie></oorspronkelijk><inwerkingtreding><publicatie effect="nieuwe-regeling" soort="Stcrt" urlidentifier=""><publicatiejaar>1996</publicatiejaar><publicatienr>239</publicatienr><uitgiftedatum isodatum="1996-12-10">10-12-1996</uitgiftedatum><ondertekeningsdatum isodatum="1996-11-14">14-11-1996</ondertekeningsdatum><kenmerk>VFO93/4/U354</kenmerk></publicatie><inwerkingtreding.datum isodatum="1997-01-01">01-01-1997</inwerkingtreding.datum></inwerkingtreding></brondata></meta-data></intitule>
+  <citeertitel bwb-ng-variabel-deel="/Citeertitel" status="officieel" stam-id="4370493" versie-id="6137022" id="C6341231" label-id="4348804" inwerking="1997-01-01" bron="Stcrt.1996-239" effect="nieuwe-regeling" ondertekening_bron="1996-11-14" publicatie_bron="1996-12-10" publicatie_iwt="1996-12-10">Regeling belastingcapaciteit<meta-data><brondata><oorspronkelijk><publicatie effect="nieuwe-regeling" soort="Stcrt" urlidentifier=""><publicatiejaar>1996</publicatiejaar><publicatienr>239</publicatienr><uitgiftedatum isodatum="1996-12-10">10-12-1996</uitgiftedatum><ondertekeningsdatum isodatum="1996-11-14">14-11-1996</ondertekeningsdatum><kenmerk>VFO93/4/U354</kenmerk></publicatie></oorspronkelijk><inwerkingtreding><publicatie effect="nieuwe-regeling" soort="Stcrt" urlidentifier=""><publicatiejaar>1996</publicatiejaar><publicatienr>239</publicatienr><uitgiftedatum isodatum="1996-12-10">10-12-1996</uitgiftedatum><ondertekeningsdatum isodatum="1996-11-14">14-11-1996</ondertekeningsdatum><kenmerk>VFO93/4/U354</kenmerk></publicatie><inwerkingtreding.datum isodatum="1997-01-01">01-01-1997</inwerkingtreding.datum></inwerkingtreding></brondata></meta-data></citeertitel>
+  <regeling>
+    <aanhef bwb-ng-variabel-deel="/Aanhef" stam-id="4370503" versie-id="6137032" id="C32116361" label-id="4348814" inwerking="1997-01-01" bron="Stcrt.1996-239" effect="nieuwe-regeling" ondertekening_bron="1996-11-14" publicatie_bron="1996-12-10" publicatie_iwt="1996-12-10" status="goed">
+  <wie>De Staatssecretaris van Binnenlandse Zaken, mw. A.G.M. van de Vondervoort, en de Staatssecretaris van Financiën,</wie>
+  <considerans>
+    <considerans.al bevat="grondslag">Gelet op <extref doc="jci1.3:c:BWBR0008291&amp;artikel=14" label-id="187494" verwijzing-id="1738582" bwb-id="BWBR0008291">artikel 14 van de Invoeringswet Financiële-verhoudingswet</extref> en artikel 2 van het Besluit Financiële verhouding Rijk-gemeenten;</considerans.al>
+  </considerans>
+  <afkondiging>
+    <al>Besluiten: </al>
+  </afkondiging>
+<meta-data><brondata><oorspronkelijk><publicatie effect="nieuwe-regeling" soort="Stcrt" urlidentifier=""><publicatiejaar>1996</publicatiejaar><publicatienr>239</publicatienr><uitgiftedatum isodatum="1996-12-10">10-12-1996</uitgiftedatum><ondertekeningsdatum isodatum="1996-11-14">14-11-1996</ondertekeningsdatum><kenmerk>VFO93/4/U354</kenmerk></publicatie></oorspronkelijk><inwerkingtreding><publicatie effect="nieuwe-regeling" soort="Stcrt" urlidentifier=""><publicatiejaar>1996</publicatiejaar><publicatienr>239</publicatienr><uitgiftedatum isodatum="1996-12-10">10-12-1996</uitgiftedatum><ondertekeningsdatum isodatum="1996-11-14">14-11-1996</ondertekeningsdatum><kenmerk>VFO93/4/U354</kenmerk></publicatie><inwerkingtreding.datum isodatum="1997-01-01">01-01-1997</inwerkingtreding.datum></inwerkingtreding></brondata></meta-data></aanhef>
+    <regeling-tekst>
+      <paragraaf bwb-ng-variabel-deel="/Paragraaf1" stam-id="4370523" versie-id="6137052" id="C6341261" label-id="4348834" inwerking="1997-01-01" label="§ 1" bron="Stcrt.1996-239" effect="nieuwe-regeling" ondertekening_bron="1996-11-14" publicatie_bron="1996-12-10" publicatie_iwt="1996-12-10" status="goed">
+  <kop>
+    <label>§</label>
+    <nr>1</nr>
+    <titel>Toepassing van begrippen</titel>
+  </kop><artikel bwb-ng-variabel-deel="/Paragraaf1/Artikel1" code="" stam-id="4370513" versie-id="13025952" id="C17534041" label-id="4348824" inwerking="2006-04-14" label="Artikel 1" bron="Stcrt.2006-73" effect="wijziging" ondertekening_bron="2006-03-27" publicatie_bron="2006-04-12" publicatie_iwt="2006-04-12" status="goed">
+  <kop>
+    <label>Artikel</label>
+    <nr status="officieel">1</nr>
+  </kop>
+  <lid bwb-ng-variabel-deel="/Paragraaf1/Artikel1/Lid1" label-id="4348824L1">
+    <lidnr status="officieel">1</lidnr>
+    <al>Woningen zijn onroerende zaken welke in hoofdzaak tot woning dienen.</al>
+  <meta-data><jcis><jci versie="1.3" verwijzing="jci1.3:c:BWBR0008326&amp;paragraaf=1&amp;artikel=1&amp;lid=1&amp;z=2006-04-14&amp;g=2011-01-01" onderdeel="lid=1"/></jcis></meta-data></lid>
+  <lid bwb-ng-variabel-deel="/Paragraaf1/Artikel1/Lid2" label-id="4348824L2">
+    <lidnr status="officieel">2</lidnr>
+    <al>Niet-woningen zijn alle overige onroerende zaken. </al>
+  <meta-data><jcis><jci versie="1.3" verwijzing="jci1.3:c:BWBR0008326&amp;paragraaf=1&amp;artikel=1&amp;lid=2&amp;z=2006-04-14&amp;g=2011-01-01" onderdeel="lid=2"/></jcis></meta-data></lid>
+  <lid bwb-ng-variabel-deel="/Paragraaf1/Artikel1/Lid3" label-id="4348824L3">
+    <lidnr status="officieel">3</lidnr>
+    <al>De waarden, bedoeld in de laatste volzin van de definitie van de maatstaf OZB in <extref doc="jci1.3:c:BWBR0012216&amp;bijlage=2" verwijzing-id="2037759" bwb-id="BWBR0012216" label-id="1508324">bijlage 2 van het Besluit financiële verhouding 2001</extref>, zijn:</al>
+    <lijst level="single" nr-sluiting="." start="1" type="expliciet">
+      <li bwb-ng-variabel-deel="/Paragraaf1/Artikel1/Lid3/Onderdeela">
+        <li.nr>a.</li.nr>
+        <al>de waarden die op grond van <extref doc="jci1.3:c:BWBR0005416&amp;artikel=220d" verwijzing-id="2037762" bwb-id="BWBR0005416" label-id="2895404">artikel 220d van de Gemeentewet</extref> buiten aanmerking gelaten worden, met uitzondering van de waarden bedoeld in onderdeel i van dat artikel;</al>
+      <meta-data><jcis><jci versie="1.3" verwijzing="jci1.3:c:BWBR0008326&amp;paragraaf=1&amp;artikel=1&amp;lid=3&amp;o=a&amp;z=2006-04-14&amp;g=2011-01-01" onderdeel="o=a"/></jcis></meta-data></li>
+      <li bwb-ng-variabel-deel="/Paragraaf1/Artikel1/Lid3/Onderdeelb">
+        <li.nr>b.</li.nr>
+        <al>de waarden van onroerende zaken ten aanzien waarvan op grond van <extref doc="jci1.3:c:BWBR0005416&amp;artikel=243" verwijzing-id="2037761" bwb-id="BWBR0005416" label-id="2895754">artikel 243 van de Gemeentewet</extref> dan wel op grond van rechtstreeks werkende internationale overeenkomsten vrijstelling is verleend.</al>
+      <meta-data><jcis><jci versie="1.3" verwijzing="jci1.3:c:BWBR0008326&amp;paragraaf=1&amp;artikel=1&amp;lid=3&amp;o=b&amp;z=2006-04-14&amp;g=2011-01-01" onderdeel="o=b"/></jcis></meta-data></li>
+    </lijst>
+  <meta-data><jcis><jci versie="1.3" verwijzing="jci1.3:c:BWBR0008326&amp;paragraaf=1&amp;artikel=1&amp;lid=3&amp;z=2006-04-14&amp;g=2011-01-01" onderdeel="lid=3"/></jcis></meta-data></lid>
+<meta-data><brondata><oorspronkelijk><publicatie effect="wijziging" soort="Stcrt" urlidentifier="stcrt-2006-73-p10-SC74601"><publicatiejaar>2006</publicatiejaar><publicatienr>73</publicatienr><uitgiftedatum isodatum="2006-04-12">12-04-2006</uitgiftedatum><ondertekeningsdatum isodatum="2006-03-27">27-03-2006</ondertekeningsdatum><kenmerk>2006-0000097678DGKB/BFO/FO</kenmerk></publicatie></oorspronkelijk><inwerkingtreding><publicatie effect="wijziging" soort="Stcrt" urlidentifier="stcrt-2006-73-p10-SC74601"><publicatiejaar>2006</publicatiejaar><publicatienr>73</publicatienr><uitgiftedatum isodatum="2006-04-12">12-04-2006</uitgiftedatum><ondertekeningsdatum isodatum="2006-03-27">27-03-2006</ondertekeningsdatum><kenmerk>2006-0000097678DGKB/BFO/FO</kenmerk></publicatie><inwerkingtreding.datum isodatum="2006-04-14">14-04-2006</inwerkingtreding.datum></inwerkingtreding></brondata><jcis><jci versie="1.0" verwijzing="1.0:c:BWBR0008326&amp;artikel=1&amp;g=2011-01-01" onderdeel="artikel=1" korte-verwijzing="1.0:c:BWBR0008326&amp;artikel=1"/><jci versie="1.3" verwijzing="jci1.3:c:BWBR0008326&amp;paragraaf=1&amp;artikel=1&amp;z=2006-04-14&amp;g=2011-01-01" onderdeel="artikel=1" korte-verwijzing="jci1.3:c:BWBR0008326&amp;artikel=1"/></jcis></meta-data></artikel><meta-data><brondata><oorspronkelijk><publicatie effect="nieuwe-regeling" soort="Stcrt" urlidentifier=""><publicatiejaar>1996</publicatiejaar><publicatienr>239</publicatienr><uitgiftedatum isodatum="1996-12-10">10-12-1996</uitgiftedatum><ondertekeningsdatum isodatum="1996-11-14">14-11-1996</ondertekeningsdatum><kenmerk>VFO93/4/U354</kenmerk></publicatie></oorspronkelijk><inwerkingtreding><publicatie effect="nieuwe-regeling" soort="Stcrt" urlidentifier=""><publicatiejaar>1996</publicatiejaar><publicatienr>239</publicatienr><uitgiftedatum isodatum="1996-12-10">10-12-1996</uitgiftedatum><ondertekeningsdatum isodatum="1996-11-14">14-11-1996</ondertekeningsdatum><kenmerk>VFO93/4/U354</kenmerk></publicatie><inwerkingtreding.datum isodatum="1997-01-01">01-01-1997</inwerkingtreding.datum></inwerkingtreding></brondata><jcis><jci versie="1.0" verwijzing="1.0:c:BWBR0008326&amp;paragraaf=1&amp;g=2011-01-01" onderdeel="paragraaf=1" korte-verwijzing="1.0:c:BWBR0008326&amp;paragraaf=1"/><jci versie="1.3" verwijzing="jci1.3:c:BWBR0008326&amp;paragraaf=1&amp;z=2006-04-14&amp;g=2011-01-01" onderdeel="paragraaf=1" korte-verwijzing="jci1.3:c:BWBR0008326&amp;paragraaf=1"/></jcis></meta-data></paragraaf>
+      <paragraaf bwb-ng-variabel-deel="/Paragraaf2" stam-id="4370563" versie-id="6137092" id="C6341301" label-id="4348874" inwerking="1997-01-01" label="§ 2" bron="Stcrt.1996-239" effect="nieuwe-regeling" ondertekening_bron="1996-11-14" publicatie_bron="1996-12-10" publicatie_iwt="1996-12-10" status="goed">
+  <kop>
+    <label>§</label>
+    <nr>2</nr>
+    <titel>Verstrekking van gegevens</titel>
+  </kop><artikel bwb-ng-variabel-deel="/Paragraaf2/Artikel2" code="" stam-id="4370533" versie-id="12927102" id="C17418161" label-id="4348844" inwerking="2006-03-08" label="Artikel 2" bron="Stcrt.2006-45" effect="wijziging" ondertekening_bron="2006-02-22" publicatie_bron="2006-03-03" publicatie_iwt="2006-03-03" status="goed">
+  <kop>
+    <label>Artikel</label>
+    <nr>2</nr>
+  </kop>
+  <al>Het college van burgemeester en wethouders verstrekt omtrent de in <extref doc="jci1.3:c:BWBR0007119&amp;artikel=22" verwijzing-id="1738575" bwb-id="BWBR0007119" label-id="451974">artikel 22 van de Wet waardering onroerende zaken</extref> bedoelde waarden jaarlijks aan het Centraal Bureau voor de Statistiek de gegevens, bedoeld in <intref verwijzing-id="1738576" doc="jci1.3:c:BWBR0008326&amp;bijlage=1&amp;z=2006-04-14&amp;g=2011-01-01" bwb-id="BWBR0008326" label-id="4348924" bwb-ng-variabel-deel="/Bijlage1">bijlage 1</intref> bij deze regeling. </al>
+<meta-data><brondata><oorspronkelijk><publicatie effect="wijziging" soort="Stcrt" urlidentifier="stcrt-2006-45-p12-SC74024"><publicatiejaar>2006</publicatiejaar><publicatienr>45</publicatienr><uitgiftedatum isodatum="2006-03-03">03-03-2006</uitgiftedatum><ondertekeningsdatum isodatum="2006-02-22">22-02-2006</ondertekeningsdatum><kenmerk>2006-0000050963</kenmerk></publicatie></oorspronkelijk><inwerkingtreding><publicatie effect="wijziging" soort="Stcrt" urlidentifier="stcrt-2006-45-p12-SC74024"><publicatiejaar>2006</publicatiejaar><publicatienr>45</publicatienr><uitgiftedatum isodatum="2006-03-03">03-03-2006</uitgiftedatum><ondertekeningsdatum isodatum="2006-02-22">22-02-2006</ondertekeningsdatum><kenmerk>2006-0000050963</kenmerk></publicatie><inwerkingtreding.datum isodatum="2006-03-08">08-03-2006</inwerkingtreding.datum></inwerkingtreding></brondata><jcis><jci versie="1.0" verwijzing="1.0:c:BWBR0008326&amp;artikel=2&amp;g=2011-01-01" onderdeel="artikel=2" korte-verwijzing="1.0:c:BWBR0008326&amp;artikel=2"/><jci versie="1.3" verwijzing="jci1.3:c:BWBR0008326&amp;paragraaf=2&amp;artikel=2&amp;z=2006-04-14&amp;g=2011-01-01" onderdeel="artikel=2" korte-verwijzing="jci1.3:c:BWBR0008326&amp;artikel=2"/></jcis></meta-data></artikel><artikel bwb-ng-variabel-deel="/Paragraaf2/Artikel3" code="" stam-id="4370543" versie-id="12927112" id="C17418171" label-id="4348854" inwerking="2006-03-08" label="Artikel 3" bron="Stcrt.2006-45" effect="wijziging" ondertekening_bron="2006-02-22" publicatie_bron="2006-03-03" publicatie_iwt="2006-03-03" status="goed">
+  <kop>
+    <label>Artikel</label>
+    <nr>3</nr>
+  </kop>
+  <lid bwb-ng-variabel-deel="/Paragraaf2/Artikel3/Lid1" label-id="4348854L1">
+    <lidnr>1</lidnr>
+    <al>Het college van burgemeester en wethouders doet vóór 1 maart van elk jaar een voorlopige opgave aan het Centraal Bureau voor de Statistiek van de gegevens, bedoeld in <intref verwijzing-id="1738577" doc="jci1.3:c:BWBR0008326&amp;paragraaf=2&amp;artikel=2&amp;z=2006-04-14&amp;g=2011-01-01" bwb-id="BWBR0008326" label-id="4348844" bwb-ng-variabel-deel="/Paragraaf2/Artikel2">artikel 2</intref>, zoals die gelden op 1 januari van dat jaar.</al>
+  <meta-data><jcis><jci versie="1.3" verwijzing="jci1.3:c:BWBR0008326&amp;paragraaf=2&amp;artikel=3&amp;lid=1&amp;z=2006-04-14&amp;g=2011-01-01" onderdeel="lid=1"/></jcis></meta-data></lid>
+  <lid bwb-ng-variabel-deel="/Paragraaf2/Artikel3/Lid2" label-id="4348854L2">
+    <lidnr>2</lidnr>
+    <al>Het college van burgemeester en wethouders doet vóór 1 april van het jaar, twee jaar volgend op het jaar waarin voorlopige opgave is gedaan, een definitieve opgave aan het Centraal bureau voor de statistiek van de gegevens, bedoeld in het eerste lid. </al>
+  <meta-data><jcis><jci versie="1.3" verwijzing="jci1.3:c:BWBR0008326&amp;paragraaf=2&amp;artikel=3&amp;lid=2&amp;z=2006-04-14&amp;g=2011-01-01" onderdeel="lid=2"/></jcis></meta-data></lid>
+<meta-data><brondata><oorspronkelijk><publicatie effect="wijziging" soort="Stcrt" urlidentifier="stcrt-2006-45-p12-SC74024"><publicatiejaar>2006</publicatiejaar><publicatienr>45</publicatienr><uitgiftedatum isodatum="2006-03-03">03-03-2006</uitgiftedatum><ondertekeningsdatum isodatum="2006-02-22">22-02-2006</ondertekeningsdatum><kenmerk>2006-0000050963</kenmerk></publicatie></oorspronkelijk><inwerkingtreding><publicatie effect="wijziging" soort="Stcrt" urlidentifier="stcrt-2006-45-p12-SC74024"><publicatiejaar>2006</publicatiejaar><publicatienr>45</publicatienr><uitgiftedatum isodatum="2006-03-03">03-03-2006</uitgiftedatum><ondertekeningsdatum isodatum="2006-02-22">22-02-2006</ondertekeningsdatum><kenmerk>2006-0000050963</kenmerk></publicatie><inwerkingtreding.datum isodatum="2006-03-08">08-03-2006</inwerkingtreding.datum></inwerkingtreding></brondata><jcis><jci versie="1.0" verwijzing="1.0:c:BWBR0008326&amp;artikel=3&amp;g=2011-01-01" onderdeel="artikel=3" korte-verwijzing="1.0:c:BWBR0008326&amp;artikel=3"/><jci versie="1.3" verwijzing="jci1.3:c:BWBR0008326&amp;paragraaf=2&amp;artikel=3&amp;z=2006-04-14&amp;g=2011-01-01" onderdeel="artikel=3" korte-verwijzing="jci1.3:c:BWBR0008326&amp;artikel=3"/></jcis></meta-data></artikel><artikel bwb-ng-variabel-deel="/Paragraaf2/Artikel4" code="" stam-id="4370553" versie-id="12927122" id="C17418181" label-id="4348864" inwerking="2006-03-08" label="Artikel 4" bron="Stcrt.2006-45" effect="wijziging" ondertekening_bron="2006-02-22" publicatie_bron="2006-03-03" publicatie_iwt="2006-03-03" status="goed">
+  <kop>
+    <label>Artikel</label>
+    <nr>4</nr>
+  </kop>
+  <al>Het college van burgemeester en wethouders maakt voor de gegevensverstrekking gebruik van het in <intref verwijzing-id="1738578" doc="jci1.3:c:BWBR0008326&amp;bijlage=2&amp;z=2006-04-14&amp;g=2011-01-01" bwb-id="BWBR0008326" label-id="4348934" bwb-ng-variabel-deel="/Bijlage2">bijlage 2</intref> bij deze regeling opgenomen standaarduitwisselingsformaat. </al>
+<meta-data><brondata><oorspronkelijk><publicatie effect="wijziging" soort="Stcrt" urlidentifier="stcrt-2006-45-p12-SC74024"><publicatiejaar>2006</publicatiejaar><publicatienr>45</publicatienr><uitgiftedatum isodatum="2006-03-03">03-03-2006</uitgiftedatum><ondertekeningsdatum isodatum="2006-02-22">22-02-2006</ondertekeningsdatum><kenmerk>2006-0000050963</kenmerk></publicatie></oorspronkelijk><inwerkingtreding><publicatie effect="wijziging" soort="Stcrt" urlidentifier="stcrt-2006-45-p12-SC74024"><publicatiejaar>2006</publicatiejaar><publicatienr>45</publicatienr><uitgiftedatum isodatum="2006-03-03">03-03-2006</uitgiftedatum><ondertekeningsdatum isodatum="2006-02-22">22-02-2006</ondertekeningsdatum><kenmerk>2006-0000050963</kenmerk></publicatie><inwerkingtreding.datum isodatum="2006-03-08">08-03-2006</inwerkingtreding.datum></inwerkingtreding></brondata><jcis><jci versie="1.0" verwijzing="1.0:c:BWBR0008326&amp;artikel=4&amp;g=2011-01-01" onderdeel="artikel=4" korte-verwijzing="1.0:c:BWBR0008326&amp;artikel=4"/><jci versie="1.3" verwijzing="jci1.3:c:BWBR0008326&amp;paragraaf=2&amp;artikel=4&amp;z=2006-04-14&amp;g=2011-01-01" onderdeel="artikel=4" korte-verwijzing="jci1.3:c:BWBR0008326&amp;artikel=4"/></jcis></meta-data></artikel><meta-data><brondata><oorspronkelijk><publicatie effect="nieuwe-regeling" soort="Stcrt" urlidentifier=""><publicatiejaar>1996</publicatiejaar><publicatienr>239</publicatienr><uitgiftedatum isodatum="1996-12-10">10-12-1996</uitgiftedatum><ondertekeningsdatum isodatum="1996-11-14">14-11-1996</ondertekeningsdatum><kenmerk>VFO93/4/U354</kenmerk></publicatie></oorspronkelijk><inwerkingtreding><publicatie effect="nieuwe-regeling" soort="Stcrt" urlidentifier=""><publicatiejaar>1996</publicatiejaar><publicatienr>239</publicatienr><uitgiftedatum isodatum="1996-12-10">10-12-1996</uitgiftedatum><ondertekeningsdatum isodatum="1996-11-14">14-11-1996</ondertekeningsdatum><kenmerk>VFO93/4/U354</kenmerk></publicatie><inwerkingtreding.datum isodatum="1997-01-01">01-01-1997</inwerkingtreding.datum></inwerkingtreding></brondata><jcis><jci versie="1.0" verwijzing="1.0:c:BWBR0008326&amp;paragraaf=2&amp;g=2011-01-01" onderdeel="paragraaf=2" korte-verwijzing="1.0:c:BWBR0008326&amp;paragraaf=2"/><jci versie="1.3" verwijzing="jci1.3:c:BWBR0008326&amp;paragraaf=2&amp;z=2006-04-14&amp;g=2011-01-01" onderdeel="paragraaf=2" korte-verwijzing="jci1.3:c:BWBR0008326&amp;paragraaf=2"/></jcis></meta-data></paragraaf>
+      <paragraaf bwb-ng-variabel-deel="/Paragraaf3" stam-id="4370593" versie-id="6137122" id="C6341331" label-id="4348904" inwerking="1997-01-01" label="§ 3" bron="Stcrt.1996-239" effect="nieuwe-regeling" ondertekening_bron="1996-11-14" publicatie_bron="1996-12-10" publicatie_iwt="1996-12-10" status="goed">
+  <kop>
+    <label>§</label>
+    <nr>3</nr>
+    <titel>Overige bepalingen</titel>
+  </kop><artikel bwb-ng-variabel-deel="/Paragraaf3/Artikel5" stam-id="4370573" versie-id="6137102" id="C6341311" label-id="4348884" inwerking="1997-01-01" label="Artikel 5" bron="Stcrt.1996-239" effect="nieuwe-regeling" ondertekening_bron="1996-11-14" publicatie_bron="1996-12-10" publicatie_iwt="1996-12-10" status="goed">
+  <kop>
+    <label>Artikel</label>
+    <nr>5</nr>
+  </kop>
+  <al>Deze regeling treedt in werking met ingang van 1 januari 1997. </al>
+<meta-data><brondata><oorspronkelijk><publicatie effect="nieuwe-regeling" soort="Stcrt" urlidentifier=""><publicatiejaar>1996</publicatiejaar><publicatienr>239</publicatienr><uitgiftedatum isodatum="1996-12-10">10-12-1996</uitgiftedatum><ondertekeningsdatum isodatum="1996-11-14">14-11-1996</ondertekeningsdatum><kenmerk>VFO93/4/U354</kenmerk></publicatie></oorspronkelijk><inwerkingtreding><publicatie effect="nieuwe-regeling" soort="Stcrt" urlidentifier=""><publicatiejaar>1996</publicatiejaar><publicatienr>239</publicatienr><uitgiftedatum isodatum="1996-12-10">10-12-1996</uitgiftedatum><ondertekeningsdatum isodatum="1996-11-14">14-11-1996</ondertekeningsdatum><kenmerk>VFO93/4/U354</kenmerk></publicatie><inwerkingtreding.datum isodatum="1997-01-01">01-01-1997</inwerkingtreding.datum></inwerkingtreding></brondata><jcis><jci versie="1.0" verwijzing="1.0:c:BWBR0008326&amp;artikel=5&amp;g=2011-01-01" onderdeel="artikel=5" korte-verwijzing="1.0:c:BWBR0008326&amp;artikel=5"/><jci versie="1.3" verwijzing="jci1.3:c:BWBR0008326&amp;paragraaf=3&amp;artikel=5&amp;z=2006-04-14&amp;g=2011-01-01" onderdeel="artikel=5" korte-verwijzing="jci1.3:c:BWBR0008326&amp;artikel=5"/></jcis></meta-data></artikel><artikel bwb-ng-variabel-deel="/Paragraaf3/Artikel6" stam-id="4370583" versie-id="6137112" id="C6341321" label-id="4348894" inwerking="1997-01-01" label="Artikel 6" bron="Stcrt.1996-239" effect="nieuwe-regeling" ondertekening_bron="1996-11-14" publicatie_bron="1996-12-10" publicatie_iwt="1996-12-10" status="goed">
+  <kop>
+    <label>Artikel</label>
+    <nr>6</nr>
+  </kop>
+  <al>Deze regeling wordt aangehaald als: Regeling belastingcapaciteit.</al>
+<meta-data><brondata><oorspronkelijk><publicatie effect="nieuwe-regeling" soort="Stcrt" urlidentifier=""><publicatiejaar>1996</publicatiejaar><publicatienr>239</publicatienr><uitgiftedatum isodatum="1996-12-10">10-12-1996</uitgiftedatum><ondertekeningsdatum isodatum="1996-11-14">14-11-1996</ondertekeningsdatum><kenmerk>VFO93/4/U354</kenmerk></publicatie></oorspronkelijk><inwerkingtreding><publicatie effect="nieuwe-regeling" soort="Stcrt" urlidentifier=""><publicatiejaar>1996</publicatiejaar><publicatienr>239</publicatienr><uitgiftedatum isodatum="1996-12-10">10-12-1996</uitgiftedatum><ondertekeningsdatum isodatum="1996-11-14">14-11-1996</ondertekeningsdatum><kenmerk>VFO93/4/U354</kenmerk></publicatie><inwerkingtreding.datum isodatum="1997-01-01">01-01-1997</inwerkingtreding.datum></inwerkingtreding></brondata><jcis><jci versie="1.0" verwijzing="1.0:c:BWBR0008326&amp;artikel=6&amp;g=2011-01-01" onderdeel="artikel=6" korte-verwijzing="1.0:c:BWBR0008326&amp;artikel=6"/><jci versie="1.3" verwijzing="jci1.3:c:BWBR0008326&amp;paragraaf=3&amp;artikel=6&amp;z=2006-04-14&amp;g=2011-01-01" onderdeel="artikel=6" korte-verwijzing="jci1.3:c:BWBR0008326&amp;artikel=6"/></jcis></meta-data></artikel><meta-data><brondata><oorspronkelijk><publicatie effect="nieuwe-regeling" soort="Stcrt" urlidentifier=""><publicatiejaar>1996</publicatiejaar><publicatienr>239</publicatienr><uitgiftedatum isodatum="1996-12-10">10-12-1996</uitgiftedatum><ondertekeningsdatum isodatum="1996-11-14">14-11-1996</ondertekeningsdatum><kenmerk>VFO93/4/U354</kenmerk></publicatie></oorspronkelijk><inwerkingtreding><publicatie effect="nieuwe-regeling" soort="Stcrt" urlidentifier=""><publicatiejaar>1996</publicatiejaar><publicatienr>239</publicatienr><uitgiftedatum isodatum="1996-12-10">10-12-1996</uitgiftedatum><ondertekeningsdatum isodatum="1996-11-14">14-11-1996</ondertekeningsdatum><kenmerk>VFO93/4/U354</kenmerk></publicatie><inwerkingtreding.datum isodatum="1997-01-01">01-01-1997</inwerkingtreding.datum></inwerkingtreding></brondata><jcis><jci versie="1.0" verwijzing="1.0:c:BWBR0008326&amp;paragraaf=3&amp;g=2011-01-01" onderdeel="paragraaf=3" korte-verwijzing="1.0:c:BWBR0008326&amp;paragraaf=3"/><jci versie="1.3" verwijzing="jci1.3:c:BWBR0008326&amp;paragraaf=3&amp;z=2006-04-14&amp;g=2011-01-01" onderdeel="paragraaf=3" korte-verwijzing="jci1.3:c:BWBR0008326&amp;paragraaf=3"/></jcis></meta-data></paragraaf>
+    </regeling-tekst>
+    <regeling-sluiting bwb-ng-variabel-deel="/SlotformulierEnOndertekening" stam-id="4370603" versie-id="6137132" id="C6341341" label-id="4348914" inwerking="1997-01-01" bron="Stcrt.1996-239" effect="nieuwe-regeling" ondertekening_bron="1996-11-14" publicatie_bron="1996-12-10" publicatie_iwt="1996-12-10" status="goed">
+  <slotformulering>
+    <al>Deze regeling zal met de toelichting in de Staatscourant worden geplaatst.</al>
+  </slotformulering>
+  <ondertekenaar>
+    <ondertekening> De <functie>Staatssecretaris</functie> van <organisatie>Binnenlandse Zaken</organisatie>, <naam><voornaam>A.G.M. van de</voornaam><achternaam>Vondervoort</achternaam></naam></ondertekening>
+    <ondertekening>De <functie>Staatssecretaris</functie> van <organisatie>Financiën</organisatie>, <naam><voornaam>W.A.F.G.</voornaam><achternaam>Vermeend</achternaam></naam></ondertekening>
+  </ondertekenaar>
+<meta-data><brondata><oorspronkelijk><publicatie effect="nieuwe-regeling" soort="Stcrt" urlidentifier=""><publicatiejaar>1996</publicatiejaar><publicatienr>239</publicatienr><uitgiftedatum isodatum="1996-12-10">10-12-1996</uitgiftedatum><ondertekeningsdatum isodatum="1996-11-14">14-11-1996</ondertekeningsdatum><kenmerk>VFO93/4/U354</kenmerk></publicatie></oorspronkelijk><inwerkingtreding><publicatie effect="nieuwe-regeling" soort="Stcrt" urlidentifier=""><publicatiejaar>1996</publicatiejaar><publicatienr>239</publicatienr><uitgiftedatum isodatum="1996-12-10">10-12-1996</uitgiftedatum><ondertekeningsdatum isodatum="1996-11-14">14-11-1996</ondertekeningsdatum><kenmerk>VFO93/4/U354</kenmerk></publicatie><inwerkingtreding.datum isodatum="1997-01-01">01-01-1997</inwerkingtreding.datum></inwerkingtreding></brondata></meta-data></regeling-sluiting>
+    <bijlage bwb-ng-variabel-deel="/Bijlage1" stam-id="4370613" versie-id="6137142" id="C35730961" label-id="4348924" inwerking="1997-01-01" label="Bijlage 1" bron="Stcrt.1996-239" effect="nieuwe-regeling" ondertekening_bron="1996-11-14" publicatie_bron="1996-12-10" publicatie_iwt="1996-12-10" status="goed">
+  <kop>
+    <label>Bijlage</label>
+    <nr status="officieel">1</nr>
+    <titel status="officieel">behorende bij <intref doc="jci1.3:c:BWBR0008326&amp;paragraaf=2&amp;artikel=2&amp;z=2006-04-14&amp;g=2011-01-01" label-id="4348844" verwijzing-id="1738579" bwb-id="BWBR0008326" bwb-ng-variabel-deel="/Paragraaf2/Artikel2">artikel 2</intref></titel>
+    <subtitel>Lijst met aan het CBS te verstrekken gegevens</subtitel>
+  </kop>
+  <table frame="none">
+    <tgroup align="left" char="" charoff="50" cols="3" colsep="0" rowsep="0">
+      <colspec colname="col1" colnum="1" colwidth="*"/>
+      <colspec colname="col2" colnum="2" colwidth="*"/>
+      <colspec colname="col3" colnum="3" colwidth="*"/>
+      <tbody valign="top">
+        <row>
+          <entry morerows="0" nameend="col3" namest="col1" rotate="0">
+            <al>I. Algemene Gegevens <noot type="voet"><noot.nr>*</noot.nr><noot.al>de tussen haakjes aangeduide code bij de gegevens verwijst naar het nummer dat het desbetreffende gegeven heeft gekregen in het Standaard uitwisselingsformulier, opgenomen als bijlage 2 bij deze regeling.</noot.al></noot></al>
+          </entry>
+        </row>
+        <row>
+          <entry colname="col1" morerows="0" rotate="0">
+            <al>-</al>
+          </entry>
+          <entry colname="col2" morerows="0" rotate="0">
+            <al>(8.1)</al>
+          </entry>
+          <entry colname="col3" morerows="0" rotate="0">
+            <al>Gemeentecode</al>
+          </entry>
+        </row>
+        <row>
+          <entry colname="col1" morerows="0" rotate="0">
+            <al>-</al>
+          </entry>
+          <entry colname="col2" morerows="0" rotate="0">
+            <al>(8.2)</al>
+          </entry>
+          <entry colname="col3" morerows="0" rotate="0">
+            <al>Naam contactpersoon</al>
+          </entry>
+        </row>
+        <row>
+          <entry colname="col1" morerows="0" rotate="0">
+            <al>-</al>
+          </entry>
+          <entry colname="col2" morerows="0" rotate="0">
+            <al>(8.3)</al>
+          </entry>
+          <entry colname="col3" morerows="0" rotate="0">
+            <al>Telefoonnummer contactpersoon</al>
+          </entry>
+        </row>
+        <row>
+          <entry colname="col1" morerows="0" rotate="0">
+            <al>-</al>
+          </entry>
+          <entry colname="col2" morerows="0" rotate="0">
+            <al>(8.4)</al>
+          </entry>
+          <entry colname="col3" morerows="0" rotate="0">
+            <al>Aanmaakdatum</al>
+          </entry>
+        </row>
+        <row>
+          <entry colname="col1" morerows="0" rotate="0">
+            <al>-</al>
+          </entry>
+          <entry colname="col2" morerows="0" rotate="0">
+            <al>(8.5)</al>
+          </entry>
+          <entry colname="col3" morerows="0" rotate="0">
+            <al>Belastingjaar</al>
+          </entry>
+        </row>
+        <row>
+          <entry colname="col1" morerows="0" rotate="0">
+            <al>-</al>
+          </entry>
+          <entry colname="col2" morerows="0" rotate="0">
+            <al>(8.6)</al>
+          </entry>
+          <entry colname="col3" morerows="0" rotate="0">
+            <al>Status gegevens</al>
+          </entry>
+        </row>
+        <row>
+          <entry colname="col1" morerows="0" rotate="0">
+            <al>-</al>
+          </entry>
+          <entry colname="col2" morerows="0" rotate="0">
+            <al>(8.7)</al>
+          </entry>
+          <entry colname="col3" morerows="0" rotate="0">
+            <al>Volgnummer diskette</al>
+          </entry>
+        </row>
+        <row>
+          <entry colname="col1" morerows="0" rotate="0">
+            <al>-</al>
+          </entry>
+          <entry colname="col2" morerows="0" rotate="0">
+            <al>(9.1)</al>
+          </entry>
+          <entry colname="col3" morerows="0" rotate="0">
+            <al>Recordidentificatiecode</al>
+          </entry>
+        </row>
+        <row>
+          <entry morerows="0" nameend="col3" namest="col1" rotate="0"/>
+        </row>
+        <row>
+          <entry morerows="0" nameend="col3" namest="col1" rotate="0">
+            <al>II Gegevens per onroerende zaak<noot type="voet"><noot.nr>*</noot.nr><noot.al>de tussen haakjes aangeduide code bij de gegevens verwijst naar het nummer dat het desbetreffende gegeven heeft gekregen in het Standaard uitwisselingsformulier, opgenomen als bijlage 2 bij deze regeling.</noot.al></noot></al>
+          </entry>
+        </row>
+        <row>
+          <entry morerows="0" nameend="col3" namest="col1" rotate="0"/>
+        </row>
+        <row>
+          <entry morerows="0" nameend="col3" namest="col1" rotate="0">
+            <al>1. De aanduiding van de onroerende zaak:</al>
+          </entry>
+        </row>
+        <row>
+          <entry colname="col1" morerows="0" rotate="0">
+            <al>-</al>
+          </entry>
+          <entry colname="col2" morerows="0" rotate="0">
+            <al>(1.1)</al>
+          </entry>
+          <entry colname="col3" morerows="0" rotate="0">
+            <al>WOZ-objectnummer</al>
+          </entry>
+        </row>
+        <row>
+          <entry colname="col1" morerows="0" rotate="0">
+            <al>-</al>
+          </entry>
+          <entry colname="col2" morerows="0" rotate="0">
+            <al>(1.2)</al>
+          </entry>
+          <entry colname="col3" morerows="0" rotate="0">
+            <al>Huisnummer</al>
+          </entry>
+        </row>
+        <row>
+          <entry colname="col1" morerows="0" rotate="0">
+            <al>-</al>
+          </entry>
+          <entry colname="col2" morerows="0" rotate="0">
+            <al>(1.3)</al>
+          </entry>
+          <entry colname="col3" morerows="0" rotate="0">
+            <al>Huisletter</al>
+          </entry>
+        </row>
+        <row>
+          <entry colname="col1" morerows="0" rotate="0">
+            <al>-</al>
+          </entry>
+          <entry colname="col2" morerows="0" rotate="0">
+            <al>(1.4)</al>
+          </entry>
+          <entry colname="col3" morerows="0" rotate="0">
+            <al>Huisnummertoevoeging</al>
+          </entry>
+        </row>
+        <row>
+          <entry colname="col1" morerows="0" rotate="0">
+            <al>-</al>
+          </entry>
+          <entry colname="col2" morerows="0" rotate="0">
+            <al>(1.5)</al>
+          </entry>
+          <entry colname="col3" morerows="0" rotate="0">
+            <al>Aanduiding bij huisnummer</al>
+          </entry>
+        </row>
+        <row>
+          <entry colname="col1" morerows="0" rotate="0">
+            <al>-</al>
+          </entry>
+          <entry colname="col2" morerows="0" rotate="0">
+            <al>(1.6)</al>
+          </entry>
+          <entry colname="col3" morerows="0" rotate="0">
+            <al>Postcode</al>
+          </entry>
+        </row>
+        <row>
+          <entry morerows="0" nameend="col3" namest="col1" rotate="0"/>
+        </row>
+        <row>
+          <entry morerows="0" nameend="col3" namest="col1" rotate="0">
+            <al>2. De belastingcapaciteit per onroerende zaak:</al>
+          </entry>
+        </row>
+        <row>
+          <entry colname="col1" morerows="0" rotate="0">
+            <al>-</al>
+          </entry>
+          <entry colname="col2" morerows="0" rotate="0">
+            <al>(2.1)</al>
+          </entry>
+          <entry colname="col3" morerows="0" rotate="0">
+            <al>Vastgestelde WOZ-waarde</al>
+          </entry>
+        </row>
+        <row>
+          <entry colname="col1" morerows="0" rotate="0">
+            <al>-</al>
+          </entry>
+          <entry colname="col2" morerows="0" rotate="0">
+            <al>(2.2)</al>
+          </entry>
+          <entry colname="col3" morerows="0" rotate="0">
+            <al>OZB-vrijstelling</al>
+          </entry>
+        </row>
+        <row>
+          <entry colname="col1" morerows="0" rotate="0">
+            <al>-</al>
+          </entry>
+          <entry colname="col2" morerows="0" rotate="0">
+            <al>(2.4)</al>
+          </entry>
+          <entry colname="col3" morerows="0" rotate="0">
+            <al>OZB-waarde</al>
+          </entry>
+        </row>
+        <row>
+          <entry colname="col1" morerows="0" rotate="0">
+            <al>-</al>
+          </entry>
+          <entry colname="col2" morerows="0" rotate="0">
+            <al>(2.4)</al>
+          </entry>
+          <entry colname="col3" morerows="0" rotate="0">
+            <al>Gebruikscode</al>
+          </entry>
+        </row>
+        <row>
+          <entry morerows="0" nameend="col3" namest="col1" rotate="0"/>
+        </row>
+        <row>
+          <entry morerows="0" nameend="col3" namest="col1" rotate="0">
+            <al>III Gegevens over het totaal van onroerende zaken van een wetsfictiegemeente (<extref doc="jci1.3:c:BWBR0007119&amp;artikel=41" label-id="452474" verwijzing-id="1738580" bwb-id="BWBR0007119">art. 41 Wet WOZ</extref>)</al>
+          </entry>
+        </row>
+        <row>
+          <entry morerows="0" nameend="col3" namest="col1" rotate="0"/>
+        </row>
+        <row>
+          <entry colname="col1" morerows="0" rotate="0">
+            <al>-</al>
+          </entry>
+          <entry morerows="0" nameend="col3" namest="col2" rotate="0">
+            <al>De gehanteerde waardepeildatum</al>
+          </entry>
+        </row>
+        <row>
+          <entry colname="col1" morerows="0" rotate="0">
+            <al>-</al>
+          </entry>
+          <entry morerows="0" nameend="col3" namest="col2" rotate="0">
+            <al>Aantal onroerende zaken met peildatum 1995</al>
+          </entry>
+        </row>
+        <row>
+          <entry colname="col1" morerows="0" rotate="0">
+            <al>-</al>
+          </entry>
+          <entry morerows="0" nameend="col3" namest="col2" rotate="0">
+            <al>Totale waarde van de onroerende zaken met peildatum 1995</al>
+          </entry>
+        </row>
+      </tbody>
+    </tgroup>
+  </table>
+<meta-data><brondata><oorspronkelijk><publicatie effect="nieuwe-regeling" soort="Stcrt" urlidentifier=""><publicatiejaar>1996</publicatiejaar><publicatienr>239</publicatienr><uitgiftedatum isodatum="1996-12-10">10-12-1996</uitgiftedatum><ondertekeningsdatum isodatum="1996-11-14">14-11-1996</ondertekeningsdatum><kenmerk>VFO93/4/U354</kenmerk></publicatie></oorspronkelijk><inwerkingtreding><publicatie effect="nieuwe-regeling" soort="Stcrt" urlidentifier=""><publicatiejaar>1996</publicatiejaar><publicatienr>239</publicatienr><uitgiftedatum isodatum="1996-12-10">10-12-1996</uitgiftedatum><ondertekeningsdatum isodatum="1996-11-14">14-11-1996</ondertekeningsdatum><kenmerk>VFO93/4/U354</kenmerk></publicatie><inwerkingtreding.datum isodatum="1997-01-01">01-01-1997</inwerkingtreding.datum></inwerkingtreding></brondata><jcis><jci versie="1.0" verwijzing="1.0:c:BWBR0008326&amp;bijlage=1&amp;g=2011-01-01" onderdeel="bijlage=1" korte-verwijzing="1.0:c:BWBR0008326&amp;bijlage=1"/><jci versie="1.3" verwijzing="jci1.3:c:BWBR0008326&amp;bijlage=1&amp;z=2006-04-14&amp;g=2011-01-01" onderdeel="bijlage=1" korte-verwijzing="jci1.3:c:BWBR0008326&amp;bijlage=1"/></jcis></meta-data></bijlage>
+    <bijlage bwb-ng-variabel-deel="/Bijlage2" stam-id="4370623" versie-id="6137152" id="C35731271" label-id="4348934" inwerking="2002-01-01" label="Bijlage 2" bron="Supplement-Stcrt.2001-214" effect="wijziging" ondertekening_bron="2001-10-05" publicatie_bron="2001-11-05" publicatie_iwt="2001-11-05" status="goed">
+  <kop>
+    <label>Bijlage</label>
+    <nr status="officieel">2</nr>
+    <titel status="officieel">behorende bij <intref doc="jci1.3:c:BWBR0008326&amp;paragraaf=2&amp;artikel=3&amp;z=2006-04-14&amp;g=2011-01-01" label-id="4348854" verwijzing-id="1988169" bwb-id="BWBR0008326" bwb-ng-variabel-deel="/Paragraaf2/Artikel3">artikel 3, lid 1</intref></titel>
+    <subtitel>Standaard uitwisselingsformaat belastingscapaciteit (STUF-CAP)</subtitel>
+  </kop>
+  <table frame="none">
+    <tgroup align="left" char="" charoff="50" cols="2" colsep="0" rowsep="0">
+      <colspec colname="col1" colnum="1" colwidth="1.00*"/>
+      <colspec colname="col2" colnum="2" colwidth="2.68*"/>
+      <tbody valign="top">
+        <row>
+          <entry morerows="0" nameend="col2" namest="col1" rotate="0">
+            <al>A Definitie Gegevens</al>
+          </entry>
+        </row>
+        <row>
+          <entry morerows="0" nameend="col2" namest="col1" rotate="0"/>
+        </row>
+        <row>
+          <entry morerows="0" nameend="col2" namest="col1" rotate="0">
+            <al>WOZ-objectnummer</al>
+          </entry>
+        </row>
+        <row>
+          <entry morerows="0" nameend="col2" namest="col1" rotate="0"/>
+        </row>
+        <row>
+          <entry morerows="0" nameend="col2" namest="col1" rotate="0">
+            <al>Gegevensnummer: 1.1</al>
+          </entry>
+        </row>
+        <row>
+          <entry colname="col1" morerows="0" rotate="0">
+            <al>Gegevensnaam:</al>
+          </entry>
+          <entry colname="col2" morerows="0" rotate="0">
+            <al>WOZ-objectnummer</al>
+          </entry>
+        </row>
+        <row>
+          <entry colname="col1" morerows="0" rotate="0">
+            <al>Definitie:</al>
+          </entry>
+          <entry colname="col2" morerows="0" rotate="0">
+            <al>uniek identificerend administratienummer van een WOZ-object zoals toegekend door</al>
+          </entry>
+        </row>
+        <row>
+          <entry morerows="0" nameend="col2" namest="col1" rotate="0">
+            <al>de gemeente waarin het WOZ-object is gelegen</al>
+          </entry>
+        </row>
+        <row>
+          <entry colname="col1" morerows="0" rotate="0">
+            <al>Type:</al>
+          </entry>
+          <entry colname="col2" morerows="0" rotate="0">
+            <al>numeriek</al>
+          </entry>
+        </row>
+        <row>
+          <entry morerows="0" nameend="col2" namest="col1" rotate="0">
+            <al>Lengte: 12</al>
+          </entry>
+        </row>
+        <row>
+          <entry colname="col1" morerows="0" rotate="0">
+            <al>Domein:</al>
+          </entry>
+          <entry colname="col2" morerows="0" rotate="0">
+            <al>de eerste vier cijfers: een code die voorkomt in de tabel Gemeenten (tabel 33) van</al>
+          </entry>
+        </row>
+        <row>
+          <entry morerows="0" nameend="col2" namest="col1" rotate="0">
+            <al>de Gemeentelijke Basisadminstratie (GBA); de laatste acht cijfers: 00000000 - 99999999</al>
+          </entry>
+        </row>
+        <row>
+          <entry morerows="0" nameend="col2" namest="col1" rotate="0">
+            <al>Stuf-WOZnummer: 01.01</al>
+          </entry>
+        </row>
+        <row>
+          <entry morerows="0" nameend="col2" namest="col1" rotate="0"/>
+        </row>
+        <row>
+          <entry morerows="0" nameend="col2" namest="col1" rotate="0">
+            <al>Huisnummer</al>
+          </entry>
+        </row>
+        <row>
+          <entry morerows="0" nameend="col2" namest="col1" rotate="0"/>
+        </row>
+        <row>
+          <entry morerows="0" nameend="col2" namest="col1" rotate="0">
+            <al>Gegevensnummer: 1.2</al>
+          </entry>
+        </row>
+        <row>
+          <entry colname="col1" morerows="0" rotate="0">
+            <al>Gegevensnaam:</al>
+          </entry>
+          <entry colname="col2" morerows="0" rotate="0">
+            <al>huisnummer</al>
+          </entry>
+        </row>
+        <row>
+          <entry colname="col1" morerows="0" rotate="0">
+            <al>Definitie:</al>
+          </entry>
+          <entry colname="col2" morerows="0" rotate="0">
+            <al>het numerieke huisnummer door de gemeente aan het object toegekend</al>
+          </entry>
+        </row>
+        <row>
+          <entry colname="col1" morerows="0" rotate="0">
+            <al>Type:</al>
+          </entry>
+          <entry colname="col2" morerows="0" rotate="0">
+            <al>numeriek</al>
+          </entry>
+        </row>
+        <row>
+          <entry colname="col1" morerows="0" rotate="0">
+            <al>Lengte:</al>
+          </entry>
+          <entry colname="col2" morerows="0" rotate="0">
+            <al>5</al>
+          </entry>
+        </row>
+        <row>
+          <entry colname="col1" morerows="0" rotate="0">
+            <al>Domein:</al>
+          </entry>
+          <entry colname="col2" morerows="0" rotate="0">
+            <al>00000-99999</al>
+          </entry>
+        </row>
+        <row>
+          <entry colname="col1" morerows="0" rotate="0">
+            <al>Stuf-WOZnummer:</al>
+          </entry>
+          <entry colname="col2" morerows="0" rotate="0">
+            <al>11.20</al>
+          </entry>
+        </row>
+        <row>
+          <entry morerows="0" nameend="col2" namest="col1" rotate="0"/>
+        </row>
+        <row>
+          <entry morerows="0" nameend="col2" namest="col1" rotate="0">
+            <al>Huisletter</al>
+          </entry>
+        </row>
+        <row>
+          <entry morerows="0" nameend="col2" namest="col1" rotate="0"/>
+        </row>
+        <row>
+          <entry colname="col1" morerows="0" rotate="0">
+            <al>Gegevensnummer:</al>
+          </entry>
+          <entry colname="col2" morerows="0" rotate="0">
+            <al>1.3</al>
+          </entry>
+        </row>
+        <row>
+          <entry colname="col1" morerows="0" rotate="0">
+            <al>Gegevensnaam:</al>
+          </entry>
+          <entry colname="col2" morerows="0" rotate="0">
+            <al>huisletter</al>
+          </entry>
+        </row>
+        <row>
+          <entry colname="col1" morerows="0" rotate="0">
+            <al>Definitie:</al>
+          </entry>
+          <entry colname="col2" morerows="0" rotate="0">
+            <al>de letter achter het huisnummer</al>
+          </entry>
+        </row>
+        <row>
+          <entry colname="col1" morerows="0" rotate="0">
+            <al>Type:</al>
+          </entry>
+          <entry colname="col2" morerows="0" rotate="0">
+            <al>alfanumeriek</al>
+          </entry>
+        </row>
+        <row>
+          <entry colname="col1" morerows="0" rotate="0">
+            <al>Lengte:</al>
+          </entry>
+          <entry colname="col2" morerows="0" rotate="0">
+            <al>1</al>
+          </entry>
+        </row>
+        <row>
+          <entry colname="col1" morerows="0" rotate="0">
+            <al>Domein:</al>
+          </entry>
+          <entry colname="col2" morerows="0" rotate="0">
+            <al>a - z, A-Z</al>
+          </entry>
+        </row>
+        <row>
+          <entry colname="col1" morerows="0" rotate="0">
+            <al>Stuf-WOZnummer:</al>
+          </entry>
+          <entry colname="col2" morerows="0" rotate="0">
+            <al>11.30</al>
+          </entry>
+        </row>
+        <row>
+          <entry morerows="0" nameend="col2" namest="col1" rotate="0"/>
+        </row>
+        <row>
+          <entry morerows="0" nameend="col2" namest="col1" rotate="0">
+            <al>Huisnummertoevoeging</al>
+          </entry>
+        </row>
+        <row>
+          <entry morerows="0" nameend="col2" namest="col1" rotate="0"/>
+        </row>
+        <row>
+          <entry colname="col1" morerows="0" rotate="0">
+            <al>Gegevensnummer:</al>
+          </entry>
+          <entry colname="col2" morerows="0" rotate="0">
+            <al>1.4</al>
+          </entry>
+        </row>
+        <row>
+          <entry colname="col1" morerows="0" rotate="0">
+            <al>Gegevensnaam:</al>
+          </entry>
+          <entry colname="col2" morerows="0" rotate="0">
+            <al>huisnummertoevoeging</al>
+          </entry>
+        </row>
+        <row>
+          <entry colname="col1" morerows="0" rotate="0">
+            <al>Definitie:</al>
+          </entry>
+          <entry colname="col2" morerows="0" rotate="0">
+            <al>de letters en andere tekens die nodig zijn om gegeven huisnummer en huisletter</al>
+          </entry>
+        </row>
+        <row>
+          <entry morerows="0" nameend="col2" namest="col1" rotate="0">
+            <al>de brievenbus te vinden</al>
+          </entry>
+        </row>
+        <row>
+          <entry colname="col1" morerows="0" rotate="0">
+            <al>Type:</al>
+          </entry>
+          <entry colname="col2" morerows="0" rotate="0">
+            <al>alfanumeriek</al>
+          </entry>
+        </row>
+        <row>
+          <entry colname="col1" morerows="0" rotate="0">
+            <al>Lengte:</al>
+          </entry>
+          <entry colname="col2" morerows="0" rotate="0">
+            <al>4</al>
+          </entry>
+        </row>
+        <row>
+          <entry colname="col1" morerows="0" rotate="0">
+            <al>Domein:</al>
+          </entry>
+          <entry colname="col2" morerows="0" rotate="0">
+            <al>n.v.t.</al>
+          </entry>
+        </row>
+        <row>
+          <entry colname="col1" morerows="0" rotate="0">
+            <al>Stuf-WOZnummer:</al>
+          </entry>
+          <entry colname="col2" morerows="0" rotate="0">
+            <al>11.40</al>
+          </entry>
+        </row>
+        <row>
+          <entry morerows="0" nameend="col2" namest="col1" rotate="0"/>
+        </row>
+        <row>
+          <entry morerows="0" nameend="col2" namest="col1" rotate="0">
+            <al>Aanduiding bij huisnummer</al>
+          </entry>
+        </row>
+        <row>
+          <entry morerows="0" nameend="col2" namest="col1" rotate="0"/>
+        </row>
+        <row>
+          <entry colname="col1" morerows="0" rotate="0">
+            <al>Gegevensnummer:</al>
+          </entry>
+          <entry colname="col2" morerows="0" rotate="0">
+            <al>1.5</al>
+          </entry>
+        </row>
+        <row>
+          <entry colname="col1" morerows="0" rotate="0">
+            <al>Gegevensnaam:</al>
+          </entry>
+          <entry colname="col2" morerows="0" rotate="0">
+            <al>aanduiding bij huisnummer</al>
+          </entry>
+        </row>
+        <row>
+          <entry colname="col1" morerows="0" rotate="0">
+            <al>Definitie:</al>
+          </entry>
+          <entry colname="col2" morerows="0" rotate="0">
+            <al>aanduiding voor adressen die niet zijn voorzien van een gebruikelijke straat- en</al>
+          </entry>
+        </row>
+        <row>
+          <entry morerows="0" nameend="col2" namest="col1" rotate="0">
+            <al>huisnummeraanduiding</al>
+          </entry>
+        </row>
+        <row>
+          <entry colname="col1" morerows="0" rotate="0">
+            <al>Type:</al>
+          </entry>
+          <entry colname="col2" morerows="0" rotate="0">
+            <al>alfanumeriek</al>
+          </entry>
+        </row>
+        <row>
+          <entry colname="col1" morerows="0" rotate="0">
+            <al>Lengte:</al>
+          </entry>
+          <entry colname="col2" morerows="0" rotate="0">
+            <al>2</al>
+          </entry>
+        </row>
+        <row>
+          <entry colname="col1" morerows="0" rotate="0">
+            <al>Domein:</al>
+          </entry>
+          <entry colname="col2" morerows="0" rotate="0">
+            <al>"leeg"</al>
+            <al>by of BY (bij)</al>
+            <al>to of TO (tegenover)</al>
+          </entry>
+        </row>
+        <row>
+          <entry colname="col1" morerows="0" rotate="0">
+            <al>Stuf-WOZnummer:</al>
+          </entry>
+          <entry colname="col2" morerows="0" rotate="0">
+            <al>11.50</al>
+          </entry>
+        </row>
+        <row>
+          <entry morerows="0" nameend="col2" namest="col1" rotate="0"/>
+        </row>
+        <row>
+          <entry morerows="0" nameend="col2" namest="col1" rotate="0">
+            <al>Postcode</al>
+          </entry>
+        </row>
+        <row>
+          <entry morerows="0" nameend="col2" namest="col1" rotate="0"/>
+        </row>
+        <row>
+          <entry colname="col1" morerows="0" rotate="0">
+            <al>Gegevensnummer:</al>
+          </entry>
+          <entry colname="col2" morerows="0" rotate="0">
+            <al>1.6</al>
+          </entry>
+        </row>
+        <row>
+          <entry colname="col1" morerows="0" rotate="0">
+            <al>Gegevensnaam:</al>
+          </entry>
+          <entry colname="col2" morerows="0" rotate="0">
+            <al>postcode</al>
+          </entry>
+        </row>
+        <row>
+          <entry colname="col1" morerows="0" rotate="0">
+            <al>Definitie:</al>
+          </entry>
+          <entry colname="col2" morerows="0" rotate="0">
+            <al>de door de PTT vastgestelde postale codering</al>
+          </entry>
+        </row>
+        <row>
+          <entry colname="col1" morerows="0" rotate="0">
+            <al>Type:</al>
+          </entry>
+          <entry colname="col2" morerows="0" rotate="0">
+            <al>alfanumeriek</al>
+          </entry>
+        </row>
+        <row>
+          <entry colname="col1" morerows="0" rotate="0">
+            <al>Lengte:</al>
+          </entry>
+          <entry colname="col2" morerows="0" rotate="0">
+            <al>6</al>
+          </entry>
+        </row>
+        <row>
+          <entry colname="col1" morerows="0" rotate="0">
+            <al>Domein:</al>
+          </entry>
+          <entry colname="col2" morerows="0" rotate="0">
+            <al>0000AA-9999ZZ</al>
+          </entry>
+        </row>
+        <row>
+          <entry colname="col1" morerows="0" rotate="0">
+            <al>Stuf-WOZnummer:</al>
+          </entry>
+          <entry colname="col2" morerows="0" rotate="0">
+            <al>11.60</al>
+          </entry>
+        </row>
+        <row>
+          <entry morerows="0" nameend="col2" namest="col1" rotate="0"/>
+        </row>
+        <row>
+          <entry morerows="0" nameend="col2" namest="col1" rotate="0">
+            <al>Vastgestelde WOZ-waarde</al>
+          </entry>
+        </row>
+        <row>
+          <entry morerows="0" nameend="col2" namest="col1" rotate="0"/>
+        </row>
+        <row>
+          <entry colname="col1" morerows="0" rotate="0">
+            <al>Gegevensnummer:</al>
+          </entry>
+          <entry colname="col2" morerows="0" rotate="0">
+            <al>2.1</al>
+          </entry>
+        </row>
+        <row>
+          <entry colname="col1" morerows="0" rotate="0">
+            <al>Gegevensnaam:</al>
+          </entry>
+          <entry colname="col2" morerows="0" rotate="0">
+            <al>vastgestelde WOZ-waarde</al>
+          </entry>
+        </row>
+        <row>
+          <entry colname="col1" morerows="0" rotate="0">
+            <al>Definitie:</al>
+          </entry>
+          <entry colname="col2" morerows="0" rotate="0">
+            <al>waarde van het object zoals die in kader van de WOZ is vastgesteld in</al>
+          </entry>
+        </row>
+        <row>
+          <entry morerows="0" nameend="col2" namest="col1" rotate="0">
+            <al>hele euro</al>
+          </entry>
+        </row>
+        <row>
+          <entry colname="col1" morerows="0" rotate="0">
+            <al>Type:</al>
+          </entry>
+          <entry colname="col2" morerows="0" rotate="0">
+            <al>numeriek</al>
+          </entry>
+        </row>
+        <row>
+          <entry colname="col1" morerows="0" rotate="0">
+            <al>Lengte:</al>
+          </entry>
+          <entry colname="col2" morerows="0" rotate="0">
+            <al>11</al>
+          </entry>
+        </row>
+        <row>
+          <entry colname="col1" morerows="0" rotate="0">
+            <al>Domein:</al>
+          </entry>
+          <entry colname="col2" morerows="0" rotate="0">
+            <al>00000000000 - 99999999999</al>
+          </entry>
+        </row>
+        <row>
+          <entry colname="col1" morerows="0" rotate="0">
+            <al>Stuf-WOZnummer:</al>
+          </entry>
+          <entry colname="col2" morerows="0" rotate="0">
+            <al>15.10</al>
+          </entry>
+        </row>
+        <row>
+          <entry morerows="0" nameend="col2" namest="col1" rotate="0"/>
+        </row>
+        <row>
+          <entry morerows="0" nameend="col2" namest="col1" rotate="0">
+            <al>OZB-vrijstelling</al>
+          </entry>
+        </row>
+        <row>
+          <entry morerows="0" nameend="col2" namest="col1" rotate="0"/>
+        </row>
+        <row>
+          <entry colname="col1" morerows="0" rotate="0">
+            <al>Gegevensnummer:</al>
+          </entry>
+          <entry colname="col2" morerows="0" rotate="0">
+            <al>2.2</al>
+          </entry>
+        </row>
+        <row>
+          <entry colname="col1" morerows="0" rotate="0">
+            <al>Gegevensnaam:</al>
+          </entry>
+          <entry colname="col2" morerows="0" rotate="0">
+            <al>OZB-vrijstelling</al>
+          </entry>
+        </row>
+        <row>
+          <entry colname="col1" morerows="0" rotate="0">
+            <al>Definitie:</al>
+          </entry>
+          <entry colname="col2" morerows="0" rotate="0">
+            <al>aanduiding of en op welke grond bij het bepalen van de heffingsmaatstaf voor de </al>
+          </entry>
+        </row>
+        <row>
+          <entry morerows="0" nameend="col2" namest="col1" rotate="0">
+            <al>OZB is afgeweken van de waarde die is vastgesteld in het kader van de wet-WOZ</al>
+          </entry>
+        </row>
+        <row>
+          <entry colname="col1" morerows="0" rotate="0">
+            <al>Type:</al>
+          </entry>
+          <entry colname="col2" morerows="0" rotate="0">
+            <al>numeriek</al>
+          </entry>
+        </row>
+        <row>
+          <entry colname="col1" morerows="0" rotate="0">
+            <al>Lengte:</al>
+          </entry>
+          <entry colname="col2" morerows="0" rotate="0">
+            <al>1</al>
+          </entry>
+        </row>
+        <row>
+          <entry colname="col1" morerows="0" rotate="0">
+            <al>Domein:</al>
+          </entry>
+          <entry colname="col2" morerows="0" rotate="0">
+            <al>0 (= OZB-waarde gelijk aan WOZ-waarde</al>
+          </entry>
+        </row>
+        <row>
+          <entry colname="col1" morerows="0" rotate="0"/>
+          <entry colname="col2" morerows="0" rotate="0">
+            <al>1 (= OZB-waarde ongelijk aan WOZ-waarde in verband met een facultatieve</al>
+          </entry>
+        </row>
+        <row>
+          <entry morerows="0" nameend="col2" namest="col1" rotate="0">
+            <al>vrijstelling)</al>
+          </entry>
+        </row>
+        <row>
+          <entry colname="col1" morerows="0" rotate="0"/>
+          <entry colname="col2" morerows="0" rotate="0">
+            <al>2 (= OZB-waarde ongelijk aan WOZ-waarde in verband met een verplichte</al>
+          </entry>
+        </row>
+        <row>
+          <entry morerows="0" nameend="col2" namest="col1" rotate="0">
+            <al>vrijstelling op grond van artikel 220d, 243 of 305a van de Gemeentewet)</al>
+          </entry>
+        </row>
+        <row>
+          <entry colname="col1" morerows="0" rotate="0">
+            <al>Stuf-WOZnummer:</al>
+          </entry>
+          <entry colname="col2" morerows="0" rotate="0">
+            <al>n.v.t.</al>
+          </entry>
+        </row>
+        <row>
+          <entry morerows="0" nameend="col2" namest="col1" rotate="0"/>
+        </row>
+        <row>
+          <entry morerows="0" nameend="col2" namest="col1" rotate="0">
+            <al>OZB-waarde</al>
+          </entry>
+        </row>
+        <row>
+          <entry morerows="0" nameend="col2" namest="col1" rotate="0"/>
+        </row>
+        <row>
+          <entry colname="col1" morerows="0" rotate="0">
+            <al>Gegevensnummer:</al>
+          </entry>
+          <entry colname="col2" morerows="0" rotate="0">
+            <al>2.3</al>
+          </entry>
+        </row>
+        <row>
+          <entry colname="col1" morerows="0" rotate="0">
+            <al>Gegevensnaam:</al>
+          </entry>
+          <entry colname="col2" morerows="0" rotate="0">
+            <al>OZB-waarde</al>
+          </entry>
+        </row>
+        <row>
+          <entry colname="col1" morerows="0" rotate="0">
+            <al>Definitie:</al>
+          </entry>
+          <entry colname="col2" morerows="0" rotate="0">
+            <al>waarde van het object zoals die in de OZB-heffing is betrokken in hele euro</al>
+          </entry>
+        </row>
+        <row>
+          <entry colname="col1" morerows="0" rotate="0">
+            <al>Type:</al>
+          </entry>
+          <entry colname="col2" morerows="0" rotate="0">
+            <al>numeriek</al>
+          </entry>
+        </row>
+        <row>
+          <entry colname="col1" morerows="0" rotate="0">
+            <al>Lengte:</al>
+          </entry>
+          <entry colname="col2" morerows="0" rotate="0">
+            <al>11</al>
+          </entry>
+        </row>
+        <row>
+          <entry colname="col1" morerows="0" rotate="0">
+            <al>Domein:</al>
+          </entry>
+          <entry colname="col2" morerows="0" rotate="0">
+            <al>00000000000 - 99999999999</al>
+          </entry>
+        </row>
+        <row>
+          <entry colname="col1" morerows="0" rotate="0">
+            <al>Stuf-WOZnummer:</al>
+          </entry>
+          <entry colname="col2" morerows="0" rotate="0">
+            <al>n.v.t.</al>
+          </entry>
+        </row>
+        <row>
+          <entry morerows="0" nameend="col2" namest="col1" rotate="0"/>
+        </row>
+        <row>
+          <entry morerows="0" nameend="col2" namest="col1" rotate="0">
+            <al>Gebruikscode</al>
+          </entry>
+        </row>
+        <row>
+          <entry morerows="0" nameend="col2" namest="col1" rotate="0"/>
+        </row>
+        <row>
+          <entry colname="col1" morerows="0" rotate="0">
+            <al>Gegevensnummer:</al>
+          </entry>
+          <entry colname="col2" morerows="0" rotate="0">
+            <al>2.4</al>
+          </entry>
+        </row>
+        <row>
+          <entry colname="col1" morerows="0" rotate="0">
+            <al>Gegevensnaam:</al>
+          </entry>
+          <entry colname="col2" morerows="0" rotate="0">
+            <al>gebruikscode</al>
+          </entry>
+        </row>
+        <row>
+          <entry colname="col1" morerows="0" rotate="0">
+            <al>Definitie:</al>
+          </entry>
+          <entry colname="col2" morerows="0" rotate="0">
+            <al>aanduiding van het feitelijk gebruik van het object</al>
+          </entry>
+        </row>
+        <row>
+          <entry colname="col1" morerows="0" rotate="0">
+            <al>Type:</al>
+          </entry>
+          <entry colname="col2" morerows="0" rotate="0">
+            <al>numeriek</al>
+          </entry>
+        </row>
+        <row>
+          <entry colname="col1" morerows="0" rotate="0">
+            <al>Lengte:</al>
+          </entry>
+          <entry colname="col2" morerows="0" rotate="0">
+            <al>2</al>
+          </entry>
+        </row>
+        <row valign="top">
+          <entry colname="col1" morerows="0" rotate="0" valign="top">
+            <al>Domein:</al>
+          </entry>
+          <entry colname="col2" morerows="0" rotate="0" valign="top">
+            <al>10 (= woning dienend tot hoofdverblijf)</al>
+            <al>11 (= woning met praktijkruimte)</al>
+            <al>12 (= recreatiewoning)</al>
+            <al>20 (= boerderij)</al>
+            <al>21 (= niet-woning deels in gebruik als woning)</al>
+            <al>30 (= niet-woning)</al>
+            <al>40 (= terrein)</al>
+          </entry>
+        </row>
+        <row>
+          <entry colname="col1" morerows="0" rotate="0">
+            <al>Stuf-WOZnummer:</al>
+          </entry>
+          <entry colname="col2" morerows="0" rotate="0">
+            <al>12.20</al>
+          </entry>
+        </row>
+        <row>
+          <entry morerows="0" nameend="col2" namest="col1" rotate="0"/>
+        </row>
+        <row>
+          <entry morerows="0" nameend="col2" namest="col1" rotate="0">
+            <al>Gemeentecode</al>
+          </entry>
+        </row>
+        <row>
+          <entry morerows="0" nameend="col2" namest="col1" rotate="0"/>
+        </row>
+        <row>
+          <entry colname="col1" morerows="0" rotate="0">
+            <al>Gegevensnummer:</al>
+          </entry>
+          <entry colname="col2" morerows="0" rotate="0">
+            <al>8.1</al>
+          </entry>
+        </row>
+        <row>
+          <entry colname="col1" morerows="0" rotate="0">
+            <al>Gegevensnaam:</al>
+          </entry>
+          <entry colname="col2" morerows="0" rotate="0">
+            <al>gemeentecode</al>
+          </entry>
+        </row>
+        <row>
+          <entry colname="col1" morerows="0" rotate="0">
+            <al>Definitie:</al>
+          </entry>
+          <entry colname="col2" morerows="0" rotate="0">
+            <al>numerieke aanduiding voor de offiële door de gemeente vastgestelde</al>
+          </entry>
+        </row>
+        <row>
+          <entry morerows="0" nameend="col2" namest="col1" rotate="0">
+            <al>gemeentenaam</al>
+          </entry>
+        </row>
+        <row>
+          <entry colname="col1" morerows="0" rotate="0">
+            <al>Type:</al>
+          </entry>
+          <entry colname="col2" morerows="0" rotate="0">
+            <al>numeriek</al>
+          </entry>
+        </row>
+        <row>
+          <entry colname="col1" morerows="0" rotate="0">
+            <al>Lengte:</al>
+          </entry>
+          <entry colname="col2" morerows="0" rotate="0">
+            <al>4</al>
+          </entry>
+        </row>
+        <row>
+          <entry colname="col1" morerows="0" rotate="0">
+            <al>Domein:</al>
+          </entry>
+          <entry colname="col2" morerows="0" rotate="0">
+            <al>codes die voorkomen in de Tabel Gemeenten (tabel 33) van de Gemeentelijke</al>
+          </entry>
+        </row>
+        <row>
+          <entry morerows="0" nameend="col2" namest="col1" rotate="0">
+            <al>Basisadminstratie Persoonsgegevens (GBA)</al>
+          </entry>
+        </row>
+        <row>
+          <entry colname="col1" morerows="0" rotate="0">
+            <al>Stuf-WOZnummer:</al>
+          </entry>
+          <entry colname="col2" morerows="0" rotate="0">
+            <al>09.10</al>
+          </entry>
+        </row>
+        <row>
+          <entry morerows="0" nameend="col2" namest="col1" rotate="0"/>
+        </row>
+        <row>
+          <entry morerows="0" nameend="col2" namest="col1" rotate="0">
+            <al>Naam contactpersoon</al>
+          </entry>
+        </row>
+        <row>
+          <entry morerows="0" nameend="col2" namest="col1" rotate="0"/>
+        </row>
+        <row>
+          <entry colname="col1" morerows="0" rotate="0">
+            <al>Gegevensnummer:</al>
+          </entry>
+          <entry colname="col2" morerows="0" rotate="0">
+            <al>8.2</al>
+          </entry>
+        </row>
+        <row>
+          <entry colname="col1" morerows="0" rotate="0">
+            <al>Gegevensnaam:</al>
+          </entry>
+          <entry colname="col2" morerows="0" rotate="0">
+            <al>naam contactpersoon</al>
+          </entry>
+        </row>
+        <row>
+          <entry colname="col1" morerows="0" rotate="0">
+            <al>Definitie:</al>
+          </entry>
+          <entry colname="col2" morerows="0" rotate="0">
+            <al>naam plus voorletters van de aanspreekbare persoon voor gegevenslevering</al>
+          </entry>
+        </row>
+        <row>
+          <entry colname="col1" morerows="0" rotate="0">
+            <al>Type:</al>
+          </entry>
+          <entry colname="col2" morerows="0" rotate="0">
+            <al>alfnumeriek</al>
+          </entry>
+        </row>
+        <row>
+          <entry colname="col1" morerows="0" rotate="0">
+            <al>Lengte:</al>
+          </entry>
+          <entry colname="col2" morerows="0" rotate="0">
+            <al>40</al>
+          </entry>
+        </row>
+        <row>
+          <entry colname="col1" morerows="0" rotate="0">
+            <al>Domein:</al>
+          </entry>
+          <entry colname="col2" morerows="0" rotate="0">
+            <al>n.v.t.</al>
+          </entry>
+        </row>
+        <row>
+          <entry colname="col1" morerows="0" rotate="0">
+            <al>Stuf-WOZnummer:</al>
+          </entry>
+          <entry colname="col2" morerows="0" rotate="0">
+            <al>91.10</al>
+          </entry>
+        </row>
+        <row>
+          <entry morerows="0" nameend="col2" namest="col1" rotate="0"/>
+        </row>
+        <row>
+          <entry morerows="0" nameend="col2" namest="col1" rotate="0">
+            <al>Telefoonnummer contactpersoon</al>
+          </entry>
+        </row>
+        <row>
+          <entry morerows="0" nameend="col2" namest="col1" rotate="0"/>
+        </row>
+        <row>
+          <entry colname="col1" morerows="0" rotate="0">
+            <al>Gegevensnummer:</al>
+          </entry>
+          <entry colname="col2" morerows="0" rotate="0">
+            <al>8.3</al>
+          </entry>
+        </row>
+        <row>
+          <entry colname="col1" morerows="0" rotate="0">
+            <al>Gegevensnaam:</al>
+          </entry>
+          <entry colname="col2" morerows="0" rotate="0">
+            <al>telefoonnummer contactpersoon</al>
+          </entry>
+        </row>
+        <row>
+          <entry colname="col1" morerows="0" rotate="0">
+            <al>Definitie:</al>
+          </entry>
+          <entry colname="col2" morerows="0" rotate="0">
+            <al>telefoonnummer waaronder de aanspreekbare persoon in de regel bereikbaar is,</al>
+          </entry>
+        </row>
+        <row>
+          <entry morerows="0" nameend="col2" namest="col1" rotate="0">
+            <al>zo mogelijk doorkiesnummer</al>
+          </entry>
+        </row>
+        <row>
+          <entry colname="col1" morerows="0" rotate="0">
+            <al>Type:</al>
+          </entry>
+          <entry colname="col2" morerows="0" rotate="0">
+            <al>alfanumeriek</al>
+          </entry>
+        </row>
+        <row>
+          <entry colname="col1" morerows="0" rotate="0">
+            <al>Lengte:</al>
+          </entry>
+          <entry colname="col2" morerows="0" rotate="0">
+            <al>20</al>
+          </entry>
+        </row>
+        <row>
+          <entry colname="col1" morerows="0" rotate="0">
+            <al>Domein:</al>
+          </entry>
+          <entry colname="col2" morerows="0" rotate="0">
+            <al>n.v.t.</al>
+          </entry>
+        </row>
+        <row>
+          <entry colname="col1" morerows="0" rotate="0">
+            <al>Stuf-WOZnummer:</al>
+          </entry>
+          <entry colname="col2" morerows="0" rotate="0">
+            <al>91.20</al>
+          </entry>
+        </row>
+        <row>
+          <entry morerows="0" nameend="col2" namest="col1" rotate="0"/>
+        </row>
+        <row>
+          <entry morerows="0" nameend="col2" namest="col1" rotate="0">
+            <al>Aanmaakdatum</al>
+          </entry>
+        </row>
+        <row>
+          <entry morerows="0" nameend="col2" namest="col1" rotate="0"/>
+        </row>
+        <row>
+          <entry colname="col1" morerows="0" rotate="0">
+            <al>Gegevensnummer:</al>
+          </entry>
+          <entry colname="col2" morerows="0" rotate="0">
+            <al>8.4</al>
+          </entry>
+        </row>
+        <row>
+          <entry colname="col1" morerows="0" rotate="0">
+            <al>Gegevensnaam:</al>
+          </entry>
+          <entry colname="col2" morerows="0" rotate="0">
+            <al>aanmaakdatum</al>
+          </entry>
+        </row>
+        <row>
+          <entry colname="col1" morerows="0" rotate="0">
+            <al>Definitie:</al>
+          </entry>
+          <entry colname="col2" morerows="0" rotate="0">
+            <al>het tijdstip waarop de bestanden voor gegevenslevering zijn vervaardigd</al>
+          </entry>
+        </row>
+        <row>
+          <entry colname="col1" morerows="0" rotate="0">
+            <al>Type:</al>
+          </entry>
+          <entry colname="col2" morerows="0" rotate="0">
+            <al>datum</al>
+          </entry>
+        </row>
+        <row>
+          <entry colname="col1" morerows="0" rotate="0">
+            <al>Lengte:</al>
+          </entry>
+          <entry colname="col2" morerows="0" rotate="0">
+            <al>8</al>
+          </entry>
+        </row>
+        <row>
+          <entry colname="col1" morerows="0" rotate="0">
+            <al>Domein:</al>
+          </entry>
+          <entry colname="col2" morerows="0" rotate="0">
+            <al>jjjjmmdd</al>
+          </entry>
+        </row>
+        <row>
+          <entry colname="col1" morerows="0" rotate="0">
+            <al>Stuf-WOZnummer:</al>
+          </entry>
+          <entry colname="col2" morerows="0" rotate="0">
+            <al>92.10</al>
+          </entry>
+        </row>
+        <row>
+          <entry morerows="0" nameend="col2" namest="col1" rotate="0"/>
+        </row>
+        <row>
+          <entry morerows="0" nameend="col2" namest="col1" rotate="0">
+            <al>Belastingjaar</al>
+          </entry>
+        </row>
+        <row>
+          <entry morerows="0" nameend="col2" namest="col1" rotate="0"/>
+        </row>
+        <row>
+          <entry colname="col1" morerows="0" rotate="0">
+            <al>Gegevensnummer:</al>
+          </entry>
+          <entry colname="col2" morerows="0" rotate="0">
+            <al>8.5</al>
+          </entry>
+        </row>
+        <row>
+          <entry colname="col1" morerows="0" rotate="0">
+            <al>Gegevensnaam:</al>
+          </entry>
+          <entry colname="col2" morerows="0" rotate="0">
+            <al>belastingjaar</al>
+          </entry>
+        </row>
+        <row>
+          <entry colname="col1" morerows="0" rotate="0">
+            <al>Definitie:</al>
+          </entry>
+          <entry colname="col2" morerows="0" rotate="0">
+            <al>jaar waarop de gegevens betrekking hebben</al>
+          </entry>
+        </row>
+        <row>
+          <entry colname="col1" morerows="0" rotate="0">
+            <al>Type:</al>
+          </entry>
+          <entry colname="col2" morerows="0" rotate="0">
+            <al>datum</al>
+          </entry>
+        </row>
+        <row>
+          <entry colname="col1" morerows="0" rotate="0">
+            <al>Lengte:</al>
+          </entry>
+          <entry colname="col2" morerows="0" rotate="0">
+            <al>4</al>
+          </entry>
+        </row>
+        <row>
+          <entry colname="col1" morerows="0" rotate="0">
+            <al>Domein:</al>
+          </entry>
+          <entry colname="col2" morerows="0" rotate="0">
+            <al>jjjj</al>
+          </entry>
+        </row>
+        <row>
+          <entry colname="col1" morerows="0" rotate="0">
+            <al>Stuf-WOZnummer:</al>
+          </entry>
+          <entry colname="col2" morerows="0" rotate="0">
+            <al>n.v.t.</al>
+          </entry>
+        </row>
+        <row>
+          <entry morerows="0" nameend="col2" namest="col1" rotate="0"/>
+        </row>
+        <row>
+          <entry morerows="0" nameend="col2" namest="col1" rotate="0">
+            <al>Status gegevens</al>
+          </entry>
+        </row>
+        <row>
+          <entry morerows="0" nameend="col2" namest="col1" rotate="0"/>
+        </row>
+        <row>
+          <entry colname="col1" morerows="0" rotate="0">
+            <al>Gegevensnummer:</al>
+          </entry>
+          <entry colname="col2" morerows="0" rotate="0">
+            <al>8.6</al>
+          </entry>
+        </row>
+        <row>
+          <entry colname="col1" morerows="0" rotate="0">
+            <al>Gegevensnaam:</al>
+          </entry>
+          <entry colname="col2" morerows="0" rotate="0">
+            <al>status gegevens</al>
+          </entry>
+        </row>
+        <row>
+          <entry colname="col1" morerows="0" rotate="0">
+            <al>Definitie:</al>
+          </entry>
+          <entry colname="col2" morerows="0" rotate="0">
+            <al>aanduiding voor het voorlopige dan wel definitieve karakter van de</al>
+          </entry>
+        </row>
+        <row>
+          <entry morerows="0" nameend="col2" namest="col1" rotate="0">
+            <al>gegevenslevering</al>
+          </entry>
+        </row>
+        <row>
+          <entry colname="col1" morerows="0" rotate="0">
+            <al>Type:</al>
+          </entry>
+          <entry colname="col2" morerows="0" rotate="0">
+            <al>alfanumeriek</al>
+          </entry>
+        </row>
+        <row>
+          <entry colname="col1" morerows="0" rotate="0">
+            <al>Lengte:</al>
+          </entry>
+          <entry colname="col2" morerows="0" rotate="0">
+            <al>1</al>
+          </entry>
+        </row>
+        <row>
+          <entry colname="col1" morerows="0" rotate="0">
+            <al>Domein:</al>
+          </entry>
+          <entry colname="col2" morerows="0" rotate="0">
+            <al>V (= voorlopig)</al>
+            <al>D (= definitief)</al>
+          </entry>
+        </row>
+        <row>
+          <entry colname="col1" morerows="0" rotate="0">
+            <al>Stuf-WOZnummer:</al>
+          </entry>
+          <entry colname="col2" morerows="0" rotate="0">
+            <al>n.v.t.</al>
+          </entry>
+        </row>
+        <row>
+          <entry morerows="0" nameend="col2" namest="col1" rotate="0"/>
+        </row>
+        <row>
+          <entry morerows="0" nameend="col2" namest="col1" rotate="0">
+            <al>Volgnummer diskette</al>
+          </entry>
+        </row>
+        <row>
+          <entry morerows="0" nameend="col2" namest="col1" rotate="0"/>
+        </row>
+        <row>
+          <entry colname="col1" morerows="0" rotate="0">
+            <al>Gegevensnummer:</al>
+          </entry>
+          <entry colname="col2" morerows="0" rotate="0">
+            <al>8.7</al>
+          </entry>
+        </row>
+        <row>
+          <entry colname="col1" morerows="0" rotate="0">
+            <al>Gegevensnaam:</al>
+          </entry>
+          <entry colname="col2" morerows="0" rotate="0">
+            <al>volgnummer diskette</al>
+          </entry>
+        </row>
+        <row>
+          <entry colname="col1" morerows="0" rotate="0">
+            <al>Definitie:</al>
+          </entry>
+          <entry colname="col2" morerows="0" rotate="0">
+            <al>het volgnummer van de diskette in de aanlevering voor het betreffende</al>
+          </entry>
+        </row>
+        <row>
+          <entry morerows="0" nameend="col2" namest="col1" rotate="0">
+            <al>belastingjaar</al>
+          </entry>
+        </row>
+        <row>
+          <entry colname="col1" morerows="0" rotate="0">
+            <al>Type:</al>
+          </entry>
+          <entry colname="col2" morerows="0" rotate="0">
+            <al>numeriek</al>
+          </entry>
+        </row>
+        <row>
+          <entry colname="col1" morerows="0" rotate="0">
+            <al>Lengte:</al>
+          </entry>
+          <entry colname="col2" morerows="0" rotate="0">
+            <al>2</al>
+          </entry>
+        </row>
+        <row>
+          <entry colname="col1" morerows="0" rotate="0">
+            <al>Domein:</al>
+          </entry>
+          <entry colname="col2" morerows="0" rotate="0">
+            <al>01 - 99</al>
+          </entry>
+        </row>
+        <row>
+          <entry colname="col1" morerows="0" rotate="0">
+            <al>Stuf-WOZnummer:</al>
+          </entry>
+          <entry colname="col2" morerows="0" rotate="0">
+            <al>n.v.t.</al>
+          </entry>
+        </row>
+        <row>
+          <entry morerows="0" nameend="col2" namest="col1" rotate="0"/>
+        </row>
+        <row>
+          <entry morerows="0" nameend="col2" namest="col1" rotate="0">
+            <al>Record-identificatiecode</al>
+          </entry>
+        </row>
+        <row>
+          <entry morerows="0" nameend="col2" namest="col1" rotate="0"/>
+        </row>
+        <row>
+          <entry colname="col1" morerows="0" rotate="0">
+            <al>Gegevensnummer:</al>
+          </entry>
+          <entry colname="col2" morerows="0" rotate="0">
+            <al>9.1</al>
+          </entry>
+        </row>
+        <row>
+          <entry colname="col1" morerows="0" rotate="0">
+            <al>Gegevensnaam:</al>
+          </entry>
+          <entry colname="col2" morerows="0" rotate="0">
+            <al>record-identificatiecode</al>
+          </entry>
+        </row>
+        <row>
+          <entry colname="col1" morerows="0" rotate="0">
+            <al>Definitie:</al>
+          </entry>
+          <entry colname="col2" morerows="0" rotate="0">
+            <al>nummer dat de aard van het record in het bestand aanduidt</al>
+          </entry>
+        </row>
+        <row>
+          <entry colname="col1" morerows="0" rotate="0">
+            <al>Type:</al>
+          </entry>
+          <entry colname="col2" morerows="0" rotate="0">
+            <al>numeriek</al>
+          </entry>
+        </row>
+        <row>
+          <entry colname="col1" morerows="0" rotate="0">
+            <al>Lengte:</al>
+          </entry>
+          <entry colname="col2" morerows="0" rotate="0">
+            <al>1</al>
+          </entry>
+        </row>
+        <row>
+          <entry colname="col1" morerows="0" rotate="0">
+            <al>Domein:</al>
+          </entry>
+          <entry colname="col2" morerows="0" rotate="0">
+            <al>0 (= voorlooprecord)</al>
+            <al>1 (= gegevensrecord)</al>
+            <al>2 (= sluitrecord)</al>
+          </entry>
+        </row>
+        <row>
+          <entry colname="col1" morerows="0" rotate="0">
+            <al>Stuf-WOZnummer:</al>
+          </entry>
+          <entry colname="col2" morerows="0" rotate="0">
+            <al>n.v.t.</al>
+          </entry>
+        </row>
+      </tbody>
+    </tgroup>
+  </table>
+  <tussenkop kopopmaak="cur">B Leveringsformaat voor het leveringsbestand</tussenkop>
+  <table frame="all">
+    <title>
+      <nadruk type="cur">Voorlooprecord</nadruk>
+    </title>
+    <tgroup align="left" char="" charoff="50" cols="5" colsep="0" rowsep="0">
+      <colspec colname="col1" colnum="1" colwidth="1.20*"/>
+      <colspec colname="col2" colnum="2" colwidth="1.20*"/>
+      <colspec colname="col3" colnum="3" colwidth="1.20*"/>
+      <colspec colname="col4" colnum="4" colwidth="1.00*"/>
+      <colspec colname="col5" colnum="5" colwidth="1.41*"/>
+      <tbody valign="top">
+        <row>
+          <entry colname="col1" morerows="0" rotate="0">
+            <al>positie</al>
+          </entry>
+          <entry colname="col2" morerows="0" rotate="0">
+            <al>lengte</al>
+          </entry>
+          <entry colname="col3" morerows="0" rotate="0">
+            <al>type</al>
+          </entry>
+          <entry colname="col4" morerows="0" rotate="0">
+            <al>nummer</al>
+          </entry>
+          <entry colname="col5" morerows="0" rotate="0">
+            <al>naam</al>
+          </entry>
+        </row>
+        <row>
+          <entry morerows="0" nameend="col5" namest="col1" rotate="0"/>
+        </row>
+        <row>
+          <entry colname="col1" morerows="0" rotate="0">
+            <al>1 - 1</al>
+          </entry>
+          <entry colname="col2" morerows="0" rotate="0">
+            <al>1</al>
+          </entry>
+          <entry colname="col3" morerows="0" rotate="0">
+            <al>N</al>
+          </entry>
+          <entry colname="col4" morerows="0" rotate="0">
+            <al>9.1</al>
+          </entry>
+          <entry colname="col5" morerows="0" rotate="0">
+            <al>Record-identificatierecord</al>
+          </entry>
+        </row>
+        <row>
+          <entry colname="col1" morerows="0" rotate="0">
+            <al>2 - 5</al>
+          </entry>
+          <entry colname="col2" morerows="0" rotate="0">
+            <al>4</al>
+          </entry>
+          <entry colname="col3" morerows="0" rotate="0">
+            <al>N</al>
+          </entry>
+          <entry colname="col4" morerows="0" rotate="0">
+            <al>8.1</al>
+          </entry>
+          <entry colname="col5" morerows="0" rotate="0">
+            <al>Gemeentecode</al>
+          </entry>
+        </row>
+        <row>
+          <entry colname="col1" morerows="0" rotate="0">
+            <al>6 - 45</al>
+          </entry>
+          <entry colname="col2" morerows="0" rotate="0">
+            <al>40</al>
+          </entry>
+          <entry colname="col3" morerows="0" rotate="0">
+            <al>A</al>
+          </entry>
+          <entry colname="col4" morerows="0" rotate="0">
+            <al>8.2</al>
+          </entry>
+          <entry colname="col5" morerows="0" rotate="0">
+            <al>Naam contactpersoon</al>
+          </entry>
+        </row>
+        <row>
+          <entry colname="col1" morerows="0" rotate="0">
+            <al>46 - 65</al>
+          </entry>
+          <entry colname="col2" morerows="0" rotate="0">
+            <al>20</al>
+          </entry>
+          <entry colname="col3" morerows="0" rotate="0">
+            <al>A</al>
+          </entry>
+          <entry colname="col4" morerows="0" rotate="0">
+            <al>8.3</al>
+          </entry>
+          <entry colname="col5" morerows="0" rotate="0">
+            <al>Telefoonnummer contactpersoon</al>
+          </entry>
+        </row>
+        <row>
+          <entry colname="col1" morerows="0" rotate="0">
+            <al>66 - 73</al>
+          </entry>
+          <entry colname="col2" morerows="0" rotate="0">
+            <al>8</al>
+          </entry>
+          <entry colname="col3" morerows="0" rotate="0">
+            <al>D</al>
+          </entry>
+          <entry colname="col4" morerows="0" rotate="0">
+            <al>8.4</al>
+          </entry>
+          <entry colname="col5" morerows="0" rotate="0">
+            <al>Aanmaakdatum</al>
+          </entry>
+        </row>
+        <row>
+          <entry colname="col1" morerows="0" rotate="0">
+            <al>74 - 77</al>
+          </entry>
+          <entry colname="col2" morerows="0" rotate="0">
+            <al>4</al>
+          </entry>
+          <entry colname="col3" morerows="0" rotate="0">
+            <al>N</al>
+          </entry>
+          <entry colname="col4" morerows="0" rotate="0">
+            <al>8.5</al>
+          </entry>
+          <entry colname="col5" morerows="0" rotate="0">
+            <al>Belastingjaar</al>
+          </entry>
+        </row>
+        <row>
+          <entry colname="col1" morerows="0" rotate="0">
+            <al>78 - 78</al>
+          </entry>
+          <entry colname="col2" morerows="0" rotate="0">
+            <al>1</al>
+          </entry>
+          <entry colname="col3" morerows="0" rotate="0">
+            <al>A</al>
+          </entry>
+          <entry colname="col4" morerows="0" rotate="0">
+            <al>8.6</al>
+          </entry>
+          <entry colname="col5" morerows="0" rotate="0">
+            <al>Status gegevens</al>
+          </entry>
+        </row>
+        <row>
+          <entry colname="col1" morerows="0" rotate="0">
+            <al>79 - 80</al>
+          </entry>
+          <entry colname="col2" morerows="0" rotate="0">
+            <al>2</al>
+          </entry>
+          <entry colname="col3" morerows="0" rotate="0">
+            <al>N</al>
+          </entry>
+          <entry colname="col4" morerows="0" rotate="0">
+            <al>8.7</al>
+          </entry>
+          <entry colname="col5" morerows="0" rotate="0">
+            <al>Volgnummer diskette</al>
+          </entry>
+        </row>
+      </tbody>
+    </tgroup>
+  </table>
+  <table frame="all">
+    <title>
+      <nadruk type="cur">Gegevensrecord</nadruk>
+    </title>
+    <tgroup align="left" char="" charoff="50" cols="6" colsep="0" rowsep="0">
+      <colspec colname="col1" colnum="1" colwidth="1.09*"/>
+      <colspec colname="col2" colnum="2" colwidth="1.09*"/>
+      <colspec colname="col3" colnum="3" colwidth="1.00*"/>
+      <colspec colname="col4" colnum="4" colwidth="1.21*"/>
+      <colspec colname="col5" colnum="5" colwidth="1.84*"/>
+      <colspec colname="col6" colnum="6" colwidth="1.66*"/>
+      <tbody valign="top">
+        <row>
+          <entry colname="col1" morerows="0" rotate="0">
+            <al>positie</al>
+          </entry>
+          <entry colname="col2" morerows="0" rotate="0">
+            <al>lengte</al>
+          </entry>
+          <entry colname="col3" morerows="0" rotate="0">
+            <al>type</al>
+          </entry>
+          <entry colname="col4" morerows="0" rotate="0">
+            <al>nummer</al>
+          </entry>
+          <entry colname="col5" morerows="0" rotate="0">
+            <al>naam</al>
+          </entry>
+          <entry colname="col6" morerows="0" rotate="0">
+            <al>Code Stuf-WOZ</al>
+          </entry>
+        </row>
+        <row>
+          <entry morerows="0" nameend="col5" namest="col1" rotate="0"/>
+          <entry colname="col6" morerows="0" rotate="0"/>
+        </row>
+        <row>
+          <entry colname="col1" morerows="0" rotate="0">
+            <al>1 - 1</al>
+          </entry>
+          <entry colname="col2" morerows="0" rotate="0">
+            <al>1</al>
+          </entry>
+          <entry colname="col3" morerows="0" rotate="0">
+            <al>N</al>
+          </entry>
+          <entry colname="col4" morerows="0" rotate="0">
+            <al>9.1</al>
+          </entry>
+          <entry colname="col5" morerows="0" rotate="0">
+            <al>Record-identificatierecord</al>
+          </entry>
+          <entry colname="col6" morerows="0" rotate="0">
+            <al>93.10</al>
+          </entry>
+        </row>
+        <row>
+          <entry colname="col1" morerows="0" rotate="0">
+            <al>2 -13</al>
+          </entry>
+          <entry colname="col2" morerows="0" rotate="0">
+            <al>12</al>
+          </entry>
+          <entry colname="col3" morerows="0" rotate="0">
+            <al>N</al>
+          </entry>
+          <entry colname="col4" morerows="0" rotate="0">
+            <al>1.1</al>
+          </entry>
+          <entry colname="col5" morerows="0" rotate="0">
+            <al>WOZ-objectnummer</al>
+          </entry>
+          <entry colname="col6" morerows="0" rotate="0">
+            <al>01.01</al>
+          </entry>
+        </row>
+        <row>
+          <entry colname="col1" morerows="0" rotate="0">
+            <al>14 - 18</al>
+          </entry>
+          <entry colname="col2" morerows="0" rotate="0">
+            <al>5</al>
+          </entry>
+          <entry colname="col3" morerows="0" rotate="0">
+            <al>N</al>
+          </entry>
+          <entry colname="col4" morerows="0" rotate="0">
+            <al>1.2</al>
+          </entry>
+          <entry colname="col5" morerows="0" rotate="0">
+            <al>Huisnummer</al>
+          </entry>
+          <entry colname="col6" morerows="0" rotate="0">
+            <al>11.20</al>
+          </entry>
+        </row>
+        <row>
+          <entry colname="col1" morerows="0" rotate="0">
+            <al>19 -19</al>
+          </entry>
+          <entry colname="col2" morerows="0" rotate="0">
+            <al>1</al>
+          </entry>
+          <entry colname="col3" morerows="0" rotate="0">
+            <al>A</al>
+          </entry>
+          <entry colname="col4" morerows="0" rotate="0">
+            <al>1.3</al>
+          </entry>
+          <entry colname="col5" morerows="0" rotate="0">
+            <al>Huisletter</al>
+          </entry>
+          <entry colname="col6" morerows="0" rotate="0">
+            <al>11.30</al>
+          </entry>
+        </row>
+        <row>
+          <entry colname="col1" morerows="0" rotate="0">
+            <al>20 - 23</al>
+          </entry>
+          <entry colname="col2" morerows="0" rotate="0">
+            <al>4</al>
+          </entry>
+          <entry colname="col3" morerows="0" rotate="0">
+            <al>A</al>
+          </entry>
+          <entry colname="col4" morerows="0" rotate="0">
+            <al>1.4</al>
+          </entry>
+          <entry colname="col5" morerows="0" rotate="0">
+            <al>Huisnummertoevoeging</al>
+          </entry>
+          <entry colname="col6" morerows="0" rotate="0">
+            <al>11.40</al>
+          </entry>
+        </row>
+        <row>
+          <entry colname="col1" morerows="0" rotate="0">
+            <al>24 - 25</al>
+          </entry>
+          <entry colname="col2" morerows="0" rotate="0">
+            <al>2</al>
+          </entry>
+          <entry colname="col3" morerows="0" rotate="0">
+            <al>A</al>
+          </entry>
+          <entry colname="col4" morerows="0" rotate="0">
+            <al>1.5</al>
+          </entry>
+          <entry colname="col5" morerows="0" rotate="0">
+            <al>Aanduiding bij huisnummer</al>
+          </entry>
+          <entry colname="col6" morerows="0" rotate="0">
+            <al>11.50</al>
+          </entry>
+        </row>
+        <row>
+          <entry colname="col1" morerows="0" rotate="0">
+            <al>26 -31</al>
+          </entry>
+          <entry colname="col2" morerows="0" rotate="0">
+            <al>6</al>
+          </entry>
+          <entry colname="col3" morerows="0" rotate="0">
+            <al>A</al>
+          </entry>
+          <entry colname="col4" morerows="0" rotate="0">
+            <al>1.6</al>
+          </entry>
+          <entry colname="col5" morerows="0" rotate="0">
+            <al>Postcode</al>
+          </entry>
+          <entry colname="col6" morerows="0" rotate="0">
+            <al>11.60</al>
+          </entry>
+        </row>
+        <row>
+          <entry colname="col1" morerows="0" rotate="0">
+            <al>32 - 42</al>
+          </entry>
+          <entry colname="col2" morerows="0" rotate="0">
+            <al>11</al>
+          </entry>
+          <entry colname="col3" morerows="0" rotate="0">
+            <al>N</al>
+          </entry>
+          <entry colname="col4" morerows="0" rotate="0">
+            <al>2.1</al>
+          </entry>
+          <entry colname="col5" morerows="0" rotate="0">
+            <al>Vastgestelde WOZ-waarde</al>
+          </entry>
+          <entry colname="col6" morerows="0" rotate="0">
+            <al>15.10</al>
+          </entry>
+        </row>
+        <row>
+          <entry colname="col1" morerows="0" rotate="0">
+            <al>43 - 43</al>
+          </entry>
+          <entry colname="col2" morerows="0" rotate="0">
+            <al>1</al>
+          </entry>
+          <entry colname="col3" morerows="0" rotate="0">
+            <al>N</al>
+          </entry>
+          <entry colname="col4" morerows="0" rotate="0">
+            <al>2.2</al>
+          </entry>
+          <entry colname="col5" morerows="0" rotate="0">
+            <al>OZB-vrijstelling</al>
+          </entry>
+          <entry colname="col6" morerows="0" rotate="0">
+            <al>-</al>
+          </entry>
+        </row>
+        <row>
+          <entry colname="col1" morerows="0" rotate="0">
+            <al>44 - 54</al>
+          </entry>
+          <entry colname="col2" morerows="0" rotate="0">
+            <al>11</al>
+          </entry>
+          <entry colname="col3" morerows="0" rotate="0">
+            <al>N</al>
+          </entry>
+          <entry colname="col4" morerows="0" rotate="0">
+            <al>2.3</al>
+          </entry>
+          <entry colname="col5" morerows="0" rotate="0">
+            <al>OZB-waarde</al>
+          </entry>
+          <entry colname="col6" morerows="0" rotate="0">
+            <al>-</al>
+          </entry>
+        </row>
+        <row>
+          <entry colname="col1" morerows="0" rotate="0">
+            <al>55 - 56</al>
+          </entry>
+          <entry colname="col2" morerows="0" rotate="0">
+            <al>2</al>
+          </entry>
+          <entry colname="col3" morerows="0" rotate="0">
+            <al>N</al>
+          </entry>
+          <entry colname="col4" morerows="0" rotate="0">
+            <al>2.4</al>
+          </entry>
+          <entry colname="col5" morerows="0" rotate="0">
+            <al>Gebruikscode</al>
+          </entry>
+          <entry colname="col6" morerows="0" rotate="0">
+            <al>12.20</al>
+          </entry>
+        </row>
+        <row>
+          <entry colname="col1" morerows="0" rotate="0">
+            <al>57 -64</al>
+          </entry>
+          <entry colname="col2" morerows="0" rotate="0">
+            <al>8</al>
+          </entry>
+          <entry colname="col3" morerows="0" rotate="0">
+            <al>D</al>
+          </entry>
+          <entry colname="col4" morerows="0" rotate="0">
+            <al>2.5</al>
+          </entry>
+          <entry colname="col5" morerows="0" rotate="0">
+            <al>Waardepeildatum</al>
+          </entry>
+          <entry colname="col6" morerows="0" rotate="0">
+            <al>15.20</al>
+          </entry>
+        </row>
+        <row>
+          <entry colname="col1" morerows="0" rotate="0">
+            <al>65 - 67</al>
+          </entry>
+          <entry colname="col2" morerows="0" rotate="0">
+            <al>3</al>
+          </entry>
+          <entry colname="col3" morerows="0" rotate="0">
+            <al>A</al>
+          </entry>
+          <entry colname="col4" morerows="0" rotate="0">
+            <al>2.6</al>
+          </entry>
+          <entry colname="col5" morerows="0" rotate="0">
+            <al>Aanduiding valutasoort</al>
+          </entry>
+          <entry colname="col6" morerows="0" rotate="0">
+            <al>15.40</al>
+          </entry>
+        </row>
+        <row>
+          <entry colname="col1" morerows="0" rotate="0">
+            <al>68 - 69</al>
+          </entry>
+          <entry colname="col2" morerows="0" rotate="0">
+            <al>2</al>
+          </entry>
+          <entry colname="col3" morerows="0" rotate="0">
+            <al>N</al>
+          </entry>
+          <entry colname="col4" morerows="0" rotate="0">
+            <al>2.7</al>
+          </entry>
+          <entry colname="col5" morerows="0" rotate="0">
+            <al>Code blokkeren</al>
+          </entry>
+          <entry colname="col6" morerows="0" rotate="0">
+            <al>15.50</al>
+          </entry>
+        </row>
+        <row>
+          <entry colname="col1" morerows="0" rotate="0">
+            <al>70 -80</al>
+          </entry>
+          <entry colname="col2" morerows="0" rotate="0">
+            <al>11</al>
+          </entry>
+          <entry colname="col3" morerows="0" rotate="0">
+            <al>A</al>
+          </entry>
+          <entry colname="col4" morerows="0" rotate="0">
+            <al>-</al>
+          </entry>
+          <entry colname="col5" morerows="0" rotate="0">
+            <al>Filler</al>
+          </entry>
+          <entry colname="col6" morerows="0" rotate="0">
+            <al>-</al>
+          </entry>
+        </row>
+      </tbody>
+    </tgroup>
+  </table>
+  <table frame="all">
+    <title>
+      <nadruk type="cur">Sluitrecord</nadruk>
+    </title>
+    <tgroup align="left" char="" charoff="50" cols="5" colsep="0" rowsep="0">
+      <colspec colname="col1" colnum="1" colwidth="1.14*"/>
+      <colspec colname="col2" colnum="2" colwidth="1.14*"/>
+      <colspec colname="col3" colnum="3" colwidth="1.14*"/>
+      <colspec colname="col4" colnum="4" colwidth="1.00*"/>
+      <colspec colname="col5" colnum="5" colwidth="1.28*"/>
+      <tbody valign="top">
+        <row>
+          <entry colname="col1" morerows="0" rotate="0">
+            <al>positie</al>
+          </entry>
+          <entry colname="col2" morerows="0" rotate="0">
+            <al>lengte</al>
+          </entry>
+          <entry colname="col3" morerows="0" rotate="0">
+            <al>type</al>
+          </entry>
+          <entry colname="col4" morerows="0" rotate="0">
+            <al>nummer</al>
+          </entry>
+          <entry colname="col5" morerows="0" rotate="0">
+            <al>naam</al>
+          </entry>
+        </row>
+        <row>
+          <entry morerows="0" nameend="col5" namest="col1" rotate="0"/>
+        </row>
+        <row>
+          <entry colname="col1" morerows="0" rotate="0">
+            <al>1 - 1</al>
+          </entry>
+          <entry colname="col2" morerows="0" rotate="0">
+            <al>1</al>
+          </entry>
+          <entry colname="col3" morerows="0" rotate="0">
+            <al>N</al>
+          </entry>
+          <entry colname="col4" morerows="0" rotate="0">
+            <al>9.1</al>
+          </entry>
+          <entry colname="col5" morerows="0" rotate="0">
+            <al>Record-identificatiecode</al>
+          </entry>
+        </row>
+        <row>
+          <entry colname="col1" morerows="0" rotate="0">
+            <al>2 - 10</al>
+          </entry>
+          <entry colname="col2" morerows="0" rotate="0">
+            <al>9</al>
+          </entry>
+          <entry colname="col3" morerows="0" rotate="0">
+            <al>N</al>
+          </entry>
+          <entry colname="col4" morerows="0" rotate="0">
+            <al>-</al>
+          </entry>
+          <entry colname="col5" morerows="0" rotate="0">
+            <al>Totaal aantal gegevensrecords</al>
+          </entry>
+        </row>
+        <row>
+          <entry colname="col1" morerows="0" rotate="0">
+            <al>11 - 25</al>
+          </entry>
+          <entry colname="col2" morerows="0" rotate="0">
+            <al>15</al>
+          </entry>
+          <entry colname="col3" morerows="0" rotate="0">
+            <al>N</al>
+          </entry>
+          <entry colname="col4" morerows="0" rotate="0">
+            <al>-</al>
+          </entry>
+          <entry colname="col5" morerows="0" rotate="0">
+            <al>Totaaltelling 2.1 (WOZ-waarde)</al>
+          </entry>
+        </row>
+        <row>
+          <entry colname="col1" morerows="0" rotate="0">
+            <al>26 - 40</al>
+          </entry>
+          <entry colname="col2" morerows="0" rotate="0">
+            <al>15</al>
+          </entry>
+          <entry colname="col3" morerows="0" rotate="0">
+            <al>N</al>
+          </entry>
+          <entry colname="col4" morerows="0" rotate="0">
+            <al>-</al>
+          </entry>
+          <entry colname="col5" morerows="0" rotate="0">
+            <al>Totaaltelling 2.3 (OZB-waarde</al>
+          </entry>
+        </row>
+        <row>
+          <entry colname="col1" morerows="0" rotate="0">
+            <al>41 - 80</al>
+          </entry>
+          <entry colname="col2" morerows="0" rotate="0">
+            <al>40</al>
+          </entry>
+          <entry colname="col3" morerows="0" rotate="0">
+            <al>A</al>
+          </entry>
+          <entry colname="col4" morerows="0" rotate="0">
+            <al>-</al>
+          </entry>
+          <entry colname="col5" morerows="0" rotate="0">
+            <al>Filler</al>
+          </entry>
+        </row>
+      </tbody>
+    </tgroup>
+  </table>
+  <tussenkop kopopmaak="cur">C Geleideformulier</tussenkop>
+  <table frame="none">
+    <tgroup align="left" char="" charoff="50" cols="3" colsep="0" rowsep="0">
+      <colspec colname="col1" colnum="1" colwidth="1.00*"/>
+      <colspec colname="col2" colnum="2" colwidth="1.04*"/>
+      <colspec colname="col3" colnum="3" colwidth="1.44*"/>
+      <tbody valign="top">
+        <row rowsep="1">
+          <entry colname="col1" morerows="0" rotate="0" rowsep="1"/>
+          <entry morerows="0" nameend="col3" namest="col2" rotate="0">
+            <al>OPGAVE BELASTINGCAPACITEIT</al>
+          </entry>
+        </row>
+        <row>
+          <entry morerows="0" nameend="col3" namest="col1" rotate="0">
+            <al>Tezamen met leveringsbestand op diskette(s) zenden aan:</al>
+          </entry>
+        </row>
+        <row rowsep="1">
+          <entry morerows="0" nameend="col3" namest="col1" rotate="0" rowsep="1">
+            <al>CBS, sector HFO, kamer 666</al>
+            <al>Antwoordnummer 10700</al>
+            <al>2270 WE Voorburg</al>
+          </entry>
+        </row>
+        <row>
+          <entry colname="col1" morerows="0" rotate="0">
+            <al>Inzender</al>
+          </entry>
+          <entry morerows="0" nameend="col3" namest="col2" rotate="0">
+            <al>...................................</al>
+          </entry>
+        </row>
+        <row>
+          <entry colname="col1" morerows="0" rotate="0">
+            <al>Gemeente:</al>
+          </entry>
+          <entry morerows="0" nameend="col3" namest="col2" rotate="0">
+            <al>...................................</al>
+          </entry>
+        </row>
+        <row valign="bottom">
+          <entry colname="col1" morerows="0" rotate="0" valign="bottom">
+            <al>Adres:</al>
+            <al>Postcode/plaats:</al>
+          </entry>
+          <entry morerows="0" nameend="col3" namest="col2" rotate="0" valign="bottom">
+            <al>...... .... .......................</al>
+          </entry>
+        </row>
+        <row>
+          <entry colname="col1" morerows="0" rotate="0">
+            <al>Naam contactpersoon:</al>
+          </entry>
+          <entry morerows="0" nameend="col3" namest="col2" rotate="0">
+            <al>...................................</al>
+          </entry>
+        </row>
+        <row>
+          <entry colname="col1" morerows="0" rotate="0">
+            <al>Telefoon contactpersoon:</al>
+          </entry>
+          <entry colname="col2" morerows="0" rotate="0">
+            <al>(o...) ...........................</al>
+          </entry>
+          <entry colname="col3" morerows="0" rotate="0">
+            <al>Fax contactpersoon: (0...) ..................</al>
+          </entry>
+        </row>
+        <row rowsep="1">
+          <entry colname="col1" morerows="0" rotate="0" rowsep="1">
+            <al>Verzenddatum:</al>
+          </entry>
+          <entry colname="col2" morerows="0" rotate="0">
+            <al>... / ... / .......................</al>
+          </entry>
+          <entry colname="col3" morerows="0" rotate="0"/>
+        </row>
+        <row>
+          <entry morerows="0" nameend="col3" namest="col1" rotate="0">
+            <al>Leveringsbestand (levering conform Stuf-CAP)</al>
+          </entry>
+        </row>
+        <row>
+          <entry colname="col1" morerows="0" rotate="0">
+            <al>Aanmaakdatum:</al>
+          </entry>
+          <entry colname="col2" morerows="0" rotate="0">
+            <al>...................................</al>
+          </entry>
+          <entry colname="col3" morerows="0" rotate="0"/>
+        </row>
+        <row>
+          <entry colname="col1" morerows="0" rotate="0">
+            <al>Aantal diskettes:</al>
+          </entry>
+          <entry colname="col2" morerows="0" rotate="0">
+            <al>...</al>
+          </entry>
+          <entry colname="col3" morerows="0" rotate="0"/>
+        </row>
+        <row rowsep="1">
+          <entry morerows="0" nameend="col3" namest="col1" rotate="0" rowsep="1">
+            <al>Totaal aantal gegevensrecords (= aantal onroerende zaken):</al>
+          </entry>
+        </row>
+        <row>
+          <entry morerows="0" nameend="col3" namest="col1" rotate="0">
+            <al>Toepassing "tegenbewijsregeling" (alleen wetsfictiegemeenten) <noot id="n2e4348934_4348934" type="voet"><noot.nr>1</noot.nr><noot.al>Dit deel van het formulier hoeft alleen te worden ingevulf door gemeenten met een waardepeildatum vóór 1995 (wetsfictiegemeenten). Op grond van artikel 41, zesde lid, van de Wet WOZ moet een wetsfictie-gemeente voor een individuele onroerende zaak de waardepeildatum 1 januari 1995 hanteren indien deze lager is dan de waarde naar de oorspronkelijke waardepeildatum (tegenbewijsregeling). Opgegeven moet worden voor hoeveel objecten in dit leveringsbestand de waarde is vastgelegd naar de waardepeildatum1 januari 1995 en wat gesommeerd de volgens de geldende WOZ-beschikking vastgestelde waarde van deze objecten is (naar de datumpeildatum 1 januari 1995). Tevens wordt gevraagd aan te geven voor welke categorieën onroerende zaken de "tegenbewijsregeling" vooral is toegepast. De categorieën kunnen algemeen omschreven worden, bijvoorbeeld: tuinbouwkassen, kantoren of industriële installaties.</noot.al></noot></al>
+          </entry>
+        </row>
+        <row>
+          <entry colname="col1" morerows="0" rotate="0">
+            <al>Waardepeildatum:</al>
+          </entry>
+          <entry colname="col2" morerows="0" rotate="0">
+            <al>1992 / 1993 / 1994</al>
+          </entry>
+          <entry colname="col3" morerows="0" rotate="0"/>
+        </row>
+        <row>
+          <entry morerows="0" nameend="col3" namest="col1" rotate="0">
+            <al>Aantal objecten met peildatum 1995: ......................</al>
+          </entry>
+        </row>
+        <row rowsep="1">
+          <entry morerows="0" nameend="col3" namest="col1" rotate="0" rowsep="1">
+            <al>Tegenbewijsregeling vooral toegepast bij: .............................</al>
+          </entry>
+        </row>
+        <row>
+          <entry morerows="0" nameend="col3" namest="col1" rotate="0">
+            <al>Ondertekening door of namens gemeentebestuur</al>
+          </entry>
+        </row>
+        <row>
+          <entry colname="col1" morerows="0" rotate="0">
+            <al>Naam en functie</al>
+          </entry>
+          <entry colname="col2" morerows="0" rotate="0">
+            <al>............................</al>
+          </entry>
+          <entry colname="col3" morerows="0" rotate="0">
+            <al>................................</al>
+          </entry>
+        </row>
+        <row>
+          <entry colname="col1" morerows="0" rotate="0">
+            <al>Handtekening</al>
+          </entry>
+          <entry colname="col2" morerows="0" rotate="0">
+            <al>............................</al>
+          </entry>
+          <entry colname="col3" morerows="0" rotate="0">
+            <al>................................</al>
+          </entry>
+        </row>
+      </tbody>
+    </tgroup>
+  </table>
+<meta-data><brondata><oorspronkelijk><publicatie effect="wijziging" soort="Supplement-Stcrt" urlidentifier=""><publicatiejaar>2001</publicatiejaar><publicatienr>214</publicatienr><uitgiftedatum isodatum="2001-11-05">05-11-2001</uitgiftedatum><ondertekeningsdatum isodatum="2001-10-05">05-10-2001</ondertekeningsdatum><kenmerk>CW01/89527</kenmerk></publicatie></oorspronkelijk><inwerkingtreding><publicatie effect="wijziging" soort="Supplement-Stcrt" urlidentifier=""><publicatiejaar>2001</publicatiejaar><publicatienr>214</publicatienr><uitgiftedatum isodatum="2001-11-05">05-11-2001</uitgiftedatum><ondertekeningsdatum isodatum="2001-10-05">05-10-2001</ondertekeningsdatum><kenmerk>CW01/89527</kenmerk></publicatie><inwerkingtreding.datum isodatum="2002-01-01">01-01-2002</inwerkingtreding.datum></inwerkingtreding></brondata><jcis><jci versie="1.0" verwijzing="1.0:c:BWBR0008326&amp;bijlage=2&amp;g=2011-01-01" onderdeel="bijlage=2" korte-verwijzing="1.0:c:BWBR0008326&amp;bijlage=2"/><jci versie="1.3" verwijzing="jci1.3:c:BWBR0008326&amp;bijlage=2&amp;z=2006-04-14&amp;g=2011-01-01" onderdeel="bijlage=2" korte-verwijzing="jci1.3:c:BWBR0008326&amp;bijlage=2"/></jcis></meta-data></bijlage>
+  </regeling>
+<meta-data><brondata><oorspronkelijk><publicatie effect="nieuwe-regeling" soort="Stcrt" urlidentifier=""><publicatiejaar>1996</publicatiejaar><publicatienr>239</publicatienr><uitgiftedatum isodatum="1996-12-10">10-12-1996</uitgiftedatum><ondertekeningsdatum isodatum="1996-11-14">14-11-1996</ondertekeningsdatum><kenmerk>VFO93/4/U354</kenmerk></publicatie></oorspronkelijk><inwerkingtreding><publicatie effect="nieuwe-regeling" soort="Stcrt" urlidentifier=""><publicatiejaar>1996</publicatiejaar><publicatienr>239</publicatienr><uitgiftedatum isodatum="1996-12-10">10-12-1996</uitgiftedatum><ondertekeningsdatum isodatum="1996-11-14">14-11-1996</ondertekeningsdatum><kenmerk>VFO93/4/U354</kenmerk></publicatie><inwerkingtreding.datum isodatum="1997-01-01">01-01-1997</inwerkingtreding.datum></inwerkingtreding></brondata><jcis><jci versie="1.0" verwijzing="1.0:c:BWBR0008326&amp;g=2011-01-01" onderdeel="wetgeving" korte-verwijzing="1.0:c:BWBR0008326"/><jci versie="1.3" verwijzing="jci1.3:c:BWBR0008326&amp;z=2006-04-14&amp;g=2011-01-01" onderdeel="wetgeving" korte-verwijzing="jci1.3:c:BWBR0008326"/></jcis></meta-data></wetgeving></toestand>
