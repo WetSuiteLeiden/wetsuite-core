@@ -609,6 +609,9 @@ def html_text(etree, join=True):
         'link':      ( True,  None, ' ',    False ),
 
         'img':       ( False, None, None,   True  ),
+        'caption':   ( True,  None, '\n',   False ), 
+
+        'object':    ( False, None, ' ',    True  ), 
 
         'abbr':      ( True,  None, None,   False ),
         'main':      ( True,  '\n', '\n',   False ),
@@ -634,6 +637,8 @@ def html_text(etree, join=True):
         'tbody':     ( True,  None, None,   False ),
         'thead':     ( True,  None, None,   False ),
         'tfoot':     ( True,  None, None,   False ),
+        'colgroup':  ( False, None, ' ',    False ), # not sure yet
+        'col':       ( False, None, ' ',    False ), # not sure yet
         'tr':        ( True,  None, '\n',   False ),
         'td':        ( True,  None, ' ',    False ),
         'th':        ( True,  None, ' ',    False ),
@@ -690,7 +695,7 @@ def html_text(etree, join=True):
                     #print("adding %r"%(tagtext))
                     collect.append( tagtext )
         else:
-            print('TODO: add %r'%tagname)
+            print('TODO: handle %r in html_text()'%tagname)
 
     def add_ws_before(tag):
         if tag.tag in todo:
