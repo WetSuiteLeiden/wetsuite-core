@@ -6,10 +6,9 @@ As this is often structured data, each dataset may work a little differently,
 so there is an describe() to get you started, that each dataset should fill out.
 
 TODO: 
-  - think more about the robustness around re-fetching indices.
+  - If we want updateable datasets (right now there is no plan for that), 
+    think more about the robustness around re-fetching indices.
     Decide it's cheap enough to fetch each time? (but fall back onto stored?)
-  - decide how to store and access. For very large datasets we may want something like HDF5 
-    because right now we don't have a choice but to have all the dataset in RAM
 """
 
 import sys
