@@ -439,7 +439,7 @@ class LocalKV:
         return self
 
     def __exit__(self, exc_type, exc_value, exc_traceback):
-        "supports use as a context manager - close() on exit"
+        "supports use as a context manager - close()s on exit"
         self.close()
 
     ### Convenience functions, not core functionality
@@ -539,7 +539,7 @@ class LocalKV:
     def vacuum(self):
         """After a lot of deletes you could compact the store with vacuum().
         WARNING: rewrites the entire file, so the more data you store, the longer this takes.
-        NOTE: f we were left in a transaction (due to commit=False), ths is commit()ed first.
+        NOTE: if we were left in a transaction (due to commit=False), ths is commit()ed first.
         """
         if self._in_transaction:
             self.commit()  # CONSIDER: think about the most sensible behaviour - maybe raising an error instead?
@@ -552,9 +552,7 @@ class LocalKV:
         curs = self.conn.cursor()  # TODO: check that's correct when commit==False
         if self._in_transaction:
             self.rollback()
-        curs.execute(
-            "DELETE FROM kv"
-        )  # https://www.techonthenet.com/sqlite/truncate.php
+        curs.execute( "DELETE FROM kv" )  # https://www.techonthenet.com/sqlite/truncate.php
         self.commit()
         if vacuum:
             self.vacuum()
@@ -562,9 +560,8 @@ class LocalKV:
     def random_choice(self):
         """Returns a single (key, value) item from the store, selected randomly.
 
-        Convenience function, because doing this properly yourself takes two or three lines
-        (you can't random.choice/random.sample a view,
-        so to do it properly you basically have to materialize all keys - and not accidentally all values)
+        A convenience function, because doing this properly yourself takes two or three lines
+        (you can't random.choice/random.sample a view, so to do it properly you basically have to materialize all keys - and not accidentally all values)
         BUT assume this is slower than working on the keys yourself.
         """
         all_keys = list(self.keys())
@@ -574,6 +571,9 @@ class LocalKV:
     def random_sample(self, n):
         """Returns an amount of [(key, value), ...] list from the store, selected randomly.
 
+        WARNING: this materializes the values, so this can be very large in RAM. 
+        To avoid that, use random_keys and get() one key at a time.
+        
         Note that when you ask for a larger sample than the entire population, you get the entire population
         (and unlike random.sample, we don't raise a ValueError to point out this is no longer really random)
 
@@ -585,7 +585,7 @@ class LocalKV:
             - assume this is is unnecessarily RAM intensive / extra work when you want a _lot_ of items anyway.
         """
         all_keys = list(self.keys())
-        n = min(n, len(all_keys)) 
+        n = min(n, len(all_keys))
         #if amount > len(all_keys): # doing this would be consistent with random.sample?
         #    raise ValueError(f"Sample larger than population (you asked for {amount}, we have {len(all_keys)})")
         chosen_keys = random.sample(all_keys, n)
@@ -594,6 +594,9 @@ class LocalKV:
     def random_keys(self, n=10):
         """Returns a amount of keys in a list, selected randomly.
         Can be faster/cheaper to do than random_sample When the values are large
+
+        On very large stores (tens of millions of items and/or hundred of gbytes)
+        this still ends up being dozens of seconds, because we still skip through a bunch of that data.
         """
         all_keys = list(self.keys())
         chosen_keys = random.sample(all_keys, min(n, len(all_keys)))
@@ -601,11 +604,12 @@ class LocalKV:
 
     def random_values(self, n=10):
         """Returns a amount of values in a list, selected randomly.
-        Be aware that for large samples, you can probably keep memory use down a bunch by 
-        by getting random_keys(), then fetching the value one by one.
+
+        WARNING: this materializes the values, so this can be very large in RAM. 
+        To avoid that, use random_keys and get() one key at a time.
         """
         ret = []
-        for key, value in self.random_sample(n=n):
+        for _key, value in self.random_sample(n=n):
             # could yield? but no real point.
             ret.append(value)
         return ret
@@ -628,9 +632,7 @@ class MsgpackKV(LocalKV):
 
     def __init__(self, path, key_type=str, value_type=None, read_only=False):
         """value_type is ignored; I need to restructure this"""
-        super().__init__(
-            path, key_type=key_type, value_type=value_type, read_only=read_only
-        )
+        super().__init__( path, key_type=key_type, value_type=value_type, read_only=read_only )
 
         # this is meant to be able to detect/signal incorrect interpretation, not fully used yet
         if self._get_meta("valtype", missing_as_none=True) is None:
