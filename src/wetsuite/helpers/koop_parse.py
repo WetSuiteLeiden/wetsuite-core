@@ -148,7 +148,7 @@ def cvdr_parse_identifier(text: str, prepend_cvdr: bool = False):
     """Given a CVDR style identifier string (sometimes called JCDR),
     gives a more normalized version, e.g. useful for indexing.
 
-    For example:
+    For example::
         cvdr_parse_identifier('101404_1')     ==  ('101404', '101404_1')
         cvdr_parse_identifier('CVDR101405_1') ==  ('101405', '101405_1')
         cvdr_parse_identifier('CVDR101406')   ==  ('101406',  None     )
