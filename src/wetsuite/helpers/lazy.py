@@ -28,9 +28,8 @@ def pdf_text_ocr(pdfbytes):
     """Given PDF as a bytestring, OCRs it and report the text in that.
     Expect this to not be the cleanest.
     @param pdfbytes: PDF document, as bytes object
-    @return: a 2-tuple:
-      - a list of the results that easyocr_text outputs
-      - a list of "all text on a page" string.    
+    @return: one string  (pages only introduce a double newline, which you can't really fish out later - 
+    if you want more control, you probably wwant to look at the underlying module)
     """
     _, pages_text = wetsuite.extras.ocr.ocr_pdf_pages(
         pdfbytes,
@@ -56,10 +55,10 @@ def etree(xmlbytes, strip_namespace=True):
 #    'xml'
 
 
-def known_doc_split(cbytes):
-    """ Given a 
-    """
-    wetsuite.helpers.split
+# def known_doc_split(cbytes):
+#     """
+#     """
+#     wetsuite.helpers.split
 
 
 def html_text(htmlbytes):
@@ -68,32 +67,31 @@ def html_text(htmlbytes):
 
     (note: this is also roughly the implementation of wetsuite.helpers.split.Fragments_HTML_Fallback)
     """
-    etree = wetsuite.helpers.etree.parse_html(htmlbytes)
-    return wetsuite.helpers.etree.html_text(etree, join=True)
+    tree = wetsuite.helpers.etree.parse_html(htmlbytes)
+    return wetsuite.helpers.etree.html_text(tree, join=True)
 
 
-def xml_html_text(docbytes):
-    """Given XML or HTML, try to give us the interesting text.
-    Tries to guess whether it is XML or HTML.
-
-    Note that HTML gives _some_ indication of what is main text
-    via how we typically use element names.
-
-    In XML we probably end up giving a lot more crud. 
-
-    @param docbytes: HTML or XML document, as bytes object
-    """
-    if "<?xml" in docbytes[:100]:
-        return xml_text(docbytes)
-    else:
-        return html_text(docbytes)
+#def xml_text(xmlbytes):
+#    """
+#    """
 
 
+# def xml_html_text(docbytes):
+#     """Given XML or HTML, try to give us the interesting text.
+#     Tries to guess whether it is XML or HTML.
+#
+#     Note that HTML gives _some_ indication of what is main text
+#     via how we typically use element names.
+#
+#     In XML we probably end up giving a lot more crud. 
+#
+#     @param docbytes: HTML or XML document, as bytes object
+#     """
+#     if "<?xml" in docbytes[:100]:
+#         return xml_text(docbytes)
+#     else:
+#         return html_text(docbytes)
 
-def xml_text(xmlbytes):
-    """ 
-    
-    """
 
 
 
@@ -104,11 +102,13 @@ def spacy_parse(string, force_model=None, force_language=None, detection_fallbac
     Takes text and returns a spacy document for it.
 
     By default, it 
-      - estimates the language (based on a specific language detectin model)
+      - estimates the language (based on a specific language detection model)
       - picks an already-installed model of that determined language
     
     In general you might care for the reproducability of explicitly loading a model yourself, 
     but this can be handy in experiments, to parse some fragments of text with less typing.
+
+    Note also that this would fail if it detects a language you do not have an installed model for; use force_language if you want to avoid that.
     
     @param string: string to parse
     @param force_model: if None, detect model; if not None, load this one
