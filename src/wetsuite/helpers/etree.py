@@ -119,7 +119,9 @@ SOME_NS_PREFIXES = {  # CONSIDER: renaming to something like _some_ns_prefixes_p
 }
 """ some readable XML prefixes, for friendlier display.  
     This is ONLY for consistent pretty-printing in debug,
-    and WILL NOT BE CORRECT according to the document definition. """
+    and WILL NOT BE CORRECT according to the document definition. 
+    (It is not used by the rest of this code, just one of our CLI utilities).
+"""
 # It might be useful to find namespaces from many XML files, with something like:
 #   locate .xml | tr '\n' '\0' | xargs -0 grep -oh 'xmlns:[^ >]*'
 # with an eventual
@@ -549,10 +551,11 @@ def all_text_fragments(
 
 
 def parse_html(htmlbytes:bytes):
-    """ Parses HTML into an etree.
-    
-        Differs from etree.fromstring only in that we use a parser more aware of HTML
-        and deals with minor incorrectness.
+    """ Parses HTML into an etree
+
+        Differs from etree.fromstring 
+        - in that we use a parser more aware of HTML and deals with minor incorrectness
+        - and creates lxml.html-based objects which have more functions.
         
         If you are doing this, consider also 
           - beautifulsoup as slightly more HTML-aware parse, and an alternative API you might prefer to etree's
@@ -567,21 +570,24 @@ def parse_html(htmlbytes:bytes):
     return lxml.etree.fromstring(htmlbytes, parser=parser) # pylint: disable=c-extension-no-member
 
 
-def html_text(etree, join=True):
+def html_text(etree, join=True, bodynodename='body'):
     ''' 
     Take an etree presumed to contain elements with HTML names,
     try to produce a plain test string,
-    with awarenesss of which which HTML elements should be considered to split words,
+    ...specifically with awarenesss of which which HTML elements should be considered to split words,
     and split paragraphs - it will selectively insert spaces and newlines.
 
     Various steps of this are... more creative than some might like.
-    If you want less creativity, look at C{all_text_fragments} here, 
-    or using etree's C{itertext} yourself.
+    If you want less creativity, look at C{all_text_fragments}, or using etree's C{itertext} yourself.
 
-    Inspiration was taken from the html-text module. 
+    Inspiration was taken from the html-text module.
     While we're being creative, we might consider also takes inspiration from jusText,
     to remove boilerplate content based on a few - though unless that becomes part of the node handling
     that would be better to separate.
+
+    You _can_ hand this 
+    * etree XML that isn't HTML - but there is little point as most node names will not be known.
+    * a bytes or str object - will be assumed to be HTML that isn't parsed yet. (bytes suggests you know how to store data, str that you might be fiddly with encodings)
 
     @param etree: the tree to take from.
     
@@ -589,89 +595,156 @@ def html_text(etree, join=True):
     If False, returns the fragments it collected and added.   Due to the insertion and handing of whitespace, this bears only limited relation to the parts.
     '''
     todo = {#  usecontents prepend append removesubtree
-        'html':      ( False, None, None,   False ),
-        'body':      ( True,  None, None,   False ),
+        ## HTML
+        'html':                   ( False, None, None,   False ),
+        'body':                   ( True,  None, None,   False ),
 
-        'script':    ( False, None, None,   True  ),
-        'noscript':  ( False, None, None,   True  ), # arguable?
-        'style':     ( False, None, None,   True  ),
-        'svg':       ( False, None, None,   True  ),
-        'iframe':    ( False, None, None,   True  ), # probably doesn't contain anything anyway
+        'script':                 ( False, None, None,   True  ),
+        'noscript':               ( False, None, None,   True  ), # arguable?
+        'style':                  ( False, None, None,   True  ),
+        'svg':                    ( False, None, None,   True  ),
+        'iframe':                 ( False, None, None,   True  ), # probably doesn't contain anything anyway
 
-        'form':      ( False, None, None,   False ),
-        'input':     ( False, None, None,   False ),
-        'textarea':  ( True,  None, '\n\n', False ),
-        'select':    ( False, None, None,   False ),
-        'option':    ( False, None, None,   False ),
-        'label':     ( False, None, None,   False ),
-        'button':    ( False, None, None,   False ),
+        'form':                   ( False, None, None,   False ),
+        'input':                  ( False, None, None,   False ),
+        'textarea':               ( True,  None, '\n\n', False ),
+        'select':                 ( False, None, None,   False ),
+        'option':                 ( False, None, None,   False ),
+        'label':                  ( False, None, None,   False ),
+        'button':                 ( False, None, None,   False ),
 
-        'link':      ( True,  None, ' ',    False ),
+        'link':                   ( True,  None, ' ',    False ),
 
-        'img':       ( False, None, None,   True  ),
-        'caption':   ( True,  None, '\n',   False ), 
+        'img':                    ( False, None, None,   True  ),
+        'caption':                ( True,  None, '\n',   False ), 
 
-        'object':    ( False, None, ' ',    True  ), 
+        'object':                 ( False, None, ' ',    True  ), 
 
-        'abbr':      ( True,  None, None,   False ),
-        'main':      ( True,  '\n', '\n',   False ),
-        'article':   ( True,  '\n', '\n',   False ), 
-        'nav':       ( False, '\n', '\n',   True  ), 
-        'aside':     ( True,  None, '\n',   False ), 
-        'section':   ( True,  None, '\n',   False ), 
-        'time':      ( True,  None, None,   False ), 
+        'abbr':                   ( True,  None, None,   False ),
+        'main':                   ( True,  '\n', '\n',   False ),
+        'article':                ( True,  '\n', '\n',   False ), 
+        'nav':                    ( False, '\n', '\n',   True  ), 
+        'aside':                  ( True,  None, '\n',   False ), 
+        'section':                ( True,  None, '\n',   False ), 
+        'time':                   ( True,  None, None,   False ), 
 
-        'details':   ( True,  None, '\n',   False ), 
-        'footer':    ( True,  None, '\n',   True  ), # arguable on the remove 
-        'header':    ( True,  None, '\n',   True  ), 
-        'br':        ( True,  None, '\n',   False ), 
-        'nobr':      ( True,  None, None,   False ), 
-        'dd':        ( True,  None, '\n',   False ), 
-        'dt':        ( True,  None, '\n',   False ), 
-        'fieldset':  ( True,  None, '\n',   False ),
-        'figcaption':( True,  None, '\n',   False ), 
-        'hr':        ( True,  None, '\n',   False ), 
-        'legend':    ( True,  None, '\n',   False ), 
-        'li':        ( True,  None, '\n',   False ), 
-        'table':     ( True,  '\n', '\n',   False ),
-        'tbody':     ( True,  None, None,   False ),
-        'thead':     ( True,  None, None,   False ),
-        'tfoot':     ( True,  None, None,   False ),
-        'colgroup':  ( False, None, ' ',    False ), # not sure yet
-        'col':       ( False, None, ' ',    False ), # not sure yet
-        'tr':        ( True,  None, '\n',   False ),
-        'td':        ( True,  None, ' ',    False ),
-        'th':        ( True,  None, ' ',    False ),
-        'p':         ( True,  None, '\n\n', False ),
-        'div':       ( True,  None, '\n',   False ),
-        'span':      ( True,  None, None,   False ),
-        'blockquote':( True,  None, '\n\n', False ),
-        'figure':    ( True,  None, '\n\n', False ),
-        'title':     ( True,  None, '\n\n', False ),
-        'h1':        ( True,  None, '\n\n', False ),
-        'h2':        ( True,  None, '\n\n', False ),
-        'h3':        ( True,  None, '\n\n', False ),
-        'h4':        ( True,  None, '\n\n', False ),
-        'h5':        ( True,  None, '\n\n', False ),
-        'h6':        ( True,  None, '\n\n', False ),
-        'dl':        ( True,  None, '\n\n', False ),
-        'ol':        ( True,  '\n', '\n',   False ),
-        'ul':        ( True,  '\n', '\n',   False ),
-        'pre':       ( True,  None, '\n\n', False ),
+        'details':                ( True,  None, '\n',   False ), 
+        'footer':                 ( True,  None, '\n',   True  ), # arguable on the remove 
+        'header':                 ( True,  None, '\n',   True  ), 
+        'br':                     ( True,  None, '\n',   False ), 
+        'nobr':                   ( True,  None, None,   False ), 
+        'dd':                     ( True,  None, '\n',   False ), 
+        'dt':                     ( True,  None, '\n',   False ), 
+        'fieldset':               ( True,  None, '\n',   False ),
+        'figcaption':             ( True,  None, '\n',   False ), 
+        'hr':                     ( True,  None, '\n',   False ), 
+        'legend':                 ( True,  None, '\n',   False ), 
+        'li':                     ( True,  None, '\n',   False ), 
+        'table':                  ( True,  '\n', '\n',   False ),
+        'tbody':                  ( True,  None, None,   False ),
+        'thead':                  ( True,  None, None,   False ),
+        'tfoot':                  ( True,  None, None,   False ),
+        'colgroup':               ( False, None, ' ',    False ), # not sure yet
+        'col':                    ( False, None, ' ',    False ), # not sure yet
+        'tr':                     ( True,  None, '\n',   False ),
+        'td':                     ( True,  None, ' ',    False ),
+        'th':                     ( True,  None, ' ',    False ),
+        'p':                      ( True,  None, '\n\n', False ),
+        'div':                    ( True,  None, '\n',   False ),
+        'span':                   ( True,  None, None,   False ),
+        'blockquote':             ( True,  None, '\n\n', False ),
+        'figure':                 ( True,  None, '\n\n', False ),
+        'title':                  ( True,  None, '\n\n', False ),
+        'h1':                     ( True,  None, '\n\n', False ),
+        'h2':                     ( True,  None, '\n\n', False ),
+        'h3':                     ( True,  None, '\n\n', False ),
+        'h4':                     ( True,  None, '\n\n', False ),
+        'h5':                     ( True,  None, '\n\n', False ),
+        'h6':                     ( True,  None, '\n\n', False ),
+        'ins':                    ( True,  None, None,   False ),
+        'del':                    ( True,  None, None,   False ),
+        'dl':                     ( True,  None, '\n\n', False ),
+        'ol':                     ( True,  '\n', '\n',   False ),
+        'ul':                     ( True,  '\n', '\n',   False ),
+        'pre':                    ( True,  None, '\n\n', False ),
+        'a':                      ( True,  None, None,   False ), 
+        'small':                  ( True,  None, None,   False ), 
+        'b':                      ( True,  None, None,   False ), 
+        'u':                      ( True,  None, None,   False ), 
+        'strong':                 ( True,  None, None,   False ), 
+        'i':                      ( True,  None, None,   False ), 
+        'sup':                    ( True,  None, None,   False ), 
+        'sub':                    ( True,  None, None,   False ), 
+        'em':                     ( True,  None, None,   False ), 
+        'tt':                     ( True,  None, None,   False ), 
+        'code':                   ( True,  None, None,   False ), # inline, but arguably should get a space?
+        'cite':                   ( True,  None, ' ',    False ), # arguable
 
-        'a':         ( True,  None, None,   False ), 
 
-        'small':     ( True,  None, None,   False ), 
-        'b':         ( True,  None, None,   False ), 
-        'strong':    ( True,  None, None,   False ), 
-        'i':         ( True,  None, None,   False ), 
-        'sup':       ( True,  None, None,   False ), 
-        'sub':       ( True,  None, None,   False ), 
-        'em':        ( True,  None, None,   False ), 
-        'tt':        ( True,  None, None,   False ), 
-        'code':      ( True,  None, None,   False ), # inline, but arguably should get a space?
-        'cite':      ( True,  None, ' ',    False ), # arguable
+        ## Some BWB, CVDR node names. You wouldn't use this for structured output, but it's arguably a nice alternative for just plain text, simpler than using the split code
+        'meta-data':              ( False,  ' ',' ',      True ),
+        'bwb-inputbestand':       ( False,  ' ',' ',      True ),
+        'bwb-wijzigingen':        ( False,  ' ',' ',      True ),
+        'redactionele-correcties':( False,  ' ',' ',      True ),
+        'redactie':               ( False,  ' ',' ',      True ),
+
+        'aanhef':                 ( True,  ' ',' ',      False ), 
+        'wij':                    ( False,  '\n','\n',   False ),
+        'koning':                 ( False,  ' ',' ',      True ),
+
+        'toestand':               ( False,  None,None,   False ), 
+        'wet-besluit':            ( True,  ' ',' ',      False ), 
+        'wetgeving':              ( False,  None,None,   False ), 
+        'intitule':               ( True,  ' ', '\n',    False ), 
+        'citeertitel':            ( True,  ' ','\n',     False ), 
+        'wettekst':               ( True,   None,None,   False ), 
+        'afkondiging':            ( True,   None,None,   False ), 
+
+        'publicatiejaar':         ( True,  ' ','\n',     False ), 
+        'publicatienr':           ( True,  ' ','\n',     False ), 
+        'brondata':               ( True,  ' ',' ',      False ), 
+        'oorspronkelijk':         ( True,  ' ',' ',      False ), 
+        'publicatie':             ( True,  ' ',' ',      False ), 
+        'uitgiftedatum':          ( True,  ' ',' ',      False ), 
+        'ondertekeningsdatum':    ( True,  ' ',' ',      False ), 
+        'dossierref':             ( True,  ' ',' ',      False ), 
+        'inwerkingtreding':       ( True,  ' ',' ',      False ), 
+
+        'considerans':            ( False,  None,None,   False ), 
+        'considerans.al':         ( False,  None,None,   False ), 
+
+        'artikel':                ( True,  '\n',None,    False ), 
+        'nr':                     ( True,  None, ' ',    False ), 
+        'lid':                    ( True,  None, ' ',    False ), 
+        'lidnr':                  ( True,  None, ' ',    False ), 
+        'kop':                    ( True,   ' ',' ',     False ), 
+
+        'al':                     ( True,   None,'\n',   False ), 
+        #'':                      ( False,  None,None,   False ),
+
+        'inf':                    ( True,   None,None,   False ), 
+        'extref':                 ( True,   None,None,   False ), 
+        'intref':                 ( True,   None,None,   False ), 
+
+        'wetsluiting':            ( False,   None,None,  False ), 
+        'slotformulering':        ( True,  ' ',' ',      False ), 
+        'naam':                   ( True,   None,None,   False ), 
+        'voornaam':               ( True,   None,None,   False ), 
+        'functie':                ( True,   None,None,   False ), 
+        'achternaam':             ( True,   None,None,   False ), 
+        'ondertekening':          ( False,   None,None,   True ), 
+        'plaats':                 ( False,   None,None,   True ), 
+        'datum':                  ( False,   None,None,   True ), 
+
+        'uitgifte':               ( False,   None,None,   True ), 
+        'dagtekening':            ( False,   None,None,   True ), 
+        'gegeven':                ( False,   None,None,   True ), 
     }
+
+    if isinstance( etree, (str, bytes) ):
+        etree = parse_html(etree)
+
+    etree = strip_namespace( etree )
 
     ## To through the tree to remove what is requested.
     # (yes, it would be more efficient to do that in the same treewalk, but that would require some rewrite)
@@ -682,7 +755,19 @@ def html_text(etree, join=True):
             toremove.append( element )
             #print('removing %r from %r'%(element.tag, element.getparent().tag))
     for el in toremove:
-        el.drop_tree() # which is more correct than el.getparent().remove(el)  due to its handing of tail
+        #el.drop_tree() # which is more correct than el.getparent().remove(el)  due to its handing of tail (joined to the previous element, or parent).
+        # Note that this exists only in lxml.html, not bare lxml  https://lxml.de/lxmlhtml.html
+        # to ensure this also works on bare lxml objects, the following is roughly the contents of drop_tree implementation:
+        parent = el.getparent()
+        assert parent is not None
+        if el.tail:
+            previous = el.getprevious()
+            if previous is None:
+                parent.text = (parent.text or '') + el.tail
+            else:
+                previous.tail = (previous.tail or '') + el.tail
+        parent.remove(el)
+
 
     collect = []
 
@@ -710,8 +795,13 @@ def html_text(etree, join=True):
                 #print("adding %r after %r"%(add_after, tag.tag))
                 collect.append( add_after )
 
-    body = etree.find('body')
-    for event, el in lxml.etree.iterwalk(body, events=('start', 'end')): # pylint: disable=c-extension-no-member
+    body = etree
+    if bodynodename is not None:
+        bf = etree.find( bodynodename )
+        if bf is not None:
+            body = bf
+
+    for event, el in lxml.etree.iterwalk(body, events=('start', 'end')):  # pylint: disable=c-extension-no-member
         # TODO: check that this block isn't wrong
         if event == 'start':
             add_ws_before(el)
@@ -755,6 +845,6 @@ def html_text(etree, join=True):
     if join:
         ret = ''.join( ret )
         ret = re.sub(r'\n[\ ]+', '\n', ret.strip())
-        return ret
+        return ret.strip()
     else:
         return ret
