@@ -29,10 +29,10 @@ class FRBRFetcher:
     """
 
     def __init__(self, fetch_store, cache_store, verbose=True, waittime_sec=1.0):
-        """Hand in two LocalKV style stores: one that the documents will get fetched into,
-        and one that the intermediate folders get fetched into
-        (the former is almost all useful content,
-        the latter mostly pointless outside of this fetcher)
+        """Hand in two LocalKV-style stores: 
+        - one that the documents will get fetched into (almost all useful content), 
+        - one that the intermediate folders get fetched into (mostly pointless outside of this fetcher)
+        
         After this you will want to
           - hand in a starting point like::
               fetcher.add_page( 'https://repository.overheid.nl/frbr/cga?start=1' )
@@ -148,7 +148,7 @@ class FRBRFetcher:
         for li in soup.select("ul[class*='list--sources'] > li "):
             si = li.select("div[class*='list--source__information'] ")[0]
             a = li.find("a")
-            txt = si.find_all(text=True, recursive=False)[0]
+            txt = si.find_all(string=True, recursive=False)[0]
             fil_absurl = urllib.parse.urljoin(h_url, a.get("href"))
             try:
                 _, cached = wetsuite.helpers.localdata.cached_fetch(
@@ -171,11 +171,11 @@ class FRBRFetcher:
         folder_soup = soup.select(
             "div > ul[class*='browse__list'] > li[class*='browse__item'] > a "
         )
-        folder_names = list(a.find(text=True) for a in folder_soup)
+        folder_names = list(a.find(string=True) for a in folder_soup)
         chosen_types = wetsuite.helpers.koop_parse.prefer_types(folder_names)
         for a in folder_soup:
             fol_absurl = urllib.parse.urljoin(h_url, a.get("href"))
-            text = a.find(text=True)
+            text = a.find(string=True)
             # self.itemlinks[ fol_absurl ] = text
             # TODO: change to 'decide what subset to fetch based on what there is'
             if text not in chosen_types:
