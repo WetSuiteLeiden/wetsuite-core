@@ -11,7 +11,7 @@ by setting the globals default_forceifnoterm and/or default_forceifnotty)
 
 Currently provides some convenience functions for a single foreground color, 
 meant to be used like: ::
-    import helpers_shellcolor as sc
+    import helpers.shellcolor as sc
     print( sc.red('shown as red') )
 Or without checking it is suported: ::
     print( sc.BRIGHT+sc.BLUE+sc.UNDERLINE+'shown bright blue'+sc.RESET )
