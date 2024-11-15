@@ -46,12 +46,12 @@ def parse_jci(text: str):
         in the order they appeared, for the cases where that matters.
       - tries to be robust to a few non-standard things we've seen in real use
       - for type=='c' (single consolidation), expected params include
-        - g  geldigheidsdatum
-        - z  zichtdatum
+        - C{g}  geldigheidsdatum
+        - C{z}  zichtdatum
       - for type=='v' (collection), expected params include
-        - s  start of geldigheid
-        - e  end of geldigheid
-        - z  zichtdatum
+        - C{s}  start of geldigheid
+        - C{e}  end of geldigheid
+        - C{z}  zichtdatum
       Note that precise interpretation, and generation of these links,
       is a little more involved,
       in that versions made small semantic changes to the meanings of some parts.
@@ -235,7 +235,7 @@ CELEX_COUNTRIES = [
     "ROU",
     "HRV",
 ]
-" The three-letter codes that CELEX uses to refer to countryies "
+" The three-letter codes that CELEX uses to refer to countries "
 
 CELEX_SECTORS = {
     "1": "Treaties",
@@ -628,7 +628,7 @@ def _is_all_digits(s):  # perhaps could be helpers.strings.is_numeric?
 _re_bekendid = re.compile(r"((?:ag-tk|ag-ek|ag-vv|ag|ah-tk|ah-ek|ah-tk|h-ek|h-tk|kv-tk|kv|blg|kst|stcrt|stb|gmb|prb|wsb|bgr|trb|nds-tk|nds-ek|nds)-[a-z0-9-]+)")
 
 def findall_bekendmaking_ids(instring: str):
-    """Look for identifiers like 'stcrt-2009-9231' and 'ah-tk-20082009-2945'
+    """Look for identifiers like C{stcrt-2009-9231} and C{ah-tk-20082009-2945}
     Might find a few things that are not.
     @param instring: the string to look in
     @return: a list o
@@ -640,17 +640,17 @@ def findall_bekendmaking_ids(instring: str):
 def parse_bekendmaking_id(s):
     """
     Parses identifiers like
-    - kst-26643-144-h1
-    - h-tk-20082009-7140-7144
-    - ah-tk-20082009-2945
-    - stcrt-2009-9231
+    - C{kst-26643-144-h1}
+    - C{h-tk-20082009-7140-7144}
+    - C{ah-tk-20082009-2945}
+    - C{stcrt-2009-9231}
 
-    AOTW still fails on ~ .01% but most of those seem to be invalid (though almost all kst- so we may be missing something).
+    AOTW still fails on ~ .01% of of keys I've seen, but most of those seem to be invalid (though almost all of those are kst- so we may be missing some less-described variant).
 
-    CONSIDER: also producing citation form
+    CONSIDER: also producing citation form(s) of each.
 
     @param s: the string to parse as a single identifier.
-    @return: if it is a known type of identifier: parse of its basic details, with keys like jaar, docnum
+    @return: dict with basic details, like jaar, docnum. If it not a known type of identifier, or it is known but seems invalid, it raises a ValueError.
     """
     ret = {}
     parts = s.split("-")
@@ -854,8 +854,8 @@ def parse_bekendmaking_id(s):
 
 
 def parse_kst_id(string:str, debug:bool=False):
-    """Parse kamerstukken identifiers like kst-26643-144-h1
-    Also a helper for parse_bekendmaking_id()
+    """Parse kamerstukken identifiers like C{kst-26643-144-h1}
+    Also a helper for C{parse_bekendmaking_id}.
 
     @param string: kst-style identifier as string. Will be parsed.
     @param debug: whether to point out some debug
