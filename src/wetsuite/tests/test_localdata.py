@@ -230,9 +230,15 @@ def test_type_check():
         kv.put("a", "s")
 
 
-# def test_multiread_and_locking( tmp_path ):
-def TEMPORARILY_DISABLED_test_multiread_and_locking(tmp_path):
-    "disabled because the test takes longish (on purpose)"
+#def test_multiread_and_locking( tmp_path ):
+def DISABLED_test_multiread_and_locking(tmp_path): # (tmp_path invokes pytest fixture)
+    """
+    Test some basic behaviour wen you have multiple readers on a store.
+
+    Might be disabled (e.g. prepending DISABLED_ to the function name) because 
+    the test takes longish (on purpose),
+    and also isn't as deterministic as it should be.
+    """
     import sqlite3
 
     # test that both see the same data
@@ -244,9 +250,9 @@ def TEMPORARILY_DISABLED_test_multiread_and_locking(tmp_path):
     kv2 = wetsuite.helpers.localdata.LocalKV(path, str, str)
     kv1.put("c", "d")
 
-    assert kv1.items() == kv2.items()
-
     assert len(kv1.items()) > 0
+
+    assert kv1.items() == kv2.items()
 
     # test that not committing leaves the database locked and other opens would fail   (defined sqlite3 behaviour)
     kv1.put("e", "f", commit=False)  # this would keep the database locked until
@@ -281,11 +287,13 @@ def TEMPORARILY_DISABLED_test_multiread_and_locking(tmp_path):
     kv6.items()
 
 
-def TEMPORARILY_DISABLED_test_thread(tmp_path):
+def DISABLED_test_thread(tmp_path):
     """See whether (with the default autocommit behaviour) access is concurrent
     and not overly eager to time-and-error out - basically see if the layer we added forgot something.
 
     TODO: loosen up the intensity, it may still race to fail under load
+
+    disabled because it (intentionally) takes some time.
     """
     import time, threading
 
@@ -296,14 +304,13 @@ def TEMPORARILY_DISABLED_test_thread(tmp_path):
     def get_sqlite3_thread_safety():  # See https://ricardoanderegg.com/posts/python-sqlite-thread-safety/ for why this is here
         "the sqlite module's threadsafety module is hardcoded for now, asking the library is more accurate"
         import sqlite3
-
         conn = sqlite3.connect(":memory:")
         threadsafe_val = conn.execute(
             "SELECT *  FROM pragma_compile_options  WHERE compile_options LIKE 'THREADSAFE=%'"
         ).fetchone()[0]
         conn.close()
         threadsafe_val = int(threadsafe_val.split("=")[1])
-        return {0: 0, 2: 1, 1: 3}[
+        return {0:0, 2:1, 1:3}[
             threadsafe_val
         ]  # sqlite's THREADSAFE values to DBAPI2 values
 
