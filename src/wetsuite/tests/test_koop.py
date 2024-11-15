@@ -15,9 +15,10 @@ from wetsuite.helpers.koop_parse import (
     cvdr_normalize_expressionid,
 
     bwb_title_looks_boring,
+    prefer_types, 
+    parse_op_metafile,
 
-    prefer_types, parse_op_metafile,
-    alineas_with_selective_path
+    alineas_with_selective_path,
 )
 
 import wetsuite.datacollect.koop_sru
@@ -385,4 +386,3 @@ def test_bwb_title_looks_boring():
     assert bwb_title_looks_boring("Burgerlijk Wetboek Boek 7") is False
 
 
-#TODO: iter_chunks_xml

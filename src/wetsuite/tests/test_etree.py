@@ -6,14 +6,14 @@ from wetsuite.helpers.etree import (
     strip_namespace,
     _strip_namespace_inplace,
     all_text_fragments,
-)
-from wetsuite.helpers.etree import (
     indent,
     path_count,
     kvelements_to_dict,
     path_between,
     node_walk,
     debug_pretty,
+    html_text,
+    debug_color
 )
 
 
@@ -267,3 +267,39 @@ def test_debug_pretty():
 
     with pytest.raises(ValueError):
         assert debug_pretty(None)
+
+
+def test_html_text():
+    ' basic test of extracting plain text from HTML with awareness of what nodes split words/paragraphs '
+    tree = fromstring( '<body><b>foo</b>bar</body>' )
+    assert html_text(tree) == 'foobar'
+
+
+def test_html_text_list():
+    ' list-return test '
+    assert html_text( '<body><div>foo</div>bar</body>',join=False  ) == ['foo', '\n', 'bar']
+
+
+def test_html_text_str_input():
+    ' testing that it will take string input '
+    assert html_text( '<body><b>foo</b>bar<body>'      ) == 'foobar'
+    assert html_text( '<div>foo</div>bar' ) == 'foo\nbar'
+
+
+def test_html_text_bytes_input():
+    ' testing that it will take bytestring input '
+    assert html_text( b'<b>foo</b>bar' ) == 'foobar'
+    assert html_text( b'<div>foo</div>bar' ) == 'foo\nbar'
+
+
+def test_html_text_bs4_input():
+    ' testing that it will take BeautifulSoup input '
+    import bs4
+    soup = bs4.BeautifulSoup( b'<html><b>foo</b>bar<br/></html>', features='lxml' )
+    assert html_text( soup ) == 'foobar'
+
+
+def test_debug_color():
+    ' just testing that it does not fail on some basic input '
+    o = debug_color( fromstring( '<body><b>foo</b>bar</body>' ) )
+    o._repr_html_()
