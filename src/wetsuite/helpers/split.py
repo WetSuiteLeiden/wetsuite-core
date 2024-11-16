@@ -1,13 +1,11 @@
-"""
-    This module tries to wrangle 
-    - varied documents (structured or not, from HTML to PDF)
-    - ...via an intermediate that e.g. captures that possible structure
-    - ...into plain text we can consume more easily.
+""" This module tries to wrangle distinct types of documents, from HTML to PDF, from specific sources, into (ideally small, structured pieces of) plain text, so that you can consume it more easily.
 
-    It also tries to give those into smallish chunks, 
+    It tries to give those into smallish chunks, 
     ideally informed by the document structure.
 
+    Ideally, this module gets ongoing attention to cover all the documents the project cares about.
 
+    
     It is a somwhat modular design to let us easily add more formats later.
     You won't care about that until you want to add your own,
     but it does have some implications to use:
@@ -22,18 +20,34 @@
 
     So if you just want text, with litthe control over the details::
         string_list = feeling_lucky( docbytes )
-         
+    
     So if you want all the control, the code would be somehing like::
         for score, splitter in wetsuite.helpers.split.decide( docbytes ):
             for metadata, intermediate, text in splitter.fragments
                 print( text )
                 print( '--------------------' )
-        
+
+                
     CONSIDER: 
-      - Ideally, this module gets ongoing attention to cover all the documents the project cares about.
+      - think about separating the "read document at lower level" code 
+        into functions you can use without having to rip it out these classes here.
+        Right now, even if you know the class you want, you need to do::
+            f = Fragments_XML_BWB()
+            f.accepts()
+            f.suitableness()
+            for frag in f.fragments():
+                print( frag )
+
+      - in particular the HTML code can probably be made rather faster
+        - using lxml.html (or specifically iterparse?) instad of bs4, because bs4 is currently the slowest part of this
+            ...bit of a rewrite, though.
+        - having one class contain all of these - mostly to _share_ state like 'we tried to parse with bs4'
+
       - always have a reasonable fallback for each document type (TODO: XML?)
 
-      - settling the intermediates more?
+      - parameters, like "OCR that PDF if you have to"
+
+      - settling the intermediate format more?
         - Maybe we shouldn't make too many decisions for you, and merely yield suggestions you can easily ignore, e.g.
             - 'seems like same section, <TEXT>'
             - 'seems like new section, <TEXT>'
@@ -41,12 +55,7 @@
             - 'seems like page footnotes, <TEXT>'
         - ...so that you, or a helper function, can group into different-sized chunks in the way you need it.
 
-      - parameters, like "OCR that PDF if you have to"
-
       - maybe rename feeling_lucky, maybe move it to lazy?
-
-      - think about separating the "read document at lower level" 
-        so that if you want that reading for different ends, you don't have to rip it out.
 
       - we were trying to be inspired by LaTeX hyphenation, 
           which has a simple-but-pretty-great "this is the cost of breaking off here"
@@ -70,7 +79,7 @@ import re
 import warnings
 import pprint
 
-import bs4  # arguably should be inside each class so we can do without some of these imports
+import bs4   # arguably should be inside each class so we can do without some of these imports
 import fitz  # arguably should be inside each class so we can do without some of these imports
 
 import wetsuite.helpers.strings
@@ -278,7 +287,6 @@ class Fragments:
 
 #########################################################
 
-
 class Fragments_XML_BWB(Fragments):
     "Turn BWB in XML form into fragments"
 
@@ -383,6 +391,8 @@ class Fragments_HTML_CVDR(Fragments):
         self.soup = None
 
     def accepts(self):
+        if wetsuite.helpers.util.has_xml_header(self.docbytes):
+            return False
         return wetsuite.helpers.util.is_html(self.docbytes)
 
     def suitableness(self):
@@ -412,6 +422,8 @@ class Fragments_HTML_OP_Stcrt(Fragments):
         self.soup = None
 
     def accepts(self):
+        if wetsuite.helpers.util.has_xml_header(self.docbytes):
+            return False
         if wetsuite.helpers.util.is_html(self.docbytes):
             return True
         if wetsuite.helpers.util.is_htmlzip(self.docbytes):
@@ -444,6 +456,8 @@ class Fragments_HTML_OP_Stb(Fragments):
         self.soup = None
 
     def accepts(self):
+        if wetsuite.helpers.util.has_xml_header(self.docbytes):
+            return False
         if wetsuite.helpers.util.is_html(self.docbytes):
             return True
         if wetsuite.helpers.util.is_htmlzip(self.docbytes):
@@ -476,6 +490,8 @@ class Fragments_HTML_OP_Gmb(Fragments):
         self.soup = None
 
     def accepts(self):
+        if wetsuite.helpers.util.has_xml_header(self.docbytes):
+            return False
         if wetsuite.helpers.util.is_html(self.docbytes):
             return True
         if wetsuite.helpers.util.is_htmlzip(self.docbytes):
@@ -508,6 +524,8 @@ class Fragments_HTML_OP_Trb(Fragments):
         self.soup = None
 
     def accepts(self):
+        if wetsuite.helpers.util.has_xml_header(self.docbytes):
+            return False
         if wetsuite.helpers.util.is_html(self.docbytes):
             return True
         if wetsuite.helpers.util.is_htmlzip(self.docbytes):
@@ -540,6 +558,8 @@ class Fragments_HTML_OP_Prb(Fragments):
         self.soup = None
 
     def accepts(self):
+        if wetsuite.helpers.util.has_xml_header(self.docbytes):
+            return False
         if wetsuite.helpers.util.is_html(self.docbytes):
             return True
         if wetsuite.helpers.util.is_htmlzip(self.docbytes):
@@ -574,6 +594,8 @@ class Fragments_HTML_OP_Wsb(Fragments):
         self.soup = None
 
     def accepts(self):
+        if wetsuite.helpers.util.has_xml_header(self.docbytes):
+            return False
         if wetsuite.helpers.util.is_html(self.docbytes):
             return True
         if wetsuite.helpers.util.is_htmlzip(self.docbytes):
@@ -606,6 +628,8 @@ class Fragments_HTML_OP_Bgr(Fragments):
         self.soup = None
 
     def accepts(self):
+        if wetsuite.helpers.util.has_xml_header(self.docbytes):
+            return False
         if wetsuite.helpers.util.is_html(self.docbytes):
             return True
         if wetsuite.helpers.util.is_htmlzip(self.docbytes):
@@ -1062,6 +1086,8 @@ class Fragments_HTML_BUS_kamer(Fragments):
         self.soup = None
 
     def accepts(self):
+        if wetsuite.helpers.util.has_xml_header(self.docbytes):
+            return False
         if wetsuite.helpers.util.is_html(self.docbytes):
             return True
         if wetsuite.helpers.util.is_htmlzip(self.docbytes):
@@ -1236,6 +1262,8 @@ class Fragments_HTML_Fallback(Fragments):
         self.etree = None
 
     def accepts(self):
+        if wetsuite.helpers.util.has_xml_header(self.docbytes):
+            return False
         if wetsuite.helpers.util.is_html(self.docbytes):
             return True
         if wetsuite.helpers.util.is_htmlzip(self.docbytes):
@@ -1429,6 +1457,10 @@ _registered_fragment_parsers = [
     Fragments_XML_BWB,
     Fragments_XML_CVDR,
     Fragments_HTML_CVDR,
+
+    Fragments_XML_Rechtspraak,
+    # Fragments_HTML_Rechtspraak,
+
     Fragments_XML_OP_Stcrt,
     Fragments_XML_OP_Stb,
     Fragments_XML_OP_Trb,
@@ -1443,17 +1475,19 @@ _registered_fragment_parsers = [
     Fragments_HTML_OP_Prb,
     Fragments_HTML_OP_Wsb,
     Fragments_HTML_OP_Bgr,
+
     Fragments_XML_OP_Handelingen,
     Fragments_XML_BUS_Kamer,
     Fragments_HTML_BUS_kamer,
-    Fragments_XML_Rechtspraak,
-    # Fragments_HTML_Rechtspraak,
-    Fragments_PDF_Fallback,
-    # opendocument fallback?
 
-    # CONSIDER: Only add the following two once they give output: (except one of the tests, test_firstonly, relies on it being there, so...)
-    #Fragments_XML_Fallback,
+    # TODO: tuchtrecht
+    # TODO: geschillencommissie
+
+    Fragments_PDF_Fallback,
     Fragments_HTML_Fallback,
+    # CONSIDER: Only add the following once they give output: (except one of the tests, test_firstonly, relies on it being there, so...)
+    #Fragments_XML_Fallback,
+    #(maybe add an opendocument fallback?)
 ]
 
 
@@ -1484,8 +1518,8 @@ def decide(docbytes, thresh=1000, first_only=False, debug=False):
 
 
 def feeling_lucky(docbytes):
-    """If you are sure we understand a particular document format, you can hand it in here,
-    and it will returns a list of strings for a document.
+    """If you are sure this code understands a particular document format,
+    you can hand it in here, and it will returns a list of strings for a document.
     No control, just text from whatever said it applied best.
 
     This needs to be renamed. Maybe this needs to go to wetsuite.helpers.lazy instead.
