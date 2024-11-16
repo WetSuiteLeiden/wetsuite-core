@@ -62,8 +62,19 @@ def test_diff():
 def test_is_xml():
     "test the 'does this look like XML (rather than HTML/XHTML)' rejects XHTML"
     assert not wetsuite.helpers.util.is_xml(
-        b"""<html> <head><title>Title of document</title></head> <body> stuff </body> </html>"""
+        b"<html> <head><title>Title of document</title></head> <body> stuff </body> </html>"
     )
+
+
+def test_is_xml_bad():
+    " test that things not valid XML will fail "
+    # Probably needs a few more cases
+    assert not wetsuite.helpers.util.is_xml( b'<r><b/><b/><b/><b><b/></r>' )
+
+
+def test_is_xml_nohtml():
+    " test that things not valid XML that seems to be HTML will say False "
+    assert not wetsuite.helpers.util.is_xml( b'<?xml version="1.0"?><html/>' )
 
 
 def test_is_xml_encoded():
@@ -128,9 +139,7 @@ def test_is_xml_not_html():
     "See if we can tell a difference between XML and HTML"
     import test_util
 
-    testzipfn = os.path.join(
-        os.path.dirname(test_util.__file__), "testfiles", "bwb_manifest.xml"
-    )
+    testzipfn = os.path.join( os.path.dirname(test_util.__file__), "testfiles", "bwb_manifest.xml" )
     with open(testzipfn, "rb") as f:
         assert not wetsuite.helpers.util.is_html(f.read())
 
@@ -297,6 +306,7 @@ def test_is_doc():
 
 
 def test__filetype():
+    " test that it detects our test files's content type correctly "
     import test_util
     for testfn, expected_type_str in (
         ("empty.doc",     'doc'),
