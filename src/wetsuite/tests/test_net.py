@@ -6,10 +6,8 @@ from wetsuite.helpers.net import download
 
 def test_download():
     "test basic network download"
-    # checking that these don't raise any errors (not a great test if testing host is isolated, though)
-    download("http://www.example.com")
-
-    # download('https://www.example.com')
+    # checking that these don't raise any errors (not a great test if testing host has no internet access, though)
+    #download("http://www.example.com")
 
     download("https://www.example.com", show_progress=True)
 
@@ -17,13 +15,9 @@ def test_download():
         download("https://www.example.com/noexist")
 
 
-def test_download_to_file(
-    tmp_path,
-):  # note: pytest fixture will create a temporary directory
+def test_download_to_file( tmp_path ):  # note: pytest fixture will create a temporary directory
     "test streaming to filesystem"
-    tofile_path = (
-        tmp_path / "testfile"
-    )  # this syntax works because tmp_path is a pathlib.Path object
+    tofile_path = tmp_path / "testfile"  # this syntax works because tmp_path is a pathlib.Path object
     download("https://www.example.com", tofile_path=tofile_path)
     assert os.path.exists(tofile_path)
 
