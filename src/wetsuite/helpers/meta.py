@@ -1,4 +1,4 @@
-""" Things that aprse metadata.
+""" Things that parse metadata.
     
     Specifically for things not tied to a singular API or data source, 
     or we otherwise expect to see some reuse of.
@@ -630,6 +630,9 @@ _re_bekendid = re.compile(r"((?:ag-tk|ag-ek|ag-vv|ag|ah-tk|ah-ek|ah-tk|h-ek|h-tk
 def findall_bekendmaking_ids(instring: str):
     """Look for identifiers like C{stcrt-2009-9231} and C{ah-tk-20082009-2945}
     Might find a few things that are not.
+
+    TODO: give this function a better name, it's not just bekendmakingen.
+
     @param instring: the string to look in
     @return: a list o
     """
@@ -644,6 +647,8 @@ def parse_bekendmaking_id(s):
     - C{h-tk-20082009-7140-7144}
     - C{ah-tk-20082009-2945}
     - C{stcrt-2009-9231}
+
+    TODO: give this function a better name, it's not just bekendmakingen.
 
     AOTW still fails on ~ .01% of of keys I've seen, but most of those seem to be invalid (though almost all of those are kst- so we may be missing some less-described variant).
 
