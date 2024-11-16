@@ -6,6 +6,7 @@ import difflib
 import hashlib
 import zipfile
 import io
+import lxml.etree
 
 
 def wetsuite_dir():
@@ -94,7 +95,7 @@ def free_space(path=None):
     return shutil.disk_usage(path).free
 
 
-def unified_diff(before: str, after: str, strip_header=True, context_n=999) -> str:
+def unified_diff(before:str, after:str, strip_header=True, context_n=999) -> str:
     """Returns an unified-diff-like difference between two strings
     Not meant for actual patching, just for quick debug-printing of changes.
 
@@ -118,12 +119,13 @@ def unified_diff(before: str, after: str, strip_header=True, context_n=999) -> s
     return "\n".join(lines)
 
 
-def hash_color(string: str, on=None):
-    """Give a CSS color for a string - consistently the same each time based on a hash
-    Usable e.g. to make tables with categorical values more skimmable.
+def hash_color(string:str, on=None):
+    """Give a CSS color for a string - consistently the same each time based on a hash.
 
-    To that end, this takes a string, and
-    returns (css_str,r,g,b), where r,g,b are 255-scale r,g,b values for a string
+    Takes a string, and returns C{(css_str, r,g,b)},
+    where r,g,b are 255-scale r,g,b values for the same color.
+
+    Usable e.g. to make tables with categorical values more skimmable.
 
     @param string: the string to hash
     @param on: if 'dark', we try for a bright color, if 'light', we try to give a dark color, otherwise not restricted
@@ -143,7 +145,7 @@ def hash_color(string: str, on=None):
     return css, (r, g, b)
 
 
-def hash_hex(data: bytes, as_bytes: bool = False):
+def hash_hex(data:bytes, as_bytes:bool = False):
     """Given some byte data, calculate SHA1 hash.
     Returns that hash as a hex string, unless you specify as_bytes=True
 
@@ -167,33 +169,46 @@ def hash_hex(data: bytes, as_bytes: bool = False):
         return s1h.hexdigest()
 
 
-def is_html(bytesdata) -> bool:
+def is_html(bytesdata:bytes) -> bool:
     """Do these bytes look loke a HTML document? (no specific distinction to XHTML)
     @param bytesdata: the bytestring to check is a HTML file.
     @return: whether it is HTML
     """
+    firstbytes = bytesdata[:200]
     if not isinstance(bytesdata, bytes):
-        raise TypeError("we expect a bytestring, not a %s" % type(bytesdata))
-    if b"<!DOCTYPE html" in bytesdata[:1000]:
+        raise TypeError("is_html() expects a bytestring, not a %s" % type(bytesdata))
+    if b"<!DOCTYPE html" in firstbytes:
         return True
-    if b"<html" in bytesdata[:1000]:
+    if b"<html" in firstbytes:
         return True
     return False
 
 
-def is_xml(bytesdata, debug=False) -> bool:
+def has_xml_header(bytesdata:bytes):
+    ' mostly meant as a "reject as HTML" optimization'
+    if b'<?xml' in bytesdata[:100]:
+        return True
+    return False
+
+
+def is_xml(bytesdata_or_filename, accept_after_n_nodes:int=25) -> bool:
     """Does this look and work like an XML file?
 
-    Note that in this context, XHTML (and valid-enough HTML) are considered NOT XML
+    Yes, we could answer "does it look vaguely like the start of an XML" for a lot cheaper than parsing it.
+    Yet you would probably only use this function right before handing it to an XML parser,
+    that wouldn't mean much -- so we try to answer 'would a real XML parser probably accept this?'
 
-    Note: we try to answer "is it likely you could parse this", not just "does it look vaguely like the start of an XML"
-    we could answer the latter for a lot cheaper than parsing it, but it wouldn't mean much.
+    ...as cheaply as we can.  best test for whether it would parse would be to actually parse it, 
+    but it's probably lighter to see if the first bunch of nodes don't break things 
+    (we use lxml's iterparse and stop after a number of nodes went fine).
 
-    Right now _do_ actually parse it so that we get a decent answer to whether we can use it.
-    (TODO: parse only the first kilobyte or so, incrementally)
+    @param bytesdata_or_filename: 
+    If given bytes, it considers it file contents.
+    If given a str object, it considers that a _filesystem filename_ to read from
 
-    @param bytesdata: the bytestring to check is a (valid) XML file.
-    @return: whether it is XML
+    @param accept_after_n_nodes: After how many nodes (that parsed fine) do we accept this and stop parsing?
+
+    @return: whether it is XML  (and probably not XHTML or HTML)
     """
     # arguably a simple and thorough way is to tell that
     #   it parses in a fairly strict XML/HTML parser,
@@ -202,57 +217,74 @@ def is_xml(bytesdata, debug=False) -> bool:
     # There are many other indicators that are cheaper -- but only a good guess, and not _always_ correct,
     #  depending on whether you are asking
 
-    if not isinstance(bytesdata, bytes):
-        raise TypeError("we expect a bytestring, not a %s" % type(bytesdata))
+    if isinstance(bytesdata_or_filename, bytes): # in terpret as file contents
+        f = io.BytesIO(bytesdata_or_filename)
+    elif isinstance(bytesdata_or_filename, str): # interpret as filename
+        f = bytesdata_or_filename
+    else:
+        raise TypeError("is_xml expects a bytestring, not a %s" % type(bytesdata_or_filename))
+
 
     # the ordering here is more about efficiency than function
-    if is_html(bytesdata):  # cheaper than parsing
-        # if debug:
-        #    print('is html')
+    if is_html(bytesdata_or_filename):  # cheaper than parsing fully, at least (this makes some code below irrelevant)
         return False
-    if is_pdf(bytesdata):  # cheaper than parsing
-        # if debug:
-        #    print('is html')
+    if is_pdf(bytesdata_or_filename):  # cheaper than parsing
         return False
 
-    import wetsuite.helpers.etree
-    import lxml.etree
-
+    ## This is the "answer whether it would parse by parsing only the first so-much"
+    root_tag = None
     try:
-        root = wetsuite.helpers.etree.fromstring(bytesdata)
-    except (
-        lxml.etree.XMLSyntaxError
-    ) as xse:  # if it doesn't parse  (not 100% on the exception? What's lxml.etree.ParserError then?)
-        # if debug:
-        #    print('syntaxerror', xse)
+        seen_nodes = 0
+        # iterparse expects to stream data, so takes either a filename or a file object, hence the BytesIO
+        for event, element in lxml.etree.iterparse( f, events=('start',) ):
+            seen_nodes += 1
+            if root_tag is None and event=='start':
+                root_tag = element.tag
+                if root_tag == 'html': # should have been caught by is_html above
+                    return False
+                #print('root is', root_tag)
+            if seen_nodes > accept_after_n_nodes:
+                return True
+            #print( seen_nodes, event, lxml.etree.tostring(element) )
+            #element.clear() # if accept_after is lowish, we likely avoid large memory anyway and don't need the extra work of clear() or previous-sibling removal
+    except lxml.etree.XMLSyntaxError:  # if it doesn't parse  (not 100% on the exception to use - what's lxml.etree.ParserError then, something wider perhaps?)
         return False
 
-    # if it's valid as XML but the root node is 'html', we do not consider it XML
-    root_tag = root.tag
-    if root_tag.startswith(
-        "{"
-    ):  # deal with a namespaced root without calling strip_namespaces
-        root_tag = root_tag[root_tag.index("}") + 1 :]
-    return root_tag != "html"
+    ## This was the "answer whether it would parse by parsing it completely" implementation
+    #try:
+    #    root = wetsuite.helpers.etree.fromstring(bytesdata)
+    #root_tag = root.tag
+    #except lxml.etree.XMLSyntaxError as xse:  # if it doesn't parse  (not 100% on the exception? What's lxml.etree.ParserError then?)
+    #    if debug:
+    #        print(xse)
+    #    return False
+
+    #if it's valid as XML but the root node is 'html', we do not consider it XML
+    if root_tag is not None and root_tag.startswith("{"):  # deal with a namespaced root without calling strip_namespaces
+        root_tag = root_tag[root_tag.index("}")+1:]
+    if root_tag == "html":
+        return False
+    return True
 
 
-def is_pdf(bytesdata: bytes) -> bool:
+
+def is_pdf(bytesdata:bytes) -> bool:
     """Does this bytestring look like a PDF document?
     @param bytesdata: the bytestring to check looks like the start of a PDF
     @return: whether it is PDF
     """
     if not isinstance(bytesdata, bytes):
-        raise TypeError("we expect a bytestring, not a %s" % type(bytesdata))
+        raise TypeError("is_pdf expects a bytestring, not a %s" % type(bytesdata))
     return bytesdata.startswith(b"%PDF")
 
 
-def is_zip(bytesdata: bytes) -> bool:
+def is_zip(bytesdata:bytes) -> bool:
     """Does this bytestring look like a ZIP file?
     @param bytesdata: the bytestring to check contains a ZIP file.
     @return: whether it is a ZIP
     """
     if not isinstance(bytesdata, bytes):
-        raise TypeError("we expect a bytestring, not a %s" % type(bytesdata))
+        raise TypeError("is_zip expects a bytestring, not a %s" % type(bytesdata))
     if bytesdata.startswith(b"PK\x03\x04"):  # (most)
         return True
     if bytesdata.startswith(
@@ -264,13 +296,13 @@ def is_zip(bytesdata: bytes) -> bool:
     return False
 
 
-def is_empty_zip(bytesdata: bytes) -> bool:
+def is_empty_zip(bytesdata:bytes) -> bool:
     """Does this bytestring look like an empty ZIP file?
     @param bytesdata: the bytestring to check contains a ZIP file that stores nothing.
     @return: whether it is an empty ZIP
     """
     if not isinstance(bytesdata, bytes):
-        raise TypeError("we expect a bytestring, not a %s" % type(bytesdata))
+        raise TypeError("is_empty_zip expects a bytestring, not a %s" % type(bytesdata))
     if bytesdata.startswith(
         b"PK\x05\x06"
     ):  # empty - not good for us and perhaps deserves a separate test
@@ -278,7 +310,7 @@ def is_empty_zip(bytesdata: bytes) -> bool:
     return False
 
 
-def is_htmlzip(bytesdata: bytes) -> bool:
+def is_htmlzip(bytesdata:bytes) -> bool:
     """Made for the .html.zip files that KOOP puts e.g. in its BUS.
 
     Is this a ZIP file with one entry for which the name ends with .html?
@@ -288,7 +320,7 @@ def is_htmlzip(bytesdata: bytes) -> bool:
     @return: whether it is a ZIP containing HTML
     """
     if not isinstance(bytesdata, bytes):
-        raise TypeError("we expect a bytestring, not a %s" % type(bytesdata))
+        raise TypeError("is_htmlzip expects a bytestring, not a %s" % type(bytesdata))
     if not is_zip(bytesdata):
         return False
     z = zipfile.ZipFile(io.BytesIO(bytesdata))
@@ -300,7 +332,7 @@ def is_htmlzip(bytesdata: bytes) -> bool:
     return False  # is zip, which has files, but no .html
 
 
-def get_ziphtml(bytesdata: bytes):
+def get_ziphtml(bytesdata:bytes):
     """Made for the .html.zip files that KOOP puts e.g. in its BUS.
 
     Gets the contents of the first file from the zip with a name ending in .html
@@ -313,7 +345,7 @@ def get_ziphtml(bytesdata: bytes):
     @return: the HTML file as a bytes object
     """
     if not isinstance(bytesdata, bytes):
-        raise TypeError("we expect a bytestring, not a %s" % type(bytesdata))
+        raise TypeError("get_ziphtml expects a bytestring, not a %s" % type(bytesdata))
     z = zipfile.ZipFile(io.BytesIO(bytesdata))
     if len(z.filelist) == 0:
         raise ValueError("empty ZIP file")
@@ -324,7 +356,7 @@ def get_ziphtml(bytesdata: bytes):
     raise ValueError("ZIP file without a .html")
 
 
-def is_doc(bytesdata: bytes) -> bool:
+def is_doc(bytesdata:bytes) -> bool:
     """Does this seem like some kind of office document type?
     This is currently quick and dirty based on some observations that may not even be correct.
     TODO: improve
@@ -337,7 +369,7 @@ def is_doc(bytesdata: bytes) -> bool:
 
     if bytesdata.startswith(b'<?xml')  and  b'http://schemas.uof.org/cn/2003/uof' in bytesdata[:1000]: # quick and dirty and probably incomplete (due to e.g. encoding?)
         return True
-    
+
     if is_zip(bytesdata):
         # Then it can be Office Open XML, OpenOffice.org XML, OpenDocument
         with zipfile.ZipFile(io.BytesIO(bytesdata)) as z:
@@ -346,13 +378,13 @@ def is_doc(bytesdata: bytes) -> bool:
                 #    print(zipinfo)
                 if "_rels/" in zipinfo.filename: # likely Office Open XML
                     return True
-                if zipinfo.filename == "mimetype": # other things to match include meta.xml, styles.xml, META-INF/manifest.xml 
+                if zipinfo.filename == "mimetype": # other things to match include meta.xml, styles.xml, META-INF/manifest.xml
                 # the mimetype file's contest may be interesting, to find something like 'application/vnd.oasis.opendocument.text'
                     return True
     return False
 
 
-def _filetype(docbytes: bytes):
+def _filetype(docbytes:bytes):
     ' describe which of these basic types a bytes object contains '
     if is_doc(docbytes): # should appear before is_zip
         return 'doc'
