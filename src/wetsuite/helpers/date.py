@@ -228,6 +228,12 @@ def date_first_day_in_year(yearnum: int):
     return datetime.date(year=yearnum, month=1, day=1)
 
 
+def date_last_day_in_year(yearnum: int):
+    """@param yearnum: the year you want the first day of, e.g. 2024.
+    @return: January first of the given year, as a datetime.date"""
+    return datetime.date(year=yearnum, month=12, day=31) # watch there be an exception to that...
+
+
 def yyyy_mm_dd(day: datetime.date):
     "Returns a date as a string like '2024-01-01'  e.g. datetime.date(2024, 1, 1) as that."
     return day.strftime("%Y-%m-%d")
