@@ -17,11 +17,9 @@ def test_import():
 
 
 @pytest.mark.filterwarnings("ignore::UserWarning")
-@pytest.mark.filterwarnings(
-    "ignore::DeprecationWarning"
-)  # some distutil blah that is not important for this test
+@pytest.mark.filterwarnings("ignore::DeprecationWarning")  # some distutil blah that is not important for this test
 def test_image():
-    "test that OCR basically functions, on an image we generate with PIL"
+    "test that OCR basically functions, on an image we generate with PIL.  This test will take a few seconds just because of heavy overhead. "
     import wetsuite.extras.ocr
 
     image = Image.new("RGB", (200, 200))
