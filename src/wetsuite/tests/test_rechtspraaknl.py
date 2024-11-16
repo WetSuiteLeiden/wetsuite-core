@@ -10,8 +10,8 @@ import wetsuite.helpers.net
 import wetsuite.helpers.etree
 
 
-def test_value_list_parsing():
-    "test that these fetch-and-parse things do not bork out"
+def DISABLED_test_value_list_parsing():
+    "test that these fetch-and-parse things do not bork out. This test will take ~2sec mostly because of the fetches. "
     wetsuite.datacollect.rechtspraaknl.parse_instanties()
     wetsuite.datacollect.rechtspraaknl.parse_instanties_buitenlands()
     wetsuite.datacollect.rechtspraaknl.parse_proceduresoorten()
