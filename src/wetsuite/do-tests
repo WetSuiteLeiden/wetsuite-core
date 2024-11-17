@@ -3,6 +3,7 @@
 # Do tests.
 #  and also calculate amount of test coverage, and wrangle that percentage into a file.
 # 
+export PYTHONDONTWRITEBYTECODE=1
 
 # in a py2+py3 system, pytest may be called pytest-3 for disambiguation, so prefer that 
 command_exists () {
