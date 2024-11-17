@@ -2,7 +2,7 @@ from setuptools import setup
 
 setup(
     name             = 'wetsuite',
-    version          = '0.2.1',
+    version          = '0.2.2',
     description      = 'A library that helps to explore dutch legal data, and to apply language processing on it',
     long_description = 'A library that helps to explore dutch legal data, and to apply language processing on it. This is the library code, you are probably more interested in some notebooks that use it, at https://github.com/WetSuiteLeiden/example-notebooks or the website that introduces it, http://wetsuite.nl',
 
@@ -46,11 +46,6 @@ setup(
         # 'gensim',              # LGPL
     ],
     extras_require={
-        # pysftp is only used for one specific data collection thing, that you may not need
-        'collect':[
-            'pysftp',              # BSD; also pulls in paramiko (LGPL) 
-        ],
-
         # TODO: test install of easyOCR and spacy  as CPU-only, to avoid needing and pulling in CUDA
         'cpu':[
             # apparently torch it won't pull in CUDA like this?
