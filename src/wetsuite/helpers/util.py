@@ -185,7 +185,7 @@ def is_html(bytesdata:bytes) -> bool:
 
 
 def has_xml_header(bytesdata:bytes):
-    ' mostly meant as a "reject as HTML" optimization'
+    ' mostly meant as a "reject as HTML?" optimization '
     if b'<?xml' in bytesdata[:100]:
         return True
     return False
