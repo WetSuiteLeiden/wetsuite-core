@@ -1431,7 +1431,7 @@ def prefer_types(
     unknown = set(given_strlist).difference(set(all_of).union(first_of).union(never))
     if len(unknown) > 0:
         warnings.warn(
-            "data mentioned types you did not mention in your request: %r"
+            "the real data mentioned types you did not mention in your preference: %r"
             % sorted(unknown)
         )
 
