@@ -86,7 +86,8 @@ def wetsuite_dir():
 
 def free_space(path=None):
     """Says how many bytes are free on the filesystem that stores that mentioned path.
-    @param path: path to check for (shutil will figure out what filesystem that is on), defaults to the directory we would store datasets into.
+    @param path: path to check for (shutil will figure out what filesystem that is on),
+    Defaults to the directory we would store datasets into.
     """
     import shutil
 
@@ -102,7 +103,8 @@ def unified_diff(before:str, after:str, strip_header=True, context_n=999) -> str
     @param before: a string to treat as the original
     @param after: a string  to treat as the new version
     @param strip_header: whether to strip the first lines
-    @param context_n: how much context to include. Defaults to something high so that it omits little to nothing.
+    @param context_n: how much context to include. 
+    Defaults to something high so that it omits little to nothing.
     @return: a string that contains plain text unified-diff-like output (with initial header cut off)
     """
     lines = list(
@@ -128,7 +130,8 @@ def hash_color(string:str, on=None):
     Usable e.g. to make tables with categorical values more skimmable.
 
     @param string: the string to hash
-    @param on: if 'dark', we try for a bright color, if 'light', we try to give a dark color, otherwise not restricted
+    @param on: if 'dark', we try for a bright color, 
+    if 'light', we try to give a dark color, otherwise not restricted
     """
     dig = hash_hex(string.encode("utf8"), as_bytes=True)
     r, g, b = dig[0:3]
@@ -151,13 +154,12 @@ def hash_hex(data:bytes, as_bytes:bool = False):
 
     Deals with unicode by UTF8-encoding it, which isn't _always_ what you want.
     @param data: the bytes to hash
-    @param as_bytes: whether to return the hash dugest as a bytes object. Defaults to False, meaning a hex string (like 'a49d')
+    @param as_bytes: whether to return the hash dugest as a bytes object. 
+    Defaults to False, meaning a hex string (like 'a49d')
     """
-    if isinstance(data, bytes):
+    if   isinstance(data, bytes):
         pass
-    elif isinstance(
-        data, str
-    ):  # assume you are using this in a "I just want a consistent hash value for the same input", not necessarily according to any standard
+    elif isinstance( data, str ):  # assume you want _a_ consistent hash value for the same input, not necessarily according to any standard
         data = data.encode("u8")
     else:
         raise TypeError("hash_hex() only accepts byte/str data")
@@ -176,7 +178,7 @@ def is_html(bytesdata:bytes) -> bool:
     """
     firstbytes = bytesdata[:200]
     if not isinstance(bytesdata, bytes):
-        raise TypeError("is_html() expects a bytestring, not a %s" % type(bytesdata))
+        raise TypeError(f"is_html() expects a bytestring, not a {type(bytesdata)}")
     if b"<!DOCTYPE html" in firstbytes:
         return True
     if b"<html" in firstbytes:
@@ -194,7 +196,8 @@ def has_xml_header(bytesdata:bytes):
 def is_xml(bytesdata_or_filename, accept_after_n_nodes:int=25) -> bool:
     """Does this look and work like an XML file?
 
-    Yes, we could answer "does it look vaguely like the start of an XML" for a lot cheaper than parsing it.
+    Yes, we could answer "does it look vaguely like the start of an XML"
+      for a lot cheaper than parsing it.
     Yet you would probably only use this function right before handing it to an XML parser,
     that wouldn't mean much -- so we try to answer 'would a real XML parser probably accept this?'
 
@@ -206,7 +209,8 @@ def is_xml(bytesdata_or_filename, accept_after_n_nodes:int=25) -> bool:
     If given bytes, it considers it file contents.
     If given a str object, it considers that a _filesystem filename_ to read from
 
-    @param accept_after_n_nodes: After how many nodes (that parsed fine) do we accept this and stop parsing?
+    @param accept_after_n_nodes: After how many nodes (that parsed fine) 
+    do we accept this and stop parsing?
 
     @return: whether it is XML  (and probably not XHTML or HTML)
     """
@@ -274,7 +278,7 @@ def is_pdf(bytesdata:bytes) -> bool:
     @return: whether it is PDF
     """
     if not isinstance(bytesdata, bytes):
-        raise TypeError("is_pdf expects a bytestring, not a %s" % type(bytesdata))
+        raise TypeError(f"is_pdf expects a bytestring, not a {type(bytesdata)}")
     return bytesdata.startswith(b"%PDF")
 
 
@@ -284,7 +288,7 @@ def is_zip(bytesdata:bytes) -> bool:
     @return: whether it is a ZIP
     """
     if not isinstance(bytesdata, bytes):
-        raise TypeError("is_zip expects a bytestring, not a %s" % type(bytesdata))
+        raise TypeError(f"is_zip expects a bytestring, not a {type(bytesdata)}")
     if bytesdata.startswith(b"PK\x03\x04"):  # (most)
         return True
     if bytesdata.startswith(
@@ -302,7 +306,7 @@ def is_empty_zip(bytesdata:bytes) -> bool:
     @return: whether it is an empty ZIP
     """
     if not isinstance(bytesdata, bytes):
-        raise TypeError("is_empty_zip expects a bytestring, not a %s" % type(bytesdata))
+        raise TypeError(f"is_empty_zip expects a bytestring, not a {type(bytesdata)}")
     if bytesdata.startswith(
         b"PK\x05\x06"
     ):  # empty - not good for us and perhaps deserves a separate test
@@ -363,11 +367,14 @@ def is_doc(bytesdata:bytes) -> bool:
     """
     # an empty docx seems to have at least
 
-    if bytesdata.startswith(b'\xD0\xCF\x11\xE0\xA1\xB1\x1A\xE1'):  # cfbf, assume early office document - or encrypted docx
+    # cfbf, assume early office document - or encrypted docx
+    if bytesdata.startswith(b'\xD0\xCF\x11\xE0\xA1\xB1\x1A\xE1'):
         return True
-        #Note: Apparently encrypted docx is stored within cfbf, not plain zip ?        if '\x57\x00\x6f\x00\x72\x00\x64\x00\x44\x00\x6f\x00\x63'
+        #Note: Apparently encrypted docx is stored within cfbf, not plain zip ?
+        # if '\x57\x00\x6f\x00\x72\x00\x64\x00\x44\x00\x6f\x00\x63'
 
-    if bytesdata.startswith(b'<?xml')  and  b'http://schemas.uof.org/cn/2003/uof' in bytesdata[:1000]: # quick and dirty and probably incomplete (due to e.g. encoding?)
+    # quick and dirty and won't catch different encodings
+    if bytesdata.startswith(b'<?xml')  and  b'schemas.uof.org/cn/2003/uof' in bytesdata[:1000]:
         return True
 
     if is_zip(bytesdata):
@@ -376,7 +383,7 @@ def is_doc(bytesdata:bytes) -> bool:
             for zipinfo in z.filelist:
                 #if debug:
                 #    print(zipinfo)
-                if "_rels/" in zipinfo.filename: # likely Office Open XML
+                if "_rels/" in zipinfo.filename: # likely Office Open XML.   Technically OPC, we could be more specific.
                     return True
                 if zipinfo.filename == "mimetype": # other things to match include meta.xml, styles.xml, META-INF/manifest.xml
                 # the mimetype file's contest may be interesting, to find something like 'application/vnd.oasis.opendocument.text'
