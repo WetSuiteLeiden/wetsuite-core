@@ -17,3 +17,4 @@ src/wetsuite/unsorted/
 src/wetsuite.egg-info/*
 dist/*
 
+src/wetsuite/tests/testfiles/eclitest.txt
