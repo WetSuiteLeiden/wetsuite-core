@@ -298,23 +298,21 @@ class Fragments_XML_BWB(Fragments):
         return wetsuite.helpers.util.is_xml(self.docbytes)
 
     def suitableness(self):
-        self.tree = wetsuite.helpers.etree.fromstring(self.docbytes)
-        self.tree = wetsuite.helpers.etree.strip_namespace(
-            self.tree
-        )  # choice to remove namespaces unconditionally
-        if self.tree.tag == "toestand":
-            return 5
-        else:
-            return 5000
+        return b'<toestand' in self.docbytes[:200]   # CONSIDER: testing for the namespace URL once we check whether it actually has versions
+        #if self.tree.tag == "toestand":
+        #    return 5
+        #else:
+        #    return 5000
 
     def fragments(self):
+        self.tree = wetsuite.helpers.etree.fromstring(      self.docbytes )
+        self.tree = wetsuite.helpers.etree.strip_namespace( self.tree     ) # choice to remove namespaces unconditionally
+
         # PRELIMINARY TESTS
         ret = []
         fragments = wetsuite.helpers.koop_parse.alineas_with_selective_path(self.tree)
         # TODO: detect what level gives reasonably-sized chunks on average, to hand into mer
-        for part_id, part_text_list in wetsuite.helpers.koop_parse.merge_alinea_data(
-            fragments
-        ):
+        for part_id, part_text_list in wetsuite.helpers.koop_parse.merge_alinea_data( fragments ):
             for part in part_text_list:
                 if self.debug:
                     print(part)
@@ -343,23 +341,22 @@ class Fragments_XML_CVDR(Fragments):
         return wetsuite.helpers.util.is_xml(self.docbytes)
 
     def suitableness(self):
-        self.tree = wetsuite.helpers.etree.fromstring(self.docbytes)
-        self.tree = wetsuite.helpers.etree.strip_namespace(
-            self.tree
-        )  # choice to remove namespaces unconditionally
-        if self.tree.tag == "cvdr":
+        if b'standaarden.overheid.nl/cvdr/terms' in self.docbytes[:500]: #part of the namespace URL, seems better than '<cvdr' ?
             return 5
         else:
             return 5000
+        #if self.tree.tag == "cvdr":
+        #    return 5
+        #else:
+        #    return 5000
 
     def fragments(self):
+        self.tree = wetsuite.helpers.etree.fromstring(      self.docbytes )
+        self.tree = wetsuite.helpers.etree.strip_namespace( self.tree     )  # choice to remove namespaces unconditionally
+
         # PRELIMINARY TESTS
         ret = []
-        for fragment in wetsuite.helpers.koop_parse.alineas_with_selective_path(
-            self.tree
-        ):
-            # if self.debug:
-            #    print( fragment )
+        for fragment in wetsuite.helpers.koop_parse.alineas_with_selective_path( self.tree ):
             raw = fragment.pop("raw")
             fragment.pop("raw_etree")
             text_flat = fragment.pop("text-flat")
@@ -396,19 +393,15 @@ class Fragments_HTML_CVDR(Fragments):
         return wetsuite.helpers.util.is_html(self.docbytes)
 
     def suitableness(self):
-        with warnings.catch_warnings():  # meant to ignore the "It looks like you're parsing an XML document using an HTML parser." warning
-            warnings.simplefilter("ignore")
-            self.soup = bs4.BeautifulSoup(self.docbytes, features="lxml")
-
-        # Not yet sure what the best indicator is
-        # pname = self.soup.find('meta', attrs={'name':'DC.identifier'})
-        # if pname is not None and pname.get('content').startwith( 'CVDR' ):
-        if self.soup.find("div", attrs={"id": "cvdr_meta"}) is not None:
+        if b'DCTERMS.identifier' in self.docbytes  and  b'cvdr_meta' in self.docbytes: # TODO: check that this doesn't over- or under-accept
             return 5
         else:
             return 5000
 
     def fragments(self):
+        with warnings.catch_warnings():  # meant to ignore the "It looks like you're parsing an XML document using an HTML parser." warning
+            warnings.simplefilter("ignore")
+            self.soup = bs4.BeautifulSoup(self.docbytes, features="lxml")
         return _split_officielepublicaties_html(
             self.soup
         )  # preliminary do-anything; TODO: this is a case where we can probably do better
@@ -434,16 +427,22 @@ class Fragments_HTML_OP_Stcrt(Fragments):
         return False
 
     def suitableness(self):
-        with warnings.catch_warnings():  # meant to ignore the "It looks like you're parsing an XML document using an HTML parser." warning
-            warnings.simplefilter("ignore")
-            self.soup = bs4.BeautifulSoup(self.docbytes, features="lxml")
-        pname = self.soup.find("meta", attrs={"name": "OVERHEIDop.publicationName"})
-        if pname is not None and pname.get("content") == "Staatscourant":
+        if b'OVERHEIDop.publicationName' in self.docbytes and b'Staatscourant' in self.docbytes: # TODO: this probably overaccepts, check
             return 5
         else:
             return 5000
 
+        #pname = self.soup.find("meta", attrs={"name": "OVERHEIDop.publicationName"})
+        #if pname is not None and pname.get("content") == "Staatscourant":
+        #    return 5
+        #else:
+        #    return 5000
+
     def fragments(self):
+        with warnings.catch_warnings():  # meant to ignore the "It looks like you're parsing an XML document using an HTML parser." warning
+            warnings.simplefilter("ignore")
+            self.soup = bs4.BeautifulSoup(self.docbytes, features="lxml")
+
         ret = _split_officielepublicaties_html(self.soup)
         return ret
 
@@ -468,14 +467,18 @@ class Fragments_HTML_OP_Stb(Fragments):
         return False
 
     def suitableness(self):
-        with warnings.catch_warnings():  # meant to ignore the "It looks like you're parsing an XML document using an HTML parser." warning
-            warnings.simplefilter("ignore")
-            self.soup = bs4.BeautifulSoup(self.docbytes, features="lxml")
-        pname = self.soup.find("meta", attrs={"name": "OVERHEIDop.publicationName"})
-        if pname is not None and pname.get("content") == "Staatsblad":
+        if b'OVERHEIDop.publicationName' in self.docbytes and b'Staatsblad' in self.docbytes: # TODO: this probably overaccepts, check
             return 5
         else:
             return 5000
+        #with warnings.catch_warnings():  # meant to ignore the "It looks like you're parsing an XML document using an HTML parser." warning
+        #    warnings.simplefilter("ignore")
+        #    self.soup = bs4.BeautifulSoup(self.docbytes, features="lxml")
+        #pname = self.soup.find("meta", attrs={"name": "OVERHEIDop.publicationName"})
+        #if pname is not None and pname.get("content") == "Staatsblad":
+        #    return 5
+        #else:
+        #    return 5000
 
     def fragments(self):
         ret = _split_officielepublicaties_html(self.soup)
@@ -502,16 +505,23 @@ class Fragments_HTML_OP_Gmb(Fragments):
         return False
 
     def suitableness(self):
-        with warnings.catch_warnings():  # meant to ignore the "It looks like you're parsing an XML document using an HTML parser." warning
-            warnings.simplefilter("ignore")
-            self.soup = bs4.BeautifulSoup(self.docbytes, features="lxml")
-        pname = self.soup.find("meta", attrs={"name": "OVERHEIDop.publicationName"})
-        if pname is not None and pname.get("content") == "Gemeenteblad":
+        if b'OVERHEIDop.publicationName' in self.docbytes and b'Gemeenteblad' in self.docbytes: # TODO: this probably overaccepts, check
             return 5
         else:
             return 5000
+        #with warnings.catch_warnings():  # meant to ignore the "It looks like you're parsing an XML document using an HTML parser." warning
+        #    warnings.simplefilter("ignore")
+        #    self.soup = bs4.BeautifulSoup(self.docbytes, features="lxml")
+        #pname = self.soup.find("meta", attrs={"name": "OVERHEIDop.publicationName"})
+        #if pname is not None and pname.get("content") == "Gemeenteblad":
+        #    return 5
+        #else:
+        #    return 5000
 
     def fragments(self):
+        with warnings.catch_warnings():  # meant to ignore the "It looks like you're parsing an XML document using an HTML parser." warning
+            warnings.simplefilter("ignore")
+            self.soup = bs4.BeautifulSoup(self.docbytes, features="lxml")
         ret = _split_officielepublicaties_html(self.soup)
         return ret
 
@@ -536,16 +546,23 @@ class Fragments_HTML_OP_Trb(Fragments):
         return False
 
     def suitableness(self):
-        with warnings.catch_warnings():  # meant to ignore the "It looks like you're parsing an XML document using an HTML parser." warning
-            warnings.simplefilter("ignore")
-            self.soup = bs4.BeautifulSoup(self.docbytes, features="lxml")
-        pname = self.soup.find("meta", attrs={"name": "OVERHEIDop.publicationName"})
-        if pname is not None and pname.get("content") == "Tractatenblad":
+        if b'OVERHEIDop.publicationName' in self.docbytes and b'Tractatenblad' in self.docbytes: # TODO: this probably overaccepts, check
             return 5
         else:
             return 5000
+        #with warnings.catch_warnings():  # meant to ignore the "It looks like you're parsing an XML document using an HTML parser." warning
+        #    warnings.simplefilter("ignore")
+        #    self.soup = bs4.BeautifulSoup(self.docbytes, features="lxml")
+        #pname = self.soup.find("meta", attrs={"name": "OVERHEIDop.publicationName"})
+        #if pname is not None and pname.get("content") == "Tractatenblad":
+        #    return 5
+        #else:
+        #    return 5000
 
     def fragments(self):
+        with warnings.catch_warnings():  # meant to ignore the "It looks like you're parsing an XML document using an HTML parser." warning
+            warnings.simplefilter("ignore")
+            self.soup = bs4.BeautifulSoup(self.docbytes, features="lxml")
         ret = _split_officielepublicaties_html(self.soup)
         return ret
 
@@ -570,18 +587,28 @@ class Fragments_HTML_OP_Prb(Fragments):
         return False
 
     def suitableness(self):
-        with warnings.catch_warnings():  # meant to ignore the "It looks like you're parsing an XML document using an HTML parser." warning
-            warnings.simplefilter("ignore")
-            self.soup = bs4.BeautifulSoup(self.docbytes, features="lxml")
-        pname = self.soup.find("meta", attrs={"name": "OVERHEIDop.publicationName"})
-        if pname is not None and pname.get("content") == "Provincieblad":
-            return 5
-        elif pname is not None and pname.get("content") == "Provinciaal blad":
+        if b'OVERHEIDop.publicationName' in self.docbytes and (
+                b'Provincieblad' in self.docbytes or
+                b'Provinciaal blad' in self.docbytes
+                ): # TODO: this probably overaccepts, check
             return 5
         else:
             return 5000
+        #with warnings.catch_warnings():  # meant to ignore the "It looks like you're parsing an XML document using an HTML parser." warning
+        #    warnings.simplefilter("ignore")
+        #    self.soup = bs4.BeautifulSoup(self.docbytes, features="lxml")
+        #pname = self.soup.find("meta", attrs={"name": "OVERHEIDop.publicationName"})
+        #if pname is not None and pname.get("content") == "Provincieblad":
+        #    return 5
+        #elif pname is not None and pname.get("content") == "Provinciaal blad":
+        #    return 5
+        #else:
+        #    return 5000
 
     def fragments(self):
+        with warnings.catch_warnings():  # meant to ignore the "It looks like you're parsing an XML document using an HTML parser." warning
+            warnings.simplefilter("ignore")
+            self.soup = bs4.BeautifulSoup(self.docbytes, features="lxml")
         ret = _split_officielepublicaties_html(self.soup)
         return ret
 
@@ -606,19 +633,25 @@ class Fragments_HTML_OP_Wsb(Fragments):
         return False
 
     def suitableness(self):
-        with warnings.catch_warnings():  # meant to ignore the "It looks like you're parsing an XML document using an HTML parser." warning
-            warnings.simplefilter("ignore")
-            self.soup = bs4.BeautifulSoup(self.docbytes, features="lxml")
-        pname = self.soup.find("meta", attrs={"name": "OVERHEIDop.publicationName"})
-        if pname is not None and pname.get("content") == "Waterschapsblad":
+        if b'OVERHEIDop.publicationName' in self.docbytes and b'Waterschapsblad' in self.docbytes: # TODO: this probably overaccepts, check
             return 5
         else:
             return 5000
+        #$with warnings.catch_warnings():  # meant to ignore the "It looks like you're parsing an XML document using an HTML parser." warning
+        #$    warnings.simplefilter("ignore")
+        #$    self.soup = bs4.BeautifulSoup(self.docbytes, features="lxml")
+        #$pname = self.soup.find("meta", attrs={"name": "OVERHEIDop.publicationName"})
+        #$if pname is not None and pname.get("content") == "Waterschapsblad":
+        #$    return 5
+        #$else:
+        #$    return 5000
 
     def fragments(self):
+        with warnings.catch_warnings():  # meant to ignore the "It looks like you're parsing an XML document using an HTML parser." warning
+            warnings.simplefilter("ignore")
+            self.soup = bs4.BeautifulSoup(self.docbytes, features="lxml")
         ret = _split_officielepublicaties_html(self.soup)
         return ret
-
 
 class Fragments_HTML_OP_Bgr(Fragments):
     "Turn blad gemeenschappelijke regeling in HTML form (from KOOP's BUS) into fragments"
@@ -640,19 +673,27 @@ class Fragments_HTML_OP_Bgr(Fragments):
         return False
 
     def suitableness(self):
-        with warnings.catch_warnings():  # meant to ignore the "It looks like you're parsing an XML document using an HTML parser." warning
-            warnings.simplefilter("ignore")
-            self.soup = bs4.BeautifulSoup(self.docbytes, features="lxml")
-        pname = self.soup.find("meta", attrs={"name": "OVERHEIDop.publicationName"})
-        if (
-            pname is not None
-            and pname.get("content") == "Blad gemeenschappelijke regeling"
-        ):
+        # TODO: (here and for all others): make a string from 
+        if b'OVERHEIDop.publicationName' in self.docbytes and b'Blad gemeenschappelijke regeling' in self.docbytes: # TODO: this probably overaccepts, check
             return 5
         else:
             return 5000
+        #with warnings.catch_warnings():  # meant to ignore the "It looks like you're parsing an XML document using an HTML parser." warning
+        #    warnings.simplefilter("ignore")
+        #    self.soup = bs4.BeautifulSoup(self.docbytes, features="lxml")
+        #pname = self.soup.find("meta", attrs={"name": "OVERHEIDop.publicationName"})
+        #if (
+        #    pname is not None
+        #    and pname.get("content") == "Blad gemeenschappelijke regeling"
+        #):
+        #    return 5
+        #else:
+        #    return 5000
 
     def fragments(self):
+        with warnings.catch_warnings():  # meant to ignore the "It looks like you're parsing an XML document using an HTML parser." warning
+            warnings.simplefilter("ignore")
+            self.soup = bs4.BeautifulSoup(self.docbytes, features="lxml")
         ret = _split_officielepublicaties_html(self.soup)
         return ret
 
@@ -1249,6 +1290,57 @@ class Fragments_XML_Rechtspraak(Fragments):
         # #   Proceskosten, Standpunt van verzoeker, Wettelijk kader, Bevoegdheid, Conclusie en gevolgen, Rechtsmiddel
         # # Bijlage
         return ret
+
+
+####################################################################################
+
+class Fragments_HTML_Geschillencommissie(Fragments):
+    "Turn HTML pages from degeschillencommissie.nl into fragments"
+
+    def __init__(self, docbytes, debug=False):
+        Fragments.__init__(self, docbytes, debug)
+        self.soup = None
+
+    def accepts(self):
+        if wetsuite.helpers.util.has_xml_header(self.docbytes):
+            return False
+        if wetsuite.helpers.util.is_html(self.docbytes):
+            return True
+        return False
+
+    def suitableness(self):
+        if b'href="https://www.degeschillencommissie.nl' in self.docbytes: # TODO: consider better test
+            return 5
+        else:
+            return 5000
+
+    #def fragments(self):
+    #    return ret
+
+
+class Fragments_HTML_Tuchtrecht(Fragments):
+    "Turn HTML pages from  into fragments"
+
+    def __init__(self, docbytes, debug=False):
+        Fragments.__init__(self, docbytes, debug)
+        self.soup = None
+
+    def accepts(self):
+        if wetsuite.helpers.util.has_xml_header(self.docbytes):
+            return False
+        if wetsuite.helpers.util.is_html(self.docbytes):
+            return True
+        return False
+
+    def suitableness(self):
+        if b'Overheid.nl | Tuchtrecht' in self.docbytes: # TODO: consider better test
+            return 5
+        else:
+            return 5000
+
+    #def fragments(self):
+    #    return ret
+
 
 
 ####################################################################################

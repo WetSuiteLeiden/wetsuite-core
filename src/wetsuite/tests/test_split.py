@@ -1,3 +1,4 @@
+#!/usr/bin/python3.8
 """ test functions in the wetsuite.helpers.split module """
 
 import os, time
@@ -178,5 +179,5 @@ if __name__ == '__main__':
                     Stats(profile)
                     #.strip_dirs()
                     .sort_stats(SortKey.CUMULATIVE)
-                    .print_stats(40)
+                    .print_stats(20)
                 )
