@@ -222,16 +222,32 @@ def date_months_ago(amount: float = 1):
     return datetime.date.today() - datetime.timedelta(days=int(amount * 30.6))
 
 
-def date_first_day_in_year(yearnum: int):
-    """@param yearnum: the year you want the first day of, e.g. 2024.
+def date_first_day_in_year(yearnum: int = None):
+    """@param yearnum: the year you want the first day of, e.g. 2024.  If not given, defaults to the current year.
     @return: January first of the given year, as a datetime.date"""
+    if yearnum is None:
+        yearnum = datetime.date.today().year
     return datetime.date(year=yearnum, month=1, day=1)
 
 
-def date_last_day_in_year(yearnum: int):
-    """@param yearnum: the year you want the first day of, e.g. 2024.
+def date_last_day_in_year(yearnum: int = None):
+    """@param yearnum: the year you want the first day of, e.g. 2024.  If not given, defaults to the current year.
     @return: January first of the given year, as a datetime.date"""
-    return datetime.date(year=yearnum, month=12, day=31) # watch there be an exception to that...
+    if yearnum is None:
+        yearnum = datetime.date.today().year
+    return datetime.date(year=yearnum, month=12, day=31) # watch there be an exception to that somehow...
+
+
+def date_first_day_in_month(yearnum: int = None, monthnum: int = None):
+    """@param yearnum: the year you want the first day of, e.g. 2024.  If not given, defaults to the current year.
+    @param monthnum: the year you want the first day of, e.g. 2024.  If not given, defaults to the current month. 
+    (note that if you don't give month but do give year, you might get some behaviour you did not expect)
+    @return: The first day of the month in the given year, as a datetime.date"""
+    if yearnum is None:
+        yearnum = datetime.date.today().year
+    if monthnum is None:
+        monthnum = datetime.date.today().month
+    return datetime.date(year=yearnum, month=monthnum, day=1)
 
 
 def yyyy_mm_dd(day: datetime.date):
