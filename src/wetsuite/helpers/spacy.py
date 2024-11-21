@@ -126,7 +126,8 @@ def interesting_words(
     Takes a spacy span (or something else that iterates as tokens),
     returns only the more interesting tokens, ignoring stopwords, function words, and such.
 
-    Currently tries to include only tokens where pos_ in "NOUN", "PROPN", "NUM", "ADJ", "VERB", "ADP", "ADV"  
+    Currently tries to include only tokens where the part of speech (`pos_`) is one of 
+    "NOUN", "PROPN", "NUM", "ADJ", "VERB", "ADP", "ADV"
 
     @param span: the doc, sentence, or other span to iterate for Tokens
     @param ignore_stop: whether to ignore what spacy considers is_stop
