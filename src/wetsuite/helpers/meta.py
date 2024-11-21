@@ -3,8 +3,8 @@
     Specifically for things not tied to a singular API or data source, 
     or we otherwise expect to see some reuse of.
 
-    Things that are more specific live in other places,
-    e.g. things relatively specific to KOOP's presentations BWB, CVDR, and OP sits in helpers.koop_parse
+    There are similar function in other places, in particular when they are specific.
+    For example helpers speciic to KOOP's presentations BWB, CVDR, and OP sits in helpers.koop_parse
 
     The function name should give you some indication how what it associates with, 
     and how specific it is.
@@ -257,87 +257,35 @@ CELEX_SECTORS = {
 # https://eur-lex.europa.eu/content/tools/TableOfSectors/types_of_documents_in_eurlex.html
 
 CELEX_DOCTYPES = (
-    (
-        "1",
-        "K",
-        "Treaty establishing the European Coal and Steel Community (ECSC Treaty) 1951",
-    ),
-    (
-        "1",
-        "A",
-        "Treaty establishing the European Atomic Energy Community (EAEC Treaty or Euratom) (1957); Euratom Treaty consolidated versions (2010, 2012, 2016)",
-    ),
-    (
-        "1",
-        "E",
-        "Treaty establishing the European Economic Community (EEC Treaty or Treaty of Rome) (1957); Treaty establishing the European Community (TEC or EC Treaty) Maastricht consolidated version (1992), Amsterdam consolidated version (1997), Nice consolidated version (2002) and Athens consolidated version (2006); Treaty on the Functioning of the European Union (TFEU) consolidated versions (2008, 2010, 2012, 2016)",
-    ),
-    (
-        "1",
-        "F",
-        "Merger Treaty or Treaty of Brussels (1965); Treaty amending certain budgetary provisions or Treaty of Luxembourg (1970)",
-    ),
-    (
-        "1",
-        "B",
-        "Treaty of Accession of Denmark, Ireland, Norway* and the United Kingdom (1972)",
-    ),
-    (
-        "1",
-        "R",
-        "Treaty amending certain financial provisions (1975); Treaty amending certain provisions of the Protocol on the Statute of the European Investment Bank (1975)",
-    ),
+    ("1", "K", "Treaty establishing the European Coal and Steel Community (ECSC Treaty) 1951"),
+    ("1", "A", "Treaty establishing the European Atomic Energy Community (EAEC Treaty or Euratom) (1957); Euratom Treaty consolidated versions (2010, 2012, 2016)"),
+    ("1", "E", "Treaty establishing the European Economic Community (EEC Treaty or Treaty of Rome) (1957); Treaty establishing the European Community (TEC or EC Treaty) Maastricht consolidated version (1992), Amsterdam consolidated version (1997), Nice consolidated version (2002) and Athens consolidated version (2006); Treaty on the Functioning of the European Union (TFEU) consolidated versions (2008, 2010, 2012, 2016)"),
+    ("1", "F", "Merger Treaty or Treaty of Brussels (1965); Treaty amending certain budgetary provisions or Treaty of Luxembourg (1970)"),
+    ("1", "B", "Treaty of Accession of Denmark, Ireland, Norway* and the United Kingdom (1972)"),
+    ("1", "R", "Treaty amending certain financial provisions (1975); Treaty amending certain provisions of the Protocol on the Statute of the European Investment Bank (1975)"),
     ("1", "H", "Treaty of Accession of Greece (1979)"),
     ("1", "I", "Treaty of Accession of Spain and Portugal (1985)"),
     ("1", "G", "Greenland Treaty (1985)"),
     ("1", "U", "Single European Act (SEA) 1986"),
-    (
-        "1",
-        "M",
-        "Treaty on the European Union (TEU or Treaty of Maastricht) consolidated versions (1992, 1997, 2002, 2006, 2008, 2010, 2012, 2016); Treaty of Amsterdam consolidated version (1997); Treaty of Nice consolidated version (2002); Treaty of Athens consolidated version (2006); Treaty of Lisbon consolidated versions (2008, 2010, 2012)",
-    ),
+    ("1", "M", "Treaty on the European Union (TEU or Treaty of Maastricht) consolidated versions (1992, 1997, 2002, 2006, 2008, 2010, 2012, 2016); Treaty of Amsterdam consolidated version (1997); Treaty of Nice consolidated version (2002); Treaty of Athens consolidated version (2006); Treaty of Lisbon consolidated versions (2008, 2010, 2012)"),
     ("1", "N", "Treaty of Accession of Austria, Finland and Sweden (1994)"),
     ("1", "D", "Treaty of Amsterdam (1997)"),
     ("1", "C", "Treaty of Nice (2001)"),
-    (
-        "1",
-        "T",
-        "Treaty of Accession of the Czech Republic, Estonia, Cyprus, Latvia, Lithuania, Hungary, Malta, Poland, Slovenia and Slovakia (2003)",
-    ),
+    ("1", "T", "Treaty of Accession of the Czech Republic, Estonia, Cyprus, Latvia, Lithuania, Hungary, Malta, Poland, Slovenia and Slovakia (2003)"),
     ("1", "V", "Treaty establishing a Constitution for Europe (2004)"),
     ("1", "S", "Treaty of Accession of the Republic of Bulgaria and Romania (2005)"),
     ("1", "L", "Treaty of Lisbon (2007)"),
-    (
-        "1",
-        "P",
-        "Charter of Fundamental Rights of the European Union consolidated versions (2007, 2010, 2012, 2016)",
-    ),
+    ("1", "P", "Charter of Fundamental Rights of the European Union consolidated versions (2007, 2010, 2012, 2016)"),
     ("1", "J", "Treaty of Accession of Croatia (2012)"),
     ("1", "W", "EU-UK Withdrawal agreement (2019)"),
-    (
-        "1",
-        "X",
-        "Treaty amending certain provisions of the Protocol on the Statute of the European Investment Bank (1975)",
-    ),
-    (
-        "1",
-        "ME",
-        "Consolidated versions of the Treaty on the European Union (TEU or Treaty of Maastricht) and Treaty on the Functioning of the European Union (TFEU) 2016",
-    ),
+    ("1", "X", "Treaty amending certain provisions of the Protocol on the Statute of the European Investment Bank (1975)"),
+    ("1", "ME","Consolidated versions of the Treaty on the European Union (TEU or Treaty of Maastricht) and Treaty on the Functioning of the European Union (TFEU) 2016"),
     ("2", "A", "Agreements with non-member States or international organisations"),
     ("2", "D", "Acts of bodies created by international agreements"),
     ("2", "P", "Acts of parliamentary bodies created by international agreements"),
     ("2", "X", "Other acts"),
-    (
-        "3",
-        "E",
-        "CFSP: common positions; joint actions; common strategies (pre-Lisbon title V of EU Treaty)",
-    ),
-    (
-        "3",
-        "F",
-        "Police and judicial co-operation in criminal matters (pre-Lisbon title VI of EU Treaty)",
-    ),
+    ("3", "E", "CFSP: common positions; joint actions; common strategies (pre-Lisbon title V of EU Treaty)"),
+    ("3", "F", "Police and judicial co-operation in criminal matters (pre-Lisbon title VI of EU Treaty)"),
     ("3", "R", "Regulations"),
     ("3", "L", "Directives"),
     ("3", "D", "Decisions (with or without addressee)"),
@@ -355,11 +303,7 @@ CELEX_DOCTYPES = (
     ("3", "X", "Other documents published in OJ L (or pre-1967)"),
     ("3", "Y", "Other documents published in OJ C"),
     ("4", "A", "Agreements between Member States"),
-    (
-        "4",
-        "D",
-        "Decisions of the representatives of the governments of the Member States",
-    ),
+    ("4", "D", "Decisions of the representatives of the governments of the Member States"),
     ("4", "X", "Other acts published in OJ L"),
     ("4", "Y", "Other acts published in OJ C"),
     ("4", "Z", "Complementary legislation"),
@@ -367,16 +311,8 @@ CELEX_DOCTYPES = (
     ("5", "KG", "Council and MS - Council assents (ECSC Treaty)"),
     ("5", "IG", "Council and MS - Member States – initiatives"),
     ("5", "XG", "Council and MS - Other documents of the Council or the Member States"),
-    (
-        "5",
-        "PC",
-        "European Commission - COM – legislative proposals, and documents related",
-    ),
-    (
-        "5",
-        "DC",
-        "European Commission - Other COM documents (green papers, white papers, communications, reports, etc.)",
-    ),
+    ("5", "PC", "European Commission - COM – legislative proposals, and documents related"),
+    ("5", "DC", "European Commission - Other COM documents (green papers, white papers, communications, reports, etc.)"),
     ("5", "JC", "European Commission - JOIN documents"),
     ("5", "SC", "European Commission - SEC and SWD documents"),
     ("5", "EC", "European Commission - Proposals of codified versions of regulations"),
@@ -398,16 +334,8 @@ CELEX_DOCTYPES = (
     ("5", "AB", "European Central Bank - ECB Opinions"),
     ("5", "HB", "European Central Bank - ECB Recommendations"),
     ("5", "XB", "European Central Bank - Other documents of the ECB"),
-    (
-        "5",
-        "AE",
-        "European Economic and Social Committee - EESC Opinions on consultation",
-    ),
-    (
-        "5",
-        "IE",
-        "European Economic and Social Committee - EESC Own-initiative opinions",
-    ),
+    ("5", "AE", "European Economic and Social Committee - EESC Opinions on consultation"),
+    ("5", "IE", "European Economic and Social Committee - EESC Own-initiative opinions"),
     ("5", "AC", "European Economic and Social Committee - EESC Opinions"),
     ("5", "XE", "European Economic and Social Committee - Other documents of the EESC"),
     ("5", "AR", "European Committee of the Regions - CoR Opinions on consultation"),
@@ -432,31 +360,11 @@ CELEX_DOCTYPES = (
     ("6", "CG", "Court of Justice - Communication: opinion"),
     ("6", "TJ", "General Court (pre-Lisbon: Court of First Instance) - Judgment"),
     ("6", "TO", "General Court (pre-Lisbon: Court of First Instance) - Order"),
-    (
-        "6",
-        "TC",
-        "General Court (pre-Lisbon: Court of First Instance) - Opinion of the Advocate-General",
-    ),
-    (
-        "6",
-        "TT",
-        "General Court (pre-Lisbon: Court of First Instance) - Third party proceeding",
-    ),
-    (
-        "6",
-        "TN",
-        "General Court (pre-Lisbon: Court of First Instance) - Communication: new case",
-    ),
-    (
-        "6",
-        "TA",
-        "General Court (pre-Lisbon: Court of First Instance) - Communication: judgment",
-    ),
-    (
-        "6",
-        "TB",
-        "General Court (pre-Lisbon: Court of First Instance) - Communication: order",
-    ),
+    ("6", "TC", "General Court (pre-Lisbon: Court of First Instance) - Opinion of the Advocate-General"),
+    ("6", "TT", "General Court (pre-Lisbon: Court of First Instance) - Third party proceeding"),
+    ("6", "TN", "General Court (pre-Lisbon: Court of First Instance) - Communication: new case"),
+    ("6", "TA", "General Court (pre-Lisbon: Court of First Instance) - Communication: judgment"),
+    ("6", "TB", "General Court (pre-Lisbon: Court of First Instance) - Communication: order"),
     ("6", "FJ", "Civil Service Tribunal - Judgment"),
     ("6", "FO", "Civil Service Tribunal - Order"),
     ("6", "FT", "Civil Service Tribunal - Third party proceeding"),
@@ -864,6 +772,10 @@ def parse_kst_id(string:str, debug:bool=False):
 
     @param string: kst-style identifier as string. Will be parsed.
     @param debug: whether to point out some debug
+    @return: a dict with keys 
+      - C{dossiernum} - a kamerstukdossier, where it applies
+      - C{docnum} - a document identifier
+      - C{_var} to mention an internal variant that our parsing used
     """
     # e.g. so that you can do 'https://zoek.officielebekendmakingen.nl/dossier/'+ d['dossiernum']
 
@@ -880,13 +792,19 @@ def parse_kst_id(string:str, debug:bool=False):
         raise ValueError("Does not start with kst: %r" % string)
 
     if len(parts[0]) == 8:
-        # this is a solid source, but we only sometimes have it
-        # so we might as well breed the expectation you need to parse the metadata for this
+        # this is a solid source of that vergaderjaar, but only present in some of the types of kstd
+        # so we might as well breed the expectation you need to parse the metadata for this -- and just remove it now
         # ret['vergaderjaar'] =
         parts.pop(0)
 
+    if len(parts)==1 and len(parts[0]) in (7,6): # cases like kst-1158283  which do not seem to be part of a dossier,  and let's assume that number is a document number
+        ret["_var"] = "3"
+        ret["docnum"] = parts.pop(0)
+        return ret
+
+    # these seem to be dossiers
     if len(parts[0]) == 5:
-        dossiernum.append(parts.pop(0))
+        dossiernum.append( parts.pop(0) )
     else:
         raise ValueError("ERR1 Don't know what to do with %r - %r" % (string, parts))
 
@@ -897,7 +815,7 @@ def parse_kst_id(string:str, debug:bool=False):
         # raise ValueError("ERR0 Don't know what to do with %r - %r"%(s, parts))
 
     elif len(parts) == 1:
-        # cases like
+        # cases like kst-1160535
         # there must be a document number, so this must be it
         ret["docnum"] = parts.pop(0)
         ret["_var"] = "1"
@@ -931,7 +849,7 @@ def parse_kst_id(string:str, debug:bool=False):
         # raise ValueError("ERR3 Don't know what to do with %r - %r"%(s, parts))
 
     else:
-        raise ValueError("ERR4 Don't know what to do with %r - %r" % (string, parts))
+        raise ValueError("ERR4 Don't know what to do with %r - %r  (%s)" % (string, parts, len(parts)))
 
     ret["dossiernum"] = "-".join(dossiernum)
 
