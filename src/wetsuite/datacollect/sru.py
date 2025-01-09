@@ -256,12 +256,14 @@ class SRUBase:
 
         if tree.tag == "diagnostics":  # TODO: figure out if this actually happened
             raise RuntimeError(
+                "SRU server said: "+
                 wetsuite.helpers.etree.strip_namespace(tree)
                 .find("diagnostic/message")
                 .text
             )
         elif tree.find("diagnostics") is not None:
-            raise RuntimeError(
+            raise RuntimeError( 
+                "SRU server said: "+
                 wetsuite.helpers.etree.strip_namespace(tree)
                 .find("diagnostics/diagnostic/message")
                 .text
@@ -269,7 +271,7 @@ class SRUBase:
 
         elif tree.tag == "explainResponse":
             tree = wetsuite.helpers.etree.strip_namespace(tree)  # bit lazy
-            raise RuntimeError("search returned explain response instead")
+            raise RuntimeError("SRU search returned explain response instead")
 
         if verbose:
             print(
