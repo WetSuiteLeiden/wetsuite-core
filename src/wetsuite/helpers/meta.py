@@ -558,7 +558,11 @@ def parse_bekendmaking_id(s):
 
     TODO: give this function a better name, it's not just bekendmakingen.
 
-    AOTW still fails on ~ .01% of of keys I've seen, but most of those seem to be invalid (though almost all of those are kst- so we may be missing some less-described variant).
+    Notes:
+    - as of this writing it still fails on ~ .01% of of keys I've seen, but most of those seem to be invalid (though almost all of those are kst-, so we may just not known an uncommon variant).
+    - if you match on something like ([a-z-]+)[0-9A-Z], you get more than the below - but it depends on the documents you source. 
+      - sometimes you get a bunch of ids that suggest a soft subcategory, e.g. nds-bzk0700034-b1
+      - sometmies you get a capital you weren't expecting, e.g. Stcrt-2001-130-CAO1965
 
     CONSIDER: also producing citation form(s) of each.
 
@@ -757,6 +761,7 @@ def parse_bekendmaking_id(s):
         # nds-wwi0700033-b1
         # nds-vws0800900-b1
         # nds-tk-2014D45599
+        # nds-bzk
         ret["type"] = parts.pop(0)
         ret["docnum"] = "-".join(parts)
 
