@@ -19,6 +19,7 @@ import time
 import tempfile
 import bz2
 import fnmatch
+import shutil
 import lzma  # standard library since py3.3, before that we could fall back to backports.lzma
 import zipfile
 
@@ -31,12 +32,31 @@ import wetsuite.helpers.notebook
 
 
 ### Index of current datasets
-# TODO: figure out hosting, and where to put the base URL
+#
+# early versions had a hardcoded index here, which is a bad idea for a few reasons,
+# but largely because we cannot fix the fact that code versions link to things that no longer exist.
+#
+# The better intermediate was hosting that contained the data files,
+# and automatically generated an index alongside it.
+# The index is always live, and never goes out of sync with the data for more than a few minutes,
+# won't contain mistakes/typos.
+# Something with such properties is best when the data will regularly change.
+#
+# Then we looked for hosting that would last beyond the project. Right now that means ReearchDrive,
+# an ownCloud instance from SurfSara, which implies download links will be based on content hashes
+# IF/WHEN the data and/or this code will ever change again, then this setup is far from ideal,
+# because it is easy for links to change, and more manual care is necessary
+# because the the index ''must'' still be kept up to date,
+# and also cannot be stored in either this code (back to early breakage), OR in that that owncloud instance
+# (because _its_ link would also change, so most of our library versions would be broken).
+
+# Long story short, for now the index is still stored on a VPS not technically related to the project.
 
 _INDEX_URL = "https://wetsuite.knobs-dials.com/datasets/index.json"
 _index_data = None  # should be None at first, and a dict once loaded
 _index_fetch_time = 0
 _index_fetch_no_more_often_than_sec = 600
+
 
 
 def fetch_index():
@@ -75,7 +95,8 @@ def fetch_index():
 
 
 def list_datasets():
-    """fetch index, report dataset names _only_.
+    """
+    Fetch index, report dataset names _only_.
     If you also want the details,
     see C{fetch_index} if you care about the data form,
     or C{print_dataset_summary} if want it printed on the console/notebook output.
@@ -88,7 +109,8 @@ def list_datasets():
 
 
 def print_dataset_summary():
-    """Print short summary per dataset, on stdout.
+    """
+    Print short summary per dataset, on stdout.
     A little more to go on than just the names from list_datasets(),
     a little less work than shifting through the dicts for each yourself,
     but only useful in notebooks or from the console
@@ -101,12 +123,16 @@ def print_dataset_summary():
 
 
 def description(dataset_name: str):
-    "Fetch the description field, for a specifically named dataset. Simple, but less typing than picking it out yourself."
+    """
+    Fetch the description field, for a specifically named dataset. 
+    Simple, but less typing than picking it out yourself.
+    """
     return fetch_index()[dataset_name].get("description", "")
 
 
 class Dataset:
-    """If you're looking for details about the specific dataset, look at the .description
+    """
+    If you're looking for details about the specific dataset, look at the .description
 
     This classis mostly meant to be instantiated by load(),
     not by you - it's the thinnest of wrapper classes so you probably wouldn't care to.
@@ -115,7 +141,8 @@ class Dataset:
       - put a description into a .description attribute
       - put data into .data attribute
         without even saying what that is
-        though it's probably an interable giving individually useful things, and be able to tell you its len()gth
+        though it's probably an interable giving individually useful things,
+        and be able to tell you its len()gth
         ...also so that it's harder to accidentally dump gigabytes of text to your console.
 
     This is not the part that does the interpretation.
@@ -143,7 +170,9 @@ class Dataset:
         )
 
     def export_files(self, in_dir_path=None, to_zipfile_path=None):
-        """Try to export each item to a file, for people who want to continue working on data elsewhere.
+        """
+        Try to export each item to a file, 
+        for people who want to continue working on data elsewhere.
 
         Mostly useful when the dataset actually _does_ store one file (bytes object) per item.
         For other underlying types we might do some conversion, e.g. dict becomes JSON.
@@ -357,8 +386,10 @@ def _load_bare(
 
         ## if it was compressed, decompress it in the cache -
         # as part of the download, not the load compressed into its fina place.
-        # There is a race condition in multiple loads() of the same thing. CONSIDER: fixing that via a second temporary file
-        # CONSIDER: it may be preferable to store it compressed, and decompress every load. Or at least make this a parameter
+        # There is a race condition in multiple loads() of the same thing. 
+        # CONSIDER: fixing that via a second temporary file
+        # CONSIDER: it may be preferable to store it compressed, and decompress every load. 
+        #           Or at least make this a parameter
         def decompress_stream(instream, outstream):
             # TODO: allowing a "we know the output size" argument to decompress_stream so we can show a percentage
             uncompressed_data_bytes = 0
@@ -399,7 +430,7 @@ def _load_bare(
         # CONSIDER: add gz and zip cases, because they're standard library anyway
 
         else:  # assume it was uncompressed, just move it into place
-            os.rename(tmp_path, data_path)
+            shutil.move(tmp_path, data_path) # os.rename would fail if it's not the same filesystem
 
     return data_path
 
@@ -415,7 +446,8 @@ def load(dataset_name: str, verbose=None, force_refetch=False, check_free_space=
 
     @param verbose: tells you more about the download (on stderr)
     Can be given True or False.
-    By default (None), we try to detect whether we are in an interactive context, and print only if we are.
+    By default (None), we try to detect whether we are in an interactive context,
+    and print only if we are.
 
     @param force_refetch: whether to remove the current contents before fetching
     dataset naming should prevent the need for this (except if you're the wetsuite programmer)
