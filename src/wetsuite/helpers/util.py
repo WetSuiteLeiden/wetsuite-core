@@ -179,7 +179,7 @@ def is_html(bytesdata:bytes) -> bool:
     firstbytes = bytesdata[:200]
     if not isinstance(bytesdata, bytes):
         raise TypeError(f"is_html() expects a bytestring, not a {type(bytesdata)}")
-    if b"<!DOCTYPE html" in firstbytes:
+    if b"<!DOCTYPE html" in firstbytes: # note: strong indicator, but was optional before HTML5
         return True
     if b"<html" in firstbytes:
         return True
@@ -187,23 +187,44 @@ def is_html(bytesdata:bytes) -> bool:
 
 
 def has_xml_header(bytesdata:bytes):
-    ' mostly meant as a "reject as HTML?" optimization '
-    if b'<?xml' in bytesdata[:100]:
+    """ Mostly meant as a "reject as HTML?" optimization
+        (it is not actually an is_xml test because the declaration is optional in 1.0 (required in 1.1)
+        and this won't match e.g. UTF-16 XML, but it still catches a _lot_ of real-world XML)
+    """
+    initial_bytes = bytesdata[:100]
+    if b'<?xml' in initial_bytes:
         return True
+    # CONSIDER: UTF-16;
+    # TODO: refresh about the BOM-ful and BOM-less variants, and that the following _usefully_ ignores that
+    # TODO: test that the following works before adding it
+    #if b'<\x00?\x00x\x00m\x00l\x00' in initial_bytes: # '<?xml'.encode('utf_16_le')
+    #    return True
+    #if b'\x00<\x00?\x00x\x00m\x00l' in initial_bytes: # '<?xml'.encode('utf_16_be')
+    #    return True
     return False
 
 
-def is_xml(bytesdata_or_filename, accept_after_n_nodes:int=25) -> bool:
+def is_xml(bytesdata_or_filename, return_for_html=False, accept_after_n_nodes:int=25) -> bool:
     """Does this look and work like an XML file?
 
-    Yes, we could answer "does it look vaguely like the start of an XML"
-      for a lot cheaper than parsing it.
-    Yet you would probably only use this function right before handing it to an XML parser,
-    that wouldn't mean much -- so we try to answer 'would a real XML parser probably accept this?'
+    Yes, we could answer "does it look vaguely like the start of an XML" 
+    for a lot cheaper than parsing it.
+    
+    Yet that doesn't have a lot of value in practice, 
+    because you would probably only use this function right before
+    handing it to an XML parser to do a full parse - or deciding not to.
 
-    ...as cheaply as we can.  best test for whether it would parse would be to actually parse it, 
-    but it's probably lighter to see if the first bunch of nodes don't break things 
+    A full parse is the best test, but that would just be double work.
+    So in practice, a function that answers 'would a real XML parser probably accept this?'
+    more cheapy than a full parse is probably more useful.
+    
+    It's probably lighter to see if the first bunch of nodes don't break XML semantics 
     (we use lxml's iterparse and stop after a number of nodes went fine).
+
+    (TODO: the input-type code can be made lighter)
+
+    Note on semantics: We consider HTML but also XHMTL to warrant a False,
+    mostly due to the way we use this function ourselves.
 
     @param bytesdata_or_filename: 
     If given bytes, it considers it file contents.
@@ -212,7 +233,7 @@ def is_xml(bytesdata_or_filename, accept_after_n_nodes:int=25) -> bool:
     @param accept_after_n_nodes: After how many nodes (that parsed fine) 
     do we accept this and stop parsing?
 
-    @return: whether it is XML  (and probably not XHTML or HTML)
+    @return: whether it is XML  - and probably not XHTML or HTML
     """
     # arguably a simple and thorough way is to tell that
     #   it parses in a fairly strict XML/HTML parser,
@@ -221,7 +242,7 @@ def is_xml(bytesdata_or_filename, accept_after_n_nodes:int=25) -> bool:
     # There are many other indicators that are cheaper -- but only a good guess, and not _always_ correct,
     #  depending on whether you are asking
 
-    if isinstance(bytesdata_or_filename, bytes): # in terpret as file contents
+    if isinstance(bytesdata_or_filename, bytes): # interpret as file contents
         f = io.BytesIO(bytesdata_or_filename)
     elif isinstance(bytesdata_or_filename, str): # interpret as filename
         f = bytesdata_or_filename
@@ -289,14 +310,10 @@ def is_zip(bytesdata:bytes) -> bool:
     """
     if not isinstance(bytesdata, bytes):
         raise TypeError(f"is_zip expects a bytestring, not a {type(bytesdata)}")
-    if bytesdata.startswith(b"PK\x03\x04"):  # (most)
+    if bytesdata.startswith( b"PK\x03\x04" ):  # (most)
         return True
-    if bytesdata.startswith(
-        b"PK\x05\x06"
-    ):  # empty - not good for us and perhaps deserves a separate test
+    if bytesdata.startswith( b"PK\x05\x06" ): # still a zip, even if it's not practically useful for us
         return True
-    # if bytesdata.startswith( b'PK\x07\x08' ): # spanned - shouldn't apply to us, and I think we cannot currently deal with it
-    #    return True
     return False
 
 
@@ -307,9 +324,7 @@ def is_empty_zip(bytesdata:bytes) -> bool:
     """
     if not isinstance(bytesdata, bytes):
         raise TypeError(f"is_empty_zip expects a bytestring, not a {type(bytesdata)}")
-    if bytesdata.startswith(
-        b"PK\x05\x06"
-    ):  # empty - not good for us and perhaps deserves a separate test
+    if bytesdata.startswith( b"PK\x05\x06" ):
         return True
     return False
 
