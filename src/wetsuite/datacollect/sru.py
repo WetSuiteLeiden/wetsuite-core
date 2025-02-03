@@ -3,7 +3,8 @@
     Talks to SRU repositories, mainly underlies L{koop_sru}
 
     SRU is a search-and-retrieve protocol; 
-    to dig more into the what and how to use this in a more advanced way, look for the sru-related notebook (somewhere in extras).
+    to dig more into the what and how to use this in a more advanced way,
+    look for the sru-related notebook (somewhere in extras).
 
     Very minimal SRU implementationm and not meant to be a generic implementation. 
 
@@ -14,7 +15,8 @@
 """
 # https://www.loc.gov/standards/sru/sru-1-1.html
 
-import time, sys
+import time
+import sys
 
 import requests
 
@@ -22,17 +24,21 @@ import wetsuite.helpers.escape
 import wetsuite.helpers.etree
 
 
-# TODO: centralize parsing of originalData / enrichedData as much as we can, so that each individual user doesn't have to.
+# TODO: centralize parsing of originalData / enrichedData as much as we can,
+#       so that each individual use doesn't have to.
 
 
 class SRUBase:
     """Very minimal SRU implementation - just enough to access the KOOP repositories.
 
     @ivar base_url: The base URL that other things add to; added from instantiation.
-    @ivar x_connection: The x_connection attribute that some of these need; added from instantiation.
+    @ivar x_connection: The x_connection attribute that some of these need; 
+    added from instantiation.
     @ivar sru_version: hardcoded to "1.2"
-    @ivar extra_query: extra piece of query to add to the quiery you do late. This lets us representing subsets of larger repositories.
-    @ivar number_of_records: the number of results reported in the last query we did. None before you do a query. CONSIDER: changing that.
+    @ivar extra_query: extra piece of query to add to the quiery you do late.
+    This lets us representing subsets of larger repositories.
+    @ivar number_of_records: the number of results reported in the last query we did.
+    None before you do a query. CONSIDER: changing that.
     @ivar verbose: whether to print out things while we do them.
     """
 
@@ -45,9 +51,11 @@ class SRUBase:
     ):
         """
         @param base_url: The base URL that other things add to. Basically everything up to the '?'
-        @param x_connection: an attribute that some of these need in the URL. Seems to be non-standard and required for these repos.
-        @param extra_query: is used to let us AND something into the query, and is intended to restrict to a subset of documents. In these cases, x_connection seems to include in extra sets, and the combination is sometimes too much (?)
-        piece of query to add to the quiery you do late. This lets us representing subsets of larger repositories.
+        @param x_connection: an attribute that some of these need in the URL. 
+        Seems to be non-standard and required for these repos.
+        @param extra_query: is used to let us AND something into the query, 
+        and is intended to restrict to a subset of documents. 
+        This lets us representing subsets of larger repositories (somewhat related to x_connection).
         @param verbose: whether to print out things while we do them.
         """
         self.base_url = base_url
@@ -58,7 +66,9 @@ class SRUBase:
         self.number_of_records = None  # hackish, TODO: rethink
 
     def _url(self):
-        """Combines the basic URL parts given to the constructor, and ensures there's a ?  (so you know you can add &k=v)
+        """
+        Combines the basic URL parts given to the constructor, and ensures there's a ?
+        (so you know you can add &k=v)
         This can probably go into the constructor, when I know how much is constant across SRU URLs
         """
         ret = self.base_url
@@ -74,7 +84,8 @@ class SRUBase:
         return ret
 
     def explain(self, readable=True, strip_namespaces=True, timeout=10):
-        """Does an explain operation,
+        """
+        Does an explain operation,
         Returns the XML
           - if readable==False, it returns it as-is
           - if readable==True (default), it will ease human readability:
@@ -98,7 +109,8 @@ class SRUBase:
             return r.content.decode("utf-8")
 
     def explain_parsed(self, timeout=10):
-        """Does an explain operation,
+        """
+        Does an explain operation,
         Returns a dict with some of the more interesting details.
 
         TODO: actually read the standard instead of assuming things.
@@ -117,14 +129,20 @@ class SRUBase:
         explain = tree.find("record/recordData/explain")
 
         def get_attrtext(treenode, name, attr):
-            "under etree object :treenode:, find a node called :name:, and get the value of its :attr: attribute"
+            """ under etree object :treenode:, 
+                find a node called :name:,
+                and get the value of its :attr: attribute
+            """
             if treenode is not None:
                 node = treenode.find(name)
                 if node is not None:
                     return name, attr, node.get(attr)
 
         def get_nodetext(treenode, name):
-            "under etree object :treenode:, find a node called :name:, and get the inital text under it"
+            """ under etree object :treenode:, 
+                find a node called :name:,
+                and get the inital text under it
+            """
             if treenode is not None:
                 node = treenode.find(name)
                 if node is not None:
@@ -169,7 +187,8 @@ class SRUBase:
         return ret
 
     def num_records(self):
-        """After you do a search_retrieve, this should be set to a number.
+        """
+        After you do a search_retrieve, this should be set to a number.
 
         This function may change.
         """
@@ -185,7 +204,8 @@ class SRUBase:
         callback=None,
         verbose=False,
     ):
-        """Fetches a range of results for a particular query.
+        """
+        Fetches a range of results for a particular query.
         Returns each result record as a separate ElementTree object.
 
         Exactly what each record contains will vary per repository,
@@ -254,6 +274,8 @@ class SRUBase:
         # TODO: think about that, user code may not expact that
         tree = wetsuite.helpers.etree.strip_namespace(tree)
 
+        # TODO: it seems some errors messages are actually incorrect XML; figure out whether we want to handle that
+
         if tree.tag == "diagnostics":  # TODO: figure out if this actually happened
             raise RuntimeError(
                 "SRU server said: "+
@@ -262,7 +284,7 @@ class SRUBase:
                 .text
             )
         elif tree.find("diagnostics") is not None:
-            raise RuntimeError( 
+            raise RuntimeError(
                 "SRU server said: "+
                 wetsuite.helpers.etree.strip_namespace(tree)
                 .find("diagnostics/diagnostic/message")
@@ -303,25 +325,34 @@ class SRUBase:
         wait_between_sec: float = 0.5,
         verbose: bool = False,
     ):
-        """This function builds on search_retrieve() to "fetch _many_ results results in chunks", by calling search_retrieve() repeatedly.
-        (search_retrieve() will have a limit on how many to search at once, though is still useful to see e.g. if there are results at all)
+        """This function builds on search_retrieve() to "fetch _many_ results results in chunks",
+        by calling search_retrieve() repeatedly.
+        
+        (search_retrieve() will have a limit on how many to search at once,
+        though is still useful to see e.g. if there are results at all)
 
-         - Like search_retrieve, it (eventually) returns each result record as an elementTree objects,
-           (this can be more convenient if you an to handle the results as a whole)
-         - and if callback is not None, this will be called on each result _during_ the fetching process.
-           (this can be more convenient way of dealing with many results while they come in)
+        Like search_retrieve, it (eventually) returns each result record as an elementTree objects,
+        (this can be more convenient if you an to handle the results as a whole)
+         
+        ...and if callback is not None,
+        this will be called on each result _during_ the fetching process.
+        (this can be more convenient way of dealing with many results while they come in)
 
-        @param query:            like in search_retrieve()
-        @param start_record:     like in search_retrieve()
-        @param callback:         like in search_retrieve()
-        @param up_to:            is the absolute offset, e.g. start_offset=200,up_to=250 gives you records 200..250,  not 200..450
-        @param at_a_time:        how many records to fetch in a single request
-        @param wait_between_sec: a backoff sleep between each search request, to avoid hammering a server too much.
+        @param query:        like in search_retrieve()
+        @param start_record: like in search_retrieve()
+        @param callback:     like in search_retrieve()
+        @param up_to:        is the absolute offset,
+        e.g. start_offset=200,up_to=250 gives you records 200..250,  not 200..450
+        @param at_a_time:        
+        how many records to fetch in a single request
+        @param wait_between_sec: a backoff sleep between each search request, 
+        to avoid hammering a server too much.
         you can lower this where you know this is overly cautious
         note that we skip this sleep if one fetch was enough
         @param verbose: whether to be even more verbose during this query
 
-        since we fetch in chunks, we may overshoot in the last fetch, by up to at_a_time amount of entries
+        since we fetch in chunks, we may overshoot in the last fetch, 
+        by up to at_a_time amount of entries.
         The code should avoid returning those.
 
         CONSIDER:
@@ -351,18 +382,15 @@ class SRUBase:
 
             offset += at_a_time
 
-            if (
-                offset >= up_to
-            ):  # crossed beyond what was asked for  (we don't return it even if we fetched it)
+            # crossed beyond what was asked for?  (we don't return it even if we fetched it)
+            if offset >= up_to:
                 break
 
-            if (
-                self.number_of_records is not None and offset > self.number_of_records
-            ):  # crossed beyond what exists in the search result
+            # crossed beyond what exists in the search result?
+            if self.number_of_records is not None and offset > self.number_of_records:  
                 break
 
-            time.sleep(
-                wait_between_sec
-            )  # note that this is avoided if a single fetch was enough
+            # (note that this is avoided if the first, single fetch was enough)
+            time.sleep( wait_between_sec )
 
         return ret
