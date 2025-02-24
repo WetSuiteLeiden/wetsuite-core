@@ -152,7 +152,9 @@ def hash_hex(data:bytes, as_bytes:bool = False):
     """Given some byte data, calculate SHA1 hash.
     Returns that hash as a hex string, unless you specify as_bytes=True
 
-    Deals with unicode by UTF8-encoding it, which isn't _always_ what you want.
+    If instead given a (unicode) string, it accepts it and deals with unicode 
+    by UTF8-encoding it first. This is not always what you want.
+    
     @param data: the bytes to hash
     @param as_bytes: whether to return the hash dugest as a bytes object. 
     Defaults to False, meaning a hex string (like 'a49d')
