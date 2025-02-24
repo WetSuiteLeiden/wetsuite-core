@@ -9,7 +9,9 @@ import wetsuite.helpers.localdata
 
 
 def test_crud():
-    "basic getter and setter tests"
+    """basic CRUD test: that setters actually store data, 
+       and getters get it out again, and that item counts match
+    """
     kv = wetsuite.helpers.localdata.LocalKV(":memory:", key_type=str, value_type=str)
     with pytest.raises(KeyError):
         kv.get("a")
@@ -26,7 +28,7 @@ def test_crud():
 
 
 def test_metacrud():
-    "basic getter and setter tests of the (hidden) meta table"
+    "basic CRUD tests of the (hidden) meta table"
     kv = wetsuite.helpers.localdata.LocalKV(":memory:", key_type=str, value_type=str)
     with pytest.raises(KeyError):
         kv._get_meta("a")  # pylint: disable=protected-access
@@ -38,7 +40,7 @@ def test_metacrud():
 
 
 def test_readonly():
-    "test whether read-only things refuse writing"
+    "test whether opening a store read-only will refuse writing"
     kv = wetsuite.helpers.localdata.LocalKV(":memory:", str, str, read_only=True)
     with pytest.raises(RuntimeError, match=r".*Attempted*"):
         kv.put("a", "b")
@@ -54,7 +56,7 @@ def test_readonly():
 
 
 def test_moreapi():
-    "More API stuff"
+    "Testing more class interface stuff, mostly the key and value iterators"
     kv = wetsuite.helpers.localdata.LocalKV(":memory:", str, str)
     kv.put("a", "b")
     kv.put("c", "d")
@@ -73,7 +75,7 @@ def test_moreapi():
 
 
 def test_moreapi_random():
-    "More API stuff, randomness related"
+    "Testing more class interface functions, mainly the randomness related ones"
     kv = wetsuite.helpers.localdata.LocalKV(":memory:", str, str)
     kv.put("a", "b")
     kv.put("c", "d")
@@ -97,16 +99,19 @@ def test_moreapi_random():
 
 
 def test_list():
-    "we can't really know what the testing account has, so this wouldn't be deterministic, just check that it doesn't fail"
+    """Test that we can list the stores you have created.
+       We can't really know what the testing account has, so this wouldn't be deterministic;
+       just check that it doesn't fail
+    """
     wetsuite.helpers.localdata.list_stores()
     wetsuite.helpers.localdata.list_stores(look_under="/tmp/")
 
-    # may take a while:
+    # may take a while if you have made huge stores:
     # wetsuite.helpers.localdata.list_stores(get_num_items=True)
 
 
 def test_doublecommit():
-    "do not trip over excessive commits"
+    "test that we do not trip over excessive/pointless commits"
     kv = wetsuite.helpers.localdata.LocalKV(":memory:", str, str)
     kv.commit()
     kv.put("1", "2", commit=False)
@@ -115,7 +120,7 @@ def test_doublecommit():
 
 
 def test_doublerollback():
-    "do not trip over excessive rollbacks"
+    "do not trip over excessive/pointless rollbacks"
     kv = wetsuite.helpers.localdata.LocalKV(":memory:", str, str)
     kv.commit()
     kv.put("1", "2", commit=False)
@@ -124,7 +129,8 @@ def test_doublerollback():
 
 
 def test_rollback():
-    "see if rollback works, and do not trip after rollback"
+    """see if rollback does what it should in terms of not adding.
+       (And that we do not have basic fetching issues after rollback)"""
     kv = wetsuite.helpers.localdata.LocalKV(":memory:", str, str)
     assert len(kv.keys()) == 0
     kv.put("1", "2", commit=False)
@@ -138,7 +144,7 @@ def test_rollback():
 
 
 def test_moretrans():
-    "some transaction relates tests"
+    "some transaction related tests"
     kv = wetsuite.helpers.localdata.LocalKV(":memory:", str, str)
     kv.put("1", "2")
     assert kv._in_transaction is False  # pylint: disable=protected-access
@@ -147,17 +153,18 @@ def test_moretrans():
     kv.vacuum()  # test if it commits before vacuum
 
     kv.delete("1", commit=False)  # should start transaction
-    kv.close()  # also a test of 'do we roll back when still in transaction' (at least, whether that code doesn't bork out)
+    # also a test of 'do we roll back when still in transaction'
+    kv.close() #  (at least, whether that code doesn't error out)
 
 
 def test_context_manager():
-    "see if use of class as context manager functions"
+    "see if use of class as a context manager works"
     with wetsuite.helpers.localdata.LocalKV(":memory:", str, str) as kv:
         assert len(kv.keys()) == 0
 
 
 def test_truncate():
-    "see if truncating all data works"
+    "see if truncating all data actually removes all data"
     kv = wetsuite.helpers.localdata.LocalKV(":memory:", str, str)
     assert len(kv.keys()) == 0
     for i in range(10):
@@ -187,7 +194,7 @@ def test_truncate():
 
 
 def test_bytesize():
-    'check that "estimate size of contained data" does not bork out'
+    'check that "estimate size of contained data" does not error out'
     kv = wetsuite.helpers.localdata.LocalKV(":memory:", str, str)
     initial_size = kv.bytesize()
     assert initial_size > 0  # I believe it counts the overhead
@@ -228,140 +235,6 @@ def test_type_check():
     kv.put(1, 2.0)
     with pytest.raises(TypeError, match=r".*are allowed*"):
         kv.put("a", "s")
-
-
-#def test_multiread_and_locking( tmp_path ):
-def DISABLED_test_multiread_and_locking(tmp_path): # (tmp_path invokes pytest fixture)
-    """
-    Test some basic behaviour wen you have multiple readers on a store.
-
-    Might be disabled (e.g. prepending DISABLED_ to the function name) because 
-    the test takes longish (on purpose),
-    and also isn't as deterministic as it should be.
-    """
-    import sqlite3
-
-    # test that both see the same data
-    #   even if one was opened later
-    path = tmp_path / "test1.db"
-    kv1 = wetsuite.helpers.localdata.LocalKV(path, str, str)
-    kv1.put("a", "b")
-
-    kv2 = wetsuite.helpers.localdata.LocalKV(path, str, str)
-    kv1.put("c", "d")
-
-    assert len(kv1.items()) > 0
-
-    assert kv1.items() == kv2.items()
-
-    # test that not committing leaves the database locked and other opens would fail   (defined sqlite3 behaviour)
-    kv1.put("e", "f", commit=False)  # this would keep the database locked until
-    with pytest.raises(
-        sqlite3.OperationalError, match=r".*database is locked*"
-    ):  # note this will take the default 5 secs to time out
-        kv3 = wetsuite.helpers.localdata.LocalKV(path, str, str)
-        kv3.items()
-
-    # check that commit does fix that
-    kv1.commit()
-    kv4 = wetsuite.helpers.localdata.LocalKV(path, str, str)
-    kv4.items()
-
-    # check that a commit=true (default)  while in a transaction due to an earlier commit=false does a commit
-    kv1.put("g", "h", commit=False)
-    kv1.put("i", "j")
-    kv4 = wetsuite.helpers.localdata.LocalKV(path, str, str)
-    kv4.items()
-
-    # check that delete has the same behaviour
-    kv1.delete("i", commit=False)  # this would keep the database locked until
-    with pytest.raises(
-        sqlite3.OperationalError, match=r".*database is locked*"
-    ):  # note this will take the default 5 secs to time out ()
-        kv5 = wetsuite.helpers.localdata.LocalKV(path, str, str)
-        kv5.items()
-
-    kv1.delete("g", commit=False)  # this would keep the database locked until
-    kv1.delete("e")
-    kv6 = wetsuite.helpers.localdata.LocalKV(path, str, str)
-    kv6.items()
-
-
-def DISABLED_test_thread(tmp_path):
-    """See whether (with the default autocommit behaviour) access is concurrent
-    and not overly eager to time-and-error out - basically see if the layer we added forgot something.
-
-    TODO: loosen up the intensity, it may still race to fail under load
-
-    disabled because it (intentionally) takes some time.
-    """
-    import time, threading
-
-    # It seems threads may share the module, but not connections
-    # https://docs.python.org/3/library/sqlite3.html#sqlite3.threadsafety
-    path = tmp_path / "test_thr.db"
-
-    def get_sqlite3_thread_safety():  # See https://ricardoanderegg.com/posts/python-sqlite-thread-safety/ for why this is here
-        "the sqlite module's threadsafety module is hardcoded for now, asking the library is more accurate"
-        import sqlite3
-        conn = sqlite3.connect(":memory:")
-        threadsafe_val = conn.execute(
-            "SELECT *  FROM pragma_compile_options  WHERE compile_options LIKE 'THREADSAFE=%'"
-        ).fetchone()[0]
-        conn.close()
-        threadsafe_val = int(threadsafe_val.split("=")[1])
-        return {0:0, 2:1, 1:3}[
-            threadsafe_val
-        ]  # sqlite's THREADSAFE values to DBAPI2 values
-
-    if get_sqlite3_thread_safety() in (
-        1,
-        3,
-    ):  # in both you can share the module, but only in 3 could you share a connection
-        start = time.time()
-        end = start + 7
-
-        def writer(end, path):
-            myid = threading.get_ident() % 10000
-            mycount = 0
-            while time.time() < end:
-                mykv = wetsuite.helpers.localdata.LocalKV(path, str, str)
-                mykv.put("%s_%s" % (myid, mycount), "01234567890" * 500)
-                mycount += 1
-                # time.sleep(0.01) # it seems that without this it wil
-                # mykv.close()
-
-        # mykv = wetsuite.helpers.localdata.LocalKV( path )
-        # time.sleep(0.1)
-        # also leave this open as reader, why not
-
-        started = []
-        # writer(end, path)
-        for _ in range(
-            3
-        ):  # it seems to take a few dozen concurrent writers (on an SSD, that's probably relevant) to make it time itself out.
-            th = threading.Thread(target=writer, args=(end, path))
-            th.start()
-            started.append(th)
-            # time.sleep(0.1)
-
-        while (
-            time.time() < end
-        ):  # main thread watches what the others are managing to do
-            # logging.warning( ' FILESIZE   '+str(os.stat(path).st_size) )
-            mykv = wetsuite.helpers.localdata.LocalKV(path, str, str)
-            # logging.warning( ' AMTO     '+str(len(mykv)) )
-            # logging.warning('%s'%mykv.keys())
-            mykv.close()
-            time.sleep(0.5)
-
-        for th in started:
-            th.join()
-
-    else:  # thread-safety is 0
-        raise EnvironmentError(
-            "SQLite is compiled single-threaded, we can be fairly sure it  would fail"
-        )
 
 
 def test_vacuum(tmp_path):
@@ -479,13 +352,170 @@ def test_is_file_a_store(tmp_path):
     # fail on a non-file
     wetsuite.helpers.localdata.is_file_a_store("/")
 
-    # fail on a non-sqlite file   (this test source is an easy example that we already have anyway)
-    import test_localdata  # self-import to get a file we know exists    so pylint: disable=W0406
-
+    # fail on a non-sqlite file
+    # a file we know exists and isn't a store: this test file itself
+    import test_localdata     # so pylint: disable=import-self,import-outside-toplevel
     assert wetsuite.helpers.localdata.is_file_a_store(test_localdata.__file__) is False
 
-    # make a store, to test that it is one
+    # make a store, to then test that it is one
     path = tmp_path / "test.db"
     kv = wetsuite.helpers.localdata.LocalKV(path, str, str)
     kv.close()
     assert wetsuite.helpers.localdata.is_file_a_store(kv.path) is True
+
+
+
+def test_concurrent_rw(tmp_path):
+    " test that both views on a database see the same data  even if one was opened later "
+    path = tmp_path / "test_rw.db"
+    kv1 = wetsuite.helpers.localdata.LocalKV(path, str, str)
+    kv1.put("a", "b") # note: implied commit
+
+    kv2 = wetsuite.helpers.localdata.LocalKV(path, str, str)
+
+    kv1.put("c", "d") # note: implied commit
+    kv2.put("e", "f") # note: implied commit
+
+    assert len(kv1.items()) > 0
+    assert len(kv1.items()) == 3
+    assert len(kv2.items()) == 3
+
+    assert kv1.items() == kv2.items()
+
+
+
+def test_multiread_and_locking( tmp_path ):
+    """
+    Test some basic behaviour wen you have multiple readers on a store.
+
+    Might be disabled (e.g. by prepending DISABLED_ to the function name)
+    because the test takes longish (on purpose, waiting for a timeout),
+    and also isn't as deterministic as it should be.
+    """
+    import sqlite3 # pylint: disable=import-outside-toplevel
+
+    # similar setup as in test_concurrent_rw
+    path = tmp_path / "test1.db"
+    kv1 = wetsuite.helpers.localdata.LocalKV(path, str, str)
+    kv1.put("a", "b")
+    kv2 = wetsuite.helpers.localdata.LocalKV(path, str, str)
+    kv1.put("c", "d")
+    assert len(kv1.items()) == 2
+    assert len(kv2.items()) == 2
+    assert kv1.items() == kv2.items()
+
+
+    # test that not committing leaves the database locked and other opens would fail
+    #   (defined sqlite3 behaviour)
+    kv1.put("e", "f", commit=False)  # this would keep the database locked until
+    with pytest.raises( sqlite3.OperationalError, match=r".*database is locked*" ):
+        # Since the file is now considered locked, 
+        #   any other view should time out reading or writing anything
+        # Note that this will take the default 5 seconds to time out
+        kv3 = wetsuite.helpers.localdata.LocalKV(path, str, str)
+        kv3.items()
+
+
+    # test that a commit does fix that
+    kv1.commit()
+    kv4 = wetsuite.helpers.localdata.LocalKV(path, str, str)
+    kv4.items() # i.e. that this line doesn't raise an sqlite3.OperationalError
+
+
+    # check that a commit=true (default), while in a transaction due to an earlier commit=false,
+    #  actually does a commit
+    kv1.put("g", "h", commit=False)
+    kv1.put("i", "j")
+    kv4 = wetsuite.helpers.localdata.LocalKV(path, str, str)
+    kv4.items()
+
+
+    # check that delete has the same behaviour
+    kv1.delete("i", commit=False)  # this would keep the database locked until
+    with pytest.raises( sqlite3.OperationalError, match=r".*database is locked*" ):
+        # note this will take the default 5 seconds to time out
+        kv5 = wetsuite.helpers.localdata.LocalKV(path, str, str)
+        kv5.items()
+
+    kv1.delete("g", commit=False)  # this would keep the database locked until
+    kv1.delete("e")
+    kv6 = wetsuite.helpers.localdata.LocalKV(path, str, str)
+    kv6.items()
+
+
+def DISABLED_test_thread(tmp_path):
+    """See whether (with the default autocommit behaviour) access is concurrent
+    and not _overly_ eager to error out via a timeout.
+    Basically see if the layer we added forgot something.
+
+    TODO: loosen up the intensity, it may still race to fail under enough load
+
+    disabled because it (intentionally) takes some time.
+    """
+    import time      # pylint: disable=import-outside-toplevel
+    import threading # pylint: disable=import-outside-toplevel
+
+    # It seems threads may share the module, but not connections
+    # https://docs.python.org/3/library/sqlite3.html#sqlite3.threadsafety
+    path = tmp_path / "test_thr.db"
+
+    def get_sqlite3_thread_safety():
+        """The sqlite module's threadsafety module is hardcoded for now,
+           querying the sqlite library itself is technically more accurate.
+           See https://ricardoanderegg.com/posts/python-sqlite-thread-safety/ for why this is here
+        """
+        import sqlite3 # pylint: disable=import-outside-toplevel
+        conn = sqlite3.connect(":memory:")
+        threadsafe_val = conn.execute(
+            "SELECT *  FROM pragma_compile_options  WHERE compile_options LIKE 'THREADSAFE=%'"
+        ).fetchone()[0]
+        conn.close()
+        threadsafe_val = int(threadsafe_val.split("=")[1])
+        return {0:0, 2:1, 1:3}[
+            threadsafe_val
+        ]  # sqlite's THREADSAFE values to DBAPI2 values
+
+    if get_sqlite3_thread_safety() in ( 1, 3, ):
+        # in both you can share the module, but only in 3 could you share a connection
+        start = time.time()
+        end = start + 7
+
+        def writer(end, path):
+            myid = threading.get_ident() % 10000
+            mycount = 0
+            while time.time() < end:
+                mykv = wetsuite.helpers.localdata.LocalKV(path, str, str)
+                mykv.put("%s_%s" % (myid, mycount), "01234567890" * 500)
+                mycount += 1
+                # time.sleep(0.01) # it seems that without this it wil
+                # mykv.close()
+
+        # mykv = wetsuite.helpers.localdata.LocalKV( path )
+        # time.sleep(0.1)
+        # also leave this open as reader, why not
+
+        started = []
+        # writer(end, path)
+        for _ in range( 3 ):
+            # Why 3?  It seems to take a few dozen concurrent writers to make it time itself out
+            #  (...on an SSD, that may well be relevant).
+            th = threading.Thread(target=writer, args=(end, path))
+            th.start()
+            started.append(th)
+            # time.sleep(0.1)
+
+        while time.time() < end:  # main thread watches what the others are managing to do
+            # logging.warning( ' FILESIZE   '+str(os.stat(path).st_size) )
+            mykv = wetsuite.helpers.localdata.LocalKV(path, str, str)
+            # logging.warning( ' AMTO     '+str(len(mykv)) )
+            # logging.warning('%s'%mykv.keys())
+            mykv.close()
+            time.sleep(0.5)
+
+        for th in started:
+            th.join()
+
+    else:  # thread-safety is 0
+        raise EnvironmentError(
+            "SQLite is compiled single-threaded, we can be fairly sure it  would fail"
+        )
