@@ -15,7 +15,7 @@ from wetsuite.helpers.koop_parse import (
     cvdr_normalize_expressionid,
 
     bwb_title_looks_boring,
-    prefer_types, 
+    prefer_types,
     parse_op_metafile,
 
     alineas_with_selective_path,
@@ -233,7 +233,8 @@ def test_cvdr_sourcerefs_bad():
 
 def test_search_related_parsing():
     "do a bunch of search related parsing"
-    # CONSIDER: currently based on an actual search - TODO: fetch a triple of XML files to not rely on taht
+    # CONSIDER: currently based on an actual search
+    #     TODO: fetch a triple of XML files to not rely on taht
     # from wetsuite.helpers.net import download
     # from wetsuite.helpers.etree import fromstring
     bwb_sru = wetsuite.datacollect.koop_sru.BWB()
@@ -243,7 +244,8 @@ def test_search_related_parsing():
 
 def test_more_parsing():
     "do a bunch of search related parsing"
-    # CONSIDER: currently based on an actual search - TODO: fetch a triple of XML files to not rely on taht
+    # CONSIDER: currently based on an actual search
+    #     TODO: fetch a triple of XML files to not rely on taht
     # import wetsuite.datacollect.koop_sru
     # from wetsuite.helpers.net import download
     # from wetsuite.helpers.etree import fromstring
@@ -384,5 +386,4 @@ def test_bwb_title_looks_boring():
     ' Just a substring test at this point.  TODO: more serious cases '
     assert bwb_title_looks_boring("Veegwet wonen") is True
     assert bwb_title_looks_boring("Burgerlijk Wetboek Boek 7") is False
-
 
