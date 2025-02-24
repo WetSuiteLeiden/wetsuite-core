@@ -251,7 +251,7 @@ def date_first_day_in_month(yearnum: int = None, monthnum: int = None):
 
 
 def yyyy_mm_dd(day: datetime.date):
-    "Returns a date as a string like '2024-01-01'  e.g. datetime.date(2024, 1, 1) as that."
+    "Given a datetime or date like datetime.date(2024, 1, 1), returns a string like '2024-01-01' (strftime('%Y-%m-%d')"
     return day.strftime("%Y-%m-%d")
 
 

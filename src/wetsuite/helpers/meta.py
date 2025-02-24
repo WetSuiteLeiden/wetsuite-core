@@ -542,7 +542,7 @@ def findall_bekendmaking_ids(instring: str):
     TODO: give this function a better name, it's not just bekendmakingen.
 
     @param instring: the string to look in
-    @return: a list o
+    @return: a list of values, like ["stcrt-2009-9231", "ah-tk-20082009-2945"]
     """
     # Note that knowing most of the variants, we could refine this and avoid some false positives
     return _re_bekendid.findall( instring )
@@ -567,7 +567,9 @@ def parse_bekendmaking_id(s):
     CONSIDER: also producing citation form(s) of each.
 
     @param s: the string to parse as a single identifier.
-    @return: dict with basic details, like jaar, docnum. If it not a known type of identifier, or it is known but seems invalid, it raises a ValueError.
+    @return: dict with basic details, e.g. parse_bekendmaking_id('stb-2023-281') == {'type':'stb', 'jaar':'2023', 'docnum':'281'}
+    where 'type' and 'docnum' are guaranteed to be there, and 'jaar' is often but not always there.
+    If it not a known type of identifier, or it is known but seems invalid, it raises a ValueError.
     """
     ret = {}
     parts = s.split("-")
@@ -773,7 +775,10 @@ def parse_bekendmaking_id(s):
 
 def parse_kst_id(string:str, debug:bool=False):
     """Parse kamerstukken identifiers like C{kst-26643-144-h1}
-    Also a helper for C{parse_bekendmaking_id}.
+
+    Also a helper for C{parse_bekendmaking_id} to parse this particular subset.
+
+    There is more description of the variations in one of our notebooks
 
     @param string: kst-style identifier as string. Will be parsed.
     @param debug: whether to point out some debug
@@ -797,27 +802,40 @@ def parse_kst_id(string:str, debug:bool=False):
         raise ValueError("Does not start with kst: %r" % string)
 
     if len(parts[0]) == 8:
-        # this is a solid source of that vergaderjaar, but only present in some of the types of kstd
-        # so we might as well breed the expectation you need to parse the metadata for this -- and just remove it now
-        # ret['vergaderjaar'] =
-        parts.pop(0)
+        # this is a good source of vergaderjaar, but only present in _some_ of the types of kst
+        #   so we might as well breed the expectation you need to parse the metadata for it,
+        #   and NOT add vergaderjaar here
+        parts.pop(0) # so the only thing left is to remove and ignore it
 
-    if len(parts)==1 and len(parts[0]) in (7,6): # cases like kst-1158283  which do not seem to be part of a dossier,  and let's assume that number is a document number
+    # so what is left now is the thing after kst- OR kst-vergaderjaar-
+
+
+    # 1 part left, longer number; cases like kst-1158283  which do not seem to be part of a dossier,  and let's assume that number is a document number
+    if len(parts)==1 and len(parts[0]) in (7,6):   # TODO: and test that it's all numeric
         ret["_var"] = "3"
         ret["docnum"] = parts.pop(0)
         return ret
 
-    # these seem to be dossiers
-    if len(parts[0]) == 5:
-        dossiernum.append( parts.pop(0) )
+    # first part length 5 (and a _rare_ added letter) suggests dossier number.
+    #    ...but there might be more parts to that laters, so we collect it into a variable.
+    m = re.match( r'([0-9][0-9][0-9][0-9][0-9][A-Z]?)$', parts[0] )
+    if m is not None:
+        dossiernum.append( m.group(1) )
+        parts.pop(0)
     else:
         raise ValueError("ERR1 Don't know what to do with %r - %r" % (string, parts))
 
-    # in the context of a kst- identifier, we know we are referring to a document so can make some assumptions
+    # in the context of a kst- identifier, we know we are referring to a document so can make some assumptions,
+    # e.g. that there is always a document number following the dosssier number.
+    # There are a few dozen exceptions, though, e.g. kst-20072008-31200
+    #   https://repository.overheid.nl/frbr/officielepublicaties/kst/20072008/kst-20072008-31200/1/metadata/metadata.xml
+
     if len(parts) == 0:
-        ret["_var"] = "e"
+        # so while we otherwise could have considered this an error, it's valid for these few cases and we should accept this.
+        ret["_var"]   = "ndn"
+        ret["docnum"] = "" # I guess.
         return ret
-        # raise ValueError("ERR0 Don't know what to do with %r - %r"%(s, parts))
+        #raise ValueError("ERR0 Don't know what to do with %r -  %r"%(string, parts,))
 
     elif len(parts) == 1:
         # cases like kst-1160535
