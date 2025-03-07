@@ -111,25 +111,30 @@ def progress_bar(maxval, description="", display=True):  # , **kwargs
             time.sleep(1)
         prog.description = 'finished'
 
-    Arguments
-      - maximum value (required)
-      - optional description
-      - if display==True (default), it calls display on the IPython widget, so you don't have to
-    You should only call this after you know you are in an ipython environment,
-    e.g. with is_ipython() / is_notebook()
+    @param maxval: maximum value to count towards (required)
+    @param description: text to also show in the progress bar
+    @param display: if True, (default), then in a notebook we will call display() on the IPython widget, so you don't have to do so to get it visible.
+    @return: an object representing a progress bar, that you can set the .value and .description on.
     """
+    #console_only=False
     try:
         from tqdm import TqdmExperimentalWarning
 
         # TODO: actually read up on what that warning means exactly
-        warnings.filterwarnings("ignore", category=TqdmExperimentalWarning)
+        warnings.filterwarnings("ignore", category=TqdmExperimentalWarning) # TODO: use context manager
 
+        #if console_only:
+        #    import tqdm.std
+        #else:
         import tqdm.autonotebook  # pylint: disable=C0415
 
         class TqdmWrap:
             "make it act enough like the ipywidget, in terms of our description"
 
             def __init__(self, maxval, description):
+                #if console_only:
+                #    self.tq = tqdm.std.tqdm(total=maxval, desc=description)
+                #else:
                 self.tq = tqdm.autonotebook.tqdm(total=maxval, desc=description)
                 self._value = 0
                 self._description = description
@@ -171,29 +176,31 @@ def progress_bar(maxval, description="", display=True):  # , **kwargs
 
 
 class ProgressBar:
-    """A sequence-iterating progress bar (like tqdm),
-    that prefers notebook over console style.
+    """A sequence-iterating progress bar (like tqdm) that supports both notebooks and console, 
+    and prefers notebook over console style in notebooks.
 
-    Compared to L{progress_bar}, this one is less typing, and a little more basic.
     e.g. usable like::
         data = ['a','b',3]
         for item in ProgressBar(data, 'parsing... '):
             time.sleep(1)
 
-    It's more basic in that...
+    Compared to the similar L{progress_bar}, this one is less typing, 
+    but a little more basic, in that...
         - Unlike creating a progress_bar object, you don't get to change its description.
-
         - Unlike tqdm, we only work with something that has a length and is subscriptable,
-          and has no fallback for
-        - unknown-length iterables
-          (such as generators or enumerate)
-        - known-length but unsubscriptable iterators
-          (such as dict_items, and set type - yould need to wrap a list() around it)
-          we could hardcode those to work, though...
+          and has no fallback for...
+            - unknown-length iterables
+              (such as generators or enumerate)
+            - known-length but unsubscriptable iterators
+              (such as dict_items, and set type - yould need to wrap a list() around it)
+              we could hardcode those to work, though...
 
     Yes, it's silly that we e.g. wrap tqdm in two layers of interfaces
     to then present a poorer version of what it does in the first place.
     We should probably try being cleverer.
+
+    Also, it seems that the notebook variant can only take ~20K/s updates,
+    so will effectively rate-limit anything that wants to go faster than that;
     """
 
     def __init__(self, iterable, description=""):
@@ -225,7 +232,7 @@ class ProgressBar:
         self._iterable = iterable
 
         self._cur = -1
-        self.pb = progress_bar(self._len, description=description)
+        self.pb = progress_bar(self._len, description=description, )
 
     def __len__(self):
         return self._len
