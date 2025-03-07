@@ -94,18 +94,34 @@ def test_format_date_list():
 
 def test_parse():
     "test the parsing of sligtly free-form strings"
+    assert parse("2022-1-1")             == datetime.datetime(2022, 1,   1,   0, 0)
     # invalid but I've seen it
-    assert parse("2022-01-01+0200") == datetime.datetime(2022, 1, 1, 0, 0)
+    assert parse("2022-01-01+0200")      == datetime.datetime(2022, 1,   1,   0, 0)
 
-    assert parse("  5 may 1988  ") == datetime.datetime(1988, 5, 5, 0, 0)
-    assert parse("  1 november 1988  ") == datetime.datetime(1988, 11, 1, 0, 0)
-    assert parse("  1e november 1988  ") == datetime.datetime(1988, 11, 1, 0, 0)
-    assert parse("  20 december 2022  ") == datetime.datetime(2022, 12, 20, 0, 0)
+    assert parse("  5 may 1988  ")       == datetime.datetime(1988, 5,   5,   0, 0)
+    assert parse("  1 november 1988  ")  == datetime.datetime(1988, 11,  1,   0, 0)
+    assert parse("  1e november 1988  ") == datetime.datetime(1988, 11,  1,   0, 0)
+    assert parse("  20 december 2022  ") == datetime.datetime(2022, 12, 20,   0, 0)
 
     # it doesn't actually understand that (it was a tuesday), but it ignores it fine
     assert parse("  donderdag 1 november 1988  ") == datetime.datetime(
         1988, 11, 1, 0, 0
     )
+
+    # including time (don't count on this in less formal options)
+    assert parse("2022-01-01 11:22")      == datetime.datetime(2022, 1,   1,   11, 22)
+
+
+def test_parse_date():
+    "same parsing tests, asking for datetime instead of date"
+    assert parse("2022-01-01+0200", as_date=True)      == datetime.date(2022, 1, 1)
+
+    assert parse("  5 may 1988  ", as_date=True)       == datetime.date(1988, 5, 5)
+    assert parse("  1 november 1988  ", as_date=True)  == datetime.date(1988, 11, 1)
+    assert parse("  1e november 1988  ", as_date=True) == datetime.date(1988, 11, 1)
+    assert parse("  20 december 2022  ", as_date=True) == datetime.date(2022, 12, 20)
+
+    assert parse("2022-01-01 11:22", as_date=True)     == datetime.date(2022, 1, 1)
 
 
 def test_yy_mm_dd():

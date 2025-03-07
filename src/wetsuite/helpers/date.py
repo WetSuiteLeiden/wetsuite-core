@@ -6,7 +6,7 @@ and ease things like "I would like to specify a range of days in a particular fo
 Note that this module is focused only on days, not on precise times. 
 And, as a result (timezones), it may be a day off.
 
-CONSIDER: making everything generators, for large ranges 
+CONSIDER: making anything range-based be generators.
 """
 
 import datetime
@@ -63,7 +63,7 @@ class DutchParserInfo(dateutil.parser.parserinfo):
     ]
 
 
-def parse(text: str, exception_as_none=True):
+def parse(text: str, as_date=False, exception_as_none=True):
     """
     Try to parse a string as a date.
 
@@ -75,8 +75,9 @@ def parse(text: str, exception_as_none=True):
     We try to be a little more robust here - and will try to return None instead of raising an exception (but no promises).
 
     @param text:               Takes a string that you know contains just a date
+    @param as_date:  if 
     @param exception_as_none:  if invalid, return None rather than raise a ValueError
-    @return: that date as a datetime, or None
+    @return: that date as a datetime (or date, if you prefer), or None
     """
     # use the first that doesn't fail
     for lang, transform in (
@@ -89,7 +90,11 @@ def parse(text: str, exception_as_none=True):
         (None, lambda x: x.split("+")[0]),
     ):
         try:
-            return dateutil.parser.parse(transform(text), parserinfo=lang)
+            dt = dateutil.parser.parse(transform(text), parserinfo=lang)
+            if as_date:
+                return dt.date()
+            else:
+                return dt
         except dateutil.parser._parser.ParserError:  # pylint: disable=protected-access
             continue
     if exception_as_none:
