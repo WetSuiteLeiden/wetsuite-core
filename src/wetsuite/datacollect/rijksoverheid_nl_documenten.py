@@ -120,8 +120,8 @@ def scrape_pagination(doctype, detail_page_callback,  from_date=None, to_date=No
         @param to_date: End of date range to fetch (if from_date is also given)
 
         @param detail_page_callback: this is called for each item. It should accept two arguments
-        - soup fragment for it on the pagination page (you can often ignore this)
-        - a detail page URL
+          - soup fragment for it on the pagination page (you can often ignore this)
+          - a detail page URL
     '''
 
     if from_date is None and to_date is None:
