@@ -780,6 +780,8 @@ def bwb_toestand_text(tree, debug=False):
     wetgeving = tree.find("wetgeving")
     soort = wetgeving.get("soort")  # only used in debug
 
+    # The approach in here turned out to not be quite sustainable - that is, it's not particularly clear.
+
     for artikel in wetgeving.iter():  # assumes all tekst in these elements, and that they are not nested.  Ignores structure.
 
         if artikel.tag not in ["artikel", "enig-artikel", "tekst", "structuurtekst", "bijlage"]:
@@ -827,28 +829,39 @@ def bwb_toestand_text(tree, debug=False):
 
                 elif ch.tag in ("al",):
                     text.extend(wetsuite.helpers.etree.all_text_fragments(ch))
-                elif ch.tag in ("al-groep",):
+                elif ch.tag in ("al-groep", ):
                     text.extend(wetsuite.helpers.etree.all_text_fragments(ch))
 
-                elif ch.tag in ("table",): # TODO: handle as table
+                elif ch.tag in ("divisie", ): # TODO: handle better
+                    text.extend(wetsuite.helpers.etree.all_text_fragments(ch))
+
+                elif ch.tag in ("artikel", ): # TODO: ...what?
+                    text.extend(wetsuite.helpers.etree.all_text_fragments(ch))
+
+                elif ch.tag in ("table", ): # TODO: handle as table
                     #text.extend(wetsuite.helpers.etree.all_text_fragments(ch))
                     text.extend(wetsuite.helpers.etree.html_text(ch, join=False, bodynodename=None))
                 
-                elif ch.tag in ("definitielijst",):
+                elif ch.tag in ("definitielijst", ):
                     text.extend(wetsuite.helpers.etree.all_text_fragments(ch))
 
-                elif ch.tag in ("specificatielijst",):
+                elif ch.tag in ("specificatielijst", ):
                     pass
                 elif ch.tag in ( "kop", "tussenkop", ):
                     pass
-                elif ch.tag in ("adres", "adreslijst"):
+                elif ch.tag in ("adres", "adreslijst", ):
                     pass
-                elif ch.tag in ("artikel.toelichting",):
+                elif ch.tag in ("artikel.toelichting", ):
                     pass
-                elif ch.tag in ("plaatje", "formule"):
+                elif ch.tag in ("plaatje", "formule", "model", ):
                     pass
-                elif ch.tag in ( "citaat", "wetcitaat" ):
+                elif ch.tag in ("officiele-inhoudsopgave", ):
                     pass
+                elif ch.tag in ( "citaat", "wetcitaat", ):
+                    pass
+                elif ch.tag in ( "bijlage-sluiting",):
+                    pass
+                # TODO: ignore ProcessingInstruction 
                 else:
                     print("%s/%s IGNORE unknown lid-child %r" % (bwb_id, soort, ch.tag))
                     print(wetsuite.helpers.etree.tostring(ch).decode("u8"))

@@ -662,7 +662,7 @@ _html_text_knowledge = { #  usecontents prepend append removesubtree
     'cite':                   ( True,  None, ' ',    False ), # arguable
 
 
-    ## Some BWB, CVDR node names. You wouldn't use this for structured output, but it's arguably a nice alternative for just plain text, simpler than using the split code
+    ## Some BWB, CVDR node names. You wouldn't use this for structured output, but it's arguably a nice alternative for just plain text, better than just getting out the text fragments, and simpler than using our splitter
     'meta-data':              ( False,  ' ',' ',      True ),
     'bwb-inputbestand':       ( False,  ' ',' ',      True ),
     'bwb-wijzigingen':        ( False,  ' ',' ',      True ),
@@ -680,6 +680,7 @@ _html_text_knowledge = { #  usecontents prepend append removesubtree
     'citeertitel':            ( True,  ' ','\n',     False ), 
     'wettekst':               ( True,   None,None,   False ), 
     'afkondiging':            ( True,   None,None,   False ), 
+    'divisie':                ( True,   None, None,  False ), 
 
     'publicatiejaar':         ( True,  ' ','\n',     False ), 
     'publicatienr':           ( True,  ' ','\n',     False ), 
@@ -699,23 +700,51 @@ _html_text_knowledge = { #  usecontents prepend append removesubtree
     'lid':                    ( True,  None, ' ',    False ), 
     'lidnr':                  ( True,  None, ' ',    False ), 
     'kop':                    ( True,   ' ',' ',     False ), 
-
-    'noot':                   ( True,   None,None,   False ), 
-    'noot.nr':                ( True,   None,' ',   False ), 
-    'noot.al':                ( True,   None,'\n',   False ), 
+    'tussenkop':              ( True,   ' ',' ',     False ), 
 
     'tbody':                  ( True,   None,None,   False ), 
     'tgroup':                 ( True,   None,None,   False ), 
     'colspec':                ( True,   None,None,   False ), 
     'row':                    ( True,   ' ','\n',    False ), 
     'entry':                  ( True,   ' ',' ',     False ), 
+
     'nadruk':                 ( True,   ' ',' ',     False ), 
+
+    'lijst':                  ( True,   None,None,   False ), 
+    'li':                     ( True,   None,'\n',   False ), 
+    'li.nr':                  ( True,   None,' ' ,   False ), 
+
+    'definitielijst':         ( True,   None,'\n',   False ), 
+    'definitie-item':         ( True,   None,'\n',   False ), 
+    'term':                   ( True,   None,' - ',  False ), 
+    'definitie':              ( True,   None,'\n',   False ), 
+    'specificatielijst':      ( True,   None,'\n',   False ), 
+    'specificatie-item':      ( True,   None,'\n',   False ), 
+    'specificatie':           ( True,   None,' ',    False ), 
+    'waarde':                 ( True,   None,' ',  False ), 
+
+    'noot':                   ( True,   None,None,   False ), 
+    'noot.nr':                ( True,   None,' ',    False ), 
+    'noot.al':                ( True,   None,'\n',   False ), 
+    'noot.lijst':             ( True,   None,'\n',   False ), 
+    'noot.li':                ( True,   None,'\n',   False ), 
 
     'al':                     ( True,   None,'\n',   False ), 
 
     'inf':                    ( True,   None,None,   False ), 
     'extref':                 ( True,   None,None,   False ), 
     'intref':                 ( True,   None,None,   False ), 
+    'extref-groep':           ( True,   None,None,   False ), # seems rare?
+    'intref-groep':           ( True,   None,None,   False ), # seems rare?
+
+    'nootref':                ( True,   None,'\n',   False ), 
+    'aanhaling':              ( True,   None,'\n',   False ), # TODO: look at
+    'bron':                   ( True,   None,'\n',   False ), # TODO: look at
+
+    'plaatje':                ( False,   None,None,  False ), 
+    'illustratie':            ( False,   None,None,  False ), 
+
+    'tekstcorrectie':         ( True,   None,None,   False ),  # TODO: look at
 
     'wetsluiting':            ( False,   None,None,  False ), 
     'slotformulering':        ( True,    ' ',' ',    False ), 
