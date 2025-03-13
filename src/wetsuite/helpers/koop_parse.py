@@ -175,11 +175,15 @@ def cvdr_parse_identifier(text: str, prepend_cvdr: bool = False):
 
 
 def cvdr_normalize_expressionid(text: str):
-    """When indexing, you may care to transform a CVDRid in a more fixed form (just the number, underscore) than they appear.
+    """When indexing, you may care to transform varied forms (e.g. "112779_1" and "CVDR112779_1")
+    into just one normalized form.
 
-    Actually just returns the second thing that cvdr_parse_identifier() returns -- so excludes the 'CVDR'
+    Note that this does not work on workids - we raise an exception for them.
     
-    Does not work on workids
+    @param text: the identifier to work on.
+
+    @return: the expression - basically the thing cvdr_parse_identifier() returns, _including_ the 'CVDR' at the start
+
     """
     nex = cvdr_parse_identifier(text, prepend_cvdr=True)[1]
     if nex is None:
@@ -191,7 +195,12 @@ def cvdr_normalize_expressionid(text: str):
 
 def cvdr_param_parse(rest: str):
     """Picks the parameters from a juriconnect (jci) style identifier string.
-    Used by cvdr_sourcerefs.  Duplicates code in meta.py - TODO: centralize that
+
+    Mostly a helper function, used e.g. by cvdr_sourcerefs.  Duplicates code in meta.py - TODO: centralize that
+
+    Would turn "BWB://1.0:c:BWBR0008903&artikel=12&g=2011-11-08" into a dict where 'artikel' maps to ['12'], etc.
+    @param rest: the string to parse
+    @return: a dict containing each variable to a list of values present in this URL-like string
     """
     rest = rest.replace(
         "&amp;", "&"
@@ -749,7 +758,7 @@ def bwb_merge_usefuls(toestand_usefuls=None, wti_usefuls=None, manifest_usefuls=
     return merged
 
 
-def bwb_toestand_text(tree):
+def bwb_toestand_text(tree, debug=False):
     """Given the document (as an etree object), this is a quick and dirty 'give me mainly the plaintext in it',
     skipping any introductions and such.
 
@@ -770,12 +779,10 @@ def bwb_toestand_text(tree):
     bwb_id = tree.get("bwb-id")  # only used in debug
     wetgeving = tree.find("wetgeving")
     soort = wetgeving.get("soort")  # only used in debug
-    for (
-        artikel
-    ) in (
-        wetgeving.iter()
-    ):  # assumes all tekst in these elements, and that they are not nested.  Ignores structure.
-        if artikel.tag not in ["artikel", "enig-artikel", "tekst", "structuurtekst"]:
+
+    for artikel in wetgeving.iter():  # assumes all tekst in these elements, and that they are not nested.  Ignores structure.
+
+        if artikel.tag not in ["artikel", "enig-artikel", "tekst", "structuurtekst", "bijlage"]:
             continue
 
         if artikel.find("lid") is not None:
@@ -796,29 +803,16 @@ def bwb_toestand_text(tree):
                     for li in ch.getchildren():
                         for lich in li:
                             if lich.tag in ("al",):
-                                text.extend(
-                                    wetsuite.helpers.etree.all_text_fragments(lich)
-                                )
-                            elif lich.tag in (
-                                "lijst",
-                            ):  # we can probably do this a little nicer
-                                text.extend(
-                                    wetsuite.helpers.etree.all_text_fragments(lich)
-                                )
+                                text.extend( wetsuite.helpers.etree.all_text_fragments(lich) )
+                            elif lich.tag in ("lijst",):  # we can probably do this a little nicer
+                                text.extend( wetsuite.helpers.etree.all_text_fragments(lich) )
                             elif lich.tag in ("table",):
-                                text.extend(
-                                    wetsuite.helpers.etree.all_text_fragments(lich)
-                                )
+                                text.extend( wetsuite.helpers.etree.all_text_fragments(lich) )
                             elif lich.tag in ("definitielijst",):
-                                text.extend(
-                                    wetsuite.helpers.etree.all_text_fragments(lich)
-                                )
+                                text.extend( wetsuite.helpers.etree.all_text_fragments(lich) )
                             elif lich.tag in ("specificatielijst",):
                                 pass
-                            elif lich.tag in (
-                                "li.nr",
-                                "meta-data",
-                            ):
+                            elif lich.tag in ("li.nr", "meta-data",):
                                 pass
                             elif lich.tag in ("tussenkop",):
                                 pass
@@ -827,29 +821,25 @@ def bwb_toestand_text(tree):
                             elif lich.tag in ("adres",):
                                 pass
                             else:
-                                print(
-                                    "%s/%s IGNORE unknown lijst child %r"
-                                    % (bwb_id, soort, lich.tag)
-                                )
-                                print(
-                                    wetsuite.helpers.etree.tostring(lich).decode("u8")
-                                )
+                                if debug:
+                                    print( f"{bwb_id}/{soort} IGNORE unknown lijst child {lich.tag}" )
+                                    print( wetsuite.helpers.etree.tostring(lich).decode("u8") )
 
                 elif ch.tag in ("al",):
                     text.extend(wetsuite.helpers.etree.all_text_fragments(ch))
                 elif ch.tag in ("al-groep",):
                     text.extend(wetsuite.helpers.etree.all_text_fragments(ch))
-                elif ch.tag in ("table",):
-                    text.extend(wetsuite.helpers.etree.all_text_fragments(ch))
+
+                elif ch.tag in ("table",): # TODO: handle as table
+                    #text.extend(wetsuite.helpers.etree.all_text_fragments(ch))
+                    text.extend(wetsuite.helpers.etree.html_text(ch, join=False, bodynodename=None))
+                
                 elif ch.tag in ("definitielijst",):
                     text.extend(wetsuite.helpers.etree.all_text_fragments(ch))
 
                 elif ch.tag in ("specificatielijst",):
                     pass
-                elif ch.tag in (
-                    "kop",
-                    "tussenkop",
-                ):
+                elif ch.tag in ( "kop", "tussenkop", ):
                     pass
                 elif ch.tag in ("adres", "adreslijst"):
                     pass
@@ -857,18 +847,15 @@ def bwb_toestand_text(tree):
                     pass
                 elif ch.tag in ("plaatje", "formule"):
                     pass
-                elif ch.tag in (
-                    "citaat",
-                    "wetcitaat",
-                ):
+                elif ch.tag in ( "citaat", "wetcitaat" ):
                     pass
                 else:
                     print("%s/%s IGNORE unknown lid-child %r" % (bwb_id, soort, ch.tag))
                     print(wetsuite.helpers.etree.tostring(ch).decode("u8"))
 
-            lid_text = (" ".join(text)).rstrip()
-            lid_text = re.sub(r"[\s]+", " ", lid_text).strip()
-            ret.append(lid_text)
+            text = (" ".join(text)).rstrip()
+            text = re.sub(r"[\ ]+", " ", text).strip().replace('\n ','\n')
+            ret.append(text)
 
     return "\n\n".join(ret)
 
