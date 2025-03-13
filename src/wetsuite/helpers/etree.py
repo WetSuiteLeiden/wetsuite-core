@@ -257,12 +257,12 @@ def _strip_namespace_inplace(tree, remove_from_attr=True):
 
 def indent(tree, strip_whitespace: bool = True):
     """Returns a 'reindented' copy of a tree,
-    with text nodes altered to add spaces and newlines, so that it would print indented by depth.
+    with text nodes altered to add spaces and newlines, so that if tostring()'d and printed, it would print indented by depth.
 
-    Keep in mind that this may change the meaning of the document,
-    so this output should _only_ be used for presentation of the debugging sort.
+    This may change the meaning of the document, so this output should _only_ be used for presentation of the debugging sort.
 
     See also L{_indent_inplace}
+    
     @param tree:             tree to copy and reindent
     @param strip_whitespace: make contents that contain a lot of newlines look cleaner, but changes the stored data even more.
     """
@@ -418,9 +418,10 @@ def debug_pretty(tree, reindent=True, strip_namespaces=True, encoding="unicode")
 
 
 class debug_color:
-    """Takes XML, parses, reindents, strip_namespaces, returns a class that will renderer it in color in a jupyter notebook (using pygments).
+    """Takes XML, parses, reindents, strip_namespaces, 
+    returns a class that will render it in color in a jupyter notebook (using pygments).
 
-    relies on pygments; CONSIDER: removing that dependency,
+    Relies on pygments; CONSIDER: removing that dependency,
     we already have much of the code in the xml-color tool
 
     @ivar xstr: XML as a string (after reindent and namespace strip)
@@ -551,15 +552,17 @@ def all_text_fragments(
 
 
 def parse_html(htmlbytes:bytes):
-    """ Parses HTML into an etree
+    """ Parses HTML into an etree. 
+        NOTE: This is *NOT* what you would use for XML - fromstring() is for XML.
 
-        Differs from etree.fromstring 
+        this parse_html() differs from C{etree.fromstring}
           - in that we use a parser more aware of HTML and deals with minor incorrectness
-          - and creates lxml.html-based objects which have more functions.
+          - and creates lxml.html-based objects, which have more functions compared to their XML node counterparts
         
         If you are doing this, consider also 
-          - beautifulsoup as slightly more HTML-aware parse, and an alternative API you might prefer to etree's
-          - elementsoup to take more broken html into etree via beautifulsoup
+          - BeautifulSoup, as slightly more HTML-aware parse, and an alternative API you might prefer to etree's (or specifically not; using both can be confusing)
+          - ElementSoup, to take more broken html into etree via beautifulsoup
+
         See also https://lxml.de/lxmlhtml.html
         
         @param htmlbytes: a HTML file as a bytestring
@@ -697,8 +700,18 @@ _html_text_knowledge = { #  usecontents prepend append removesubtree
     'lidnr':                  ( True,  None, ' ',    False ), 
     'kop':                    ( True,   ' ',' ',     False ), 
 
+    'noot':                   ( True,   None,None,   False ), 
+    'noot.nr':                ( True,   None,' ',   False ), 
+    'noot.al':                ( True,   None,'\n',   False ), 
+
+    'tbody':                  ( True,   None,None,   False ), 
+    'tgroup':                 ( True,   None,None,   False ), 
+    'colspec':                ( True,   None,None,   False ), 
+    'row':                    ( True,   ' ','\n',    False ), 
+    'entry':                  ( True,   ' ',' ',     False ), 
+    'nadruk':                 ( True,   ' ',' ',     False ), 
+
     'al':                     ( True,   None,'\n',   False ), 
-    #'':                      ( False,  None,None,   False ),
 
     'inf':                    ( True,   None,None,   False ), 
     'extref':                 ( True,   None,None,   False ), 
@@ -727,16 +740,16 @@ def html_text(etree, join=True, bodynodename='body'):
     Take an etree presumed to contain elements with HTML names,
     extract the plain text as a single string.
 
-    Yes, you can do that with just etree using C{"".join(elem.itertext())}, 
-    or with a _little_ more control using C{all_text_fragments} in this same module.
+    Yes, you can get basic text extraction using C{"".join(elem.itertext())}, 
+    or with a _little_ more control using C{all_text_fragments()} in this module.
 
-    What this function has over those is awarenesss of which which HTML elements should be
-    considered to split words and split paragraphs. 
+    What this function adds is awarenesss of which HTML elements should be
+    considered to split words and to split paragraphs.
     It will selectively insert spaces and newlines,
-    as to not smash text together when that is likely to be incorrect. 
+    as to not smash text together in ways unlikely to how a browser would do it. 
     
-    The downside is that this becomes more creative than some might like, so if you want precise control,
-    take the code you want from each of these functions.
+    The downside is that this becomes more creative than some might like, 
+    so if you want precise control, take the code and refine your own.
 
     (Inspiration was taken from the html-text module. While we're being creative anyway,
     we might _also_ consider taking inspiration from jusText, to remove boilerplate content based on a few heuristics.)
@@ -745,6 +758,8 @@ def html_text(etree, join=True, bodynodename='body'):
     * etree object (but there is little point as most node names will not be known.
     * a bytes or str object - will be assumed to be HTML that isn't parsed yet. (bytes suggests properly storing file data, str that you might be more fiddly with encodings)
     * a bs4 object - this is a stretch, but could save you some time.
+
+    @param bodynodename: start at the node with this name - defaults to 'body'
     
     @param join: If True, returns a single string (with a little more polishing, of spaces after newlines)
     If False, returns the fragments it collected and added.   Due to the insertion and handing of whitespace, this bears only limited relation to the parts.
