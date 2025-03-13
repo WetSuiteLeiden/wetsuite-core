@@ -75,7 +75,7 @@ def parse(text: str, as_date=False, exception_as_none=True):
     We try to be a little more robust here - and will try to return None instead of raising an exception (but no promises).
 
     @param text:               Takes a string that you know contains just a date
-    @param as_date:  if 
+    @param as_date:            return as date, not datetime.
     @param exception_as_none:  if invalid, return None rather than raise a ValueError
     @return: that date as a datetime (or date, if you prefer), or None
     """
