@@ -28,6 +28,10 @@
                 print( '--------------------' )
 
                 
+    TODO: 
+      - parameters, like "OCR that PDF if you have to"
+
+      
     CONSIDER: 
       - think about separating the "read document at lower level" code 
         into functions you can use without having to rip it out these classes here.
@@ -44,8 +48,6 @@
         - having one class contain all of these - mostly to _share_ state like 'we tried to parse with bs4'
 
       - always have a reasonable fallback for each document type (TODO: XML?)
-
-      - parameters, like "OCR that PDF if you have to"
 
       - settling the intermediate format more?
         - Maybe we shouldn't make too many decisions for you, and merely yield suggestions you can easily ignore, e.g.
@@ -70,7 +72,9 @@
                 },
             }
         - with a 'this is how to select for the document' and 'this is how to get the body from it', etc.
-        - which is worth re-visiting, because it may be more easily altered in the long run, and more portable than this code currently is.
+        - which is worth re-visiting, because 
+          - it may be more easily altered in the long run, 
+          - it would probably be more portable than this code currently is.
         - a limitation might be expressing more complex selection
 """
 
@@ -79,8 +83,8 @@ import re
 import warnings
 import pprint
 
-import bs4   # arguably should be inside each class so we can do without some of these imports
-import fitz  # arguably should be inside each class so we can do without some of these imports
+import bs4   # arguably should be inside each class so we can function without some of these imports
+import fitz  # arguably should be inside each class so we can function without some of these imports
 
 import wetsuite.helpers.strings
 import wetsuite.helpers.koop_parse
@@ -1427,6 +1431,8 @@ class Fragments_PDF_Fallback(Fragments):
 
     def fragments(self):
         ret = []
+
+        #CONSIDER: move this to its own function in wetsuite.extras.pdf  (also so we can cache it)
         with fitz.open(stream=self.docbytes, filetype="pdf") as document:
             self.part_name = ""
             self.part_ary = []
