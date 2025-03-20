@@ -661,8 +661,10 @@ _html_text_knowledge = { #  usecontents prepend append removesubtree
     'tt':                     ( True,  None, None,   False ), 
     'cite':                   ( True,  None, ' ',    False ), # arguable
 
-
     ## Some BWB, CVDR node names. You wouldn't use this for structured output, but it's arguably a nice alternative for just plain text, better than just getting out the text fragments, and simpler than using our splitter
+    'nadruk':                 ( True,   None,None,   False ), 
+    'marquee':                ( True,   None,None,   False ), 
+
     'meta-data':              ( False,  ' ',' ',      True ),
     'bwb-inputbestand':       ( False,  ' ',' ',      True ),
     'bwb-wijzigingen':        ( False,  ' ',' ',      True ),
@@ -708,9 +710,7 @@ _html_text_knowledge = { #  usecontents prepend append removesubtree
     'row':                    ( True,   ' ','\n',    False ), 
     'entry':                  ( True,   ' ',' ',     False ), 
 
-    'nadruk':                 ( True,   ' ',' ',     False ), 
-
-    'lijst':                  ( True,   None,None,   False ), 
+    'lijst':                  ( True,   None,'\n',   False ), 
     'li':                     ( True,   None,'\n',   False ), 
     'li.nr':                  ( True,   None,' ' ,   False ), 
 
