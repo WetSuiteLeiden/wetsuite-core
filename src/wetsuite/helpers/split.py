@@ -1,14 +1,19 @@
-""" This module tries to wrangle distinct types of documents, from HTML to PDF, from specific sources, into (ideally small, structured pieces of) plain text, so that you can consume it more easily.
+""" This module tries to wrangle distinct types of documents for you,
+    from HTML to PDF,
+    from varied specific sources, 
+    into plain text, 
+    so that you can consume it more easily.
 
     It tries to give those into smallish chunks, 
     ideally informed by the document structure.
 
-    Ideally, this module gets ongoing attention to cover all the documents the project cares about.
+ 
+    Ideally, this module gets ongoing attention 
+    to cover all the documents that this project cares about,
+    and to that end is a somwhat modular design.
 
-    
-    It is a somwhat modular design to let us easily add more formats later.
     You won't care about that until you want to add your own,
-    but it does have some implications to use:
+    but it does have some implications to how it should be used:
       - decide(docbytes) will give you (score, splitter_object) tuples
         - you can avoid looser-structured splitters by testing for bad scores, _or_ by using C{decide}'s thresh to the same effect.
       
@@ -18,19 +23,19 @@
           - intermeiate tends to be the structure that that flat_text is from, in case that 
           - metadata i
 
-    So if you just want text, with litthe control over the details::
-        string_list = feeling_lucky( docbytes )
-    
-    So if you want all the control, the code would be somehing like::
+    So if you want more control, dealing with the structure hints it also spits out, 
+    your code might look somehing like::
         for score, splitter in wetsuite.helpers.split.decide( docbytes ):
-            for metadata, intermediate, text in splitter.fragments
+            for metadata, intermediate, text in splitter.fragments():
                 print( text )
                 print( '--------------------' )
+
+    **If you just want text**, with little control over the details::
+        string_list = feeling_lucky( docbytes )
 
                 
     TODO: 
       - parameters, like "OCR that PDF if you have to"
-
       
     CONSIDER: 
       - think about separating the "read document at lower level" code 
@@ -1430,117 +1435,10 @@ class Fragments_PDF_Fallback(Fragments):
         return 100
 
     def fragments(self):
-        ret = []
-
-        #CONSIDER: move this to its own function in wetsuite.extras.pdf  (also so we can cache it)
-        with fitz.open(stream=self.docbytes, filetype="pdf") as document:
-            self.part_name = ""
-            self.part_ary = []
-
-            def marker_now(hint):
-                ret.append(({"hints": [hint]}, {}, ""))
-
-            def flush(hint_first=None):
-                "any parts of part_ary are"
-                # if hint_first:
-                #    ret.append( ( {'hints':[hint_first]},   {},   '') )
-
-                pa = list(
-                    filter(lambda x: len(x.strip()) > 0, self.part_ary)
-                )  # remove empty-text elements from part_ary
-                if len(pa) > 0:
-                    for i, frag in enumerate(pa):
-                        if i == 0 and hint_first is not None:
-                            hint = hint_first
-                        else:
-                            hint = "+para"
-                        ret.append(
-                            ({"hints": [hint], "lastheader": self.part_name}, {}, frag)
-                        )
-                self.part_name = ""
-                self.part_ary = []
-
-            bupless = 0
-
-            # for page_results in wetsuite.extras.pdf.page_text(docdata, option='xhtml'):
-
-            for page in document:
-                flush()
-                marker_now("newpage")
-
-                # TODO: move to use 'html' rather than 'xhtml' because it lets us do more.
-
-                page_results = page.get_text(
-                    option="xhtml",
-                    flags=fitz.TEXTFLAGS_XHTML & ~fitz.TEXT_PRESERVE_IMAGES,
-                )
-
-                soup = bs4.BeautifulSoup(page_results, features="lxml")
-                div = soup.find("div")
-                if self.debug:
-                    print(div)
-                for elem in div.children:
-                    if isinstance(elem, bs4.NavigableString):
-                        if len(elem.string.strip()) > 0:
-                            if self.debug:
-                                print("TopText %r" % elem.string)
-                    else:
-                        # if elem.find('img'):# assumes
-                        #    continue
-
-                        b = elem.find("b")
-                        bupwish = (
-                            b is not None
-                            and b.string is not None
-                            and not wetsuite.helpers.strings.is_numeric(b.string)
-                        )  # just an isolated number in a paragraphs does not mean much
-
-                        if elem.name in header_tag_names:
-
-                            flush()
-                            self.part_name = " ".join(elem.find_all(string=True))
-                            flush(hint_first="header")
-                        else:
-                            if bupwish:
-                                if bupless > -1 and bupwish:
-                                    flush(hint_first="bold")
-                                bupless = 0
-                            else:  # bupless is about not triggering on areas of everything-bold
-                                bupless += 1
-
-                        text = " ".join(elem.find_all(string=True))
-                        self.part_ary.append(text)
-
-            flush()
-            marker_now("end")
-
+        ret = wetsuite.extras.pdf.document_fragments( self.docbytes )
         return ret
 
-        # for page in document:
-        #    page_results = page.get_text( option='xhtml', flags=fitz.TEXTFLAGS_XHTML & ~fitz.TEXT_PRESERVE_IMAGES )
-        #    print( page_results )
-        #    break
 
-        # Use contents to see if we can use one of our specialized handlers,
-        # or will be calling split_pdf_fallback
-
-        # Tweede Kamer der Staten-Generaal
-
-        # kst-36428-3
-        # ISSN 0921-7371
-        # ’s-Gravenhage 2023
-        # Tweede Kamer, vergaderjaar 2023–2024, 36 428, nr. 3
-
-        # ISSN 0921-7371  is  Bijlagen van het Verslag der Handelingen van de Tweede Kamer der Staten-Generaal
-        #      0920-2080      Verslag der Handelingen van de Tweede Kamer der Staten-Generaal
-        #      0920-2072      Verslag der Handelingen van de Eerste Kamer der Staten-Generaal
-        # https://portal.issn.org/api/search?search[]=MUST=default=Kamer+der+Staten-Generaal&search_id=34863538
-        # for page in document:
-        #    yield page.get_text( option=option, sort=True )
-
-        # one generalization might be to find all h1, h2, h3, bold-and-uppercase-only things,
-        # see how many there are and which splits would make for reasonable chunks
-        # also maybe guard against BUPs every line? (e.g. require at least 1 line since the last wish to BUP)
 
 
 # In theory you could nest these (e.g. OP detects and deals with all OP documents)
@@ -1566,6 +1464,7 @@ _registered_fragment_parsers = [
     Fragments_XML_OP_Prb,
     Fragments_XML_OP_Wsb,
     Fragments_XML_OP_Bgr,
+
     Fragments_HTML_OP_Stcrt,
     Fragments_HTML_OP_Stb,
     Fragments_HTML_OP_Gmb,
