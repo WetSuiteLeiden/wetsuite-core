@@ -14,54 +14,62 @@ import re
 from PIL import ImageDraw
 import numpy
 
+import wetsuite.extras.pdf       # mostly for pages_as_images
+
 
 _eocr_reader = None  # keep in memory to save time when you call it repeatedly
+
 
 
 def ocr_pdf_pages(pdfbytes, dpi=150):
     """
     This is a convenience function that tries to get all text from a PDF via OCR.
 
-    More precisely, it iterates through a PDF one page at a time,
-      - rendering that page it to an image,
-      - runs OCR on that page image
+    More precisely, it 
+     - iterates through a PDF one page at a time,
+       - renders that page it to an image,
+       - runs OCR on that page image.
 
-    This depends on another of our modules (L{pdf})
+    This depends on another of our modules (L{pdf}).
 
+    CONSIDER: allowing cacheing the result of the easyocr calls into a store
+
+    @param dpi: resolution to render the pages at, before OCRing them. Optimal may be around 200ish? (TODO: test)
     @return: a 2-tuple:
       - a list of the results that easyocr_text outputs
       - a list of "all text on a page" string.
-        Technically somewhat redundant with the first, but good enough for some uses and easier.
+        Technically somewhat redundant with the first, but easier, and good enough for some uses.
     """
-    results = []
+    results_structure = []
     text = []
-
-    import wetsuite.extras.pdf
 
     for page_image in wetsuite.extras.pdf.pages_as_images(pdfbytes, dpi=dpi):
         page_results = easyocr(page_image)
-        results.append(page_results)
-        text.append(easyocr_text(page_results))
+        results_structure.append(page_results)
+        text.append( easyocr_text(page_results) )
 
-    return results, text
+    return results_structure, text
 
 
 def easyocr(image, pythontypes=True, use_gpu=True, languages=("nl", "en")):
-    """Takes an image, returns OCR results.
+    """Takes an image, returns structured OCR results as a specific python struct.
 
-    Depends on easyocr being installed. Will load easyocr's model on the first call,
+    Requires easyocr being installed. Will load easyocr's model on the first call,
     so try to do many calls from a single process to reduce that overhead to just once.
 
-    TODO: pass through kwargs to readtext()
+    CONSIDER: pass through kwargs to readtext()
     CONSIDER: fall back to CPU if GPU init fails
 
     @param image: a single PIL image.
 
     @param pythontypes:
-    if pythontypes==False, easyocr gives you numpy.int64 in bbox and numpy.float64 for cert,
-    if pythontypes==True (default), we make that python int and float
+    if pythontypes==False, easyocr gives you numpy.int64 in bbox and numpy.float64 for confidence,
+    if pythontypes==True (default), we make that python int and float for you before returning
 
-    @param use_gpu:
+    @param use_gpu: whether to use GPU (True), or CPU (False).
+    Only does anything on the first call, after that relies on that choice.
+    GPU generally is a factor faster than a single CPU core (in quick tests, 3 to 4 times),
+    so you may prefer GPU unless you don't have a GPU, don't want runtime competition with other GPU use.
 
     @param languages: what languages to detect. Defaults to 'nl','en'.
     You might occasionally wish to add 'fr'.
@@ -73,21 +81,22 @@ def easyocr(image, pythontypes=True, use_gpu=True, languages=("nl", "en")):
 
     global _eocr_reader
     if _eocr_reader is None:
-        where = "CPU"
+        say_where = "CPU"
         if use_gpu:
-            where = "GPU"
+            say_where = "GPU"
         print(
-            f"first use of ocr() - loading EasyOCR model (into {where})",
+            f"first use of ocr() - loading EasyOCR model (into {say_where})",
             file=sys.stderr,
         )
         _eocr_reader = easyocr.Reader(languages, gpu=use_gpu)
 
-    if image.getbands() != "L":  # grayscale
+    # convert go grayscale and convert to numpy array, 
+    # for easyocr (which can take a filename, a numpy array, or byte stream (PNG or JPG?))
+    if image.getbands() != "L":
         image = image.convert("L")
-
     ary = numpy.asarray(image)
 
-    # note: you can hand this a filename, numpy array, or byte stream (PNG or JPG?)
+    # analysis
     result = _eocr_reader.readtext(ary)
 
     if pythontypes:
@@ -105,19 +114,20 @@ def easyocr(image, pythontypes=True, use_gpu=True, languages=("nl", "en")):
 
 
 def easyocr_text(results):
-    """
-    Take bounding boxed results and, right now,
-    smushes just the text together as-is, without much care about placement.
+    """ Take bounding boxed results and (at least for now)
+        smushes the text together as-is, without much care about placement.
 
-    This is currently NOT enough to be decent processing,
-    and we plan to be smarter than this, given time.
+        This is currently NOT enough to be decent processing,
+        and we plan to be smarter than this, given time.
 
-    There is some smarter code in kansspelautoriteit fetching script
+        There is some smarter code in kansspelautoriteit fetching notebook.
 
-    CONSIDER centralizing that and/or 'natural reading order' code
+        CONSIDER centralizing that and/or 'natural reading order' code
+
+        @param results: the output of ocr()
+        @return: plain text
     """
     # CONSIDER making this '\n\n',join( the pages function ) instead
-
     # warnings.warn('easyocr_text() is currently dumb, and should be made better at its job later')
     ret = []
     for (_, _, _, _), text, _ in results:
@@ -126,13 +136,18 @@ def easyocr_text(results):
     return "\n".join(ret)  # newline is not always correct, but better than not
 
 
+###### debug and extraction helpers##################################################################
+
 def easyocr_draw_eval(image, ocr_results):
     """Given a PIL image, and the results from ocr(),
-    draws the bounding boxes, with color indicating the confidence, on top of that image and
+    draws the bounding boxes, with color indicating the confidence, 
+    on top of that image we recognized those from.
 
-    Returns the given PIL image with that drawn on it.
+    Made for inspection of how much OCR picks up.
 
-    Made as inspection of how much OCR picks up.
+    @param image: the image that you ran ocr() on
+    @param ocr_results: the output of ocr()
+    @return: a copy of the input image with boxes drawn on it
     """
     image = image.convert("RGB")
     draw = ImageDraw.ImageDraw(image, "RGBA")
@@ -140,7 +155,7 @@ def easyocr_draw_eval(image, ocr_results):
         topleft, _, botright, _ = bbox
         xy = [tuple(topleft), tuple(botright)]
         draw.rectangle(
-            xy, outline=10, fill=(int((1 - conf) * 255), int(conf * 255), 0, 125)
+            xy,  outline=10,  fill=(int((1 - conf) * 255),  int(conf * 255),  0,   125)
         )
     return image
 
@@ -190,7 +205,7 @@ def bbox_min_x(bbox):
     @return: the bounding box's minimum x coordinate
     """
     topleft, topright, botright, botleft = bbox
-    return min(list(x for x, _ in (topleft, topright, botright, botleft)))
+    return min(list(x  for x, _ in (topleft, topright, botright, botleft)))
 
 
 def bbox_max_x(bbox):
@@ -199,7 +214,7 @@ def bbox_max_x(bbox):
     @return: the bounding box's maximum x coordinate
     """
     topleft, topright, botright, botleft = bbox
-    return max(list(x for x, _ in (topleft, topright, botright, botleft)))
+    return max(list(x  for x, _ in (topleft, topright, botright, botleft)))
 
 
 def bbox_min_y(bbox):
@@ -208,7 +223,7 @@ def bbox_min_y(bbox):
     @return: the bounding box's minimum y coordinate
     """
     topleft, topright, botright, botleft = bbox
-    return min(list(y for _, y in (topleft, topright, botright, botleft)))
+    return min(list(y  for _, y in (topleft, topright, botright, botleft)))
 
 
 def bbox_max_y(bbox):
@@ -217,7 +232,7 @@ def bbox_max_y(bbox):
     @return: the bounding box's maximum y coordinate
     """
     topleft, topright, botright, botleft = bbox
-    return max(list(y for _, y in (topleft, topright, botright, botleft)))
+    return max(list(y  for _, y in (topleft, topright, botright, botleft)))
 
 
 def page_allxy(page_ocr_fragments):
@@ -245,36 +260,40 @@ def page_extent(page_ocr_fragments, percentile_x=(1, 99), percentile_y=(1, 99)):
     @param page_ocr_fragments:   A list of (bbox, text, cert).
     @param percentile_x:
     @param percentile_y:
-    @return: (page_min_x, page_min_y, page_max_x, page_max_y)
+    @return: (page_min_x, page_max_x,  page_min_y, page_max_y)  which, note, might not  be exactly what you epxected
     """
-    xs, ys = page_allxy(page_ocr_fragments)
+    xs, ys = page_allxy( page_ocr_fragments )
     return (
-        numpy.percentile(xs, percentile_x[0]),
-        numpy.percentile(xs, percentile_x[1]),
-        numpy.percentile(ys, percentile_y[0]),
-        numpy.percentile(ys, percentile_y[1]),
+        numpy.percentile( xs, percentile_x[0] ),
+        numpy.percentile( xs, percentile_x[1] ),
+        numpy.percentile( ys, percentile_y[0] ),
+        numpy.percentile( ys, percentile_y[1] ),
     )
 
 
-def doc_extent(list_of_page_ocr_fragments):
-    """Calls like page_extent(), but considering all pages at once,
-    mostly to not do weird things on a last half-filled page
-    (though usually there's a footer to protect that)
+def doc_extent(list_of_page_ocr_fragments, percentile_x=(1, 99), percentile_y=(1, 99)):
+    """ 
+    Like page_extent(), but considering all pages at once,
+    mostly to ge the overall margins,
+    and e.g. avoid doing weird things on a last half-filled page.
 
-    TODO: think about how percentile logic interacts -
-    it may be more robust to use 0,100 to page_extent calls and do percentiles here.
+    Note that if many pages have little on them, this is somewhat fragile
 
-    @param list_of_page_ocr_fragments:
-    @return: (page_min_x, page_min_y, page_max_x, page_max_y)
+    @param list_of_page_ocr_fragments: A list of (bbox, text, cert).
+    @return: (page_min_x, page_max_x,  page_min_y, page_max_y)  which, note, might not  be exactly what you epxected
     """
     xs, ys = [], []
     for page_ocr_fragments in list_of_page_ocr_fragments:
-        minx, miny, maxx, maxy = page_extent(page_ocr_fragments)
-        xs.append(minx)
-        xs.append(maxx)
-        ys.append(miny)
-        ys.append(maxy)
-    return min(xs), max(xs), min(ys), max(ys)
+        page_xs, page_ys = page_allxy( page_ocr_fragments )
+        xs.extend( page_xs )
+        ys.extend( page_ys )
+    return (
+        numpy.percentile( xs, percentile_x[0] ),
+        numpy.percentile( xs, percentile_x[1] ),
+        numpy.percentile( ys, percentile_y[0] ),
+        numpy.percentile( ys, percentile_y[1] ),
+    )
+    #return min(xs), max(xs), min(ys), max(ys)
 
 
 def page_fragment_filter(
@@ -284,13 +303,14 @@ def page_fragment_filter(
     q_min_y=None,
     q_max_x=None,
     q_max_y=None,
-    pages=None,
     extent=None,
     verbose=False,
 ):
     """Searches for specific text patterns on specific parts of pages.
 
-    Works on all pages at once.
+    Takes the fragments from a single page
+    (CONSIDER: making a doc_fragment_filter).
+
     This is sometimes overkill, but for some uses this is easier.
     ...in particularly the first one it was written for,
     trying to find the size of the header and footer, to be able to ignore them.
@@ -309,11 +329,12 @@ def page_fragment_filter(
     @param q_min_y: helps restrict where on the page we search (see notes above)
     @param q_max_x: helps restrict where on the page we search (see notes above)
     @param q_max_y: helps restrict where on the page we search (see notes above)
-    @param pages:   pages is a list of (zero-based) page numbers to include.  None includes all.
-    @param extent:  TODO: finish this documentation
+    @param extent:  defines the extent (minx, miny, maxx, maxy) of the page 
+                    which, note, is ONLY used when q_ are floats.
     @param verbose: say what we're including/excluding and why
     """
     # when first and last pages can be odd, it may be useful to pass in the documentation extent
+    # TODO: figure out why this isn't using the minima, fix if necessary
     if extent is not None:
         _, _, page_max_x, page_max_y = extent
     else:
@@ -335,6 +356,7 @@ def page_fragment_filter(
     matches = []
     for bbox, text, cert in page_ocr_fragments:
 
+        # if text is being filtered for, see if we need to exclude by that
         if textre is not None:  # up here to quieten the 'out of requested bounds' debug
             if re.search(textre, text):
                 if verbose:
@@ -345,7 +367,7 @@ def page_fragment_filter(
                 continue
 
         frag_min_x, _, frag_min_y, _ = bbox_xy_extent(bbox)
-
+        # if overall position is being filtered for, see if we need to exclude by that
         if q_min_x is not None and frag_min_x < q_min_x:
             if verbose:
                 print(
@@ -378,5 +400,7 @@ def page_fragment_filter(
                 )
             continue
 
+        # passed everything? keep it in.
         matches.append((bbox, text, cert))
+    
     return matches
