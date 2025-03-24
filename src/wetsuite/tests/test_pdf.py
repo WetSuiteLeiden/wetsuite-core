@@ -23,7 +23,7 @@ def read_eggs():
 
 def test_page_text():
     'test the "hey PDF, what text do you contain?" function (page at a time)'
-    pages_text = list(wetsuite.extras.pdf.page_text(read_eggs()))
+    pages_text = list(wetsuite.extras.pdf.perpage_text_generator( read_eggs() ))
     # pymupdf: ['I am Sam\nDr. Seuss\n1960\nI do not like green eggs and ham.\n1\n']
     # poppler: ['I am Sam Dr. Seuss 1960 I do not like green eggs and ham. 1']
     # we mainly care that it's extracting at all, so be more accepting
@@ -57,7 +57,7 @@ def test_count_pages_with_text():
     assert count_pages_with_text_count == 1
 
     # test that it takes the list-of-page-text input like it says
-    pages_text = list(wetsuite.extras.pdf.page_text(read_eggs()))
+    pages_text = list(wetsuite.extras.pdf.perpage_text_generator( read_eggs() ))
     res = wetsuite.extras.pdf.count_pages_with_text(pages_text)
 
 
@@ -73,4 +73,4 @@ def test_page_image_renders_at_all():
 @pytest.mark.filterwarnings("ignore::DeprecationWarning")
 def test_pdf_text_ocr():
     "mostly a test of the ocr module does not bork out"
-    wetsuite.extras.pdf.pdf_text_ocr(read_eggs())
+    wetsuite.extras.pdf.pdf_text_ocr(read_eggs(), use_gpu=False)

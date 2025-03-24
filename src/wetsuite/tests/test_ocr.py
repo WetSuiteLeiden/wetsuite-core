@@ -52,7 +52,7 @@ def test_ocr_pdf_pages():
     " mostly just test that it doesn't error out "
 
     import wetsuite.extras.ocr
-    _parts, text = wetsuite.extras.ocr.ocr_pdf_pages( read_eggs() )
+    _parts, text = wetsuite.extras.ocr.ocr_pdf_pages( read_eggs(), use_gpu=False )
     assert 'euss' in ''.join(text)
 
     # For reference, this is not a font EasyOCR has a good time with. At different resolutions:
