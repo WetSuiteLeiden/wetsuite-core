@@ -150,15 +150,11 @@ def find_dates_in_text(text: str):
                     (st, text[st:en])
                 )  # return them sorted by position, in case you care
 
-    ret_text = list(dt for _, dt in sorted(text_with_pos, key=lambda x: x[0]))
+    ret_text = list(dt  for _, dt in sorted(text_with_pos, key=lambda x: x[0]))
     ret_dt = []
     for dtt in ret_text:
-        try:
-            parsed = parse(dtt)
-            ret_dt.append(parsed)
-        except Exception as e:  # unsure which exceptions exactly, so for now this is fine  pylint: disable=broad-exception-caught
-            print("ERROR: %s" % e)  # raise
-            ret_dt.append(None)
+        parsed = parse(dtt, exception_as_none=True)
+        ret_dt.append(parsed)
     assert len(ret_text) == len(ret_dt)
     return ret_text, ret_dt
 

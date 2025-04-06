@@ -15,6 +15,8 @@ from wetsuite.helpers.date import (
     date_weeks_ago,
     date_months_ago,
     date_first_day_in_year,
+    date_last_day_in_year,
+    date_first_day_in_month,
 )
 
 
@@ -175,9 +177,24 @@ def test_find_dates_in_text():
     )
 
 
+
+
+
 def test_nobork():
     "test that these functions do not fail outright"
     date_today()
+
     date_weeks_ago(1)
+    
     date_months_ago(1)
+
+
+def test_nobork_firstlast():
     date_first_day_in_year(2024)
+    date_first_day_in_year()
+
+    date_last_day_in_year(2024)
+    date_last_day_in_year()
+
+    date_first_day_in_month(2024,1)
+    date_first_day_in_month()
