@@ -18,9 +18,10 @@ def test_koop_frbr_init():
     )
 
 
-def DISABLED_test_koop_frbr_fetch():
+def test_koop_frbr_fetch():
     """ test of code involved in fetching.  
-        By actually fetching a document set, so this takes at least a dozen seconds, which is why this is disabled for now. """
+        By actually fetching a document set, so this takes at least a dozen seconds, which you might disable most of the time.
+    """
     fetch_store = wetsuite.helpers.localdata.LocalKV(":memory:", str, bytes)
     cache_store = wetsuite.helpers.localdata.LocalKV(":memory:", str, bytes)
 
