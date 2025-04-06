@@ -1435,7 +1435,7 @@ class Fragments_PDF_Fallback(Fragments):
         return 100
 
     def fragments(self):
-        ret = wetsuite.extras.pdf.document_fragments( self.docbytes )
+        ret = wetsuite.extras.pdf.document_fragments( self.docbytes ) # this will be useful to other things, so was moved
         return ret
 
 

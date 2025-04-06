@@ -123,8 +123,9 @@ def interesting_words(
     span, ignore_stop=True, ignore_pos_=("PUNCT", "SPACE", "X", "AUX", "DET", "CCONJ"), as_text=False
 ):
     """
-    Takes a spacy span (or something else that iterates as tokens),
-    returns only the more interesting tokens, ignoring stopwords, function words, and such.
+    Takes an already-parsed spacy span (or something else that iterates as tokens),
+    uses the pos_ attribute to 
+    return only the more interesting tokens, ignoring stopwords, function words, and such.
 
     Currently tries to include only tokens where the part of speech (`pos_`) is one of 
     "NOUN", "PROPN", "NUM", "ADJ", "VERB", "ADP", "ADV"
@@ -133,6 +134,7 @@ def interesting_words(
     @param ignore_stop: whether to ignore what spacy considers is_stop
     @param ignore_pos_: what list of pos_ to ignore (meant to avoid the things that it would normally include)
     @param as_text: return a list of strings, rather than a list of spans
+    @return: list of either tokens, or strings (according to as_text)
     """
     # import spacy
     import spacy.tokens.span_group
@@ -140,7 +142,7 @@ def interesting_words(
 
     docref = span.doc
 
-    ret = []  # spacy.tokens.span_group.SpanGroup(docref)
+    ret = []
 
     for tok in span:
         if ignore_stop and tok.is_stop:
@@ -168,15 +170,16 @@ def interesting_words(
 
 
 def subjects_in_doc(doc):
-    """If sentences are annotated, returns the nominal or clausal subjects for each sentence individually,
+    """Given a parsed documment,
+    returns the nominal/clausal subjects for each sentence individually,
     as a list of lists (of Tokens), e.g.
       - I am a fish. You are a moose  ->   [ [I ], [You] ]
 
     If no sentences are annotated, it will return None
+    @param doc: spacy Document
+    @return: list of list of tokens
     """
-    if hasattr(
-        doc, "sents"
-    ):  # TODO: check that all docs have a .sents - presumably not
+    if hasattr( doc, "sents" ):  # TODO: check that all docs have a .sents - presumably not
         return list((subjects_in_span(sent)) for sent in doc.sents)
     else:
         return None
@@ -262,7 +265,8 @@ def en_noun_chunks(text: str, load_model_name: str = "en_core_web_trf") -> list:
 _langdet_model = None
 
 def detect_language(string: str):  #  -> tuple(str, float)
-    """Note that this depends on the spacy_fastlang library, which depends on the fasttext library.
+    """ Detects language
+    Note that this depends on the spacy_fastlang library, which depends on the fasttext library.
 
     Returns (lang, score)
       - lang string as used by spacy          (xx if don't know)

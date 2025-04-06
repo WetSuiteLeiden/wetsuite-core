@@ -153,7 +153,7 @@ def hash_hex(data:bytes, as_bytes:bool = False):
     Returns that hash as a hex string, unless you specify as_bytes=True
 
     If instead given a (unicode) string, it accepts it and deals with unicode 
-    by UTF8-encoding it first. This is not always what you want.
+    by UTF8-encoding it first. Warning: This is not always what you want.
     
     @param data: the bytes to hash
     @param as_bytes: whether to return the hash dugest as a bytes object. 
