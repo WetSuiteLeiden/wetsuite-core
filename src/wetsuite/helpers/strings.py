@@ -208,12 +208,28 @@ def remove_diacritics(string: str):
     )
 
 
-# CONSIDER: base this on count_unicode_categories so we support other languages
+def remove_privateuse(string, replace_with=' '):
+    """ Removes unicode characters within private use areas, because they have no semantic meaning
+        (U+E000 through U+F8FF, U+F0000 through U+FFFFD,  U+100000 to U+10FFFD).    
+    """
+    return re.sub( '[\uE000-\uF8FF\U000F0000-\U000FFFFD\U00100000-\U0010FFFD]', replace_with, string)
+
+
+def canonical_compare(string1, string2):
+    ' return whether two unicode strings are the same after canonical decomposition '
+    return unicodedata.normalize('NFD', string1) == unicodedata.normalize('NFD', string2)
+
+
+def compatibility_compare(string1, string2):
+    ' return whether two unicode strings are the same after compatibility decomposition '
+    return unicodedata.normalize('NFKD', string1) == unicodedata.normalize('NFKD', string2)
+
 
 def is_numeric(string: str):
     """Does this string contain _only_ something we can probably consider a number?    That is, [0-9.,] and optional whitespace around it
     @param string: the string to look in
     """
+    # CONSIDER: base this on count_unicode_categories so we support other languages
     return re.match(r"^\s*[0-9,.]+\s*$", string) is not None
 
 
@@ -227,6 +243,7 @@ def is_mainly_numeric(string: str, threshold=0.8):
     @param threshold: if more than this fraction of numbers (or the other mentioned characters), we return True.
     @return: whether it's mostly numbers
     """
+    # CONSIDER: base this on count_unicode_categories so we support other languages
     nonnum = re.sub(r"[^0-9\s.]", "", string)
     numfrac = float(len(nonnum)) / len(string)
     if numfrac > threshold:
@@ -939,9 +956,8 @@ def count_case_insensitive(
     )
 
 
-
 def remove_deheteen(string, remove=(r'de\b',r'het\b',r'een\b')):
-    """ remove 'de', 'het', and 'een' as words from the start of a string - meant to normalize phrases 
+    """ remove 'de', 'het', and 'een' as words from the start of a string - meant to help normalize phrases 
     @param string:
     @param remove:
     @return: 

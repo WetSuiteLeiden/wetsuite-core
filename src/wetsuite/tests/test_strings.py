@@ -12,6 +12,9 @@ from wetsuite.helpers.strings import (
     has_text,
     count_unicode_categories,
     remove_diacritics,
+    remove_privateuse,
+    canonical_compare,
+    compatibility_compare,
 
     interpret_ordinal_nl,
     ordinal_nl,
@@ -105,6 +108,22 @@ def test_remove_diacritics():
     "see if we manage to remove diacritics"
     assert remove_diacritics("ol\xe9") == "ole"
     assert remove_diacritics("v\xf3\xf3r") == "voor"
+
+
+def test_remove_privateuse():
+    "see if we manage to remove private use characters"
+    assert remove_privateuse(" \ud000 \ue000 \U000F0000 \U0010FFFD ", ' ') == ' \ud000       '
+    assert remove_privateuse(" \ud000 \ue000 \U000F0000 \U0010FFFD ", '.') == ' \ud000 . . . '
+
+
+def test_canonical_compare():
+    assert canonical_compare('e\u0301', '\xe9') is True
+    assert canonical_compare('\u2163', 'IV')    is False
+
+
+def test_compatibility_compare():
+    assert canonical_compare('e\u0301', '\xe9') is True
+    assert compatibility_compare('\u2163', 'IV') is True 
 
 
 def test_is_numeric():
