@@ -102,6 +102,8 @@ def progress_bar(maxval, description="", display=True):  # , **kwargs
         - wraps tqdm and ipywidgets's IntProgress progress bar;
         - prefers tqdm if installed, falls back to IntProgress.
 
+    CONSIDER: parameter to force text mode
+        
     Compared to L{ProgressBar}, this one is more typing but also does a little more,
     letting you set (and get) .value and .description on the fly,
     so e.g. usable like::
@@ -178,6 +180,8 @@ def progress_bar(maxval, description="", display=True):  # , **kwargs
 class ProgressBar:
     """A sequence-iterating progress bar (like tqdm) that supports both notebooks and console, 
     and prefers notebook over console style in notebooks.
+
+    CONSIDER: parameter to force text mode
 
     e.g. usable like::
         data = ['a','b',3]
@@ -256,6 +260,7 @@ class ProgressBar:
         return self._iterable.__next__()
 
 
+# TODO: for consistency, move this to etree, or other notebooks there to here
 class etree_visualize_selection:
     """Produces a colorized representation of selection within an XML document.
     (works only within IPython/jupyter style notebooks,  via a HTML representation.)
@@ -367,12 +372,19 @@ class etree_visualize_selection:
         return "".join(ret)
 
 
+def set_proctitle(proctitle="wetsuite-notebook"):
+    ''' 
+    Might throw an exception, e.g. an ImportError'
+    '''
+    import setproctitle
+    setproctitle.setproctitle( proctitle ) # pylint: disable=c-extension-no-member
+
+
 if is_notebook():
     # for debug: make the process easier to recognize for people wondering what's taking so much CPU.
     # Should probably be in a function, or otherwise conditional, NOT happen globally on import
     try:
-        import setproctitle
-
-        setproctitle.setproctitle("wetsuite-notebook") # pylint: disable=c-extension-no-member
+        set_proctitle("wetsuite-notebook") # pylint: disable=c-extension-no-member
     except ImportError:
         pass
+
