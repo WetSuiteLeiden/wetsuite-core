@@ -671,78 +671,82 @@ _html_text_knowledge = { #  usecontents prepend append removesubtree
     'redactionele-correcties':( False,  ' ',' ',      True ),
     'redactie':               ( False,  ' ',' ',      True ),
 
-    'aanhef':                 ( True,  ' ',' ',      False ), 
+    'aanhef':                 ( True,   ' ',' ',     False ), 
     'wij':                    ( False,  '\n','\n',   False ),
     'koning':                 ( False,  ' ',' ',      True ),
 
-    'toestand':               ( False,  None,None,   False ), 
-    'wet-besluit':            ( True,  ' ',' ',      False ), 
-    'wetgeving':              ( False,  None,None,   False ), 
-    'intitule':               ( True,  ' ', '\n',    False ), 
-    'citeertitel':            ( True,  ' ','\n',     False ), 
-    'wettekst':               ( True,   None,None,   False ), 
-    'afkondiging':            ( True,   None,None,   False ), 
-    'divisie':                ( True,   None, None,  False ), 
+    'toestand':               ( False,  None,None,   False ),
+    'wet-besluit':            ( True,   ' ',' ',     False ),
+    'wetgeving':              ( False,  None,None,   False ),
+    'intitule':               ( True,   ' ', '\n',   False ),
+    'citeertitel':            ( True,   ' ','\n',    False ),
+    'wettekst':               ( True,   None,None,   False ),
+    'afkondiging':            ( True,   None,None,   False ),
+    'divisie':                ( True,   None, None,  False ),
 
-    'publicatiejaar':         ( True,  ' ','\n',     False ), 
-    'publicatienr':           ( True,  ' ','\n',     False ), 
-    'brondata':               ( True,  ' ',' ',      False ), 
-    'oorspronkelijk':         ( True,  ' ',' ',      False ), 
-    'publicatie':             ( True,  ' ',' ',      False ), 
-    'uitgiftedatum':          ( True,  ' ',' ',      False ), 
-    'ondertekeningsdatum':    ( True,  ' ',' ',      False ), 
-    'dossierref':             ( True,  ' ',' ',      False ), 
-    'inwerkingtreding':       ( True,  ' ',' ',      False ), 
+    'hoofdstuk':              ( True,   ' ','\n',    False ), # TODO: look at
+    'titel':                  ( True,   ' ','\n',    False ), # TODO: look at
+    'bijlage':                ( True,   ' ','\n',    False ), # TODO: look at
 
-    'considerans':            ( False,  None,None,   False ), 
-    'considerans.al':         ( False,  None,None,   False ), 
+    'publicatiejaar':         ( True,   ' ','\n',    False ),
+    'publicatienr':           ( True,   ' ','\n',    False ),
+    'brondata':               ( True,   ' ',' ',     False ),
+    'oorspronkelijk':         ( True,   ' ',' ',     False ),
+    'publicatie':             ( True,   ' ',' ',     False ),
+    'uitgiftedatum':          ( True,   ' ',' ',     False ),
+    'ondertekeningsdatum':    ( True,   ' ',' ',     False ),
+    'dossierref':             ( True,   ' ',' ',     False ),
+    'inwerkingtreding':       ( True,   ' ',' ',     False ),
 
-    'artikel':                ( True,  '\n',None,    False ), 
-    'nr':                     ( True,  None, ' ',    False ), 
-    'lid':                    ( True,  None, ' ',    False ), 
-    'lidnr':                  ( True,  None, ' ',    False ), 
-    'kop':                    ( True,   ' ',' ',     False ), 
-    'tussenkop':              ( True,   ' ',' ',     False ), 
+    'considerans':            ( False,  None,None,   False ),
+    'considerans.al':         ( False,  None,None,   False ),
 
-    'tbody':                  ( True,   None,None,   False ), 
-    'tgroup':                 ( True,   None,None,   False ), 
-    'colspec':                ( True,   None,None,   False ), 
-    'row':                    ( True,   ' ','\n',    False ), 
-    'entry':                  ( True,   ' ',' ',     False ), 
+    'artikel':                ( True,   '\n',None,   False ),
+    'nr':                     ( True,   None, ' ',   False ),
+    'lid':                    ( True,   None, ' ',   False ),
+    'lidnr':                  ( True,   None, ' ',   False ),
+    'kop':                    ( True,   ' ',' ',     False ),
+    'tussenkop':              ( True,   ' ',' ',     False ),
+
+    'tbody':                  ( True,   None,None,   False ),
+    'tgroup':                 ( True,   None,None,   False ),
+    'colspec':                ( True,   None,None,   False ),
+    'row':                    ( True,   ' ','\n',    False ),
+    'entry':                  ( True,   ' ',' ',     False ),
 
     'lijst':                  ( True,   None,'\n',   False ), 
     'li':                     ( True,   None,'\n',   False ), 
     'li.nr':                  ( True,   None,' ' ,   False ), 
 
-    'definitielijst':         ( True,   None,'\n',   False ), 
-    'definitie-item':         ( True,   None,'\n',   False ), 
-    'term':                   ( True,   None,' - ',  False ), 
-    'definitie':              ( True,   None,'\n',   False ), 
-    'specificatielijst':      ( True,   None,'\n',   False ), 
-    'specificatie-item':      ( True,   None,'\n',   False ), 
-    'specificatie':           ( True,   None,' ',    False ), 
-    'waarde':                 ( True,   None,' ',  False ), 
+    'definitielijst':         ( True,   None,'\n',   False ),
+    'definitie-item':         ( True,   None,'\n',   False ),
+    'term':                   ( True,   None,' - ',  False ),
+    'definitie':              ( True,   None,'\n',   False ),
+    'specificatielijst':      ( True,   None,'\n',   False ),
+    'specificatie-item':      ( True,   None,'\n',   False ),
+    'specificatie':           ( True,   None,' ',    False ),
+    'waarde':                 ( True,   None,' ',    False ),
 
-    'noot':                   ( True,   None,None,   False ), 
-    'noot.nr':                ( True,   None,' ',    False ), 
-    'noot.al':                ( True,   None,'\n',   False ), 
-    'noot.lijst':             ( True,   None,'\n',   False ), 
-    'noot.li':                ( True,   None,'\n',   False ), 
+    'noot':                   ( True,   None,None,   False ),
+    'noot.nr':                ( True,   None,' ',    False ),
+    'noot.al':                ( True,   None,'\n',   False ),
+    'noot.lijst':             ( True,   None,'\n',   False ),
+    'noot.li':                ( True,   None,'\n',   False ),
 
-    'al':                     ( True,   None,'\n',   False ), 
+    'al':                     ( True,   None,'\n',   False ),
 
-    'inf':                    ( True,   None,None,   False ), 
-    'extref':                 ( True,   None,None,   False ), 
-    'intref':                 ( True,   None,None,   False ), 
+    'inf':                    ( True,   None,None,   False ),
+    'extref':                 ( True,   None,None,   False ),
+    'intref':                 ( True,   None,None,   False ),
     'extref-groep':           ( True,   None,None,   False ), # seems rare?
     'intref-groep':           ( True,   None,None,   False ), # seems rare?
 
-    'nootref':                ( True,   None,'\n',   False ), 
+    'nootref':                ( True,   None,'\n',   False ),
     'aanhaling':              ( True,   None,'\n',   False ), # TODO: look at
     'bron':                   ( True,   None,'\n',   False ), # TODO: look at
 
-    'plaatje':                ( False,   None,None,  False ), 
-    'illustratie':            ( False,   None,None,  False ), 
+    'plaatje':                ( False,   None,None,  False ),
+    'illustratie':            ( False,   None,None,  False ),
 
     'tekstcorrectie':         ( True,   None,None,   False ),  # TODO: look at
 
@@ -763,7 +767,8 @@ _html_text_knowledge = { #  usecontents prepend append removesubtree
 " The data that html_text works from; we might make this a parameter so you can control that "
 
 
-# CONSIDER moving this to its own module
+
+# CONSIDER: moving this to its own module, this has little to do with etree anymore
 def html_text(etree, join=True, bodynodename='body'):
     '''
     Take an etree presumed to contain elements with HTML names,
@@ -788,7 +793,7 @@ def html_text(etree, join=True, bodynodename='body'):
     * a bytes or str object - will be assumed to be HTML that isn't parsed yet. (bytes suggests properly storing file data, str that you might be more fiddly with encodings)
     * a bs4 object - this is a stretch, but could save you some time.
 
-    @param bodynodename: start at the node with this name - defaults to 'body'
+    @param bodynodename: start at the node with this name - defaults to 'body'. Use None to start at the root of what you handed in.
     
     @param join: If True, returns a single string (with a little more polishing, of spaces after newlines)
     If False, returns the fragments it collected and added.   Due to the insertion and handing of whitespace, this bears only limited relation to the parts.
@@ -798,16 +803,17 @@ def html_text(etree, join=True, bodynodename='body'):
         etree = parse_html(etree)
     # CONSIDER also taking bs4 objects? It would mostly just amount to a str()
 
-    try: # also accept bs4 objects. It's a stretch for something in an etree module, yes :)
-        from bs4 import BeautifulSoup, Tag
+    try: # also accept bs4 objects. It's a stretch for something in an etree module, yes, 
+         # but it's also rather useful as it is at least as likely you're using it to parse HTML
+        from bs4 import Tag
         if isinstance(etree, Tag):
             etree = parse_html( str(etree) ) # bs4 to string, string to etree.html
-    except ImportError: # don't fail on bs4 not being installed
+    except ImportError: # if bs4 isn't installed, this code block isn't relevant at all
         pass
 
     etree = strip_namespace( etree )
 
-    ## To through the tree to remove what is requested.
+    ## Go through the tree to remove what is requested.
     # (yes, it would be more efficient to do that in the same treewalk, but that would require some rewrite)
     #etree.remove_nodes_by_name(self.etree, tuple( tagname  for tagname, (_,_,_,rem) in _html_text_knowledge.items()  if rem==True  ))
     toremove = []
@@ -816,9 +822,9 @@ def html_text(etree, join=True, bodynodename='body'):
             toremove.append( element )
             #print('removing %r from %r'%(element.tag, element.getparent().tag))
     for el in toremove:
-        #el.drop_tree() # which is more correct than el.getparent().remove(el)  due to its handing of tail (joined to the previous element, or parent).
-        # Note that this exists only in lxml.html, not bare lxml  https://lxml.de/lxmlhtml.html
-        # to ensure this also works on bare lxml objects, the following is roughly the contents of drop_tree implementation:
+        # el.drop_tree() is more correct than a plain el.getparent().remove(el)  due to its handing of tail (joined to the previous element, or parent).
+        # but drop_tree exists only in lxml.html, not bare lxml  https://lxml.de/lxmlhtml.html so to ensure this also works on bare lxml objects,
+        # the following is roughly the contents of drop_tree() implementation:
         parent = el.getparent()
         assert parent is not None
         if el.tail:
@@ -886,12 +892,12 @@ def html_text(etree, join=True, bodynodename='body'):
     for string in collect:
         iow = is_only_whitespace( string )
         if not iow: # add (collected whitespace) and this text
-            if len(combine)>0:
+            if len(combine) > 0:
                 #ret.append( combine )
                 cnl = combine.count('\n')
-                if cnl>=2:
+                if cnl >= 2:
                     ret.append('\n\n')
-                if cnl==1:
+                if cnl == 1:
                     ret.append('\n')
                 else:
                     ret.append(' ')
@@ -905,7 +911,7 @@ def html_text(etree, join=True, bodynodename='body'):
 
     if join:
         ret = ''.join( ret )
-        ret = re.sub(r'\n[\ ]+', '\n', ret.strip())
+        ret = re.sub(r'\n[\ ]+', '\n', ret.strip()) # TODO: explain the need for this better
         return ret.strip()
     else:
         return ret
