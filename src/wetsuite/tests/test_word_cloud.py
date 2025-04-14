@@ -1,5 +1,11 @@
 " test of wordcloud wrapping module "
-from wetsuite.extras.word_cloud import wordcloud_from_freqs, wordcloud_from_stringlist, wordcloud_from_string
+from wetsuite.extras.word_cloud import (
+    wordcloud_from_freqs,
+    wordcloud_from_stringlist,
+    wordcloud_from_string,
+    count_from_string,
+    merge_counts
+)
 
 
 def test_wordcloud_from_freqs():
@@ -15,6 +21,19 @@ def test_wordcloud_from_stringlist():
 def test_wordcloud_from_strings():
     "test that it runs, and processes a string"
     wordcloud_from_string('Foo foo foo bar')
+
+
+def test_count_from_string():
+    "test that it runs, and processes a string, according to the default tokenizer "
+    assert count_from_string('Foo foo foo bar') == {'foo': 3, 'bar': 1}
+
+
+def test_merge_counts():
+    "test that it runs, and processes a string, according to the default tokenizer "
+    a = count_from_string('Foo foo foo bar')
+    b = count_from_string('Foo foo foo bar')
+    assert merge_counts([a,b]) == {'foo': 6, 'bar': 2}
+
 
 
 # def test_count_from_spacy_document():
