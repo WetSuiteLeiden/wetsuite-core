@@ -261,6 +261,7 @@ class SRUBase:
                 url, timeout=(20, 20)
             )  # TODO: this makes no sense, don't do it
 
+        # The following two seem the most likely errors, report them a little bit more clearly.
         if r.status_code == 500:
             raise ValueError(
                 "SRU server reported an Internal Server Error (HTTP status 500) for %r"
@@ -268,7 +269,19 @@ class SRUBase:
             )
             # raise RuntimeError( "SRU server reported an Internal Server Error (HTTP status 500) for %r"%url )
 
-        tree = wetsuite.helpers.etree.fromstring(r.content)
+        if r.status_code == 503:
+            # also comes with HTML body (that won't parse as XML)
+            raise ValueError(
+                "SRU server reported an Service Unavailable (HTTP status 503) for %r"
+                % url
+            )
+
+        #try:
+        #    tree = wetsuite.helpers.etree.fromstring(r.content)
+        #except Exception:
+        #    print(r.status_code)
+        #    print(r.content)  # error response is probably a    b'<!DOCTYPE html>\n<html>\n  
+        #    raise
 
         # easier without namespaces, they serve no disambiguating function in most of these cases anyway
         # TODO: think about that, user code may not expact that
@@ -341,8 +354,8 @@ class SRUBase:
         @param query:        like in search_retrieve()
         @param start_record: like in search_retrieve()
         @param callback:     like in search_retrieve()
-        @param up_to:        is the absolute offset,
-        e.g. start_offset=200,up_to=250 gives you records 200..250,  not 200..450
+        @param up_to:        is the last record to fetch - as an absolute offset, 
+        so e.g. start_offset=200,up_to=250 gives you records 200..250,  not 200..450.
         @param at_a_time:        
         how many records to fetch in a single request
         @param wait_between_sec: a backoff sleep between each search request, 
@@ -359,12 +372,12 @@ class SRUBase:
           - maybe yield something including numberOfRecords before yielding results?
         """
         ret = []
-        offset = start_record
+        current_offset = start_record
 
         while True:  # offset < up_to:
             records = self.search_retrieve(
                 query=query,
-                start_record=offset,
+                start_record=current_offset,
                 maximum_records=at_a_time,
                 callback=None,
                 verbose=verbose,
@@ -372,22 +385,27 @@ class SRUBase:
             if len(records) == 0:
                 break
 
-            for chunk_offset, record in enumerate(records):
+            for fetched_chunk_offset, record in enumerate(records):
+                # add to what we will return
                 ret.append(record)
+
+                #if you requested a callback do it.
                 if callback is not None:
                     callback(record)
 
-                if offset + chunk_offset >= up_to:  # we fetched more than was needed
-                    break
+                # stop at the requested record amount,
+                #   even if the chunk fetcked more due to at_a_time
+                if current_offset + fetched_chunk_offset >= up_to:
+                    break # then stop
 
-            offset += at_a_time
+            current_offset += at_a_time
 
             # crossed beyond what was asked for?  (we don't return it even if we fetched it)
-            if offset >= up_to:
+            if current_offset >= up_to:
                 break
 
             # crossed beyond what exists in the search result?
-            if self.number_of_records is not None and offset > self.number_of_records:  
+            if self.number_of_records is not None and current_offset > self.number_of_records:
                 break
 
             # (note that this is avoided if the first, single fetch was enough)
