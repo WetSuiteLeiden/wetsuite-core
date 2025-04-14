@@ -61,17 +61,33 @@ class Collocation:
         ideally we remove all n-grams using them too, but it's faster to waste the memory and leave them there.
         """
         new_uni = defaultdict(int)
-        for k, v in self.uni.items():
-            if v >= mincount:
-                new_uni[k] = v
+        for k, cnt in self.uni.items():
+            if cnt >= mincount:
+                new_uni[k] = cnt
+        self.uni = new_uni
+
+    def cleanup_unigrams_func(self, bad_func):
+        """Remove unigrams for which the given function returns true"""
+        new_uni = defaultdict(int)
+        for k, cnt in self.uni.items():
+            if not bad_func(k):
+                new_uni[k] = cnt
         self.uni = new_uni
 
     def cleanup_ngrams(self, mincount=2):
         """CONSIDER: allow different threshold for each length, e.g. via a list for mincount"""
         new_grams = defaultdict(int)
-        for k, v in self.grams.items():
-            if v >= mincount:
-                new_grams[k] = v
+        for k, cnt in self.grams.items():
+            if cnt >= mincount:
+                new_grams[k] = cnt
+        self.grams = new_grams
+
+    def cleanup_ngrams_func(self, bad_func):
+        """Remove unigrams for which the given function returns true"""
+        new_grams = defaultdict(int)
+        for k, cnt in self.grams.items():
+            if not bad_func(k):
+                new_grams[k] = cnt
         self.grams = new_grams
 
     def score_ngrams(self, method="mik2", sort=True):
