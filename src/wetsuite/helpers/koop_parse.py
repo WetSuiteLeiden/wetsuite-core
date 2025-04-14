@@ -882,6 +882,8 @@ def cvdr_versions_for_work(cvdr_id: str) -> list:
     Returns: a list of all matching version expression ids
 
     Keep in mind that this actively does requests, so preferably don't do this in bulk, and/or cache your results.
+
+    @return: a list of a list expression ids
     """
     if cvdr_id in _versions_cache:
         # print( "HIT %r -> %r"%(cvdrid, _versions_cache[cvdrid]) )
@@ -912,15 +914,18 @@ def parse_op_metafile(
       - the one that looks like `<metadata_gegevens>` with a set of `<metadata name="DC.title" scheme="" content="...`
       - the one that (after a namespace strip) looks like `<owms-metadata><owmskern>` with e.g. `<dcterms:identifier>gmb-...`
 
+    could also raise, e.g. a XMLSyntaxError
+
     NOT TO BE CONFUSED with parse_op_searchmeta
 
-    CONSIDER: TODO: a simiular  flatten parameter (probably defaulting False)
+    CONSIDER: TODO: a similar  flatten parameter (probably defaulting False)
 
     Tries to return them in the same style, e.g.
       - taking off the name-based grouping from DC.title
+
       - taking off the tag-based grouping (ignoring owmskern tag)
 
-    Returns
+    @return:
       - by default, a list of (key, schema, value) tuples
       - if as_dict=True, a dict like {key: [(schema, value), ...]}
     """
@@ -956,7 +961,7 @@ def parse_op_metafile(
 
 
 def parse_op_searchmeta(input, flatten=False):
-    """similar to cvdr_meta; we may want to abstract most of that into one helper function
+    """similar to cvdr_meta; CONSIDER: abstract most of that into one helper function
 
     Note that
       - the 'enriched' and 'manifestations' keys show equivalent information
@@ -1436,3 +1441,64 @@ def prefer_types(
         )
 
     return ret
+
+
+def op_data_xml_seems_empty( docbytes, minchars=1 ):
+    """ Some of the XML files presented to us as XML data are actually devoid of content text.
+        This determines if it's such a case.
+        We actually parse it, so we can better distinguish between empty and near-empty. 
+    """
+    tree = wetsuite.helpers.etree.fromstring( docbytes ) # 
+    if len(tree) <= 1: # amount of childeren under root; 1 means only its <meta> is there, and no content
+        return True
+    
+    # Consider the subset of cases where there _is_ a basic template structure, but no text content in them.
+    doctext = ''.join( tree[1].itertext() )
+    doctext_strip = doctext.strip()
+    
+    if len( doctext_strip ) < minchars:
+        return True
+    
+    if 'niet beschikbaar in HTML-formaat' in doctext: # happens in agendas
+        return True
+    
+    return False
+
+
+# the regexp is ugly and not very indicative of where it came from. 
+#   It's here partly to some basic check of our assumptions about the parts of those URLs for this subset - 
+#   anything not matching is printed - which seems prudent since we'll also be extracting information from it
+_re_repourl_parl = re.compile( r'^https?://repository.overheid.nl/frbr/officielepublicaties/([a-z-]+)/([A-Za-z0-9-]+)/([A-Za-z0-9_-]+)/([a-z0-9-]+)/([a-z]+)/([A-Za-z0-9_-]+.[a-z]+)$' )
+#                                                            e.g.                              h-ek       20092010     h-ek-20092010-1_2       1       xml    h-ek-20092010-1_2.xml
+
+def parse_repo_url( url ):
+    ''' 
+    TODO: see how well this holds up to all areas
+
+    @param: an URL like C{https://repository.overheid.nl/frbr/officielepublicaties/ag-ek/1995/ag-ek-1995-02-08/1/xml/ag-ek-1995-02-08.xml},
+    @return: a dict like::
+        {'doctype': 'ag-ek',
+        'group': '1995',
+        'doc_id': 'ag-ek-1995-02-08',
+        'mn': '1',
+        'exprtype': 'xml',
+        'bn': 'ag-ek-1995-02-08.xml',
+        'url': 'https://repository.overheid.nl/frbr/officielepublicaties/ag-ek/1995/ag-ek-1995-02-08/1/xml/ag-ek-1995-02-08.xml'}
+
+    '''
+    match = _re_repourl_parl.match( url )
+    if match is None:
+        raise ValueError( f'ERROR understanding {repr(url)}' )
+    else:
+        doctype, group, doc_id, mn, exprtype, bn = match.groups()
+        return {
+            'doctype':doctype,
+            'group':group,
+            'doc_id':doc_id,
+            'mn':mn,
+            'exprtype':exprtype,
+            'bn':bn,
+
+            'url':url, # just to put the original value in the same place
+        }
+    
