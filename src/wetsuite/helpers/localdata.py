@@ -9,9 +9,6 @@ See the docstring on the LocalKV class for more details.
 This is used e.g. by various data collection, and by distributed datasets.
 
 There are a lot of general notes in LocalKV's docstring (and a lot of it also applies to MsgpackKV)
-
-CONSIDER: writing a ExpiringLocalKV that cleans up old entries
-CONSIDER: writing variants that do convert specific data, letting you e.g. set/fetch dicts, or anything else you could pickle
 """
 
 import os
@@ -24,8 +21,8 @@ from typing import Tuple
 
 import sqlite3
 
-# msgpack should be more interoperable and safer than pickle, and slightly faster - but an extra dependency, and does a little less.
-# json is more interoperable, but slower and (also) doesn't e.g. deal with date/datetime
+# msgpack should be alittle more interoperable and/or a little faster than pickle or kson. 
+# It is however, an extra dependency (and does a little less)
 import msgpack
 
 import wetsuite.helpers.util  # to get wetsuite_dir
@@ -45,19 +42,23 @@ class LocalKV:
 
     Notes:
       - on the path/name argument:
-        - just a name ( without os.sep, that is, / or \\ ) will be resolved to a path where wetsuite keeps various stores
+        - just a name ( without os.sep, that is, / or \\ ) will be resolved 
+          to a path where wetsuite keeps various stores
         - an absolute path will be passed through, used as-is
-          ...but this is NOT very portable until you do things like `os.path.join( myproject_data_dir, 'docstore.db')`
+          ...but this is NOT very portable until you do things 
+          like `os.path.join( myproject_data_dir, 'docstore.db')`
         - a relative path with os.sep will be passed through
           ...which is only as portable as the cwd is predictable)
         - ':memory:' is in-memory only
         - See also C{resolve_path} for more details
 
-      - by default, each write is committed individually (because SQlite3's driver defaults to autocommit)
+      - by default, each write is committed individually 
+        (because SQlite3's driver defaults to autocommit).
         If you want more performant bulk writes,
         use put() with commit=False, and
         do an explicit commit() afterwards
-        ...BUT if a script borks in the middle of something uncommited, you will need to do manual cleanup.
+        ...BUT if a script borks in the middle of something uncommited,
+        you will need to do manual cleanup.
 
       - On typing:
           - SQLite will just store what it gets, which makes it easy to store mixed types.
@@ -80,15 +81,17 @@ class LocalKV:
 
       - making you do CRUD via functions is a little more typing,
         - yet is arguably clearer than 'this particular dict-like happens to get stored magically'
-        - and it lets us exposes some sqlite things (using transactions, vacuum) for when you know how to use them.
+        - and it lets us exposes some sqlite things (using transactions, vacuum)
+          for when you know how to use them.
 
       - On concurrency: As per basic sqlite behaviour,
         multiple processes can read the same database,
         but only one can write,
         and writing is exclusive with reading.
         So
-          - when you leave a writer with uncommited data for nontrivial amounts of time, readers are likely to time out
-            - If you leave it on autocommit this should be a little rarer
+          - when you leave a writer with uncommited data for nontrivial amounts of time, 
+            readers are likely to time out.
+              - If you leave it on autocommit this should be a little rarer
           - and a very slow read through the database might time out a write.
 
       - It wouldn't be hard to also make it act largely like a dict,
@@ -96,16 +99,18 @@ class LocalKV:
         but this muddies the waters as to its semantics,
         in particular when things you set are actually saved.
 
-        So we try to avoid a leaky abstraction, by making you write out all the altering operatiopns,
+        So we try to avoid a leaky abstraction, 
+        by making you write out all the altering operations,
         and actually all of them, e.g.  get(), put(),  keys(), values(), and items(),
-        because those can at least have docstrings to warn you, rather than breaking your reasonable expectations.
+        because those can at least have docstrings to warn you,
+        rather than breaking your reasonable expectations.
 
         ...exceptions are
-        __len__        for amount of items                   CONSIDER: making that len()
-        __contains__   backing 'is this key in the store'),  CONSIDER: making that e.g. has_key() instead
+          - __len__        for amount of items                  (CONSIDER making that len())  
+          - __contains__   backing 'is this key in the store')  (CONSIDER making that has_key())  
         and also:
-        __iter__       which is actually iterkeys()         CONSIDER: removing it
-        __getitem__    supports the views-with-a-len
+          - __iter__       which is actually iterkeys()         CONSIDER: removing it
+          - __getitem__    supports the views-with-a-len
         The last were tentative until keys(), values(), and items() started giving views.
 
         TODO: make a final decision where to sit between clean abstractions and convenience.
@@ -113,13 +118,16 @@ class LocalKV:
       - yes, you _could_ access these SQLite databses yourself, particularly when just reading.
         Our code is mainly there for convenience and checks.
         Consider: `sqlite3 store.db 'select key,value from kv limit 10 ' | less`
-        It only starts getting special once you using MsgpackKV, or the extra parsing and wrapping that wetsuite.datasets adds.
+        It only starts getting special once you using MsgpackKV, 
+        or the extra parsing and wrapping that wetsuite.datasets adds.
 
     @ivar conn: connection to the sqlite database that we set up
     @ivar path: the path we opened (after resolving)
     @ivar key_type: the key type you have set
     @ivar value_type: the value type you have set
-    @ivar read_only: whether we have told ourselves to treat this as read-only
+    @ivar read_only: whether we have told ourselves to treat this as read-only.
+    That _should_ also make it hard for _us_ to be the cause
+    of leaving the database in a locked state.
     """
 
     def __init__(self, path, key_type, value_type, read_only=False):
@@ -135,7 +143,8 @@ class LocalKV:
 
         @param key_type:
         @param value_type:
-        @param read_only: is only enforced in this wrapper to give slightly more useful errors. (we also give SQLite a PRAGMA)
+        @param read_only: is only enforced in this wrapper to give slightly more useful errors.
+        (we also give SQLite a PRAGMA)
         """
         self.path = path
         self.path = resolve_path(
@@ -149,13 +158,11 @@ class LocalKV:
         # here in part to remind us that we _could_ be using converters  https://docs.python.org/3/library/sqlite3.html#sqlite3-converters
         if key_type not in (str, bytes, int, None):
             raise TypeError(
-                "We are currently a little overly paranoid about what to allow as key types (%r not allowed)"
-                % key_type.__name__
+                f"We are currently a little overly paranoid about what to allow as key types ({repr(key_type.__name__)} not allowed)"
             )
         if value_type not in (str, bytes, int, float, None):
             raise TypeError(
-                "We are currently a little overly paranoid about what to allow as value types (%r not allowed)"
-                % value_type.__name__
+                f"We are currently a little overly paranoid about what to allow as value types ({repr(value_type.__name__)} not allowed)"
             )
 
         self.key_type = key_type
@@ -165,16 +172,20 @@ class LocalKV:
 
     def _open(self, timeout=3.0):
         """Open the path previously set by init.
-        This function could probably be merged into init, it was separated mostly with the idea that we could keep it closed when not using it.
+        This function could probably be merged into init,
+        it was separated mostly with the idea that we could keep it closed when not using it.
 
         timeout: how long wait on opening.
-        Lowered from the default just to avoid a lot of waiting half a minte when it was usually just accidentally left locked.
+        Lowered from the default just to avoid a lot of waiting half a minute
+        when it was usually just accidentally left locked.
         (note that this is different from busy_timeout)
         """
         # make_tables = (self.path==':memory:')  or  ( not os.path.exists( self.path ) )
-        #    will be creating that file, or are using an in-memory database ?  Also how to combine with read_only?
+        #    will be creating that file, or are using an in-memory database ?
+        #    Also how to combine with read_only?
         self.conn = sqlite3.connect(self.path, timeout=timeout)
-        # Note: curs.execute is the regular DB-API way,  conn.execute is a shorthand that gets a temporary cursor
+        # Note: curs.execute is the regular DB-API way,
+        #       conn.execute is a shorthand that gets a temporary cursor
         with self.conn:
             if self.read_only:
                 self.conn.execute(
@@ -205,7 +216,7 @@ class LocalKV:
             val, self.key_type
         ):  # None means don't check
             raise TypeError(
-                "You specified that only keys of type %s are allowed, and now gave a %s"
+                "You specified that only keys of type %s are allowed, and now asked for a %s"
                 % (self.key_type.__name__, type(val).__name__)
             )
 
@@ -213,14 +224,16 @@ class LocalKV:
         "checks a value according to the value_type you handed into the constructor"
         if self.value_type is not None and not isinstance(val, self.value_type):
             raise TypeError(
-                "You specidied that only values of type %s are allowed, and now gave a %s"
+                "You specified that only values of type %s are allowed, and now gave a %s"
                 % (self.value_type.__name__, type(val).__name__)
             )
 
     def get(self, key, missing_as_none: bool = False):
         """Gets value for key.
-        The key type is checked against how you constructed this localKV class (doesn't guarantee it matches what's in the database)
-        If not present, this will raise KeyError (by default) or return None (if you set missing_as_None=True)
+        The key type is checked against how you constructed this localKV class 
+        (doesn't guarantee it matches what's in the database)
+        If not present, this will raise KeyError (by default) 
+        or return None (if you set missing_as_None=True)
         (this is unlike a dict.get, which has a default=None)
         """
         self._checktype_key(key)
@@ -240,8 +253,10 @@ class LocalKV:
 
         Types will be checked according to what you inited this class with.
 
-        commit=False lets us do bulk commits, mostly when you want to a load of small changes without becoming IOPS bound.
-        If you care less about speed, and/or more about parallel access, you can ignore this.
+        commit=False lets us do bulk commits,
+        mostly when you want to a load of (small) changes without becoming IOPS bound,
+        at the risk of locking/blocking other access.
+        If you care less about speed, and/or more about parallel access, ignore this.
 
         CONSIDER: making commit take an integer as well, meaning 'commit every X operations'
         """
@@ -513,32 +528,10 @@ class LocalKV:
             )
         return ret
 
-    # def _copy(self, path, commit=False):
-    #     '''
-    #         Copy the contents to another store of the same type.
-
-    #         Was intended to make it easier to work in memory and go to disk later, e.g. to replace code like:
-    #           memkv = LocalKV(':memory:', key_type=str, value_type=oldkv.str)
-    #           # do a bunch of stuff with memkv
-    #           diskkv = LocalKV(newpath, key_type=oldkv.key_type, value_type=oldkv.value_type)
-    #           for k, v in memkv.items():
-    #             diskkv.put( k, v )
-    #         with:
-    #           memkv = LocalKV(':memory:', key_type=str, value_type=oldkv.str)
-    #           memkv._copy( path )
-
-    #         @param path:   will be handed into LocalKV
-    #         @param commit: like put's: False will delay commits
-    #     '''
-    #     newkv = LocalKV(path, key_type=self.key_type, value_type=self.value_type)
-    #     for k, v in self.items():
-    #         newkv.put( k, v,commit=commit )
-    #     if commit is False:
-    #         newkv.commit()
-
     def vacuum(self):
         """After a lot of deletes you could compact the store with vacuum().
         WARNING: rewrites the entire file, so the more data you store, the longer this takes.
+        And it may make no difference - you probably want to check estimate_waste() first.
         NOTE: if we were left in a transaction (due to commit=False), ths is commit()ed first.
         """
         if self._in_transaction:
@@ -568,29 +561,6 @@ class LocalKV:
         chosen_key = random.choice(all_keys)
         return chosen_key, self.get(chosen_key)
 
-    def random_sample(self, n):
-        """Returns an amount of [(key, value), ...] list from the store, selected randomly.
-
-        WARNING: this materializes the values, so this can be very large in RAM. 
-        To avoid that, use random_keys and get() one key at a time.
-        
-        Note that when you ask for a larger sample than the entire population, you get the entire population
-        (and unlike random.sample, we don't raise a ValueError to point out this is no longer really random)
-
-        Convenience function, because you can do this yourself, though it takes two or three lines of code;
-        while you can't random.choice/random.sample a view,
-        to do it properly you basically have to materialize all keys (and probably not accidentally all values)
-        BUT
-            - assume this is slower than cleverly working on the keys yourself,
-            - assume this is is unnecessarily RAM intensive / extra work when you want a _lot_ of items anyway.
-        """
-        all_keys = list(self.keys())
-        n = min(n, len(all_keys))
-        #if amount > len(all_keys): # doing this would be consistent with random.sample?
-        #    raise ValueError(f"Sample larger than population (you asked for {amount}, we have {len(all_keys)})")
-        chosen_keys = random.sample(all_keys, n)
-        return list((chosen_key, self.get(chosen_key)) for chosen_key in chosen_keys)
-
     def random_keys(self, n=10):
         """Returns a amount of keys in a list, selected randomly.
         Can be faster/cheaper to do than random_sample When the values are large
@@ -602,17 +572,59 @@ class LocalKV:
         chosen_keys = random.sample(all_keys, min(n, len(all_keys)))
         return chosen_keys
 
+    def random_sample(self, n):
+        """Returns an amount of [(key, value), ...] list from the store, selected randomly.
+
+        WARNING: This materializes all keys and the chosen values in RAM,
+        so can use considerable RAM if values are large.
+        To avoid that RAM use, use random_keys() and get() one key at a time,
+        or use random_sample_generator().
+
+        Note that when you ask for a larger sample than the entire population, 
+        you get the entire population (and unlike random.sample, we don't raise a ValueError 
+        to point out this is no longer a subselection)
+        """
+        all_keys = list(self.keys())
+        n = min(n, len(all_keys))
+        #if amount > len(all_keys): # doing this would be consistent with random.sample
+        #    raise ValueError(f"Sample larger than population (you asked for {amount}, we have {len(all_keys)})")
+        chosen_keys = random.sample(all_keys, n)
+        return list((chosen_key, self.get(chosen_key)) for chosen_key in chosen_keys)
+
+    def random_sample_generator(self, n=10):
+        """
+        A generator that yields one (key,value) tuple at a time,
+        intended to avoid materializing all values before we return.
+        
+        Still materializes all the keys before starting to yield, 
+        but that should only start to add up troublesome on many-gigabyte stores,
+        and it might avoid some locking issues.
+        """
+        for key in self.random_keys(n=n):
+            yield key, self.get( key )
+
     def random_values(self, n=10):
         """Returns a amount of values in a list, selected randomly.
 
         WARNING: this materializes the values, so this can be very large in RAM. 
-        To avoid that, use random_keys and get() one key at a time.
+        Consider using C{random_values_generator}, or using random_keys and get() one key at a time.
         """
         ret = []
         for _key, value in self.random_sample(n=n):
-            # could yield? but no real point.
             ret.append(value)
         return ret
+
+    def random_values_generator(self, n=10):
+        """
+        A generator that yields one value at a time,
+        intended to avoid materializing all values before we return.
+
+        Still materializes all the keys before starting to yield,
+        but that should only start to add up troublesome on many-gigabyte stores,
+        and it might avoid some locking issues.
+        """
+        for key in self.random_keys(n=n):
+            yield self.get( key )
 
 
 class MsgpackKV(LocalKV):
@@ -625,7 +637,7 @@ class MsgpackKV(LocalKV):
     Typing is fixed, to str:bytes
 
     msgpack is used as a somewhat faster alternative to json and pickle
-    (though that barely matters for smaller values)
+    (though that overhead barely matters for smaller structures)
 
     Note that this does _not_ change how the meta table works.
     """
@@ -678,6 +690,7 @@ def cached_fetch(
     force_refetch: bool = False,
     sleep_sec: float = None,
     timeout: float = 20,
+    maxsize_bytes=500*1024*1024,
     commit: bool = True,
 ) -> Tuple[bytes, bool]:
     """Helper to fetch URL contents into str-to-bytes (url-to-content) LocalKV store:
@@ -694,10 +707,14 @@ def cached_fetch(
     @param store:         a store to get/put data from
     @param url:           an URL string to fetch
     @param force_refetch: fetch even if we had it already
-    @param sleep_sec:     sleep this long whenever we did an actual fetch (and not when we return data from cache), 
+    @param sleep_sec:     sleep this long whenever we did an actual fetch
+    (and not when we return data from cache), 
     so that when you use this in scraping, we can easily be nicer to a server.
     @param timeout:       timeout of te fetch
-    @param commit:        whether to put() with an immediate commit (False can help some faster bulk updates)
+    @param maxsize_bytes: don't try to store something larger than this 
+    (because SQLite may trip over it anyway), defaults to 500MiB
+    @param commit:        whether to put() with an immediate commit 
+    (False can help some faster bulk updates)
     @return:              (data:bytes, whether_it_came_from_cache:bool)
 
     May raise
@@ -708,25 +725,25 @@ def cached_fetch(
     """
     if not isinstance(store, LocalKV):
         raise TypeError(
-            "the store parameter should be a LocalKV or descendant, not %r"
-            % (type(store))
+            f"the store parameter should be a LocalKV or descendant, not {repr(type(store))}  (note that a reload(localdata) also causes this)"
         )
 
     if store.key_type not in (str, None) or store.value_type not in (bytes, None):
         raise TypeError(
-            "cached_fetch() expects a str:bytes store (or for you to disable checks with None,None),  not a %r:%r"
-            % (store.key_type.__name__, store.value_type.__name__)
+            "cached_fetch() expects a str:bytes store (or for you to disable checks with None,None),  not a {repr(store.key_type.__name__)}:{repr(store.value_type.__name__)}"
         )
     # yes, the following could be a few lines shorter, but this is arguably a little more readable
     if force_refetch is False:
         try:  # use cache?
             ret = store.get(url)
             return ret, True
-        except KeyError:  # get() notices it's not there, so fetch it ourselves
+        except KeyError as exc:  # get() notices it's not there, so fetch it ourselves
             data = wetsuite.helpers.net.download(
                 url,
                 timeout=timeout
             )  # note that this can error out, which we don't handle
+            if len( data ) > maxsize_bytes:
+                raise ValueError(f"fetched data is huge ({len(data)} bytes), specify larger maxsize if you really want to store this") from exc
             store.put(url, data, commit=commit)
             if sleep_sec is not None:
                 time.sleep(sleep_sec)
@@ -736,6 +753,8 @@ def cached_fetch(
             url,
             timeout=timeout
         )
+        if len( data ) > maxsize_bytes:
+            raise ValueError("Value is huge (%d bytes), specify larger maxsize if you really want this"%len(data))
         store.put(url, data, commit=commit)
         if sleep_sec is not None:
             time.sleep(sleep_sec)
@@ -744,12 +763,12 @@ def cached_fetch(
 
 def resolve_path(name: str):
     """Note: the KV classes call this internally.
-    This is here less for you to use directly, more explain why.
+    This is here less for you to use directly, more to explain how it works and why.
 
     For context, handing a pathless base name to underlying sqlite would just put it in the current directory
-    which isn't always where you think, so is likely to sprinkle databases all over the place.
+    which would often not be where you think, so is likely to sprinkle databases all over the place.
     This is common point of confusion/mistake around sqlite (and files in general),
-    so we make it harder to do accidentally, so that this doesn't become your problem.
+    so we make it harder to do accidentally.
 
     Using this function makes it a little more controlled where things go:
         - Given a **bare name**, e.g. 'extracted.db', this returns an absolute path
@@ -759,7 +778,7 @@ def resolve_path(name: str):
 
         - hand in **`:memory:`** if you wanted a memory-only store, not backed by disk
 
-        - given an absolute path, it will use that
+        - given an absolute path, it will use that as-is
             so if you actually _wanted_ it in the current directory, instead of this function
             consider something like  `os.path.abspath('mystore.db')`
 
@@ -775,17 +794,17 @@ def resolve_path(name: str):
             so that you don't open existing stores without meaning to.
 
         - us figuring out a place in your use profile for you
-        This _is_ double-edged, though, in that we will get fair questions like
-          - "I can't tell why my user profile is full" and
-          - "I can't find my files"   (sorry, they're not so useful to access directly)
+          This _is_ double-edged, though, in that we will get fair questions like
+            - "I can't tell why my user profile is full" and
+            - "I can't find my files"   (sorry, they're not so useful to access directly)
 
     CONSIDER:
         - listening to a WETSUITE_BASE_DIR to override our "put in user's homedir" behaviour,
-        this might make more sense e.g. to point it at distributed storage without
-        e.g. you having to do symlink juggling
+          this might make more sense e.g. to point it at distributed storage without
+          e.g. you having to do symlink juggling
 
     @param name: the name or path to inrepret
-
+    @return: a more resolved path, as described above
     """
     # deal with pathlib arguments by flattening it to a string
     if isinstance(name, pathlib.Path):
@@ -807,8 +826,10 @@ def resolve_path(name: str):
 def list_stores(
     skip_table_check: bool = True, get_num_items: bool = False, look_under=None
 ):
-    """Checks a directory for files that seem to be our stores (does filesystem access and IO reading to do so),
-    also lists some basic details about it.
+    """Checks a directory for files that seem to be our stores, also lists some basic details about it.
+    
+    Does filesystem access and IO reading to do so,
+    and with some parameter combinations will fail to open currently write-locked databases.
 
     By default look in the directory that (everything that uses) resolve_path() puts things in,
     you can give it another directory to look in.
