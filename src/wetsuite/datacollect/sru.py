@@ -276,12 +276,12 @@ class SRUBase:
                 % url
             )
 
-        #try:
-        #    tree = wetsuite.helpers.etree.fromstring(r.content)
-        #except Exception:
-        #    print(r.status_code)
-        #    print(r.content)  # error response is probably a    b'<!DOCTYPE html>\n<html>\n  
-        #    raise
+        try:
+            tree = wetsuite.helpers.etree.fromstring(r.content)
+        except Exception:
+            print(r.status_code)
+            print(r.content)  # error response is probably a    b'<!DOCTYPE html>\n<html>\n  
+            raise
 
         # easier without namespaces, they serve no disambiguating function in most of these cases anyway
         # TODO: think about that, user code may not expact that
