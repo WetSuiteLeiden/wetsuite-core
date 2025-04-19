@@ -15,135 +15,26 @@ from PIL import ImageDraw
 import numpy
 
 import wetsuite.extras.pdf       # mostly for pages_as_images
+import wetsuite.helpers.util
 
 
-_eocr_reader = None  # keep in memory to save time when you call it repeatedly
+# keep EasyOCR reader in memory to save time when you call it repeatedly
+#   Two, so that we can honour the use_gpu call each call, not just use and cache whatever the first call did
+_easyocr_reader_cpu = None  
+_easyocr_reader_gpu = None
 
 
 
-def ocr_pdf_pages(pdfbytes, dpi=150):
-    """
-    This is a convenience function that tries to get all text from a PDF via OCR.
 
-    More precisely, it 
-     - iterates through a PDF one page at a time,
-       - renders that page it to an image,
-       - runs OCR on that page image.
-
-    This depends on another of our modules (L{pdf}).
-
-    CONSIDER: allowing cacheing the result of the easyocr calls into a store
-
-    @param dpi: resolution to render the pages at, before OCRing them. Optimal may be around 200ish? (TODO: test)
-    @return: a 2-tuple:
-      - a list of the results that easyocr_text outputs
-      - a list of "all text on a page" string.
-        Technically somewhat redundant with the first, but easier, and good enough for some uses.
-    """
-    results_structure = []
-    text = []
-
-    for page_image in wetsuite.extras.pdf.pages_as_images(pdfbytes, dpi=dpi):
-        page_results = easyocr(page_image)
-        results_structure.append(page_results)
-        text.append( easyocr_text(page_results) )
-
-    return results_structure, text
-
-
-def easyocr(image, pythontypes=True, use_gpu=True, languages=("nl", "en")):
-    """Takes an image, returns structured OCR results as a specific python struct.
-
-    Requires easyocr being installed. Will load easyocr's model on the first call,
-    so try to do many calls from a single process to reduce that overhead to just once.
-
-    CONSIDER: pass through kwargs to readtext()
-    CONSIDER: fall back to CPU if GPU init fails
-
-    @param image: a single PIL image.
-
-    @param pythontypes:
-    if pythontypes==False, easyocr gives you numpy.int64 in bbox and numpy.float64 for confidence,
-    if pythontypes==True (default), we make that python int and float for you before returning
-
-    @param use_gpu: whether to use GPU (True), or CPU (False).
-    Only does anything on the first call, after that relies on that choice.
-    GPU generally is a factor faster than a single CPU core (in quick tests, 3 to 4 times),
-    so you may prefer GPU unless you don't have a GPU, don't want runtime competition with other GPU use.
-
-    @param languages: what languages to detect. Defaults to 'nl','en'.
-    You might occasionally wish to add 'fr'.
-
-    @return: a list of C{[[topleft, topright, botright, botleft], text, confidence]}
-    (which are EasyOCR's results)
-    """
-    import easyocr  # https://www.jaided.ai/easyocr/documentation/  https://www.jaided.ai/easyocr/
-
-    global _eocr_reader
-    if _eocr_reader is None:
-        say_where = "CPU"
-        if use_gpu:
-            say_where = "GPU"
-        print(
-            f"first use of ocr() - loading EasyOCR model (into {say_where})",
-            file=sys.stderr,
-        )
-        _eocr_reader = easyocr.Reader(languages, gpu=use_gpu)
-
-    # convert go grayscale and convert to numpy array, 
-    # for easyocr (which can take a filename, a numpy array, or byte stream (PNG or JPG?))
-    if image.getbands() != "L":
-        image = image.convert("L")
-    ary = numpy.asarray(image)
-
-    # analysis
-    result = _eocr_reader.readtext(ary)
-
-    if pythontypes:
-        ret = []
-        for bbox, text, cert in result:
-            # bbox looks like [[675, 143], [860, 143], [860, 175], [675, 175]]
-            # python types from numpy.int64 resp numpy.float64
-            # TODO: move that to the easyocr() call
-            bbox = list((int(a), int(b)) for a, b in bbox)
-            cert = float(cert)
-            ret.append((bbox, text, cert))
-        result = ret
-
-    return result
-
-
-def easyocr_text(results):
-    """ Take bounding boxed results and (at least for now)
-        smushes the text together as-is, without much care about placement.
-
-        This is currently NOT enough to be decent processing,
-        and we plan to be smarter than this, given time.
-
-        There is some smarter code in kansspelautoriteit fetching notebook.
-
-        CONSIDER centralizing that and/or 'natural reading order' code
-
-        @param results: the output of ocr()
-        @return: plain text
-    """
-    # CONSIDER making this '\n\n',join( the pages function ) instead
-    # warnings.warn('easyocr_text() is currently dumb, and should be made better at its job later')
-    ret = []
-    for (_, _, _, _), text, _ in results:
-        ret.append(text)
-
-    return "\n".join(ret)  # newline is not always correct, but better than not
-
-
-###### debug and extraction helpers##################################################################
+###### debug and helpers #############################################################################################################
 
 def easyocr_draw_eval(image, ocr_results):
-    """Given a PIL image, and the results from ocr(),
-    draws the bounding boxes, with color indicating the confidence, 
-    on top of that image we recognized those from.
+    """Given 
+      - a PIL image (the image you handed into OCR), 
+      - the results from ocr()
+    draws the bounding boxes, with color indicating the confidence.
 
-    Made for inspection of how much OCR picks up.
+    Made for inspection of how much OCR picks up, and what it might have trouble with.
 
     @param image: the image that you ran ocr() on
     @param ocr_results: the output of ocr()
@@ -155,18 +46,16 @@ def easyocr_draw_eval(image, ocr_results):
         topleft, _, botright, _ = bbox
         xy = [tuple(topleft), tuple(botright)]
         draw.rectangle(
-            xy,  outline=10,  fill=(int((1 - conf) * 255),  int(conf * 255),  0,   125)
+            xy,  outline=10,  fill=(int((1 - conf) * 255),  int(conf * 255),  0,    125)
         )
     return image
 
 
-# functions that help deal with Easy OCR-detected fragments,
-# when they are grouped into pages, then a collection of fragments
+# functions that help deal with the numbers in the EasyOCR output fragments,
 #
-# ...and potentially also other OCR and PDF-extracted text streams, once I get to it.
+# ...and potentially also other OCR and PDF-extracted text streams, once we get to it.
 #
 # Note: Y origin is on top
-#
 
 
 def bbox_height(bbox):
@@ -404,3 +293,270 @@ def page_fragment_filter(
         matches.append((bbox, text, cert))
     
     return matches
+
+
+# def easyocr_to_hocr(list_of_boxresults):
+#     ''' Express the 
+#     
+#         You will probably want to use width_ths of perhaps 0.1 on the easyocr() call
+#         (of which the unit is box height, so adaptive)
+#         to avoid merging words into sentences
+#     '''
+#     # Note that EasyOCR puts the origin at the left bottom, and hOCR at the left top, so 
+#     # 
+#     import fitz  # which is pymupdf
+#     E,SE = wetsuite.helpers.etree.Element, wetsuite.helpers.etree.SubElement  # for brevity
+# 
+#     html = E( 'html', {'lang':'en'} )
+# 
+#     head = SE(html, 'head')
+#     SE(head, 'title')
+#     SE(head, 'meta', {'name':'ocr-number-of-pages', 'content':str(len(list_of_boxresults))})
+#     SE(head, 'meta', {'name':'ocr-system', 'content':'easyocr by proxy'})
+#     SE(head, 'meta', {'name':'ocr-capabilities', 'content':'ocr_page ocrx_word ocrp_wconf'})
+#     # skipped for now:  ocr_carea (content area), ocr_par (paragraph),  ocr_line (line)
+# 
+#     wordcounter = 1
+# 
+#     body = SE(html, 'body')
+#     for page_num, page_boxes in enumerate( list_of_boxresults ):
+# 
+#         pagediv = SE(body, 'div', {
+#             'class':  'ocr_page', 
+#             'id':    f'page_{page_num+1}',
+#             #'title': 'bbox %d %d %d %d'%(page.cropbox.x0, page.cropbox.y0, page.cropbox.x1, page.cropbox.y1)
+#             })
+# 
+#         for [[topleft, topright, botright, botleft], text, confidence] in page_boxes:
+#             # these coordinates are currently still wrong.
+#             x0 = topleft[0]
+#             y0 = botleft[1]
+#             x1 = topright[0]
+#             y1 = botright[1]
+# 
+#             # <span class="" id="word_1_1" title="bbox 374 74 520 103; x_wconf 91">BIROUL</span>
+#             wordspan = SE(pagediv, 'span', {
+#                 'class': 'ocrx_word',
+#                 'id':   f'word_{page_num}_{wordcounter}',
+#                 'title': 'bbox %d %d %d %d; x_wconf %.2f'%(round(x0), round(y0), round(x1), round(y1), confidence)
+#             })
+#             wordspan.text = text
+#             wordcounter += 1
+# 
+#     return wetsuite.helpers.etree.tostring(html)
+
+
+# def tesseract(image, lang='eng'):
+#     '''
+#     Run tesseract on this image, return 
+# 
+#     Note that it is up to you to install tesseract, pytesseract wrapper, and the tesseract language data you will use.
+#     '''
+#     import pytesseract
+#     return pytesseract.image_to_boxes( image, lang=lang ) 
+
+
+# def tesseract_hocr(image, lang='eng'):
+#     import pytesseract
+#     return pytesseract.image_to_pdf_or_hocr( image, extension='hocr', lang=lang )
+
+
+# def tesseract_merge_hocr_pages(hocr_xmls):
+#     '''
+#     Takes hocr output documents from single-page results, 
+#     puts the pages in sequence, and rewrites the ids to 
+# 
+#     Currently hardcoded with assumptions about the tesseract output; that may change.
+#     '''
+#     import copy
+#     # Roughly speaking we can 
+#     # - take the 
+#     E,SE = wetsuite.helpers.etree.Element, wetsuite.helpers.etree.SubElement  # for brevity
+#     merged = E('html', {'lang':'en'})
+# 
+#     first = hocr_xmls[0]
+#     # assume all the heads would be the same so we don't need to do anything ocmplex
+#     _head = SE(merged, copy.deepcopy( first.find('head') ) )
+# 
+#     body = SE(merged, 'body')
+# 
+#     # INCOMPLETE
+# 
+#     return wetsuite.helpers.etree.tostring(html)
+
+
+
+
+
+
+############## Actual OCR part ####################################################################################################################################
+
+
+def ocr_pdf_pages(pdfbytes, dpi=150, use_gpu=True, page_cache=None, verbose=True):
+    """
+    This is a convenience function that uses OCR to get text from all of a PDF document,
+    returning it in a per-page, structured way.
+
+    More precisely, it 
+     - iterates through a PDF one page at a time,
+       - renders that page it to an image,
+       - runs OCR on that page image.
+
+    This depends on another of our modules (L{pdf}), and pymupdf
+
+    @param page_cache: 
+    CONSIDER: allowing cacheing the result of the easyocr calls into a store
+
+    @param dpi: resolution to render the pages at, before OCRing them. Optimal may be around 200ish? (TODO: test)
+    @return: a 2-tuple:
+      - a list of the results that easyocr_toplaintext() outputs
+      - a list of "all text on all pages" strings (specifically, fed through the simple-and-stupid easyocr_toplaintext()).
+        Less structure, and redundant with the first returned, but means less typing for some uses.
+    """
+    import fitz
+    from PIL import Image
+
+    results_structure = []
+    text = []
+
+    if page_cache is not None:
+        hash = wetsuite.helpers.util.hash_hex( pdfbytes )
+
+    with fitz.open(stream=pdfbytes, filetype="pdf") as document:
+
+        for page_num, page in enumerate( document ):
+            # see if it's in the cache (if asked)
+            if page_cache is not None:
+                cache_key = f'{hash}:pg{page_num}:{dpi}dpi'
+                page_results_from_cache = page_cache.get( cache_key, missing_as_none=True )
+                if page_results_from_cache is not None:
+                    if verbose:
+                        print('HIT %s'%cache_key)
+                    results_structure.append( page_results_from_cache )
+                    text.append( easyocr_toplaintext( page_results_from_cache ) )
+                    continue
+                if verbose:
+                    print('MISS %s'%cache_key)
+
+            #  not in cache - render, OCR, put in cache (if asked)
+            page_image = wetsuite.extras.pdf.page_as_image( page, dpi=dpi )
+            #if verbose:
+            #    display(page_image)
+
+            page_results = easyocr(page_image, use_gpu=use_gpu)
+            results_structure.append(page_results)
+            if page_cache is not None:
+                page_cache.put(cache_key, page_results)
+            text.append( easyocr_toplaintext(page_results) )
+
+    return results_structure, text
+
+
+def easyocr(image, pythontypes=True, use_gpu=True, languages=("nl", "en"), debug=False, **kwargs):
+    """Takes an image, returns structured OCR results as a specific python struct.
+
+    Requires easyocr being installed. Will load easyocr's model on the first call,
+    so try to do many calls from a single process to reduce that overhead to just once.
+
+    CONSIDER: pass through kwargs to readtext()
+    CONSIDER: fall back to CPU if GPU init fails
+
+    @param image: a single PIL image.
+
+    @param pythontypes:
+    if pythontypes==False, easyocr gives you numpy.int64 in bbox and numpy.float64 for confidence,
+    if pythontypes==True (default), we make that python int and float for you before returning
+
+    @param use_gpu: whether to use GPU (True), or CPU (False).
+    Only does anything on the first call, after that relies on that choice.
+    GPU generally is a factor faster than a single CPU core (in quick tests, 3 to 4 times),
+    so you may prefer GPU unless you don't have a GPU, don't want runtime competition with other GPU use.
+
+    @param languages: what languages to detect. Defaults to 'nl','en'.
+    You might occasionally wish to add 'fr'.
+
+    @return: a list of C{[[topleft, topright, botright, botleft], text, confidence]}
+    (which are EasyOCR's results)
+    """
+    import easyocr  # https://www.jaided.ai/easyocr/documentation/  https://www.jaided.ai/easyocr/
+
+    # use already-loaded model (into the requested place) if it's there
+    global _easyocr_reader_gpu
+    global _easyocr_reader_cpu
+    if use_gpu:
+        if _easyocr_reader_gpu is None:
+            print( f"first use of ocr( use_gpu=True ) - loading EasyOCR model (into GPU)", file=sys.stderr )
+            _easyocr_reader_gpu = easyocr.Reader(languages, gpu=True)
+        reader = _easyocr_reader_gpu
+    else:
+        if _easyocr_reader_cpu is None:
+            print( f"first use of ocr( use_gpu=False ) - loading EasyOCR model (into CPU)", file=sys.stderr )
+            _easyocr_reader_cpu = easyocr.Reader(languages, gpu=False)
+        reader = _easyocr_reader_cpu
+
+    # convert go grayscale and convert to numpy array, 
+    # for easyocr (which can take a filename, a numpy array, or byte stream (PNG or JPG?))
+    if image.getbands() != "L":
+        image = image.convert("L")
+    ary = numpy.asarray(image) 
+
+    result = reader.readtext(ary, **kwargs)
+
+    if pythontypes:
+        ret = []
+        for bbox, text, cert in result:
+            # bbox looks like [[675, 143], [860, 143], [860, 175], [675, 175]]
+            # python types from numpy.int64 resp numpy.float64
+            # TODO: move that to the easyocr() call
+            bbox = list((int(a), int(b)) for a, b in bbox)
+            cert = float(cert)
+            ret.append((bbox, text, cert))
+        result = ret
+
+    return result
+
+
+#def easyocr_unload(unload_cpu=True, unload_gpu=True, request_gc=True):
+#    " Attempt to in particular, unload the EasyOCR model from the GPU.  It seems that torch won't let us, though? "
+#    global _easyocr_reader_gpu,_easyocr_reader_cpu
+#    if unload_gpu:
+#        if _easyocr_reader_gpu is not None:
+#            _easyocr_reader_gpu = None
+#            if request_gc:
+#                import gc
+#                gc.collect()
+#            try:
+#                # TODO: figure out whether there are further useful things to do
+#                import torch
+#                torch.cuda.empty_cache()
+#            except Exception as e: # swallow all errors
+#                pass 
+#    if unload_cpu:
+#        if _easyocr_reader_cpu is not None:
+#            _easyocr_reader_cpu = None
+#            if request_gc:
+#                import gc
+#                gc.collect()
+
+
+def easyocr_toplaintext(results):
+    """ Take intermediate results with boxes and, at least for now,
+        smushes the text together as-is, without much care about placement.
+
+        This is currently NOT enough to be decent processing,
+        and we plan to be smarter than this, given time.
+
+        There is some smarter code in kansspelautoriteit fetching notebook.
+
+        CONSIDER centralizing that and/or 'natural reading order' code
+
+        @param results: the output of ocr()
+        @return: plain text
+    """
+    # CONSIDER making this '\n\n',join( the pages function ) instead
+    # warnings.warn('easyocr_toplaintext() is currently dumb, and should be made better at its job later')
+    ret = []
+    for (_, _, _, _), text, _ in results:
+        ret.append(text)
+
+    return "\n".join(ret)  # newline is not always correct, but better than not
