@@ -23,6 +23,7 @@ from lxml.etree import (  # to expose them as if they are our own members     py
     tostring,
     register_namespace,
     Element,
+    SubElement,
     _Comment,
     _ProcessingInstruction,
 )
@@ -407,6 +408,9 @@ def debug_pretty(tree, reindent=True, strip_namespaces=True, encoding="unicode")
         tree, bytes
     ):  # if you gave it an unparsed doc instead (as bytes, not str)
         tree = lxml.etree.fromstring(tree) # pylint: disable=c-extension-no-member
+    elif isinstance(tree, str):
+        warnings.warn("WARNING: you gave us a unicode string. XML as a unicode string generally doesn't make sense, please give us the bytestring it probably came from (if it came from a file, try reading it in binary mode)")
+        tree = lxml.etree.fromstring( tree.encode('utf8') ) # pylint: disable=c-extension-no-member
 
     if strip_namespaces:
         tree = strip_namespace(tree)
@@ -429,7 +433,7 @@ class debug_color:
 
     def __init__(self, tree_or_bytestring):
         "Takes either an etree object, or a bytestring yet to be parsed"
-        self.xstr = debug_pretty(tree_or_bytestring)
+        self.xstr = debug_pretty( tree_or_bytestring )
         # if isinstance(tree_or_bytestring, (str, bytes)):
         #    self.xstr = tree_or_bytestring # TODO: ensure bytes?
         # else:
