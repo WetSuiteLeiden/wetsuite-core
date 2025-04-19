@@ -18,6 +18,8 @@ from wetsuite.helpers.koop_parse import (
     prefer_types,
     parse_op_metafile,
 
+    parse_op_searchmeta,
+
     alineas_with_selective_path,
 )
 
@@ -364,6 +366,27 @@ def test_parse_op_metafile_bad():
     "test that it tests it applies"
     with pytest.raises(ValueError, match=r".*not expect.*"):
         parse_op_metafile(b"""<body></body>""")
+
+
+def test_parse_op_searchmeta():
+    ' Parse a previously downloaded piece of metadata. Live would be more convincing, but less deterministic. '
+    searchrec_bytes = get_test_data('searchrec.xml')
+
+    parsed_dict = parse_op_searchmeta(searchrec_bytes, flatten=False ) 
+    assert len( parsed_dict ) > 15 # 25 for the current test data
+
+    parsed_dict = parse_op_searchmeta(searchrec_bytes, flatten=True) 
+    assert len( parsed_dict ) > 15 # 25 for the current test data
+    assert parsed_dict['identifier'] == 'gmb-2023-174296'
+
+
+def test_parse_op_searchmeta_tree():
+    searchrec_bytes = get_test_data('searchrec.xml')
+
+    tree = wetsuite.helpers.etree.fromstring(searchrec_bytes)
+    parsed_dict = parse_op_searchmeta(tree, flatten=False ) 
+    assert len( parsed_dict ) > 15 # 25 for the current test data
+
 
 
 def test_alineas_with_selective_path():
