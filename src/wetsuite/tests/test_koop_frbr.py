@@ -18,7 +18,7 @@ def test_koop_frbr_init():
     )
 
 
-def test_koop_frbr_fetch():
+def DISABLED_test_koop_frbr_fetch(): # disabled because it takes ~15 sec
     """ test of code involved in fetching.  
         By actually fetching a document set, so this takes at least a dozen seconds, which you might disable most of the time.
     """
