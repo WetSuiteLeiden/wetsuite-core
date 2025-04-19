@@ -1,9 +1,9 @@
-""" test OCR related functions
-"""
+""" test OCR related functions """
 # CONSIDER: vary on use_gpu
 
 import pytest
 import os
+import time
 
 from PIL import Image, ImageDraw
 
@@ -22,10 +22,9 @@ def read_eggs():
 
 
 def test_import():
-    "test that the import does not bork, over dependencies"
+    "test that the import does not bork, e.g. over dependencies"
     import wetsuite.extras.ocr  # pylint: disable=unused-import
 
-    # wetsuite.extras.ocr.easyocr()
 
 
 @pytest.mark.filterwarnings("ignore::UserWarning")
@@ -39,38 +38,85 @@ def test_image():
     draw.text((10, 10), "Hello from")
     draw.text((10, 25), "Pillow")
 
-    bbox_results = wetsuite.extras.ocr.easyocr(image)
+    bbox_results = wetsuite.extras.ocr.easyocr(image, use_gpu=False)
     # detected some text
     assert len(bbox_results) > 0
-    assert len(wetsuite.extras.ocr.easyocr_text(bbox_results)) > 0
+    assert len(wetsuite.extras.ocr.easyocr_toplaintext(bbox_results)) > 0
 
     # test that it doesn't fail
     wetsuite.extras.ocr.easyocr_draw_eval(image, bbox_results)
 
 
-def test_ocr_pdf_pages():
-    " mostly just test that it doesn't error out "
 
+#def test_load_unload_extent():
+#    "test that OCR basically functions, on an image we generate with PIL.  This test will take a few seconds just because of heavy overhead. "
+#    
+#    import wetsuite.extras.ocr
+#    image = Image.new("RGB", (200, 200))
+#    draw = ImageDraw.Draw(image)
+#    draw.text((10, 10), "Hello from")
+#    draw.text((10, 25), "Pillow")
+#
+#    wetsuite.extras.ocr.easyocr( image, use_gpu=False )
+#
+#    wetsuite.extras.ocr.easyocr( image, use_gpu=True )
+#
+#    wetsuite.extras.ocr.easyocr_unload()
+#
+#    # TODO: see if something like device_memory_used is useful to test (and whether it's in enough versions to stably use here)
+
+
+
+
+
+def test_ocr_pdf_pages():
+    " mostly just tests that it gets out some text "
     import wetsuite.extras.ocr
-    _parts, text = wetsuite.extras.ocr.ocr_pdf_pages( read_eggs(), use_gpu=False )
+    egg_bytes = read_eggs()
+    _parts, text = wetsuite.extras.ocr.ocr_pdf_pages( egg_bytes, use_gpu=False )
     assert 'euss' in ''.join(text)
 
-    # For reference, this is not a font EasyOCR has a good time with. At different resolutions:
-    #   1 am Sam Dr. Seuss 1960 Ido not like green eggs and ham_
-    #   1 am Sam Dr. Seuss 1960 Ido not like green eggs and ham
-    #   1 am Sam Dr Seuss 1960 I do not like green eggs and ham
-    #   1 am Sam Dr. Seuss 1960 Ido like green eggs ham and not
-    #   Iam Sam Dr. Seuss 1960 I do not like green eggs ham and
-    #   1 am Sam Dr. Seuss 1960 I do not like green eggs ham and
-    #   Iam Sam Dr Seuss 1960 Ido not like green eggs and ham
-    #   Iam Sam Dr . Seuss 1960 Ido not like green eggs and ham_
-    #   I am Sam Dr. Seuss 1960 I do not like green eggs and ham.
-    #   L am Sam Dr . Seuss 1960 Ido not like green eggs and ham.
-    #   I am Sam Dr. Seuss 1960 I do not like green eggs and ham-
-    #   I am Sam Dr. Seuss 1960 Ido not like green eggs ham and
+# For reference, this is not a font that EasyOCR has a good time with. At different resolutions:
+#   1 am Sam Dr. Seuss 1960 Ido not like green eggs and ham_
+#   1 am Sam Dr. Seuss 1960 Ido not like green eggs and ham
+#   1 am Sam Dr Seuss 1960 I do not like green eggs and ham
+#   1 am Sam Dr. Seuss 1960 Ido like green eggs ham and not
+#   Iam Sam Dr. Seuss 1960 I do not like green eggs ham and
+#   1 am Sam Dr. Seuss 1960 I do not like green eggs ham and
+#   Iam Sam Dr Seuss 1960 Ido not like green eggs and ham
+#   Iam Sam Dr . Seuss 1960 Ido not like green eggs and ham_
+#   I am Sam Dr. Seuss 1960 I do not like green eggs and ham.
+#   L am Sam Dr . Seuss 1960 Ido not like green eggs and ham.
+#   I am Sam Dr. Seuss 1960 I do not like green eggs and ham-
+#   I am Sam Dr. Seuss 1960 Ido not like green eggs ham and
 
 
 
+def test_test_ocr_pdf_pages_cache():
+    ' test that it stores in a cache, and takes less time if we hit it '
+    import wetsuite.helpers.localdata
+
+    mem_cache = wetsuite.helpers.localdata.MsgpackKV(':memory:', str)
+
+    egg_bytes = read_eggs()
+
+    start = time.time()
+    struc1, text1 = wetsuite.extras.ocr.ocr_pdf_pages( egg_bytes, page_cache=mem_cache, use_gpu=False )
+    took1 = time.time() - start
+    assert len(struc1[0])>1  # does the first page cotain several items
+    assert len(text1)>0      # did we produce text (note that this variable doesn't separate pages)
+
+    start = time.time()
+    struc2, text2 = wetsuite.extras.ocr.ocr_pdf_pages( egg_bytes, page_cache=mem_cache, use_gpu=False )
+    took2 = time.time() - start
+
+    # testing  struc1 == struc2  would not work because msgpack does not distinguish between tuple and list
+    assert len(struc1[0]) == len(struc2[0]) # so do a much simpler test
+    assert text1 == text2 # so just assume
+    assert 'euss' in ''.join(text2)
+
+    assert took2 < took1
+    
 
 
 #    +------------------------------------------+ 216
@@ -201,4 +247,5 @@ def test_page_fragment_filter__verbose():
     wetsuite.extras.ocr.page_fragment_filter( _test_boxes, q_max_x=0.5, verbose=True )
     wetsuite.extras.ocr.page_fragment_filter( _test_boxes, q_max_y=0.5, verbose=True )
     wetsuite.extras.ocr.page_fragment_filter( _test_boxes, q_min_y=0.5, verbose=True )
+
 
