@@ -67,28 +67,49 @@ class Collocation:
         self.uni = new_uni
 
     def cleanup_unigrams_func(self, bad_func):
-        """Remove unigrams for which the given function returns true"""
+        """Remove unigrams for which the given function returns True.
+           The function itself gets (the unigram string, the count) as a parameter.
+        """
         new_uni = defaultdict(int)
         for k, cnt in self.uni.items():
             if not bad_func(k):
                 new_uni[k] = cnt
         self.uni = new_uni
 
-    def cleanup_ngrams(self, mincount=2):
-        """CONSIDER: allow different threshold for each length, e.g. via a list for mincount"""
+    def cleanup_ngrams(self, mincount=2, func=None):
+        """CONSIDER: allow different threshold for each length, e.g. via a list for mincount
+           remove n-grams if either 
+           - they occur less than mincount
+           - func returns true for them (the function itself gets (the n-gram string tuple, the count) as a parameter)
+           Both can be None (though mincount==1 is functionally the same as None)
+        """
+        if mincount in (None,1) and func is None:
+            raise ValueError("Neither mincount or func apply, you're not asking to do anything")
+            # or maybe just return instead?
+
         new_grams = defaultdict(int)
         for k, cnt in self.grams.items():
-            if cnt >= mincount:
+            keep = True
+            if mincount:
+                if cnt >= mincount:
+                    keep = False
+            if keep and func: # if we already disqualified it, there's no reason to check this too
+                if bad_func(k, cnt):
+                    keep = False
+            if keep:
                 new_grams[k] = cnt
+
         self.grams = new_grams
 
-    def cleanup_ngrams_func(self, bad_func):
-        """Remove unigrams for which the given function returns true"""
-        new_grams = defaultdict(int)
-        for k, cnt in self.grams.items():
-            if not bad_func(k):
-                new_grams[k] = cnt
-        self.grams = new_grams
+    #def cleanup_ngrams_func(self, bad_func):
+    #    """Remove unigrams for which the given function returns True.
+    #       
+    #    """
+    #    new_grams = defaultdict(int)
+    #    for k, cnt in self.grams.items():
+    #        if not bad_func(k, cnt):
+    #            new_grams[k] = cnt
+    #    self.grams = new_grams
 
     def score_ngrams(self, method="mik2", sort=True):
         """Takes the counts we already did, returns a list of items like::
