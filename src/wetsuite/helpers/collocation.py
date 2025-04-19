@@ -56,60 +56,52 @@ class Collocation:
             return
         self.grams[strtup] += cnt
 
-    def cleanup_unigrams(self, mincount=2):
+    def cleanup_unigrams(self, mincount=2, bad_func=None):
         """Remove unigrams that are rare - by default: that appear just once. You may wish to increase this.
         ideally we remove all n-grams using them too, but it's faster to waste the memory and leave them there.
         """
+        if mincount in (None,1) and bad_func is None:
+            return # do nothing, like you asked us to
+            #raise ValueError("Neither mincount or bad_func apply, you're not asking to do anything")
+
         new_uni = defaultdict(int)
-        for k, cnt in self.uni.items():
-            if cnt >= mincount:
-                new_uni[k] = cnt
+        for string, count in self.uni.items():
+            keep = True
+            if mincount is not None:
+                if count < mincount:
+                    keep = False
+            if keep is True  and  bad_func is not None: # if we already disqualified it, there's no reason to check this too
+                if bad_func(string, count):
+                    keep = False
+            if keep:
+                new_uni[string] = count
         self.uni = new_uni
 
-    def cleanup_unigrams_func(self, bad_func):
-        """Remove unigrams for which the given function returns True.
-           The function itself gets (the unigram string, the count) as a parameter.
-        """
-        new_uni = defaultdict(int)
-        for k, cnt in self.uni.items():
-            if not bad_func(k):
-                new_uni[k] = cnt
-        self.uni = new_uni
-
-    def cleanup_ngrams(self, mincount=2, func=None):
+    def cleanup_ngrams(self, mincount=2, bad_func=None):
         """CONSIDER: allow different threshold for each length, e.g. via a list for mincount
            remove n-grams if either 
            - they occur less than mincount
            - func returns true for them (the function itself gets (the n-gram string tuple, the count) as a parameter)
            Both can be None (though mincount==1 is functionally the same as None)
         """
-        if mincount in (None,1) and func is None:
-            raise ValueError("Neither mincount or func apply, you're not asking to do anything")
-            # or maybe just return instead?
+        if mincount in (None,1) and bad_func is None:
+            return # do nothing, like you asked us to
+            #raise ValueError("Neither mincount or bad_func apply, you're not asking to do anything")
 
         new_grams = defaultdict(int)
-        for k, cnt in self.grams.items():
+        for string, count in self.grams.items():
             keep = True
-            if mincount:
-                if cnt >= mincount:
+            if mincount is not None:
+                if count < mincount:
                     keep = False
-            if keep and func: # if we already disqualified it, there's no reason to check this too
-                if bad_func(k, cnt):
+            if keep is True  and  bad_func is not None: # if we already disqualified it, there's no reason to check this too
+                if bad_func(string, count):
                     keep = False
             if keep:
-                new_grams[k] = cnt
+                new_grams[string] = count
 
         self.grams = new_grams
 
-    #def cleanup_ngrams_func(self, bad_func):
-    #    """Remove unigrams for which the given function returns True.
-    #       
-    #    """
-    #    new_grams = defaultdict(int)
-    #    for k, cnt in self.grams.items():
-    #        if not bad_func(k, cnt):
-    #            new_grams[k] = cnt
-    #    self.grams = new_grams
 
     def score_ngrams(self, method="mik2", sort=True):
         """Takes the counts we already did, returns a list of items like::
