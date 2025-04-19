@@ -13,29 +13,37 @@ import wetsuite.extras.pdf
 import wetsuite.extras.ocr
 
 
-def pdf_text(pdfbytes):
-    """Given PDF as a bytestring, return the text it reports to have inside it.
-    Expect this to be missing for some PDFs.
+def pdf_embedded_text(pdfbytes, page_join='\n\n'):
+    """Given PDF (as a bytestring), 
+        Returns the plain text t reports to have inside it.
 
-    Mostly just a function
-    @param pdfbytes: PDF document, as bytes object
-    @return: all embedded text, as a single string
+        Expect this to be missing for some PDFs;
+        read our notebooks explaining why, and the use of 
+        wetsuite.extras.pdf and wetsuite.extras.ocr to do better.
+
+        @param pdfbytes: PDF document, as bytes object
+        @return: all embedded text, as a single string
     """
-    return wetsuite.extras.pdf.doc_text(pdfbytes)
+    return ( page_join.join( 
+        wetsuite.extras.pdf.page_embedded_text_generator(pdfbytes)
+    ) ).strip() # the strip mostly because there are some documents made entirely of newlines
 
 
 def pdf_text_ocr(pdfbytes):
     """Given PDF as a bytestring, OCRs it and report the text in that.
-    Expect this to not be the cleanest.
-    @param pdfbytes: PDF document, as bytes object
-    @return: one string  (pages only introduce a double newline, which you can't really fish out later - 
-    if you want more control, you probably wwant to look at the underlying module)
+        Expect this to not be the cleanest.
+        @param pdfbytes: PDF document, as bytes object
+        @return: one string  (pages only introduce a double newline, which you can't really fish out later - 
+        if you want more control, you probably wwant to look at the underlying module)
     """
     _, pages_text = wetsuite.extras.ocr.ocr_pdf_pages(
         pdfbytes,
         dpi=150,
     )
     return "\n\n".join(pages_text)
+
+
+#CONSIDER moving pdf.embedded_or_ocr_perpage here
 
 
 def etree(xmlbytes, strip_namespace=True):
