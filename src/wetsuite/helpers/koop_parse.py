@@ -1475,7 +1475,7 @@ def parse_repo_url( url ):
     ''' 
     TODO: see how well this holds up to all areas
 
-    @param: an URL like C{https://repository.overheid.nl/frbr/officielepublicaties/ag-ek/1995/ag-ek-1995-02-08/1/xml/ag-ek-1995-02-08.xml},
+    @param url: an URL like C{https://repository.overheid.nl/frbr/officielepublicaties/ag-ek/1995/ag-ek-1995-02-08/1/xml/ag-ek-1995-02-08.xml},
     @return: a dict like::
         {'doctype': 'ag-ek',
         'group': '1995',
