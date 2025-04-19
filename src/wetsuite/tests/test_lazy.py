@@ -3,7 +3,7 @@ import os
 from wetsuite.helpers.lazy import (
     etree,
     html_text,
-    pdf_text,
+    pdf_embedded_text,
     pdf_text_ocr,
     spacy_parse,
 )
@@ -30,9 +30,9 @@ def test_etree():
 
 
 
-def test_pdf_text():
+def test_pdf_embedded_text():
     ' test that PDF extraction does not fail '
-    pdf_text( read_eggs() )
+    pdf_embedded_text( read_eggs() )
 
 
 #def test_pdf_text_ocr():
