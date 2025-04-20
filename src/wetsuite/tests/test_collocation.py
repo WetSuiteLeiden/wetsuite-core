@@ -63,9 +63,9 @@ def test_that_cleanup_func_reduces():
     before_ngram_count   = coll.counts()['ngrams']
 
     def tup_has_van(tup, count):
-        return 'van' in tup
+        return 'van' in tup # one of the words is 'van'
     
-    coll.cleanup_ngrams(mincount=None, bad_func=tup_has_van)
+    coll.cleanup_ngrams(mincount=None, disqualify_func=tup_has_van)
 
     assert coll.counts()['ngrams'] < before_ngram_count
 
