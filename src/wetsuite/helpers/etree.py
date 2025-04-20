@@ -431,9 +431,9 @@ class debug_color:
     @ivar xstr: XML as a string (after reindent and namespace strip)
     """
 
-    def __init__(self, tree_or_bytestring):
+    def __init__(self, tree_or_bytestring, strip_namespaces=True):
         "Takes either an etree object, or a bytestring yet to be parsed"
-        self.xstr = debug_pretty( tree_or_bytestring )
+        self.xstr = debug_pretty( tree_or_bytestring, strip_namespaces=strip_namespaces )
         # if isinstance(tree_or_bytestring, (str, bytes)):
         #    self.xstr = tree_or_bytestring # TODO: ensure bytes?
         # else:
