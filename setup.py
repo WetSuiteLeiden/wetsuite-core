@@ -2,7 +2,7 @@ from setuptools import setup
 
 setup(
     name             = 'wetsuite',
-    version          = '0.2.2',
+    version          = '1.0.1',
     description      = 'A library that helps to explore dutch legal data, and to apply language processing on it',
     long_description = 'A library that helps to explore dutch legal data, and to apply language processing on it. This is the library code, you are probably more interested in some notebooks that use it, at https://github.com/WetSuiteLeiden/example-notebooks or the website that introduces it, http://wetsuite.nl',
 
@@ -29,30 +29,29 @@ setup(
     package_dir      = {"": "src"},
     python_requires  = ">=3",
     install_requires = [
-        'lxml',                # BSD
-        'bs4',                 # MIT
-        'msgpack',             # Apache2
-        'requests',            # Apache2
-        'python-dateutil',     # Apache2
-        'numpy >= 1.11.1',     # BSD
-        'matplotlib >= 1.5.1', # BSD
-        'ipywidgets',          # BSD
-        'spacy',               # MIT
-        'spacy_fastlang',      # MIT
-        'wordcloud',           # MIT
-        'pillow',              # HPND, which is permissive and GPL-compatible
-        'PyMuPDF',             # AGPL (or commercial)
-        'fasttext-wheel',      # MIT;    the non-wheel name seems to need a linker on windows; either use this or use gensim's implementation?
-        # 'gensim',              # LGPL
+        'lxml',                       # BSD
+        'bs4',                        # MIT
+        'msgpack',                    # Apache2
+        'requests',                   # Apache2
+        'python-dateutil',            # Apache2
+        'numpy>=1.11.1',              # BSD
+        'matplotlib>=1.5.1',          # BSD
+        'ipywidgets',                 # BSD
+        'spacy',                      # MIT
+        'spacy_fastlang',             # MIT
+        'wordcloud',                  # MIT
+        'pillow>=11.0.0',             # HPND, which is permissive and GPL-compatible     >=11 because easyocr uses resampling constants in their new place, PIL.Image.Resampling
+        'pymupdf>=1.19.6',            # AGPL (or commercial)                             version minimum e.g. for some extraction constants 
+        'fasttext-wheel',             # MIT;    the non-wheel name seems to need a linker on windows; either use this or use gensim's implementation?
     ],
     extras_require={
         # TODO: test install of easyOCR and spacy  as CPU-only, to avoid needing and pulling in CUDA
         'cpu':[
             # apparently torch it won't pull in CUDA like this?
-            'torch',               # BSD
-            'torchvision',         # BSD
-            'spacy',               # MIT
-            'easyocr',             # Apache2
+            'torch',                  # BSD
+            'torchvision',            # BSD
+            'spacy',                  # MIT
+            'easyocr',                # Apache2
         ],
 
         'gpu':[
@@ -62,6 +61,9 @@ setup(
             'easyocr',                # Apache2
         ],
 
+        'options':[
+           'gensim',                  # LGPL   used in a notebook or two, but not required
+        ]
         #'spacy-transformers',  # MIT,  draws in a bunch more depdendencies, so optional; could uncomment now that it's in extras
 
         # CONSIDER: 'all':[ ... ]
