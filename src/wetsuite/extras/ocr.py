@@ -20,13 +20,17 @@ import wetsuite.helpers.util
 
 # keep EasyOCR reader in memory to save time when you call it repeatedly
 #   Two, so that we can honour the use_gpu call each call, not just use and cache whatever the first call did
-_easyocr_reader_cpu = None  
+# However, torch seems to occupy the GPU even when asked not to, so maybe you should only use it in short-running scripts?
+_easyocr_reader_cpu = None
 _easyocr_reader_gpu = None
 
 
-
-
 ###### debug and helpers #############################################################################################################
+
+# functions that help deal with the numbers in the EasyOCR output fragments,
+#
+# ...and potentially also other OCR and PDF-extracted text streams, once we get to it.
+
 
 def easyocr_draw_eval(image, ocr_results):
     """Given 
@@ -51,13 +55,7 @@ def easyocr_draw_eval(image, ocr_results):
     return image
 
 
-# functions that help deal with the numbers in the EasyOCR output fragments,
-#
-# ...and potentially also other OCR and PDF-extracted text streams, once we get to it.
-#
-# Note: Y origin is on top
-
-
+# These are easocr-specific, rename them?
 def bbox_height(bbox):
     """Calculate a bounding box's height.
     @param bbox: a bounding box, as a 4-tuple (tl,tr,br,bl)
@@ -66,7 +64,6 @@ def bbox_height(bbox):
     topleft, _, botright, _ = bbox
     return abs(botright[1] - topleft[1])
 
-
 def bbox_width(bbox):
     """Calcualte a bounding box's width.
     @param bbox: a bounding box, as a 4-tuple (tl,tr,br,bl)
@@ -74,7 +71,6 @@ def bbox_width(bbox):
     """
     topleft, _, botright, _ = bbox
     return abs(botright[0] - topleft[0])
-
 
 def bbox_xy_extent(bbox):
     """Calcualte a bounding box's X and Y extents
@@ -87,7 +83,6 @@ def bbox_xy_extent(bbox):
         ys.append(y)
     return min(xs), max(xs), min(ys), max(ys)
 
-
 def bbox_min_x(bbox):
     """minimum X coordinate - redundant with bbox_xy_extent, but sometimes more readable in code
     @param bbox: a bounding box, as a 4-tuple (tl,tr,br,bl)
@@ -95,7 +90,6 @@ def bbox_min_x(bbox):
     """
     topleft, topright, botright, botleft = bbox
     return min(list(x  for x, _ in (topleft, topright, botright, botleft)))
-
 
 def bbox_max_x(bbox):
     """maximum X coordinate - redundant with bbox_xy_extent, but sometimes more readable in code
@@ -105,7 +99,6 @@ def bbox_max_x(bbox):
     topleft, topright, botright, botleft = bbox
     return max(list(x  for x, _ in (topleft, topright, botright, botleft)))
 
-
 def bbox_min_y(bbox):
     """minimum Y coordinate - redundant with bbox_xy_extent, but sometimes more readable in code
     @param bbox: a bounding box, as a 4-tuple (tl,tr,br,bl)
@@ -114,7 +107,6 @@ def bbox_min_y(bbox):
     topleft, topright, botright, botleft = bbox
     return min(list(y  for _, y in (topleft, topright, botright, botleft)))
 
-
 def bbox_max_y(bbox):
     """maximum Y coordinate - redundant with bbox_xy_extent, but sometimes more readable in code
     @param bbox: a bounding box, as a 4-tuple (tl,tr,br,bl)
@@ -122,7 +114,6 @@ def bbox_max_y(bbox):
     """
     topleft, topright, botright, botleft = bbox
     return max(list(y  for _, y in (topleft, topright, botright, botleft)))
-
 
 def page_allxy(page_ocr_fragments):
     """Given a page's worth of OCR results, return list of X, and list of Y coordinates,
@@ -138,7 +129,6 @@ def page_allxy(page_ocr_fragments):
             xs.append(x)
             ys.append(y)
     return xs, ys
-
 
 def page_extent(page_ocr_fragments, percentile_x=(1, 99), percentile_y=(1, 99)):
     """Estimates the bounds that contain most of the page contents
@@ -158,7 +148,6 @@ def page_extent(page_ocr_fragments, percentile_x=(1, 99), percentile_y=(1, 99)):
         numpy.percentile( ys, percentile_y[0] ),
         numpy.percentile( ys, percentile_y[1] ),
     )
-
 
 def doc_extent(list_of_page_ocr_fragments, percentile_x=(1, 99), percentile_y=(1, 99)):
     """ 
@@ -184,9 +173,8 @@ def doc_extent(list_of_page_ocr_fragments, percentile_x=(1, 99), percentile_y=(1
     )
     #return min(xs), max(xs), min(ys), max(ys)
 
-
 def page_fragment_filter(
-    page_ocr_fragments,
+    page_easyocr_fragments,
     textre=None,
     q_min_x=None,
     q_min_y=None,
@@ -227,7 +215,7 @@ def page_fragment_filter(
     if extent is not None:
         _, _, page_max_x, page_max_y = extent
     else:
-        _, _, page_max_x, page_max_y = page_extent(page_ocr_fragments)
+        _, _, page_max_x, page_max_y = page_extent(page_easyocr_fragments)
 
     if isinstance(q_min_x, float):  # assume it was a fraction
         # times a fudge factor because we assume there is right margin
@@ -243,7 +231,7 @@ def page_fragment_filter(
         q_max_y = q_max_y * page_max_y
 
     matches = []
-    for bbox, text, cert in page_ocr_fragments:
+    for bbox, text, cert in page_easyocr_fragments:
 
         # if text is being filtered for, see if we need to exclude by that
         if textre is not None:  # up here to quieten the 'out of requested bounds' debug
@@ -291,101 +279,20 @@ def page_fragment_filter(
 
         # passed everything? keep it in.
         matches.append((bbox, text, cert))
-    
+
     return matches
 
 
-# def easyocr_to_hocr(list_of_boxresults):
-#     ''' Express the 
-#     
-#         You will probably want to use width_ths of perhaps 0.1 on the easyocr() call
-#         (of which the unit is box height, so adaptive)
-#         to avoid merging words into sentences
-#     '''
-#     # Note that EasyOCR puts the origin at the left bottom, and hOCR at the left top, so 
-#     # 
-#     import fitz  # which is pymupdf
-#     E,SE = wetsuite.helpers.etree.Element, wetsuite.helpers.etree.SubElement  # for brevity
-# 
-#     html = E( 'html', {'lang':'en'} )
-# 
-#     head = SE(html, 'head')
-#     SE(head, 'title')
-#     SE(head, 'meta', {'name':'ocr-number-of-pages', 'content':str(len(list_of_boxresults))})
-#     SE(head, 'meta', {'name':'ocr-system', 'content':'easyocr by proxy'})
-#     SE(head, 'meta', {'name':'ocr-capabilities', 'content':'ocr_page ocrx_word ocrp_wconf'})
-#     # skipped for now:  ocr_carea (content area), ocr_par (paragraph),  ocr_line (line)
-# 
-#     wordcounter = 1
-# 
-#     body = SE(html, 'body')
-#     for page_num, page_boxes in enumerate( list_of_boxresults ):
-# 
-#         pagediv = SE(body, 'div', {
-#             'class':  'ocr_page', 
-#             'id':    f'page_{page_num+1}',
-#             #'title': 'bbox %d %d %d %d'%(page.cropbox.x0, page.cropbox.y0, page.cropbox.x1, page.cropbox.y1)
-#             })
-# 
-#         for [[topleft, topright, botright, botleft], text, confidence] in page_boxes:
-#             # these coordinates are currently still wrong.
-#             x0 = topleft[0]
-#             y0 = botleft[1]
-#             x1 = topright[0]
-#             y1 = botright[1]
-# 
-#             # <span class="" id="word_1_1" title="bbox 374 74 520 103; x_wconf 91">BIROUL</span>
-#             wordspan = SE(pagediv, 'span', {
-#                 'class': 'ocrx_word',
-#                 'id':   f'word_{page_num}_{wordcounter}',
-#                 'title': 'bbox %d %d %d %d; x_wconf %.2f'%(round(x0), round(y0), round(x1), round(y1), confidence)
-#             })
-#             wordspan.text = text
-#             wordcounter += 1
-# 
-#     return wetsuite.helpers.etree.tostring(html)
-
-
-# def tesseract(image, lang='eng'):
-#     '''
-#     Run tesseract on this image, return 
-# 
-#     Note that it is up to you to install tesseract, pytesseract wrapper, and the tesseract language data you will use.
-#     '''
-#     import pytesseract
-#     return pytesseract.image_to_boxes( image, lang=lang ) 
-
-
-# def tesseract_hocr(image, lang='eng'):
-#     import pytesseract
-#     return pytesseract.image_to_pdf_or_hocr( image, extension='hocr', lang=lang )
-
-
-# def tesseract_merge_hocr_pages(hocr_xmls):
-#     '''
-#     Takes hocr output documents from single-page results, 
-#     puts the pages in sequence, and rewrites the ids to 
-# 
-#     Currently hardcoded with assumptions about the tesseract output; that may change.
-#     '''
-#     import copy
-#     # Roughly speaking we can 
-#     # - take the 
-#     E,SE = wetsuite.helpers.etree.Element, wetsuite.helpers.etree.SubElement  # for brevity
-#     merged = E('html', {'lang':'en'})
-# 
-#     first = hocr_xmls[0]
-#     # assume all the heads would be the same so we don't need to do anything ocmplex
-#     _head = SE(merged, copy.deepcopy( first.find('head') ) )
-# 
-#     body = SE(merged, 'body')
-# 
-#     # INCOMPLETE
-# 
-#     return wetsuite.helpers.etree.tostring(html)
+def tesseract_plain(image, lang='eng'):
+    ''' Run tesseract OCR an image give results as plain text. '''
+    import pytesseract
+    return pytesseract.image_to_boxes( image, lang=lang )
 
 
 
+
+# We've also tried paddleocr, which seems to be a little more refined,
+# but also a bunch more fragile around installation and around GPUs, and also not focused on Dutch
 
 
 
@@ -394,13 +301,14 @@ def page_fragment_filter(
 
 def ocr_pdf_pages(pdfbytes, dpi=150, use_gpu=True, page_cache=None, verbose=True):
     """
-    This is a convenience function that uses OCR to get text from all of a PDF document,
+    This is a convenience function that wraps EasyOCR to get text from all of a PDF document,
     returning it in a per-page, structured way.
 
     More precisely, it 
      - iterates through a PDF one page at a time,
        - renders that page it to an image,
-       - runs OCR on that page image.
+       - runs EasyOCR's
+       - return  result data on that page image.
 
     This depends on another of our modules (L{pdf}), and pymupdf
 
@@ -423,11 +331,11 @@ def ocr_pdf_pages(pdfbytes, dpi=150, use_gpu=True, page_cache=None, verbose=True
         hash = wetsuite.helpers.util.hash_hex( pdfbytes )
 
     with fitz.open(stream=pdfbytes, filetype="pdf") as document:
-
         for page_num, page in enumerate( document ):
-            # see if it's in the cache (if asked)
+
+            # if given a cache, return it from there if we can
             if page_cache is not None:
-                cache_key = f'{hash}:pg{page_num}:{dpi}dpi'
+                cache_key = f'{hash}:easyocr:pg{page_num}:{dpi}dpi'
                 page_results_from_cache = page_cache.get( cache_key, missing_as_none=True )
                 if page_results_from_cache is not None:
                     if verbose:
@@ -438,16 +346,17 @@ def ocr_pdf_pages(pdfbytes, dpi=150, use_gpu=True, page_cache=None, verbose=True
                 if verbose:
                     print('MISS %s'%cache_key)
 
-            #  not in cache - render, OCR, put in cache (if asked)
+            #  not in cache - render, run OCR
             page_image = wetsuite.extras.pdf.page_as_image( page, dpi=dpi )
-            #if verbose:
-            #    display(page_image)
-
             page_results = easyocr(page_image, use_gpu=use_gpu)
-            results_structure.append(page_results)
+
+            # add to both return structures
+            results_structure.append( page_results                      )
+            text.append(              easyocr_toplaintext(page_results) )
+
+            # ...and if given a cache, put it in there
             if page_cache is not None:
                 page_cache.put(cache_key, page_results)
-            text.append( easyocr_toplaintext(page_results) )
 
     return results_structure, text
 
@@ -485,20 +394,20 @@ def easyocr(image, pythontypes=True, use_gpu=True, languages=("nl", "en"), debug
     global _easyocr_reader_cpu
     if use_gpu:
         if _easyocr_reader_gpu is None:
-            print( f"first use of ocr( use_gpu=True ) - loading EasyOCR model (into GPU)", file=sys.stderr )
+            print( "first use of ocr( use_gpu=True ) - loading EasyOCR model (into GPU)", file=sys.stderr )
             _easyocr_reader_gpu = easyocr.Reader(languages, gpu=True)
         reader = _easyocr_reader_gpu
     else:
         if _easyocr_reader_cpu is None:
-            print( f"first use of ocr( use_gpu=False ) - loading EasyOCR model (into CPU)", file=sys.stderr )
+            print( "first use of ocr( use_gpu=False ) - loading EasyOCR model (into CPU)", file=sys.stderr )
             _easyocr_reader_cpu = easyocr.Reader(languages, gpu=False)
         reader = _easyocr_reader_cpu
 
-    # convert go grayscale and convert to numpy array, 
+    # convert go grayscale and convert to numpy array,
     # for easyocr (which can take a filename, a numpy array, or byte stream (PNG or JPG?))
     if image.getbands() != "L":
         image = image.convert("L")
-    ary = numpy.asarray(image) 
+    ary = numpy.asarray(image)
 
     result = reader.readtext(ary, **kwargs)
 
@@ -530,7 +439,7 @@ def easyocr(image, pythontypes=True, use_gpu=True, languages=("nl", "en"), debug
 #                import torch
 #                torch.cuda.empty_cache()
 #            except Exception as e: # swallow all errors
-#                pass 
+#                pass
 #    if unload_cpu:
 #        if _easyocr_reader_cpu is not None:
 #            _easyocr_reader_cpu = None
