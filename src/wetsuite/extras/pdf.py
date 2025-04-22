@@ -28,88 +28,31 @@ def page_embedded_as_xhtml(page):
     '''
     import fitz  # which is pymupdf
     import bs4
+    # ~1.21 introduced fitz.TEXTFLAGS_XHTML as defaults, let's be robust to earlier versions
+    TEXTFLAGS_XHTML = (0
+        | fitz.TEXT_PRESERVE_LIGATURES
+        | fitz.TEXT_PRESERVE_WHITESPACE
+        | fitz.TEXT_MEDIABOX_CLIP
+        | fitz.TEXT_PRESERVE_IMAGES
+        | fitz.TEXT_CID_FOR_UNKNOWN_UNICODE
+        )
+
     page_results = page.get_text(
         option="xhtml",
-        flags=fitz.TEXTFLAGS_XHTML & ~fitz.TEXT_PRESERVE_IMAGES,
+        flags=TEXTFLAGS_XHTML & ~fitz.TEXT_PRESERVE_IMAGES, # TODO: see whether old versions still need this as fallback
+        #flags=fitz.TEXT_OUTPUT_XHTML & ~fitz.TEXT_PRESERVE_IMAGES, # this seems to be since v1.19.6, which is ~2022
     )
     soup = bs4.BeautifulSoup(page_results, features="lxml")
     div = soup.find("div")
     return div
 
 
-# def _page_fakehocr(page, under_etree_node, page_num):
-#     import fitz  # which is pymupdf
-#     SE = wetsuite.helpers.etree.SubElement  # for brevity
-# 
-#     pagediv = SE(under_etree_node, 'div', {
-#         'class':  'ocr_page', 
-#         'id':    f'page_{page_num+1}',
-#         'title': 'bbox %d %d %d %d'%(page.cropbox.x0, page.cropbox.y0, page.cropbox.x1, page.cropbox.y1)
-#         })
-#     
-#     word_results = page.get_text(
-#         option="words",
-#         flags=fitz.TEXTFLAGS_WORDS & ~fitz.TEXT_PRESERVE_IMAGES,
-#     )
-# 
-#     prev_block_no = -1
-#     for x0, y0, x1, y1, word, block_no, line_no, word_no in word_results:
-# 
-#         if prev_block_no != block_no:
-#             #<p class="ocr_par" id="par_1_1" lang="eng" title="bbox 374 74 947 103">
-#             # TODO: figure out easy way to give bbox
-#             par = SE(pagediv, 'p', {
-#                 'class':  'ocr_par',
-#                 'id':    f'par_{page_num}_{block_no}',
-#             })
-# 
-#         # <span class="" id="word_1_1" title="bbox 374 74 520 103; x_wconf 91">BIROUL</span>
-#         wordspan = SE(par, 'span', {
-#             'class': 'ocrx_word',
-#             'id':   f'word_{page_num}_{block_no}_{line_no}_{word_no}',
-#             'title': 'bbox %d %d %d %d'%(round(x0), round(y0), round(x1), round(y1))
-#         })
-#         wordspan.text = word
-# 
-#         prev_block_no = block_no
-
-
-# def fakehocr(document):
-#     """ Yes, we are generating hOCR from what is already PDF text.
-#         In general this makes no sense - where would we take that data?
-# 
-#         It's primarily so that we can have a common (internal-ish) format between
-#         OCR and PDF within this project.
-# 
-#         TODO: I think I got the y coordinates flipped, CHECK
-#     """
-#     import fitz
-#     E,SE = wetsuite.helpers.etree.Element, wetsuite.helpers.etree.SubElement  # for brevity
-# 
-#     html = E( 'html', {'lang':'en'} )
-# 
-#     head = SE(html, 'head')
-#     SE(head, 'title')
-#     SE(head, 'meta', {'name':'ocr-number-of-pages', 'content':str(len(document))})
-#     SE(head, 'meta', {'name':'ocr-system', 'content':'pymupdf by proxy'})
-#     SE(head, 'meta', {'name':'ocr-capabilities', 'content':'ocr_page ocr_par ocrx_word'})
-#     # skipped for now:  ocr_carea (content area), ocr_par (paragraph),  ocr_line (line)
-# 
-#     body = SE(html, 'body')
-# 
-#     for page_num, page in enumerate(document):
-#         _page_fakehocr(page, body, page_num)
-# 
-#     return wetsuite.helpers.etree.tostring(html)
-
-
-
 # def page_embedded_as_html(page):
-#     ''' Extracts fragments using PyMuPDF's html-style extraction, 
+#     ''' Extracts fragments using PyMuPDF's html-style extraction,
 #         which lets us do more than page_embedded_as_xhtml, but with more work
-# 
+#
 #         Not currently used.
-# 
+#
 #         @param page: pymupdf page object
 #     '''
 #     import fitz  # which is pymupdf
@@ -144,7 +87,12 @@ def _open_pdf(pdf):
       - CONSIDER: or a filename
     """
     import fitz  # (PyMuPDF)
-    if isinstance( pdf, fitz.fitz.Document ):
+    try:
+        _docclass = fitz.fitz.Document # older versions (pre 1.19ish?).  The setup.py should ensure a newer one, but let's be robust
+    except AttributeError:
+        _docclass = fitz.Document
+
+    if isinstance( pdf, _docclass ):
         return pdf
     elif isinstance( pdf, bytes ):
         #if pdf.startswith('%PDF')
@@ -324,10 +272,10 @@ def page_embedded_text_generator(pdf, option="text"):
 
 # def doc_embedded_text(pdf, strip:bool=True, join_on:str='\n\n'): # TODO: rename to embedded_text
 #     """Takes PDF file data, returns all embedded text in it as a single string
-#     
+#
 #     This is a convenience function in that it's primarily just::
 #             '\n\n'.join( page_embedded_text_generator( pdf) )
-# 
+#
 #     @param pdf: PDF file data as a bytes object (or already-parsed fitz Document object)
 #     @param strip: whether to strip after joining.
 #     @return: all text as a single string.
@@ -472,7 +420,7 @@ def document_fragments(pdf, hint_structure=True, debug=True):
     flush_section()
     marker_now("end")
 
-    if hint_structure == True:
+    if hint_structure is True:
         return ret
     else:
         text_ary = []
