@@ -841,7 +841,7 @@ def bwb_toestand_text(tree, debug=False):
                 elif ch.tag in ("table", ): # TODO: handle as table
                     #text.extend(wetsuite.helpers.etree.all_text_fragments(ch))
                     text.extend(wetsuite.helpers.etree.html_text(ch, join=False, bodynodename=None))
-                
+
                 elif ch.tag in ("definitielijst", ):
                     text.extend(wetsuite.helpers.etree.all_text_fragments(ch))
 
@@ -861,7 +861,7 @@ def bwb_toestand_text(tree, debug=False):
                     pass
                 elif ch.tag in ( "bijlage-sluiting",):
                     pass
-                # TODO: ignore ProcessingInstruction 
+                # TODO: ignore ProcessingInstruction
                 else:
                     print("%s/%s IGNORE unknown lid-child %r" % (bwb_id, soort, ch.tag))
                     print(wetsuite.helpers.etree.tostring(ch).decode("u8"))
@@ -1448,25 +1448,25 @@ def op_data_xml_seems_empty( docbytes, minchars=1 ):
         This determines if it's such a case.
         We actually parse it, so we can better distinguish between empty and near-empty. 
     """
-    tree = wetsuite.helpers.etree.fromstring( docbytes ) # 
+    tree = wetsuite.helpers.etree.fromstring( docbytes )
     if len(tree) <= 1: # amount of childeren under root; 1 means only its <meta> is there, and no content
         return True
-    
+
     # Consider the subset of cases where there _is_ a basic template structure, but no text content in them.
     doctext = ''.join( tree[1].itertext() )
     doctext_strip = doctext.strip()
-    
+
     if len( doctext_strip ) < minchars:
         return True
-    
+
     if 'niet beschikbaar in HTML-formaat' in doctext: # happens in agendas
         return True
-    
+
     return False
 
 
-# the regexp is ugly and not very indicative of where it came from. 
-#   It's here partly to some basic check of our assumptions about the parts of those URLs for this subset - 
+# the regexp is ugly and not very indicative of where it came from.
+#   It's here partly to some basic check of our assumptions about the parts of those URLs for this subset -
 #   anything not matching is printed - which seems prudent since we'll also be extracting information from it
 _re_repourl_parl = re.compile( r'^https?://repository.overheid.nl/frbr/officielepublicaties/([a-z-]+)/([A-Za-z0-9-]+)/([A-Za-z0-9_-]+)/([a-z0-9-]+)/([a-z]+)/([A-Za-z0-9_-]+.[a-z]+)$' )
 #                                                            e.g.                              h-ek       20092010     h-ek-20092010-1_2       1       xml    h-ek-20092010-1_2.xml
@@ -1501,4 +1501,3 @@ def parse_repo_url( url ):
 
             'url':url, # just to put the original value in the same place
         }
-    

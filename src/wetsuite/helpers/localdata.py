@@ -21,7 +21,7 @@ from typing import Tuple
 
 import sqlite3
 
-# msgpack should be alittle more interoperable and/or a little faster than pickle or kson. 
+# msgpack should be alittle more interoperable and/or a little faster than pickle or kson.
 # It is however, an extra dependency (and does a little less)
 import msgpack
 

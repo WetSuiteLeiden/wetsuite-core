@@ -24,7 +24,7 @@ def pdf_embedded_text(pdfbytes, page_join='\n\n'):
         @param pdfbytes: PDF document, as bytes object
         @return: all embedded text, as a single string
     """
-    return ( page_join.join( 
+    return ( page_join.join(
         wetsuite.extras.pdf.page_embedded_text_generator(pdfbytes)
     ) ).strip() # the strip mostly because there are some documents made entirely of newlines
 
@@ -91,7 +91,7 @@ def html_text(htmlbytes):
 #     Note that HTML gives _some_ indication of what is main text
 #     via how we typically use element names.
 #
-#     In XML we probably end up giving a lot more crud. 
+#     In XML we probably end up giving a lot more crud.
 #
 #     @param docbytes: HTML or XML document, as bytes object
 #     """

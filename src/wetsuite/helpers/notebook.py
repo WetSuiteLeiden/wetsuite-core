@@ -387,4 +387,3 @@ if is_notebook():
         set_proctitle("wetsuite-notebook") # pylint: disable=c-extension-no-member
     except ImportError:
         pass
-

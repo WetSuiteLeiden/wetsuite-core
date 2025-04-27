@@ -206,11 +206,11 @@ def has_xml_header(bytesdata:bytes):
     return False
 
 
-def is_xml(bytesdata_or_filename, return_for_html=False, accept_after_n_nodes:int=25) -> bool:
+def is_xml(bytesdata_or_filename, accept_after_n_nodes:int=25) -> bool:
     """Does this look and work like an XML file?
 
     Yes, we could answer "does it look vaguely like the start of an XML" 
-    for a lot cheaper than parsing it.
+    for cheaper than starting to parse it.
     
     Yet that doesn't have a lot of value in practice, 
     because you would probably only use this function right before
@@ -409,11 +409,13 @@ def is_doc(bytesdata:bytes) -> bool:
 
 
 def _filetype(docbytes:bytes):
-    ' describe which of these basic types a bytes object contains '
-    if is_doc(docbytes): # should appear before is_zip
-        return 'doc'
+    """ describe which of these basic types a bytes object contains.
+        "Private" because it is too incomplete to make an exposed function, but if you are aware of its limitations it's fine to use.
+    """
     if is_pdf(docbytes):
         return 'pdf'
+    if is_doc(docbytes): # should appear before is_zip
+        return 'doc'
     if is_html(docbytes):
         return 'html'
     if is_xml(docbytes):
