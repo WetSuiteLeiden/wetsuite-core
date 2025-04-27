@@ -89,7 +89,6 @@ import warnings
 import pprint
 
 import bs4   # arguably should be inside each class so we can function without some of these imports
-import fitz  # arguably should be inside each class so we can function without some of these imports
 
 import wetsuite.helpers.strings
 import wetsuite.helpers.koop_parse
@@ -682,7 +681,7 @@ class Fragments_HTML_OP_Bgr(Fragments):
         return False
 
     def suitableness(self):
-        # TODO: (here and for all others): make a string from 
+        # TODO: (here and for all others): make a string from
         if b'OVERHEIDop.publicationName' in self.docbytes and b'Blad gemeenschappelijke regeling' in self.docbytes: # TODO: this probably overaccepts, check
             return 5
         else:
