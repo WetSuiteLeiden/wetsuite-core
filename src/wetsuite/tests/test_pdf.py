@@ -7,15 +7,18 @@ import wetsuite.extras.pdf
 from wetsuite.helpers.strings import contains_all_of
 
 
-def read_eggs():
-    "return eggs.pdf as bytes"
+def read_file(basename: str):
+    " Open file within a specific subdirectory relative to this test code. "
     import test_pdf  # import for self-reference is intentional, pylint: disable=W0406
-    eggs_filename = os.path.join( os.path.dirname(test_pdf.__file__), "testfiles", "eggs.pdf" )
-
+    eggs_filename = os.path.join( os.path.dirname(test_pdf.__file__), "testfiles", basename )
     with open(eggs_filename, "rb") as f:
         eggs_data = f.read()
-
     return eggs_data
+
+
+def read_eggs():
+    "return eggs.pdf as bytes"
+    return read_file( 'eggs.pdf' )
 
 
 def read_imagepdf():
@@ -76,6 +79,7 @@ def test_page_image_renders_at_all():
 
 
 def test_closest_paper_size_name():
+    ' test whether we extract page size name and orientation, of a known document '
     import fitz
     for page in fitz.open(stream=read_eggs()): # there will be just one page, actually
         sizename, orientation, wdiff, hdiff = wetsuite.extras.pdf.closest_paper_size_name( page.cropbox )
@@ -86,17 +90,30 @@ def test_closest_paper_size_name():
 
 
 def test_closest_paper_size_name__landscape_letter():
+    ' test whether we extract page size name and orientation, of a synthetically made example '
     import fitz
     doc = fitz.open()
     doc.new_page(width=792, height=612)
     doc.new_page(width=792, height=612)
     for page in doc:
-        sizename, orientation, wdiff, hdiff = wetsuite.extras.pdf.closest_paper_size_name( page.cropbox )
+        sizename, orientation, _wdiff, _hdiff = wetsuite.extras.pdf.closest_paper_size_name( page.cropbox )
         assert sizename    == 'Letter'
         assert orientation == 'landscape'
 
 
+def test_closest_paper_size_name__other():
+    ' tests whether it says "other" when it should '
+    import fitz
+    doc = fitz.open()
+    doc.new_page(width=123, height=456)
+    for page in doc:
+        sizename, orientation, _wdiff, _hdiff = wetsuite.extras.pdf.closest_paper_size_name( page.cropbox )
+        assert sizename    == 'other'
+        assert orientation == 'portrait'
+
+
 def test_closest_paper_size_name__page():
+    ' test whether we extract page size name and orientation, even if we gave it a Page instead of a Document, and whether it warns about that '
     import fitz
     for page in fitz.open(stream=read_eggs()):
         with pytest.warns(UserWarning, match=r".*Page.*"):
@@ -105,16 +122,6 @@ def test_closest_paper_size_name__page():
         assert orientation == 'portrait'
         assert wdiff < 10
         assert hdiff < 10
-
-
-def test_closest_paper_size_name__other():
-    import fitz
-    doc = fitz.open()
-    doc.new_page(width=123, height=456)
-    for page in doc:
-        sizename, orientation, wdiff, hdiff = wetsuite.extras.pdf.closest_paper_size_name( page.cropbox )
-        assert sizename    == 'other'
-        assert orientation == 'portrait'
 
 
 def test_do_page_sizes_vary():
@@ -126,6 +133,7 @@ def test_do_page_sizes_vary():
     does_vary, _hdiff, _vdiff = wetsuite.extras.pdf.do_page_sizes_vary( doc )
     assert does_vary is True
 
+
 def test_do_page_sizes_vary_singlepage():
     ' check that it is fine with just one page '
     import fitz
@@ -133,6 +141,7 @@ def test_do_page_sizes_vary_singlepage():
     assert does_vary is False
     assert hdiff == 0.0
     assert vdiff == 0.0
+
 
 def test_do_page_sizes_vary_nopages():
     ' check that it is fine with zero pages '
@@ -144,8 +153,9 @@ def test_do_page_sizes_vary_nopages():
     assert vdiff == 0.0
 
 
-    
+
 def test_page_fragments():
+    ' test whether we read text frrom a PDF at all, per page '
     import fitz
     doc = fitz.open( stream=read_eggs() )
     first_page = doc[0]
@@ -155,6 +165,7 @@ def test_page_fragments():
 
 
 def test_document_fragments():
+    ' test whether we read text frrom a PDF at all, overall, with minor structure analysis '
     import fitz
     doc = fitz.open( stream=read_eggs() )
     struclist = wetsuite.extras.pdf.document_fragments( doc,hint_structure=True )
@@ -163,6 +174,7 @@ def test_document_fragments():
 
 
 def test_document_fragments_nohints():
+    ' test whether we read text frrom a PDF at all, overall, without added structure '
     import fitz
     doc = fitz.open( stream=read_eggs() )
     textlist = wetsuite.extras.pdf.document_fragments( doc, hint_structure=False )
@@ -172,6 +184,7 @@ def test_document_fragments_nohints():
 
 
 def test_embedded_or_ocr_perpage():
+    ' test whether OCR manages to extract text '
     # picks up embedded text (not easily tested unless  also return that)
     egg_bytes = read_eggs()
     source, text = wetsuite.extras.pdf.embedded_or_ocr_perpage( egg_bytes, use_gpu=False )[0]   # [0] for first page
@@ -182,8 +195,21 @@ def test_embedded_or_ocr_perpage():
     imagepdf_bytes = read_imagepdf()
     source, text = wetsuite.extras.pdf.embedded_or_ocr_perpage( imagepdf_bytes, use_gpu=False )[0]   # [0] for first page
     assert source == 'ocr'
-    assert len( text ) > 30 
+    assert len( text ) > 30
 
+
+def test_garbledness():
+    ' test whether font-garbling is detected '
+    import fitz
+    import wetsuite.helpers.strings
+
+    for page in fitz.open( stream=read_file( 'garble.pdf' ) ):
+        page_test_text = ''.join( list(wetsuite.extras.pdf.page_embedded_fragments( page )) )
+        assert wetsuite.helpers.strings.has_mostly_wordlike_text( page_test_text ) is False
+
+    for page in fitz.open( stream=read_file( 'eggs.pdf' ) ):
+        page_test_text = ''.join( list(wetsuite.extras.pdf.page_embedded_fragments( page )) )
+        assert wetsuite.helpers.strings.has_mostly_wordlike_text( page_test_text ) is True
 
 
 
@@ -192,6 +218,5 @@ def test_embedded_or_ocr_perpage():
 @pytest.mark.filterwarnings("ignore::UserWarning")
 @pytest.mark.filterwarnings("ignore::DeprecationWarning")
 def test_pdf_text_ocr():
-    "mostly a test of the ocr module does not bork out"
+    "mostly a test of the ocr module does not fail "
     wetsuite.extras.pdf.pdf_text_ocr(read_eggs(), use_gpu=False)
-

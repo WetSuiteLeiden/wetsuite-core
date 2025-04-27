@@ -372,19 +372,20 @@ def test_parse_op_searchmeta():
     ' Parse a previously downloaded piece of metadata. Live would be more convincing, but less deterministic. '
     searchrec_bytes = get_test_data('searchrec.xml')
 
-    parsed_dict = parse_op_searchmeta(searchrec_bytes, flatten=False ) 
+    parsed_dict = parse_op_searchmeta(searchrec_bytes, flatten=False )
     assert len( parsed_dict ) > 15 # 25 for the current test data
 
-    parsed_dict = parse_op_searchmeta(searchrec_bytes, flatten=True) 
+    parsed_dict = parse_op_searchmeta(searchrec_bytes, flatten=True)
     assert len( parsed_dict ) > 15 # 25 for the current test data
     assert parsed_dict['identifier'] == 'gmb-2023-174296'
 
 
 def test_parse_op_searchmeta_tree():
+    ' test that we still parse a particular search-response XML '
     searchrec_bytes = get_test_data('searchrec.xml')
 
     tree = wetsuite.helpers.etree.fromstring(searchrec_bytes)
-    parsed_dict = parse_op_searchmeta(tree, flatten=False ) 
+    parsed_dict = parse_op_searchmeta(tree, flatten=False )
     assert len( parsed_dict ) > 15 # 25 for the current test data
 
 
@@ -409,4 +410,3 @@ def test_bwb_title_looks_boring():
     ' Just a substring test at this point.  TODO: more serious cases '
     assert bwb_title_looks_boring("Veegwet wonen") is True
     assert bwb_title_looks_boring("Burgerlijk Wetboek Boek 7") is False
-

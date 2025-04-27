@@ -66,9 +66,7 @@ def test_parse():
 def test_notebook_content_visualisation():
     "for now just test that it does not bork out"
     doc = get_simpledoc()
-    wetsuite.helpers.spacy.notebook_content_visualisation(
-        doc
-    )._repr_html_()  # pylint: disable=protected-access
+    wetsuite.helpers.spacy.notebook_content_visualisation( doc )._repr_html_()  # pylint: disable=protected-access
 
 
 # def test_interesting_words():

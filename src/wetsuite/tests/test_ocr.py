@@ -1,10 +1,10 @@
 """ test OCR related functions """
 # CONSIDER: vary on use_gpu
 
-import pytest
 import os
 import time
 
+import pytest
 from PIL import Image, ImageDraw
 
 
@@ -31,7 +31,7 @@ def test_import():
 @pytest.mark.filterwarnings("ignore::DeprecationWarning")  # some distutil blah that is not important for this test
 def test_image():
     "test that OCR basically functions, on an image we generate with PIL.  This test will take a few seconds just because of heavy overhead. "
-    
+
     import wetsuite.extras.ocr
     image = Image.new("RGB", (200, 200))
     draw = ImageDraw.Draw(image)
@@ -50,7 +50,7 @@ def test_image():
 
 #def test_load_unload_extent():
 #    "test that OCR basically functions, on an image we generate with PIL.  This test will take a few seconds just because of heavy overhead. "
-#    
+#
 #    import wetsuite.extras.ocr
 #    image = Image.new("RGB", (200, 200))
 #    draw = ImageDraw.Draw(image)
@@ -116,7 +116,7 @@ def test_test_ocr_pdf_pages_cache():
     assert 'euss' in ''.join(text2)
 
     assert took2 < took1
-    
+
 
 
 #    +------------------------------------------+ 216
@@ -127,44 +127,51 @@ def test_test_ocr_pdf_pages_cache():
 _test_bbox = [(130, 136), (844, 136), (844, 216), (130, 216)]
 
 def test_bbox_min_x():
+    ' test that bbox min-of-x calculation works '
     import wetsuite.extras.ocr
-    wetsuite.extras.ocr.bbox_min_x( _test_bbox ) == 130
+    assert wetsuite.extras.ocr.bbox_min_x( _test_bbox ) == 130
 
 def test_bbox_max_x():
+    ' test that bbox max-of-x calculation works '
     import wetsuite.extras.ocr
-    wetsuite.extras.ocr.bbox_max_x( _test_bbox ) == 844
+    assert wetsuite.extras.ocr.bbox_max_x( _test_bbox ) == 844
 
 def test_bbox_min_y():
+    ' test that bbox min-of-y calculation works '
     import wetsuite.extras.ocr
-    wetsuite.extras.ocr.bbox_min_y( _test_bbox ) == 136
+    assert wetsuite.extras.ocr.bbox_min_y( _test_bbox ) == 136
 
 def test_bbox_max_y():
+    ' test that bbox max-of-y calculation works '
     import wetsuite.extras.ocr
-    wetsuite.extras.ocr.bbox_max_y( _test_bbox ) == 216
+    assert wetsuite.extras.ocr.bbox_max_y( _test_bbox ) == 216
 
 
 def test_bbox_xy_extent():
+    ' test that bbox extends-of-x-and-y calculation works '
     import wetsuite.extras.ocr
-    wetsuite.extras.ocr.bbox_xy_extent( _test_bbox ) == (130, 844, 136, 216)
+    assert wetsuite.extras.ocr.bbox_xy_extent( _test_bbox ) == (130, 844, 136, 216)
 
 
 def test_bbox_width():
+    ' test that bbox width calculation works '
     import wetsuite.extras.ocr
-    wetsuite.extras.ocr.bbox_width( _test_bbox ) == 714
+    assert wetsuite.extras.ocr.bbox_width( _test_bbox ) == 714
 
 def test_bbox_height():
+    ' test that bbox height calculation works '
     import wetsuite.extras.ocr
-    wetsuite.extras.ocr.bbox_height( _test_bbox ) == 80
+    assert wetsuite.extras.ocr.bbox_height( _test_bbox ) == 80
 
 
 
-#            332  381   413  464       
-#                   ______               551  
-#                  |Text5|             
+#            332  381   413  464
+#                   ______               551
+#                  |Text5|
 #                                        537
 #
-#              _______________           464 
-#             |Text4_________|         
+#              _______________           464
+#             |Text4_________|
 #                                        432
 #
 #   __________________                   336
@@ -175,8 +182,8 @@ def test_bbox_height():
 #  |______________________|__________   ~220
 #  |                                |
 #  |  Text1                         |
-#  |________________________________|    136       
-# 130                522 591       844 
+#  |________________________________|    136
+# 130                522 591       844
 
 _test_boxes = [  # note: the text was replaced so its length does not match the box sizes
  ([(130, 136), (844, 136), (844, 216), (130, 216)],  'Text1',   0.99),
@@ -186,9 +193,10 @@ _test_boxes = [  # note: the text was replaced so its length does not match the 
  ([(381, 537), (413, 537), (413, 551), (381, 551)],  'Text5',   0.85),
 ]
 
-def text_page_allxy():
+def test_page_allxy():
+    ''' test that list of all x and y values is extracted '''
     import wetsuite.extras.ocr
-    wetsuite.extras.ocr.page_allxy( _test_boxes ) == (
+    assert wetsuite.extras.ocr.page_allxy( _test_boxes ) == (
         [130,  844,  844,  130,  132,  591,  591,  132,  134,  522,  522,  134,  322,  464,  464,  322,  381,  413,  413,  381],
         [136,  136,  216,  216,  212,  212,  262,  262,  282,  282,  336,  336,  432,  432,  456,  456,  537,  537,  551,  551],
     )
@@ -197,10 +205,10 @@ def text_page_allxy():
 def test_page_extent():
     " Figure out the extent of boxes   (for so few, the percentile logic doesn't affect it) "
     import wetsuite.extras.ocr
-    wetsuite.extras.ocr.page_extent( _test_boxes ) == (130, 844,  136, 551) # minx maxx miny maxy
+    assert wetsuite.extras.ocr.page_extent( _test_boxes ) == (130, 844,  136, 551) # minx maxx miny maxy
 
 
-# pretend _test_boxes is on two two pages 
+# pretend _test_boxes is on two two pages
 # (and interspersed; sort of necessary to have understandable/predictable bounds since statistics on so few items would more easily ignore one)
 _test_two = [
     _test_boxes[1::2]+_test_boxes[:2], # text2, text4
@@ -210,17 +218,19 @@ _test_two = [
 def test_doc_extent():
     " Figure out the extent of boxes, if spread on multiple pages "
     import wetsuite.extras.ocr
-    wetsuite.extras.ocr.doc_extent( _test_two ) == (130, 844,  136, 551)  # minx maxx miny maxy
+    assert wetsuite.extras.ocr.doc_extent( _test_two ) == (130, 844,  136, 551)  # minx maxx miny maxy
 
 
 def test_page_fragment_filter__textre():
+    ' test that filtering fragments by regexp works'
     import wetsuite.extras.ocr
     assert len( wetsuite.extras.ocr.page_fragment_filter( _test_boxes, textre='1' ) ) == 1
     assert len( wetsuite.extras.ocr.page_fragment_filter( _test_boxes, textre='Text[0-5]' ) ) == 5
-    assert len( wetsuite.extras.ocr.page_fragment_filter( _test_boxes, textre='text[0-5]' ) ) == 0 
-    assert len( wetsuite.extras.ocr.page_fragment_filter( _test_boxes, textre='(?i)text[0-5]' ) ) == 5 
+    assert len( wetsuite.extras.ocr.page_fragment_filter( _test_boxes, textre='text[0-5]' ) ) == 0
+    assert len( wetsuite.extras.ocr.page_fragment_filter( _test_boxes, textre='(?i)text[0-5]' ) ) == 5
 
 def test_page_fragment_filter__xy():
+    ' test that filtering fragments by coordinates works '
     import wetsuite.extras.ocr
     assert len( wetsuite.extras.ocr.page_fragment_filter( _test_boxes, q_min_x=300 ) ) == 2 # 4 and 5
     assert len( wetsuite.extras.ocr.page_fragment_filter( _test_boxes, q_max_x=300 ) ) == 3
@@ -241,11 +251,9 @@ def test_page_fragment_filter__extent():
 def test_page_fragment_filter__verbose():
     " mostly testing that these code paths don't error out  "
     import wetsuite.extras.ocr
-    
+
     wetsuite.extras.ocr.page_fragment_filter( _test_boxes, textre='1',  verbose=True )
     wetsuite.extras.ocr.page_fragment_filter( _test_boxes, q_min_x=0.5, verbose=True )
     wetsuite.extras.ocr.page_fragment_filter( _test_boxes, q_max_x=0.5, verbose=True )
     wetsuite.extras.ocr.page_fragment_filter( _test_boxes, q_max_y=0.5, verbose=True )
     wetsuite.extras.ocr.page_fragment_filter( _test_boxes, q_min_y=0.5, verbose=True )
-
-

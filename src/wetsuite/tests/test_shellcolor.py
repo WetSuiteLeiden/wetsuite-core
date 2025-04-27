@@ -131,9 +131,7 @@ def test_hash_color():
 def test_colors():
     "mainly just for test coverage statistics :)"
     # guess_color_support(True, True, True)
-    wetsuite.helpers.shellcolor._guess = (
-        True  # force    # pylint: disable=protected-access
-    )
+    wetsuite.helpers.shellcolor._guess = True  # force    # pylint: disable=protected-access
 
     for color_func in (
         brightblack,

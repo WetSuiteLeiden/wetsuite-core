@@ -4,7 +4,7 @@ from wetsuite.helpers.lazy import (
     etree,
     html_text,
     pdf_embedded_text,
-    pdf_text_ocr,
+    #pdf_text_ocr,
     spacy_parse,
 )
 

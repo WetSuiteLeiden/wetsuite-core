@@ -489,7 +489,7 @@ def test_parse_bekendmaking_bulk():
     " a list of ~5.5 millions IDs, to check that we don't trip over any. xz complessed because  "
     import lzma
     bulk_list_fn = os.path.join(
-        os.path.dirname(test_meta.__file__), "testfiles", "op_keylist.xz" # 
+        os.path.dirname(test_meta.__file__), "testfiles", "op_keylist.xz"
     )
     with lzma.open(bulk_list_fn, 'rt', encoding='utf-8') as fob:
         for line in fob:

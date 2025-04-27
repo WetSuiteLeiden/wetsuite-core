@@ -17,6 +17,7 @@ def test_text():
 
 
 def test_basics():
+    ''' test that it finds some known n-grams in some known text '''
     text = test_text()
 
     coll = wetsuite.helpers.collocation.Collocation()
@@ -34,11 +35,12 @@ def test_basics():
     # for this data and these settings...
     print( coll.grams )
 
-    assert has_sequence( ('als','bedoeld','in'),          coll.grams )  
-    assert not has_sequence( ('niet','van','toepassing'), coll.grams ) 
+    assert has_sequence( ('als','bedoeld','in'),          coll.grams )
+    assert not has_sequence( ('niet','van','toepassing'), coll.grams )
 
 
 def test_that_cleanup_reduces():
+    ' test that cleanup_ngrams and cleanup_unigrams indeed reduce the number of things '
     text = test_text()
 
     coll = wetsuite.helpers.collocation.Collocation()
@@ -55,6 +57,7 @@ def test_that_cleanup_reduces():
 
 
 def test_that_cleanup_func_reduces():
+    ' test that cleanup_ngrams and cleanup_unigrams, called with a function as well, indeed reduces according to that function '
     text = test_text()
 
     coll = wetsuite.helpers.collocation.Collocation()
@@ -62,12 +65,9 @@ def test_that_cleanup_func_reduces():
 
     before_ngram_count   = coll.counts()['ngrams']
 
-    def tup_has_van(tup, count):
+    def tup_has_van(tup, _count):
         return 'van' in tup # one of the words is 'van'
-    
+
     coll.cleanup_ngrams(mincount=None, disqualify_func=tup_has_van)
 
     assert coll.counts()['ngrams'] < before_ngram_count
-
-
-

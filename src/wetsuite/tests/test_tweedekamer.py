@@ -19,4 +19,3 @@ def DISABLED_test_fetch_resource():
         wetsuite.datacollect.tweedekamer_nl.fetch_resource('sdfsdf')
 
     wetsuite.datacollect.tweedekamer_nl.fetch_resource('2d1a7837-c0c4-4971-9e32-feacaa50961b')
-

@@ -86,33 +86,25 @@ def test__split_officielepublicaties_xml__start_at_none():
     )
     with open(gmb_path, "rb") as gmb_file:
         gmb_tree = wetsuite.helpers.etree.fromstring(gmb_file.read())
-        wetsuite.helpers.split._split_officielepublicaties_xml(
-            gmb_tree, start_at=None
-        )  # pylint: disable=protected-access
+        wetsuite.helpers.split._split_officielepublicaties_xml( gmb_tree, start_at=None )  # pylint: disable=protected-access
 
 
 def test__split_officielepublicaties_xml__list_test():
     "test the code path testing for lsit"
     tree = wetsuite.helpers.etree.fromstring("<r/>")
     with pytest.raises(ValueError, match=r".*given a list.*"):
-        wetsuite.helpers.split._split_officielepublicaties_xml(
-            tree, start_at=tree.xpath("/")
-        )  # pylint: disable=protected-access
+        wetsuite.helpers.split._split_officielepublicaties_xml( tree, start_at=tree.xpath("/") )  # pylint: disable=protected-access
 
 
 def test__split_officielepublicaties_xml__start_at_nonsense():
     "test the code path for starting at path that does not exist"
     import test_split
 
-    gmb_path = os.path.join(
-        os.path.dirname(test_split.__file__), "testfiles", "gmb.xml"
-    )
+    gmb_path = os.path.join( os.path.dirname(test_split.__file__), "testfiles", "gmb.xml" )
     with open(gmb_path, "rb") as gmb_file:
         gmb_tree = wetsuite.helpers.etree.fromstring(gmb_file.read())
         with pytest.raises(ValueError, match=r".*Did not find.*"):
-            wetsuite.helpers.split._split_officielepublicaties_xml(
-                gmb_tree, start_at="/przewalski"
-            )  # pylint: disable=protected-access
+            wetsuite.helpers.split._split_officielepublicaties_xml( gmb_tree, start_at="/przewalski" )  # pylint: disable=protected-access
 
 
 def test__split_officielepublicaties_xml__start_at_node():
@@ -125,9 +117,7 @@ def test__split_officielepublicaties_xml__start_at_node():
     with open(gmb_path, "rb") as gmb_file:
         gmb_tree = wetsuite.helpers.etree.fromstring(gmb_file.read())
         node = gmb_tree.find("gemeenteblad/zakelijke-mededeling")
-        wetsuite.helpers.split._split_officielepublicaties_xml(
-            gmb_tree, start_at=node
-        )  # pylint: disable=protected-access
+        wetsuite.helpers.split._split_officielepublicaties_xml( gmb_tree, start_at=node )  # pylint: disable=protected-access
 
 
 def test_Fragments_nonbytes():
@@ -137,7 +127,7 @@ def test_Fragments_nonbytes():
 
 
 def test_Fragments_notimplemented():
-    "test that it complains when not implemented (arguably only valuable to test on all implementation classes in the same module)"
+    "test that it complains when not implemented  (arguably only valuable to test on all implementation classes in the same module)"
     fop = wetsuite.helpers.split.Fragments(b"")
     with pytest.raises(NotImplementedError, match=r".*Please.*"):
         fop.accepts()

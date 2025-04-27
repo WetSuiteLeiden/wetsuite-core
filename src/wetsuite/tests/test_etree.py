@@ -302,4 +302,4 @@ def test_html_text_bs4_input():
 def test_debug_color():
     ' just testing that it does not fail on some basic input '
     o = debug_color( fromstring( '<body><b>foo</b>bar</body>' ) )
-    o._repr_html_()
+    o._repr_html_() # pylint: disable=protected-access

@@ -104,8 +104,8 @@ def test_list():
        just check that it doesn't fail
     """
     wetsuite.helpers.localdata.list_stores()
-    wetsuite.helpers.localdata.list_stores(look_under="/tmp/")
-
+    #wetsuite.helpers.localdata.list_stores(look_under="/tmp/") # TODO: something that exists and won't lead e.g. to permission problems
+ 
     # may take a while if you have made huge stores:
     # wetsuite.helpers.localdata.list_stores(get_num_items=True)
 

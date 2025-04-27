@@ -88,7 +88,7 @@ def test_format_date_ranges():
 
 def test_format_date_list():
     "format list of datetimes with (by default) '%Y-%m-%d'"
-    format_date_list([datetime.date(2022, 1, 29), datetime.date(2022, 1, 30)]) == [
+    assert format_date_list([datetime.date(2022, 1, 29), datetime.date(2022, 1, 30)]) == [
         "2022-01-29",
         "2022-01-30",
     ]
@@ -105,12 +105,14 @@ def test_parse():
     assert parse("  1e november 1988  ") == datetime.datetime(1988, 11,  1,   0, 0)
     assert parse("  20 december 2022  ") == datetime.datetime(2022, 12, 20,   0, 0)
 
-    # it doesn't actually understand that (it was a tuesday), but it ignores it fine
+def test_parse_ignoreday():
+    " it doesn't actually understand that (it was a tuesday), but it ignores it fine "
     assert parse("  donderdag 1 november 1988  ") == datetime.datetime(
         1988, 11, 1, 0, 0
     )
 
-    # including time (don't count on this in less formal options)
+def test_parse_includingtime():
+    " including time (don't count on this in less formal options) "
     assert parse("2022-01-01 11:22")      == datetime.datetime(2022, 1,   1,   11, 22)
 
 
@@ -138,9 +140,8 @@ def test_noparse():
         assert parse("booga", exception_as_none=False)
 
 
-def test_find_dates_in_text():
-    "test the text part, andt the parsing part, of find_dates_in_text"
-    # text part
+def test_find_dates_in_text_textpart():
+    "test the text part of find_dates_in_text"
     assert find_dates_in_text(
         "Op 1 november 1988 (oftwel 1988-11-1) gebeurde er vast wel iets."
     )[0] == ["1 november 1988", "1988-11-1"]
@@ -148,7 +149,8 @@ def test_find_dates_in_text():
     assert find_dates_in_text("  1 November 1988  ")[0][0] == "1 November 1988"
     assert find_dates_in_text("  1 nov 1988  ")[0][0] == "1 nov 1988"
 
-    # parsing part
+def test_find_dates_in_text_parsingpart():
+    "test the parsing part of find_dates_in_text"
     assert find_dates_in_text("  1 november 1988   2 november, 1988")[1] == [
         datetime.datetime(1988, 11, 1, 0, 0),
         datetime.datetime(1988, 11, 2, 0, 0),
@@ -178,23 +180,25 @@ def test_find_dates_in_text():
 
 
 
-
-
-def test_nobork():
+def test_today_and_ago_noerror():
     "test that these functions do not fail outright"
     date_today()
 
     date_weeks_ago(1)
-    
+
     date_months_ago(1)
 
 
 def test_nobork_firstlast():
-    date_first_day_in_year(2024)
-    date_first_day_in_year()
+    ' test that these functions '
+    assert date_first_day_in_year(2024) == datetime.date(2024,1,1)
+    assert date_last_day_in_year(2024) == datetime.date(2024,12,31)
 
-    date_last_day_in_year(2024)
-    date_last_day_in_year()
-
-    date_first_day_in_month(2024,1)
+    assert date_first_day_in_month(2024,2) == datetime.date(2024,2,1)
     date_first_day_in_month()
+
+
+def test_nobork_firstlast_2():
+    ' TODO: test that these are indeed in the current year? '
+    date_first_day_in_year() # current year
+    date_last_day_in_year() # current year
