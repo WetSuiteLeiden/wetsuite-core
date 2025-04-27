@@ -18,6 +18,9 @@ import wetsuite.helpers.util
 
 ################ Helpers #############################################################################
 
+
+
+
 def page_embedded_as_xhtml(page):
     ''' Extracts fragments using PyMuPDF's xhtml-style extraction, 
         which analyzed some basic paragraphs and headers so that we don't have to 
@@ -270,25 +273,6 @@ def page_embedded_text_generator(pdf, option="text"):
         yield page.get_text( option=option, sort=True )  # note that sort only applies to some option choices
 
 
-# def doc_embedded_text(pdf, strip:bool=True, join_on:str='\n\n'): # TODO: rename to embedded_text
-#     """Takes PDF file data, returns all embedded text in it as a single string
-#
-#     This is a convenience function in that it's primarily just::
-#             '\n\n'.join( page_embedded_text_generator( pdf) )
-#
-#     @param pdf: PDF file data as a bytes object (or already-parsed fitz Document object)
-#     @param strip: whether to strip after joining.
-#     @return: all text as a single string.
-#     """
-#     document = _open_pdf( pdf )
-#     # CONSIDER: also taking a fitz document
-#     ret = join_on.join( page_embedded_text_generator( document ) )
-#     if strip:
-#         ret = ret.strip()
-#     return ret
-
-
-
 def page_embedded_fragments(page, join=True):
     ''' Quick 'get fragments of text from a page', 
         relying on some pymupdf analysis.
@@ -300,9 +284,9 @@ def page_embedded_fragments(page, join=True):
         @param page: pymupdf page object
         @param join: If false, we return a string of lists. 
                      If True, we return a string.
-        @return: a single string (often with newlines), or a list of parts.
+        @return: a single string (often with newlines), or a list of parts. This has already seen some analysis of where to insert spaces, so you can ''.join() this.
     '''
-    div = page_embedded_as_xhtml( page )
+    div = page_embedded_as_xhtml( page ) # this does some analysis towards paragraphs and such
     return wetsuite.helpers.etree.html_text(div, bodynodename=None, join=join)
 
 
@@ -310,7 +294,7 @@ def page_embedded_fragments(page, join=True):
 
 _html_header_tag_names = ("h1", "h2", "h3", "h4", "h5", "h6")
 
-def document_fragments(pdf, hint_structure=True, debug=True):
+def document_fragments(pdf, hint_structure=True):
     '''
     Tries to be slightly smarter than page_embedded_text_generator,
     making it slightly easier to see paragraphs and _maybe_ headings.
@@ -509,7 +493,7 @@ def embedded_or_ocr_perpage(pdf, char_threshold:int=30, dpi:int=150, cache_store
 
     import wetsuite.extras.ocr
     ret = []
-    for page_i, page in enumerate(document):
+    for _page_i, page in enumerate(document):
 
         # See if it reports as containing embedded text; if so, use that.
         embedded_text = page.get_text( option='text', sort=True )
