@@ -115,33 +115,33 @@ def bbox_max_y(bbox):
     topleft, topright, botright, botleft = bbox
     return max(list(y  for _, y in (topleft, topright, botright, botleft)))
 
-def page_allxy(page_ocr_fragments):
+def page_allxy(page_easyocr_fragments):
     """Given a page's worth of OCR results, return list of X, and list of Y coordinates,
     meant for e.g. statistics use.
 
-    @param page_ocr_fragments: a bounding box, as a 4-tuple (tl,tr,br,bl)
+    @param page_easyocr_fragments: a bounding box, as a 4-tuple (tl,tr,br,bl)
     @return: ( all x list, all y list )
     """
     xs, ys = [], []
-    for bbox, _, _ in page_ocr_fragments:
+    for bbox, _, _ in page_easyocr_fragments:
         topleft, topright, botright, botleft = bbox
         for x, y in (topleft, topright, botright, botleft):
             xs.append(x)
             ys.append(y)
     return xs, ys
 
-def page_extent(page_ocr_fragments, percentile_x=(1, 99), percentile_y=(1, 99)):
+def page_extent(page_easyocr_fragments, percentile_x=(1, 99), percentile_y=(1, 99)):
     """Estimates the bounds that contain most of the page contents
     (uses considers all bbox x and y coordinates)
 
     'Most' in that we use the 1st and 99th percentiles (by default) - may need tweaking
 
-    @param page_ocr_fragments:   A list of (bbox, text, cert).
+    @param page_easyocr_fragments:   A list of (bbox, text, cert).
     @param percentile_x:
     @param percentile_y:
     @return: (page_min_x, page_max_x,  page_min_y, page_max_y)  which, note, might not  be exactly what you epxected
     """
-    xs, ys = page_allxy( page_ocr_fragments )
+    xs, ys = page_allxy( page_easyocr_fragments )
     return (
         numpy.percentile( xs, percentile_x[0] ),
         numpy.percentile( xs, percentile_x[1] ),
@@ -149,7 +149,7 @@ def page_extent(page_ocr_fragments, percentile_x=(1, 99), percentile_y=(1, 99)):
         numpy.percentile( ys, percentile_y[1] ),
     )
 
-def doc_extent(list_of_page_ocr_fragments, percentile_x=(1, 99), percentile_y=(1, 99)):
+def doc_extent(list_of_page_easyocr_fragments, percentile_x=(1, 99), percentile_y=(1, 99)):
     """ 
     Like page_extent(), but considering all pages at once,
     mostly to ge the overall margins,
@@ -157,12 +157,12 @@ def doc_extent(list_of_page_ocr_fragments, percentile_x=(1, 99), percentile_y=(1
 
     Note that if many pages have little on them, this is somewhat fragile
 
-    @param list_of_page_ocr_fragments: A list of (bbox, text, cert).
+    @param list_of_page_easyocr_fragments: A list of ( A list of (bbox, text, cert) ) for each page
     @return: (page_min_x, page_max_x,  page_min_y, page_max_y)  which, note, might not  be exactly what you epxected
     """
     xs, ys = [], []
-    for page_ocr_fragments in list_of_page_ocr_fragments:
-        page_xs, page_ys = page_allxy( page_ocr_fragments )
+    for page_easyocr_fragments in list_of_page_easyocr_fragments:
+        page_xs, page_ys = page_allxy( page_easyocr_fragments )
         xs.extend( page_xs )
         ys.extend( page_ys )
     return (
@@ -200,7 +200,7 @@ def page_fragment_filter(
       - otherwise assumed to be ints, absolute units
         (which are likely to be pixels and depend on the DPI),
 
-    @param page_ocr_fragments:
+    @param page_easyocr_fragments:
     @param textre:  include only fragments that match this regular expression
     @param q_min_x: helps restrict where on the page we search (see notes above)
     @param q_min_y: helps restrict where on the page we search (see notes above)
@@ -322,20 +322,17 @@ def ocr_pdf_pages(pdfbytes, dpi=150, use_gpu=True, page_cache=None, verbose=True
         Less structure, and redundant with the first returned, but means less typing for some uses.
     """
     import fitz
-    from PIL import Image
 
-    results_structure = []
-    text = []
+    results_structure, text = [], []
 
     if page_cache is not None:
-        hash = wetsuite.helpers.util.hash_hex( pdfbytes )
+        hashval = wetsuite.helpers.util.hash_hex( pdfbytes )
 
     with fitz.open(stream=pdfbytes, filetype="pdf") as document:
         for page_num, page in enumerate( document ):
-
             # if given a cache, return it from there if we can
             if page_cache is not None:
-                cache_key = f'{hash}:easyocr:pg{page_num}:{dpi}dpi'
+                cache_key = f'{hashval}:easyocr:pg{page_num}:{dpi}dpi'
                 page_results_from_cache = page_cache.get( cache_key, missing_as_none=True )
                 if page_results_from_cache is not None:
                     if verbose:
@@ -361,7 +358,7 @@ def ocr_pdf_pages(pdfbytes, dpi=150, use_gpu=True, page_cache=None, verbose=True
     return results_structure, text
 
 
-def easyocr(image, pythontypes=True, use_gpu=True, languages=("nl", "en"), debug=False, **kwargs):
+def easyocr(image, pythontypes=True, use_gpu=True, languages=("nl", "en"), **kwargs):
     """Takes an image, returns structured OCR results as a specific python struct.
 
     Requires easyocr being installed. Will load easyocr's model on the first call,
