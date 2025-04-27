@@ -623,7 +623,6 @@ _html_text_knowledge = { #  usecontents prepend append removesubtree
     'figcaption':             ( True,  None, '\n',   False ), 
     'hr':                     ( True,  None, '\n',   False ), 
     'legend':                 ( True,  None, '\n',   False ), 
-    'li':                     ( True,  None, '\n',   False ), 
     'table':                  ( True,  '\n', '\n',   False ),
     'tbody':                  ( True,  None, None,   False ),
     'thead':                  ( True,  None, None,   False ),
@@ -712,7 +711,6 @@ _html_text_knowledge = { #  usecontents prepend append removesubtree
     'kop':                    ( True,   ' ',' ',     False ),
     'tussenkop':              ( True,   ' ',' ',     False ),
 
-    'tbody':                  ( True,   None,None,   False ),
     'tgroup':                 ( True,   None,None,   False ),
     'colspec':                ( True,   None,None,   False ),
     'row':                    ( True,   ' ','\n',    False ),
@@ -807,7 +805,7 @@ def html_text(etree, join=True, bodynodename='body'):
         etree = parse_html(etree)
     # CONSIDER also taking bs4 objects? It would mostly just amount to a str()
 
-    try: # also accept bs4 objects. It's a stretch for something in an etree module, yes, 
+    try: # also accept bs4 objects. It's a stretch for something in an etree module, yes,
          # but it's also rather useful as it is at least as likely you're using it to parse HTML
         from bs4 import Tag
         if isinstance(etree, Tag):
