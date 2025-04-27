@@ -251,6 +251,7 @@ def is_mainly_numeric(string: str, threshold=0.8):
     return False
 
 
+
 def count_unicode_categories(string:str, nfc_first:bool=True):
     """ Count the unicode categories within the given string - and also simplify that.
 
@@ -328,8 +329,10 @@ def count_unicode_categories(string:str, nfc_first:bool=True):
     return dict(simpl), dict(count)
 
 
-def has_text(string: str, mincount:int=1):
-    """Does this string contain at least something we can consider text?
+def has_text(string:str, mincount:int=1):
+    """
+    Whether some amount or fraction of characters are letters.
+    Does this string contain at least something we can consider text?
     Based on unicode codepoint categories - see C{count_unicode_categories}
     @param string: the text to count in
     @param mincount: how many text-like characters to demand
@@ -341,15 +344,94 @@ def has_text(string: str, mincount:int=1):
     return simpler.get("textish", 0) >= mincount
 
 
+def catshape(string:str, m_becomes_l:str=True, nfc_first=True):
+    ''' Replaces each character with the main part of the unicode category -- except M is made into L (by default).
+
+        where:
+          - L letter or mark (under the default m_becomes_l==True)
+          - N number
+          - P punctuation
+          - S symbol
+          - Z separators
+          - C codes/surrogates/uunassigned
+    
+        (function named such because some NLP replaces with consonant/vovelness, e.g.  'Foo bar' might become 'cvv cvc')
+
+        @param string:
+        @param m_becomes_l: whether to replace M with L
+        @return: a string with letters indicating categories, e.g. 'Hello, world' would become 'LLLLLPZLLLLL'
+    '''
+    ret = []
+    # compose to reduce the influence of combining characters
+    if nfc_first:
+        string = unicodedata.normalize("NFC", string)
+
+    for character in string:
+        cat = unicodedata.category(character)
+        first = cat[0]
+        if m_becomes_l:
+            first = first.replace('M','L')
+        ret.append( first )
+    return ''.join(ret)
+
+
+def wordiness(string:str, ignore_cats:str='P'):
+    """ For a string, give a fraction-like score of how much it looks like words - sequences of letters.
+        After splitting on separators, how many parts seem to be made mostly of letters (and also not overly long)? 
+
+        Mostly meant to disqualify garbledness as such, not to be smart about language.
+        @param string: string to judge
+        @param ignore_cats: a string of unicode categories to remove before judging L sequences, where:
+          - N number
+          - P punctuation
+          - S symbol
+          - Z separators
+          - C codes/surrogates/uunassigned
+        @return: a float in 0 .. 1
+    """
+    wordlike = 0
+    other    = 0
+    shape = catshape(string)
+    for ignore_cat in ignore_cats:
+        shape = shape.replace(ignore_cat, '')
+
+    # split on separators (often spaces). Done via actual spaces to get split()'s 'multiple adjacent' behaviour.
+    # Could perhaps use some work because we might also want to split on things like C
+    for part in shape.replace('Z',' ').split():
+        countlet = part.count('L')
+        if len(part)==1: # single anythin, letter ot not
+            other += 1
+            #print('OTHER1', repr(part) )
+        elif countlet > 20:
+            wordlike += 1
+            other += 1
+            #print('LONG', repr(part) )
+        elif countlet >  0.6 * len(part):
+            wordlike += 2 # shorter wordlikes weigh twice as much as very long wordlikes
+            #print('WORDY', repr(part) )
+        else:
+            other += 1
+            #print('OTHER2', repr(part) )
+
+    ret = float(wordlike) / (wordlike+other)
+    print(f'{ret:.2f} for wordiness({repr(string)})')
+    return ret
+
+
+def has_mostly_wordlike_text(string:str, threshold:float=0.65):
+    ' whether wordiness()  of that string is above the threshold - may save some typing, nothing else '
+    return wordiness(string) > threshold
+
+
+
 def has_lowercase_letter(s):
     """Returns whether the string contains at least one lowercase letter
-    (that is, one that would change when calling upper())"""
+       (that is, one that would change when calling upper())
+    """
     return s != s.upper()
 
 
-def simplify_whitespace(
-    string: str,
-):  # CONSIDER: separately doing  strip=True, newline_to_space=True, squeeze_space=True
+def simplify_whitespace( string: str ):
     """Replaces newlines with spaces, squeeze multiple spaces into one, then strip() the whole. 
     May e.g. be useful to push spaces into functions that trip over newlines, series of newlines, or series of spaces. 
 
@@ -358,6 +440,7 @@ def simplify_whitespace(
     @param string: the string you want less whitespace in
     @return: that string with less whitespace
     """
+    # CONSIDER: separately doing  strip=True, newline_to_space=True, squeeze_space=True
     return re.sub(r"[\s\n]+", " ", string.strip()).strip()
 
 
@@ -365,18 +448,18 @@ def simplify_whitespace(
 
 
 # TODO: add tests
-def simple_tokenize(text):
+def simple_tokenize(text:str):
     """Split string into words
-    _Very_ basic - splits on and swallows symbols and such.
+    _Very_ basic, e.g. splits on and swallows spaces and many symbols.
 
     Real NLP tokenizers are often more robust,
-    but for a quick test we can avoid a big depdenency (and sometimes execution slowness)
+    but for quick-to-evaluate tests we may prefer speed, and lack of a big depdenency
 
     @param text: a single string
-    @return: a list of words
+    @return: a list of strings (that are probably words)
     """
     l = re.split(
-        r'[\s!@#$%^&*()\[\]"\':;/.,?\xab\xbb\u2018\u2019\u201a\u201b\u201c\u201d\u201e\u201f\u2039\u203a\u2358\u275b\u275c\u275d\u275e\u275f\u2760\u276e\u276f\u2e42\u301d\u301e\u301f\uff02\U0001f676\U0001f677\U0001f678-]+',
+        r'[\s!@#$%^&*()\[\]":;/.,?\xab\xbb\u2018\u2019\u201a\u201b\u201c\u201d\u201e\u201f\u2039\u203a\u2358\u275b\u275c\u275d\u275e\u275f\u2760\u276e\u276f\u2e42\u301d\u301e\u301f\uff02\U0001f676\U0001f677\U0001f678-]+',
         text,
     )
     return list(e for e in l if len(e) > 0)
@@ -831,9 +914,10 @@ def count_normalized(
     stopwords=(),
     stopwords_i=(),
 ):
-    """Takes a list of strings, returns a string:count dict, with some extra processing
+    """Takes a list of strings, returns a string:count dict, with some extra processing.
 
-    Parameters beyond normalize_func are mostly about removing things you would probably call,
+    Mostly here fore normalize_func lets you count the normalized form, but prefer the most common form before normalisation;
+    parameters beyond normalize_func are mostly about removing things you would probably call stopwords,
     so you do not have to do that separately.
 
     Note that if you are using spacy or other POS tagging anyway,
@@ -939,11 +1023,12 @@ def count_case_insensitive(
     Explicitly writing a function for such singular use is almost pointless,
     yet this seems like a common case and saves some typing.
 
-    @param strings:
-    @param min_count:
-    @param min_word_length:
-    @param stopwords:
-    @return:
+    @param strings: the list of strings to count
+    @param min_count: remove any string that occurs less than this. Defaults to 1, not removing anything
+    @param min_word_length: remove any string shorter than this. Defaults to 0, not removing anything
+    @param stopwords: sequence of strings to remove (case sensitive)
+    @param stopwords_i: sequence of strings to remove (case insensitive)
+    @return: a dict of string to count
     """
     return count_normalized(
         strings,
@@ -956,7 +1041,7 @@ def count_case_insensitive(
     )
 
 
-def remove_deheteen(string, remove=(r'de\b',r'het\b',r'een\b')):
+def remove_deheteen(string, remove=(r'^de\b',r'^het\b',r'^een\b')):
     """ remove 'de', 'het', and 'een' as words from the start of a string - meant to help normalize phrases 
     @param string:
     @param remove:
@@ -981,4 +1066,3 @@ def remove_initial(string:str, remove_relist, flags=re.I):
             string = string[m.end():].strip()
             changed = True
     return string
-

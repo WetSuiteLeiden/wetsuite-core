@@ -15,6 +15,9 @@ from wetsuite.helpers.strings import (
     remove_privateuse,
     canonical_compare,
     compatibility_compare,
+    catshape,
+    wordiness,
+    has_mostly_wordlike_text,
 
     interpret_ordinal_nl,
     ordinal_nl,
@@ -27,7 +30,10 @@ from wetsuite.helpers.strings import (
     ngram_sort_by_matches,
 
     count_normalized,
-    count_case_insensitive
+    count_case_insensitive,
+
+    remove_deheteen,
+    #remove_initial,
 )
 
 
@@ -117,13 +123,15 @@ def test_remove_privateuse():
 
 
 def test_canonical_compare():
+    " test whether unicode canonical comparison functions"
     assert canonical_compare('e\u0301', '\xe9') is True
     assert canonical_compare('\u2163', 'IV')    is False
 
 
 def test_compatibility_compare():
+    " test whether unicode compatibility comparison functions"
     assert canonical_compare('e\u0301', '\xe9') is True
-    assert compatibility_compare('\u2163', 'IV') is True 
+    assert compatibility_compare('\u2163', 'IV') is True
 
 
 def test_is_numeric():
@@ -181,6 +189,37 @@ def test_count_unicode_categories_2():
 def test_simplify_whitespace():
     "test whitespace squeeze and strip"
     assert simplify_whitespace("a   sdfsd  ss   ") == "a sdfsd ss"
+
+
+def test_catshape():
+    ''' Test that we can convert a string to the major category of each codepoint '''
+    assert catshape('Hello, world') == 'LLLLLPZLLLLL'
+
+    # U+65, U+301  is   e, combining accent egu
+    assert catshape('\u0065\u0301',False,False) == 'LM' # as-is these are letter, mark
+    assert catshape('\u0065\u0301',False,True) == 'L'   # we can do a compose to make that a single letter - where such a codepoint exists, which is far from all cases, so
+    assert catshape('\u0065\u0301',True,False) == 'LL'  # by default we consider a mark a letter
+
+
+def test_wordiness():
+    ''' Test that we get a basic answer to 'how much does this look like wordy chunks' '''
+    assert wordiness("! # $ % & \' \n \n ( ")                             < 0.2
+    assert wordiness("a e i o u a b c d e")                               < 0.2
+    assert wordiness("The test is\xe9  22!")                              > 0.7
+    assert wordiness("The, test, is\xe9, 22!!!!!")                        > 0.7
+    assert wordiness("long test 1, fghsdjkfghdfkjghsdfjkgfsdfjkgfsd")     > 0.7
+    assert wordiness("long test 2, fghsdj kfghdfkj ghsdfjkgf sdfjkgfsd")  > 0.7
+
+
+def test_has_mostly_wordlike_text():
+    ''' Test that we get a basic answer to 'is this mostly wordy chunks' '''
+    assert has_mostly_wordlike_text("! # $ % & \' \n \n ( ")                             is False
+    assert has_mostly_wordlike_text("a e i o u a b c d e")                               is False
+    assert has_mostly_wordlike_text("The test is\xe9  22!")                              is True
+    assert has_mostly_wordlike_text("The, test, is\xe9, 22!!!!!")                        is True
+    assert has_mostly_wordlike_text("long test 1, fghsdjkfghdfkjghsdfjkgfsdfjkgfsd")     is True
+    assert has_mostly_wordlike_text("long test 2, fghsdj kfghdfkj ghsdfjkgf sdfjkgfsd")  is True
+
 
 
 def test_simple_tokenize():
@@ -271,7 +310,7 @@ def test_ngram_sort_by_matches():
 
 def test_ngram_sort_by_matches_with_scores():
     "test that fork is put in front of that list"
-    assert ngram_sort_by_matches( 'for', ['spork', 'knife', 'spoon', 'fork'], with_scores=True) == [('fork', 10), ('spork', 4), ('knife', 1), ('spoon', 1)] 
+    assert ngram_sort_by_matches( 'for', ['spork', 'knife', 'spoon', 'fork'], with_scores=True) == [('fork', 10), ('spork', 4), ('knife', 1), ('spoon', 1)]
     # those scores might change with the implementation, maybe only test that we have str,int tuples?
 
 
@@ -368,3 +407,11 @@ def test_count_normalized_min():
     assert cs["a"] == 4
     assert cs["b"] == 3
     assert "c" not in cs
+
+
+def test_remove_deheteen():
+    ' test that we remove an initial "de" or "het" from phrases '
+    assert remove_deheteen('het ministerie') == 'ministerie'
+
+#def test_remove_initial():
+#    remove_initial
