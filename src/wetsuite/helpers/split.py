@@ -1527,7 +1527,6 @@ def feeling_lucky(docbytes, flattened=True):
     """
     ret = []
     for _, fragclass in decide(docbytes):
-        print(fragclass)
         for hint, inter, textfrag in fragclass.fragments():
             if flattened:
                 ret.append(textfrag)
