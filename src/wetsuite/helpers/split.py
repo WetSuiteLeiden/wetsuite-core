@@ -1074,7 +1074,7 @@ class Fragments_XML_OP_Handelingen(Fragments):
         return ret
 
 
-class Fragments_XML_BUS_Kamer(Fragments):
+class Fragments_XML_OP_Kamer(Fragments):
     "Turn other kamer XMLs (from KOOP's BUS) into fragments (TODO: re-check which these are)"
 
     def __init__(self, docbytes, debug=False):
@@ -1127,7 +1127,7 @@ class Fragments_XML_BUS_Kamer(Fragments):
         return ret
 
 
-class Fragments_HTML_BUS_kamer(Fragments):
+class Fragments_HTML_OP_Kamer(Fragments):
     "Turn kamer-related HTMLs (from KOOP's BUS) into fragments"
 
     def __init__(self, docbytes, debug=False):
@@ -1448,7 +1448,7 @@ class Fragments_PDF_Fallback(Fragments):
 ####################################################################################
 
 _registered_fragment_parsers = [
-    # order doesn't matter, all are checked.
+    # note: order doesn't matter, all are checked.
     Fragments_XML_BWB,
     Fragments_XML_CVDR,
     Fragments_HTML_CVDR,
@@ -1473,8 +1473,8 @@ _registered_fragment_parsers = [
     Fragments_HTML_OP_Bgr,
 
     Fragments_XML_OP_Handelingen,
-    Fragments_XML_BUS_Kamer,
-    Fragments_HTML_BUS_kamer,
+    Fragments_XML_OP_Kamer,
+    Fragments_HTML_OP_Kamer,
 
     # TODO: tuchtrecht
     # TODO: geschillencommissie
