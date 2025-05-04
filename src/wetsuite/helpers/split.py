@@ -306,11 +306,11 @@ class Fragments_XML_BWB(Fragments):
         return wetsuite.helpers.util.is_xml(self.docbytes)
 
     def suitableness(self):
-        return b'<toestand' in self.docbytes[:200]   # CONSIDER: testing for the namespace URL once we check whether it actually has versions
         #if self.tree.tag == "toestand":
-        #    return 5
-        #else:
-        #    return 5000
+        if b'<toestand' in self.docbytes[:200]:   # CONSIDER: testing for the namespace URL once we check whether it actually has versions
+            return 5
+        else:
+            return 5000
 
     def fragments(self):
         self.tree = wetsuite.helpers.etree.fromstring(      self.docbytes )
@@ -1491,10 +1491,10 @@ def decide(docbytes, thresh=1000, first_only=False, debug=False):
     """Ask all processors to say how well they would do,
     pick any that seem applicable enough (by our threshold).
 
-    Returns a list of (score, processing_object)
-
-    Note that that procobject has had accepts() and suitableness() called,
+    Note that that that the processing_objects that are returned has already had its accepts() and suitableness() called,
     so you can now call fragments() to get the fragments.
+
+    @return: a list of (score, processing_object)
     """
     options = []
 
@@ -1513,20 +1513,27 @@ def decide(docbytes, thresh=1000, first_only=False, debug=False):
     return options
 
 
-def feeling_lucky(docbytes):
-    """If you are sure this code understands a particular document format,
+def feeling_lucky(docbytes, flattened=True):
+    """If you are sure this module understands a particular document format,
     you can hand it in here, and it will returns a list of strings for a document.
-    No control, just text from whatever said it applied best.
 
-    This needs to be renamed. Maybe this needs to go to wetsuite.helpers.lazy instead.
+    If it is not actually a format we understand, it might still yield text through a rougher fallback.
+
+    By default it gives just text.
     
-    @return: a list of strings
+    This needs to be renamed.  (And perhaps this should be in wetsuite.helpers.lazy as well?)
+    
+    @return: if flattened==False, a list of strings. If flattened=False, a lst of the underlying output tuples of the splitter.
     """
     ret = []
     for _, fragclass in decide(docbytes):
-        for _, _, textfrag in fragclass.fragments():
-            ret.append(textfrag)
-        break
+        print(fragclass)
+        for hint, inter, textfrag in fragclass.fragments():
+            if flattened:
+                ret.append(textfrag)
+            else:
+                ret.append( (hint, inter, textfrag) )
+        break # ises the first one
     return ret
 
 
