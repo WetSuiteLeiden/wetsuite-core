@@ -778,107 +778,92 @@ def parse_kst_id(string:str, debug:bool=False):
 
     Also a helper for C{parse_bekendmaking_id} to parse this particular subset.
 
-    There is more description of the variations in one of our notebooks
+    There is more description of the most common variations in one of our notebooks
 
-    @param string: kst-style identifier as string. Will be parsed.
+    TODO: review the tests, the separateion of e.g. dossier and vergaderjaar,
+    plus the acceptance of some weirder cases, probably means it probably over-accepts now.
+    (it would be more understandable to just add each pattern, even if there's twenty of them)
+
+    @param string: kst-style identifier as string, to be parsed.
     @param debug: whether to point out some debug
     @return: a dict with keys 
-      - C{dossiernum} - a kamerstukdossier, where it applies
-      - C{docnum} - a document identifier
-      - C{_var} to mention an internal variant that our parsing used
+      - C{docnum}        - a document identifier - always, it's just everything after kst-
+      - usually C{dossier}    - a kamerstukdossier - if present, which is over 99% of cases.
+        WARNING: we are guessing at what parts after the five digits is part of the dossier number. 
+        Do not assume this is correct.
+      - C{vergaderjaar}  - sometimes - if present, which is ~3% of cases
+      - C{variation} to mention an internal variant that our parsing used
+    Note that due varied types, you might consider variation before assuming presence of other keys
     """
     # e.g. so that you can do 'https://zoek.officielebekendmakingen.nl/dossier/'+ d['dossiernum']
 
-    ret = {}  # {'input':s}
-    dossiernum = []
-    parts = string.split("-")  # so will be like ['kst', ... ]
+    vj             = r'(?:(?:19|20)[0-9][0-9][0-9][0-9][0-9][0-9])'
+    weirdshort_pat = r'(?:[A-Z0-9][-][A-Z0-9][a-z]?(?:-[nbh][0-9])?)'
+    dossierlike    = r'(?:[0-9][0-9][0-9][0-9][0-9][A-Z]?)'
+    apnd_opt           = r'(?:-[nbh][0-9]+)?'
 
-    if parts[0] == "kst":
-        ret["type"] = parts.pop(0)
-    else:
-        raise ValueError("Does not start with kst: %r" % string)
+    # the point of these patterns is 
+    #   to try to not over-accept and to list the distinct patterns we are matching (we could generalize it into less tha n half the cases but it would become more opaque),
+    #   to be descriptive of what we're matching in a way we can hope to understand and augment later.
+    # this list that the most common first, and is other ordered roughly to catch stricter cases first, and also roughly by how often they occur, for speed reasons.
+    #   ...the last handful are fairly rare.
+    ret = {}
 
-    # what is left now is everyhing after kst
+    for pattern, assign, variant in (
+        (f'kst-(({dossierlike})-[0-9]+(?:-[0-9]+)?{apnd_opt})$',                       ('docnum','dossiernum'),       'dos-doc'),    # kst-17141-33, kst-11107-102-h1, kst-19291-23-110
+        (f'kst-(({dossierlike}-[CLXVvIi]+)-[0-9]+)$',                                  ('docnum','dossiernum'),       'drnn'),       # kst-27400-XV-52
+        (f'kst-(({dossierlike})-[A-Z]+-[0-9]+)$',                                      ('docnum','dossiernum'),       'dlln'),       # kst-23900-A-4
+        (f'kst-(({dossierlike})-[A-Z])$',                                              ('docnum','dossiernum'),       'dos-doc-l'),  # kst-17141-D
+        (f'kst-(({vj})-({dossierlike})(?:-[CLXVvIi]+)?(?:-[A-Z]+)?{apnd_opt})$',       ('docnum','vj','dossiernum'),  'vj-dos-rnl'), # kst-20032004-00063-VII-A-h1
+        # the above five catch the bulk of cases. The rest catches hundreds each, down to one.
+        (f'kst-(({vj})-({dossierlike})-[0-9]+[A-Za-z]?(?:-[0-9]?)?{apnd_opt})$',       ('docnum','vj','dossiernum'),  'vj-dos-doc'), # kst-19941995-00000-215, kst-19941995-00000-215a, kst-19941995-23577-200A
+        (f'kst-(({vj})-({dossierlike}(?:-[CLXVvIi]+)?)(?:-[0-9]+[a-z]?)?{apnd_opt})$', ('docnum','vj','dossiernum'),  'vj-dos-rn'),  # kst-19941995-00000-VIII, kst-19941995-23900-IV-111a, kst-19951996-24400-V-110-h1
+        (f'kst-(({vj})-({dossierlike}(?:-[CLXVvIi]*[A-Z])-[0-9]+[a-z]?)?)$',           ('docnum','vj','dossiernum'),  'vj-dos-2'),   # kst-19951996-24400-A-137, kst-19951996-24400-IXA-64
+        (f'kst-(({vj})-({dossierlike}(?:-[A-Z])?)(?:-[0-9]+[a-z]?)?{apnd_opt})$',      ('docnum','vj','dossiernum'),  'vj-dos-l'),   # kst-19992000-26800-A-139-h1    (single case)
+        (f'kst-(({vj})-({dossierlike}(?:-[0-9]+)?)(?:-[0-9]+)?)$',                     ('docnum','vj','dossiernum'),  'vj-dos-n'),   # kst-20012002-21501-16-323      (two cases)
+        (f'kst-(({vj})-({dossierlike})(?:-[A-Z][0-9])?)$',                             ('docnum','vj','dossiernum'),  'vj-dos-ln'),  # kst-20032004-23095-A1          (single case)
+        ( 'kst-([0-9][0-9][0-9][0-9][0-9][0-9][0-9]?)$',                               ('docnum',),                   'num67'),      # kst-1138049
+        (f'kst-(({vj})-({dossierlike})-[0-9]+[a-z]+)$',                                ('docnum','vj','dossiernum'),  'vj-dos-nl'),  # kst-20022003-23490-8aa
+        (f'kst-(({vj})-({dossierlike})-[A-Z]+-[A-Z]+)$',                               ('docnum','vj','dossiernum'),  'vj-dos-ll'),  # kst-20032004-00061-X-A
+        (f'kst-(({dossierlike}(?:-[CLXVvIi]+)?)(?:-[0-9]+)?{apnd_opt})$',              ('docnum','dossiernum'),       'dos-rnnl'),   # kst-20800-VII-12-b1
+        (f'kst-(({dossierlike}(?:-[CLXVvIi]+)?)(?:-[A-Z]+)?{apnd_opt})$',              ('docnum','dossiernum'),       'vj-dos-rnl'), # kst-24400-III-A
+        (f'kst-(({dossierlike})-[A-Z]+)$',                                             ('docnum','dossiernum'),       'dll'),        # kst-20043-AR
+        (f'kst-(({dossierlike})-[Rr][0-9]+-[0-9]+)$',                                  ('docnum','dossiernum'),       'dr'),         # kst-23908-R1519-103
+        (f'kst-({vj})-(0*[CLXVI]+)$',                                                  ('docnum','vj'),               'vj-rn'),      # kst-19941995-XVI
+        (f'kst-({vj})-(0*[CLXVI]+(?:-[A-Z])?{apnd_opt})$',                             ('docnum','vj'),               'vj-rn-a'),    # kst-20062007-XXI-I
+        (f'kst-({vj})-({weirdshort_pat})$',                                            ('docnum','vj'),               'vj-ws1'),     # kst-19971998-6-5a              (single case)
+        (f'kst-({weirdshort_pat})$',                                                   ('docnum',),                   'vj-ws2'),     # kst-C-H
+        ( 'kst-([0-9][0-9][0-9][0-9][0-9][0-9]-[A-Z0-9]-[0-9])$',                      ('docnum',),                   'vj-ws3'),     # kst-301000-G-2, kst-935450-A-2 (two cases)
+        ( 'kst-([CLXVI]+-[A-Z]+)$',                                                    ('docnum',),                   'vj-ws4rn'),   # kst-LXXXII-A
+        (f'kst-(({dossierlike})-[0-9]+-[A-Z]+{apnd_opt})$',                            ('docnum', 'dossiernum'),      'vj-ws5'),     # kst-21501-02-A, kst-21501-02-BO-n1
+        (f'kst-(({dossierlike})-[A-Z]+-[0-9]+{apnd_opt})$',                            ('docnum', 'dossiernum'),      'vj-ws6'),     # kst-21501-02-A, kst-28000-A-12-h1
+        (f'kst-(({dossierlike})-[A-Z]+{apnd_opt})$',                                   ('docnum', 'dossiernum'),      'vj-ws7'),     # kst-22112-AK-b1
+        (f'kst-(({dossierlike})-[0-9]+[a-z]+)$',                                       ('docnum', 'dossiernum'),      'vj-ws8'),     # kst-23029-26b
+        (f'kst-(({dossierlike})-[0-9]+[A-Z]{apnd_opt})$',                              ('docnum', 'dossiernum'),      'vj-ws9'),     # kst-26122-18A, kst-27046-14H-b1
+        (f'kst-(({dossierlike})-[0-9]+-[0-9]+[a-z]+)$',                                ('docnum', 'dossiernum'),      'vj-ws10'),    # kst-23908-27-8a               (two cases) 
+        (f'kst-(({dossierlike}-[CLXVvIi]+[A-Z])-[A-Z]{apnd_opt})$',                    ('docnum', 'dossiernum'),      'vj-ws11'),    # kst-25000-IXA-A, kst-31700-IXB-D-b1 
+        (f'kst-(({dossierlike}-[CLXVvIi]+[A-Z])-[0-9]+{apnd_opt})$',                   ('docnum', 'dossiernum'),      'vj-ws12'),    # kst-25600-IXB-21-h1
+        (f'kst-(({dossierlike})-[A-Z]-[A-Z]{apnd_opt})$',                              ('docnum', 'dossiernum'),      'vj-ws13'),    # kst-25000-A-A, kst-31792-D-A-h1
+        (f'kst-(0*[CLXVI]+(?:-[0-9A-Z])?{apnd_opt})$',                                 ('docnum',),                   'vj-ws5rn'),   # vj-ws5rn                     (single case)
+        (f'kst-({vj})-(0*[CLXVI]*)$',                                                  ('docnum', 'vj',),             'vj-ws6rn'),   # kst-19941995-00
+        (f'kst-(({dossierlike})-[A-Za-z0-9]+{apnd_opt})$',                             ('docnum','dossier'),          'vj-ww'),      # kst-29293-1erdruk-b1
+        (f'kst-(({dossierlike}-[CLXVvIi]+)-[A-Za-z0-9]+{apnd_opt})$',                  ('docnum','dossier'),          'vj-iww'),     # kst-30800-VI-77erdruk-b1     (two cases)
+        (f'kst-(({dossierlike})--[A-Z0-9]+)$',                                         ('docnum','dossier'),          'dd'),         # kst-32302--B, kst-33002--1   (two cases)
+    ):
+        m = re.match(pattern, string)
+        if m is not None:
+            # this counts on the second parameter in each  -- which, note counts on how nesting turns out in the output order
 
-    if len(parts) > 1 and len(parts[0]) == 8:
-        # this is a good source of vergaderjaar, but only present in _some_ of the types of kst
-        #   so we might as well breed the expectation you need to parse the metadata to get that properly,
-        #   and NOT add vergaderjaar here
-        # note this assumes the numbering is never eight digits; this happens to be true in what we've seen
-        #   but CONSIDER: checking that the value starts with 19 or 20
-        parts.pop(0) # so we only remove it and ignore it
-    # so what is left now is the thing after kst- OR kst-vergaderjaar-
+            # this just tests that the amount of groups is equal to the amountof things we assign. Could be commented out when you're not altering the data above
+            if len(assign) != len(m.groups()):
+                raise ValueError('Pattern {variant} produced {len(m.groups())} cases but we expected {len(assign)}')
 
+            for var, val in zip(assign, m.groups()):
+                #print( var, val )
+                ret[var] = val
+            ret['type'] = 'kst'
+            ret['variant'] = variant
+            return ret
 
-    # cases like kst-1158283:  1 part left, longish number
-    #   which do not seem to be part of a dossier,
-    #   and let's assume that number is a document number
-    if len(parts)==1 and len(parts[0]) in (7,6):   # CONSIDER: and test that it's all numeric?
-        ret["_var"] = "3"
-        ret["docnum"] = parts.pop(0)
-        return ret
+    raise ValueError(f'Did not understand {string} as kst identifier')
 
-    # first leftover part 5 digits, plus an optional (and rare) added letter, suggests dossier number.
-    #    ...but there will be more parts to the dossiernum after, so we collect it into a variable for now
-    m = re.match( r'([0-9][0-9][0-9][0-9][0-9][A-Z]?)$', parts[0] )
-    if m is not None:
-        dossiernum.append( m.group(1) )
-        parts.pop(0)
-    else:
-        raise ValueError("ERR1 Don't know what to do with %r - %r" % (string, parts))
-
-    # in the context of a kst- identifier, we know we are referring to a document 
-    #   so can make some assumptions,
-    #   e.g. that there is always a document number following the dosssier number.
-    # There are a few dozen exceptions, though, such as kst-20072008-31200
-
-    if len(parts) == 0:
-        # so while we otherwise could have considered this an error, 
-        #   it's valid for these few cases and we should accept this.
-        ret["_var"]   = "ndn"
-        ret["docnum"] = "" # I guess.
-        return ret
-        #raise ValueError("ERR0 Don't know what to do with %r -  %r"%(string, parts,))
-
-    elif len(parts) == 1:
-        # cases like kst-1160535
-        # there must be a document number, so this must be it
-        ret["docnum"] = parts.pop(0)
-        ret["_var"] = "1"
-
-    elif len(parts) == 2:
-        # cases like  kst-32123-[I-5],   kst-21501-[33-226] kst-20082009-31700-[IV-D]
-        #             kst-32168-[3-b2],
-        if _is_all_digits(
-            parts[-1]
-        ):  # must be a singular full document number (?) so the first part must be dossiernum
-            dossiernum.append(parts.pop(0))
-            ret["docnum"] = parts.pop(0)
-            ret["_var"] = "2a"
-        elif wetsuite.helpers.strings.has_lowercase_letter(
-            parts[-1]
-        ):  # that's the second part of a document numer
-            ret["docnum"] = "-".join(parts)
-            ret["_var"] = "2b"
-        else:  # assume last part is just a document number (so it's actually the first case again)
-            dossiernum.append(parts.pop(0))
-            ret["docnum"] = parts.pop(0)
-            ret["_var"] = "2c"
-            # raise ValueError("ERR2 Don't know what to do with %r - %r"%(s, parts))
-
-    elif len(parts) == 3:
-        ret["_var"] = "3"
-        # cases like kst-32123-[XIV-A-b1]
-        # TODO: check we can actually assume this is always moredossiernum-docnum-moredocnum
-        dossiernum.append(parts.pop(0))
-        ret["docnum"] = "-".join(parts)
-        # raise ValueError("ERR3 Don't know what to do with %r - %r"%(s, parts))
-
-    else:
-        raise ValueError("ERR4 Don't know what to do with %r - %r  (%s)" % (string, parts, len(parts)))
-
-    ret["dossiernum"] = "-".join(dossiernum)
-
-    if not debug:
-        ret.pop("_var")
-    return ret
