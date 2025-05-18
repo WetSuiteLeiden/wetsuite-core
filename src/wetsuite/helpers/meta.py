@@ -791,33 +791,35 @@ def parse_kst_id(string:str, debug:bool=False):
 
     ret = {}  # {'input':s}
     dossiernum = []
-    parts = string.split("-")
-
-    #    ret['_var'] = 'e'
-    #    return ret
+    parts = string.split("-")  # so will be like ['kst', ... ]
 
     if parts[0] == "kst":
         ret["type"] = parts.pop(0)
     else:
         raise ValueError("Does not start with kst: %r" % string)
 
-    if len(parts[0]) == 8:
-        # this is a good source of vergaderjaar, but only present in _some_ of the types of kst
-        #   so we might as well breed the expectation you need to parse the metadata for it,
-        #   and NOT add vergaderjaar here
-        parts.pop(0) # so the only thing left is to remove and ignore it
+    # what is left now is everyhing after kst
 
+    if len(parts) > 1 and len(parts[0]) == 8:
+        # this is a good source of vergaderjaar, but only present in _some_ of the types of kst
+        #   so we might as well breed the expectation you need to parse the metadata to get that properly,
+        #   and NOT add vergaderjaar here
+        # note this assumes the numbering is never eight digits; this happens to be true in what we've seen
+        #   but CONSIDER: checking that the value starts with 19 or 20
+        parts.pop(0) # so we only remove it and ignore it
     # so what is left now is the thing after kst- OR kst-vergaderjaar-
 
 
-    # 1 part left, longer number; cases like kst-1158283  which do not seem to be part of a dossier,  and let's assume that number is a document number
-    if len(parts)==1 and len(parts[0]) in (7,6):   # TODO: and test that it's all numeric
+    # cases like kst-1158283:  1 part left, longish number
+    #   which do not seem to be part of a dossier,
+    #   and let's assume that number is a document number
+    if len(parts)==1 and len(parts[0]) in (7,6):   # CONSIDER: and test that it's all numeric?
         ret["_var"] = "3"
         ret["docnum"] = parts.pop(0)
         return ret
 
-    # first part length 5 (and a _rare_ added letter) suggests dossier number.
-    #    ...but there might be more parts to that laters, so we collect it into a variable.
+    # first leftover part 5 digits, plus an optional (and rare) added letter, suggests dossier number.
+    #    ...but there will be more parts to the dossiernum after, so we collect it into a variable for now
     m = re.match( r'([0-9][0-9][0-9][0-9][0-9][A-Z]?)$', parts[0] )
     if m is not None:
         dossiernum.append( m.group(1) )
@@ -825,13 +827,14 @@ def parse_kst_id(string:str, debug:bool=False):
     else:
         raise ValueError("ERR1 Don't know what to do with %r - %r" % (string, parts))
 
-    # in the context of a kst- identifier, we know we are referring to a document so can make some assumptions,
-    # e.g. that there is always a document number following the dosssier number.
-    # There are a few dozen exceptions, though, e.g. kst-20072008-31200
-    #   https://repository.overheid.nl/frbr/officielepublicaties/kst/20072008/kst-20072008-31200/1/metadata/metadata.xml
+    # in the context of a kst- identifier, we know we are referring to a document 
+    #   so can make some assumptions,
+    #   e.g. that there is always a document number following the dosssier number.
+    # There are a few dozen exceptions, though, such as kst-20072008-31200
 
     if len(parts) == 0:
-        # so while we otherwise could have considered this an error, it's valid for these few cases and we should accept this.
+        # so while we otherwise could have considered this an error, 
+        #   it's valid for these few cases and we should accept this.
         ret["_var"]   = "ndn"
         ret["docnum"] = "" # I guess.
         return ret
