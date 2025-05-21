@@ -4,7 +4,8 @@ Extracting specific patterns of text.
 
 Much of the code in here is aimed at identfiers and references - 
 identifiers like BWB-ID, CVDR-ID, ECLI, and CELEX,
-more textual ones like EU OJ and directive references, vindplaats, kamerstukken, and "artikel 3" style references 
+more textual ones like EU OJ and directive references, vindplaats, kamerstukken, 
+and "artikel 3" style references 
 -- see in particular the C{find_references} function for a little more detail
 
 Currently a best-effort proof of concept of each of those matchers,
@@ -34,17 +35,34 @@ import wetsuite.helpers.koop_parse
 
 
 def _wetnamen():
-    " a dict from law name to law BWB-id, mostly to try to match the names in find_nonidentifier_references.  Used by find_nonidentifier_references "
-    ret = collections.defaultdict( list )
+    """ 
+    Returns a dict from law name to law BWB-id,
+    mostly to try to exact-match the names in find_nonidentifier_references.
+
+    THIS IS VERY MUCH AN EXPERIMENT - either it should be replaced by something like ner or testcat,
+    or the data it uses needs some care
+    """
+    ret = collections.defaultdict( list ) # name -> list of BWBids
     for bwbid, (betternamelist, iffynamelist) in wetsuite.datasets.load('wetnamen').data.items():
+
+        # TODO: better cleanup of those names
         for name in betternamelist+iffynamelist:
-            if name in ('artikel',):
+            if 'artikel' in name or 'Artikel' in name or 'oofdstuk ' in name:
                 continue
+            if '(geldt' in name:
+                name = name[:name.index('(geldt')]
             if len(name) > 1  and  len(name) < 150:
+                #print( repr(name))
                 ret[ name ].append( bwbid )
+    # support our own test cases
+    ret['Sv']  = 'BWBR0001903'
+    ret['RO']  = 'BWBR0001830'
+    ret['WWB'] = 'BWBR0015703'
+    ret['Awb'] = 'BWBR0005537'
     return ret
 
-_mw = r'[\s,]+(%s)'%('|'.join( re.escape(wetnaam)   for wetnaam in sorted(_wetnamen(), key=lambda x:len(x), reverse=True) ) )  # pylint: disable=unnecessary-lambda
+_escaped_names = list( re.escape(wetnaam)   for wetnaam in sorted(_wetnamen(), key=lambda x:len(x), reverse=True) )   # pylint: disable=unnecessary-lambda
+_mw = r'[\s,;.]*(?:van\s+het\s+|van\s+de[.]?\s+|van\s+|de\s+)?(%s)'%( '|'.join(_escaped_names) )
 _mw_re = re.compile( _mw, flags=re.I )
 #def _match_wetnamen(text):
 #    return _mw_re.match(text)
@@ -100,17 +118,16 @@ def find_artikel_references(
     @return: a list of dict matches, as also mentioned on find_references()
     """
     ret = []
-    artikel_matches = []
 
+    # find all places that say "artikel"
+    artikel_matches = [] # variable in part because each of these likely cuts off the previous
     for artikel_matchobject in re.finditer(
-        r"\b(?:[Aa]rt(?:ikel|[.]|\b)\s*([0-9.:]+[a-z]*))", string
+        r"\b(?:[Aa]rt(?:ikel[.]?|[.]|\b)\s*([0-9.:]+[a-z]*(?:, [0-9.:]+[a-z]*)?))", string
     ):
         artikel_matches.append(artikel_matchobject)
 
-    # note to self: just the article bit also good for creating an anchor for test cases later,
-    #               to see what we miss and roughly why
-
-    for matchnum, artikel_matchobject in enumerate(artikel_matches):  # these should be unique references
+    # for each 'artikel', see if there's something interesting after it
+    for matchnum, artikel_matchobject in enumerate(artikel_matches):
         details = collections.OrderedDict()
         details["artikel"] = artikel_matchobject.group(1)
         # if debug:
@@ -126,14 +143,17 @@ def find_artikel_references(
             len(string),
         )
 
-        if matchnum + 1 < len(artikel_matches): # hard cut at the next 'artikel'. Ideally not special case, but good enough for now.
+        # hard cut at the next 'artikel'. Ideally not special case, but good enough for now.
+        if matchnum + 1 < len(artikel_matches):
             nextmatch = artikel_matches[ matchnum + 1 ]
             wider_end = min( wider_end, nextmatch.start())
 
-        # Look for some specific strings around the matched 'artikel', (and record whether they came before or after)
+        # Look for some specific strings around the matched 'artikel',
+        #   (and record whether they came before or after)
         find_things = {
             # name -> ( match before and/or after,  include or exclude in match,    regexp to match)
-            # the before/after, inclide/exclude are not used yet, but are meant to set hard borders when seen before/after the anchor match
+            # the before/after, inclide/exclude are not used yet, 
+            #   but are meant to set hard borders when seen before/after the anchor match
             "grond":       ["B", "E", r"\bgrond(?:_van)?\b"],
             "bedoeld":     ["B", "E", r"\bbedoeld_in\b"],
             #'komma':          [  '.',  re.compile(r',')                                         ],
@@ -142,9 +162,9 @@ def find_artikel_references(
             "aanwijzing":  ["A", "I", r"\b(?:aanwijzing|aanwijzingen)#\b"],
             "lid":         ["A", "I", r"\b(?:lid_(#)|(L)_(?:lid|leden))"],
             "volzin":      ["A", "I", r"\b(?:volzin_(#)|(L)_(?:volzin|volzinnen))"],
-            "aanhefonder": ["A", "I", r"((?:\baanhef_en_)?(onder|onderdeel|onderdelen)_[a-z0-9\u00ba]{1,2})"],  # CONSIDER: "en onder d en g", "aanhef en onder a of c"
+            "aanhefonder": ["A", "I", r"((?:\baanhef_en_)?(onder|onderdeel|onderdelen)_[a-z0-9\u00ba]{1,2}(?:_tot_en_met_[a-z0-9\u00ba]{1,2}|_tot_[a-z0-9\u00ba]{1,2}|_en_[a-z0-9\u00ba]{1,2})?)"],  
             "sub":         ["A", "I", r"\bsub_[a-z0-9\u00ba]+\b"],
-            'vandh':       ['A', 'I',  r'\bvan_(?:het|de)\b'                                    ],
+            #'vandh':       ['A', 'I',  r'\bvan_(?:het|de)\b'                                    ],  # this also includes some natural wording further away; CONSIDER being able to ask for only closeby matches
             ##'dezewet':       [  'I',  r'\bde(?:ze)? wet\b'                                    ],
             #'hierna':          [ 'A', 'E',  r'\b[(]?hierna[:\s]'                               ],
             #'artikel':          [ 'A', 'E',  r'\bartikel'                                      ],
@@ -157,8 +177,9 @@ def find_artikel_references(
         )
 
         for k, (_, _, res) in find_things.items():
-            # make all the above multiline matchers, and treat specific characters as signifiers we should be replacing
-            #   the 'replace this character' is cheating somewhat because and can lead to incorrect nesting,
+            # make all the above multiline matchers,
+            #   and treat specific characters as signifiers we should be replacing
+            # the 'replace this character' is cheating somewhat because and can lead to incorrect nesting,
             #   so take care, but it seems worth it for some more readability
             res = res.replace("_", r"[\s\n]+")
             res = res.replace("#", r"([0-9.:]+[a-z]*)")
@@ -302,12 +323,24 @@ def find_artikel_references(
         #if len(details) > 1: # if it's more details than just "artikel 81"
         # Try to see if the text right after is a known name reference
         try:
-            text_after = string[overallmatch_en:overallmatch_en+1000].lstrip(',;. ')
+            # note that since we still use indices for overallmatch_en, 
+            #  if we want to use that for 'text' to include everything we match here,
+            #  we should take care to ignore, not remove irrelevant things
+            text_after = string[overallmatch_en : overallmatch_en+700]#.lstrip(',;. ')
+            #print ('\n\nlooking for nameref in %r'%text_after)
+
             m = _mw_re.match( text_after )
             if m is not None:
-                #print( m.group(0) )
-                overallmatch_en += len( m.group(0) )
-                details['nameref'] = m.group(0).strip(', ')
+                #print('MATCHED matched %r, specifically %r'%(m.groups(0), m.group(1)))
+                overallmatch_en += m.end() #len( m.group(0) )
+                nameref = m.group(1)#.strip(',.; ')
+                details['nameref'] = nameref
+
+                # which BWBs that is. This is currently as fragile as the data backing that is.
+                #d = _wetnamen() # that data needs some care
+                #if nameref in d:
+                #    details['seeming_bwbr'] = d[nameref]
+
         except Exception: #if any any of that fails, don't do it    for now, pylint: disable=broad-exception-caught
             pass
             #print( 'BLAH',e )
@@ -436,7 +469,10 @@ def find_references(string:str,
             match["text"] = rematch.group(0)
             try:
                 match["details"] = wetsuite.helpers.meta.parse_ecli(match["text"])
-            except ValueError: # as of this writing this seems impossible as all the things it checks for are also the thing _RE_ECLIFIND matches on, but it's a good check to have should either change.
+            except ValueError:
+                # as of this writing this should not happen,
+                #   as all the things it checks for are also the thing _RE_ECLIFIND matches on,
+                #   but it's a good check to have, should either change.
                 match["invalid"] = True
             ret.append(match)
 
@@ -511,7 +547,8 @@ def find_references(string:str,
             match["start"] = rematch.start()
             match["end"]   = rematch.end()
             match["text"]  = rematch.group(0)
-            # try: # CONSIDER: we have to consider all the optional parts, so this would probably change
+            # try: 
+            #     # CONSIDER: we have to consider all the optional parts, so this would probably change
             #     groups = rematch.groups()
             #     match["details"] = {}
             #     #match["details"]['groups']  = groups
@@ -737,7 +774,8 @@ def abbrev_find(string: str):
     ### Patterns where the explanation is bracketed
     # Look for the expanded form based on the brackets, make that into an abbreviation
     # this is a little more awkward given the above tokenization.
-    # We could consider putting brackets into separate tokens.  TODO: check how spacy tokenizes brackets
+    # We could consider putting brackets into separate tokens.
+    # TODO: check how spacy tokenizes brackets
     for start_offset, tok in enumerate(toks):
         expansion = []
         if tok.startswith("(") and not tok.endswith(
@@ -786,7 +824,8 @@ def abbrev_count_results(l, remove_dots:bool=False, case_insensitive_explanation
 
     @param remove_dots: whether to normalize the abbreviated form by removing any dots.
 
-    @param case_insensitive_explanations: whether we consider the explanatory words in a case insensitive way while counting.
+    @param case_insensitive_explanations: whether we consider the explanatory words 
+    in a case insensitive way while counting.
     We report whatever the most common capitalisation is.
 
     @return: something like: ::
@@ -794,10 +833,12 @@ def abbrev_count_results(l, remove_dots:bool=False, case_insensitive_explanation
             ['Abbreviation', 'Explanation']: 3,  
             ['Abbreviation', 'Erroneous']: 1 
         } }
-    where that number would be how many documents had this explanation (NOT how often we saw this explanation).
+    where that number would be how many documents contained this explanation 
+    (NOT how often we saw this explanation).
     """
 
-    # If case_insensitive_explanations, then we should transform that data list OR decided how to map, _before_ we count
+    # If case_insensitive_explanations, 
+    #   then we should transform that data list OR decided how to map, _before_ we count
     #TODO: go over this again, and add tests, I'm not yet sure it's correct
     variant_map = {}
     if case_insensitive_explanations:
@@ -807,7 +848,7 @@ def abbrev_count_results(l, remove_dots:bool=False, case_insensitive_explanation
             for _, wordlist in doc_result:
                 most_common_counter[ tuple(w.lower() for w in wordlist) ].append( tuple(wordlist) )
         # decide which we prefer, and map from each
-        for tupreal_list in most_common_counter.values(): # the key doesn't matter anymore, it was only used to group
+        for tupreal_list in most_common_counter.values(): # (the key was only used to group)
             most_common_tup, _ = collections.Counter(tupreal_list).most_common(1)[0]
             for tupreal in tupreal_list:
                 variant_map[tupreal] = most_common_tup
