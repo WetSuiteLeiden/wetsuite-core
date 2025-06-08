@@ -72,7 +72,8 @@ def parse(text: str, as_date=False, exception_as_none=True):
     ...but we have told it a litte more about Dutch, not just English.
     TODO: add French, there is some early legal text in French.
 
-    We try to be a little more robust here - and will try to return None instead of raising an exception (but no promises).
+    We try to be a little more robust here,
+    and will try to return None instead of raising an exception (but no promises).
 
     @param text:               Takes a string that you know contains just a date
     @param as_date:            return as date, not datetime.
@@ -100,7 +101,7 @@ def parse(text: str, as_date=False, exception_as_none=True):
     if exception_as_none:
         return None
     else:
-        raise ValueError("Did not understand date in %r" % text)
+        raise ValueError(f"Did not understand date in {repr(text)}")
 
 
 _MAAND_RES = "januar[iy]|jan|februar[yi]|feb|maart|march|mar|april|apr|mei|may|jun|jun[ei]|jul|jul[iy]|august|augustus|aug|o[ck]tober|o[ck]t|november|nov|december|dec"
@@ -113,6 +114,20 @@ _re_dutch_date_1 = re.compile(
 _re_dutch_date_2 = re.compile(
     r"\b(%s) [0-9]{1,2},? ([12][0-9]{1,3}|[0-9][0-9])\b" % _MAAND_RES, re.I
 )  # this is more an english-style thing
+
+
+def _find_dates_in_text_with_positions(text):
+    ''' helper for find_dates_in_text, that also gives the start and end position; 
+    you might sometimes have use for this
+    '''
+    text_with_pos = [] # list of ((startpos,endpos)), text)
+    for testre in (_re_isolike_date, _re_dutch_date_1, _re_dutch_date_2):
+        for match in re.finditer(testre, text):
+            if match is not None:
+                st, en = match.span()
+                # return them sorted by position, in case you care
+                text_with_pos.append( ((st,en), text[st:en]) )
+    return text_with_pos
 
 
 def find_dates_in_text(text: str):
@@ -134,6 +149,8 @@ def find_dates_in_text(text: str):
     ...the latter two with both Dutch and English month naming.
 
     @param text:  the string to find dates in
+    @param with_pos:  whether to 
+
     @return: two lists:
      - list of each found date, as strings
      - according list where each is a date object -- or None where dateutil didn't manage
@@ -141,16 +158,9 @@ def find_dates_in_text(text: str):
 
     CONSIDER: also match objects so that we have positions?
     """
-    text_with_pos = []
-    for testre in (_re_isolike_date, _re_dutch_date_1, _re_dutch_date_2):
-        for match in re.finditer(testre, text):
-            if match is not None:
-                st, en = match.span()
-                text_with_pos.append(
-                    (st, text[st:en])
-                )  # return them sorted by position, in case you care
+    text_with_pos = _find_dates_in_text_with_positions(text)
 
-    ret_text = list(dt  for _, dt in sorted(text_with_pos, key=lambda x: x[0]))
+    ret_text = list(dt  for _sten, dt in sorted(text_with_pos, key=lambda x: x[0]))
     ret_dt = []
     for dtt in ret_text:
         parsed = parse(dtt, exception_as_none=True)
@@ -181,7 +191,8 @@ def format_date_list(datelist, strftime_format="%Y-%m-%d"):
         ['2022-01-29', '2022-01-30', '2022-01-31', '2022-02-01', '2022-02-02']
 
     @param datelist: a list of datetime objects
-    @param strftime_format: a string that tells strftime how to format the date (see also L{format_date})
+    @param strftime_format: a string that tells strftime how to format the date 
+    (see also L{format_date})
     @return: a list of formatted date strings
     """
     return list(format_date(d, strftime_format) for d in datelist)
@@ -189,7 +200,8 @@ def format_date_list(datelist, strftime_format="%Y-%m-%d"):
 
 def _date_from_date_datetime_or_parse(a_date):
     """Intended to normalzing date/datetime/date-as-string parameters into date objects.
-    @param a_date: date as a date object, datetime object, or string to parse (using dateutil library)
+    @param a_date: date as a date object, datetime object, or string to parse 
+    (using dateutil library)
     @return: date object
     """
     if isinstance(
@@ -201,12 +213,11 @@ def _date_from_date_datetime_or_parse(a_date):
     elif isinstance(a_date, str):
         return dateutil.parser.parse(a_date).date()
     else:
-        raise ValueError(
-            "Do not understand date of type %s (%s)" % (type(a_date), a_date)
-        )
+        raise ValueError( f"Do not understand date of type {type(a_date)} (a_date)" )
 
 
-# these are almost too simple to make into functions, but used frequently enough in "fetch the last few weeks of updates"
+# these are almost too simple to make into functions,
+#   but used frequently enough in "fetch the last few weeks of updates"
 # that they're quite convenient and make such code more readable
 def date_today():
     """@return: today, as a datetime.date"""
@@ -224,7 +235,8 @@ def date_months_ago(amount: float = 1):
 
 
 def date_first_day_in_year(yearnum: int = None):
-    """@param yearnum: the year you want the first day of, e.g. 2024.  If not given, defaults to the current year.
+    """@param yearnum: the year you want the first day of, e.g. 2024.  
+    If not given, defaults to the current year.
     @return: January first of the given year, as a datetime.date"""
     if yearnum is None:
         yearnum = datetime.date.today().year
@@ -232,17 +244,21 @@ def date_first_day_in_year(yearnum: int = None):
 
 
 def date_last_day_in_year(yearnum: int = None):
-    """@param yearnum: the year you want the first day of, e.g. 2024.  If not given, defaults to the current year.
+    """@param yearnum: the year you want the first day of, e.g. 2024.  
+    If not given, defaults to the current year.
     @return: January first of the given year, as a datetime.date"""
     if yearnum is None:
         yearnum = datetime.date.today().year
-    return datetime.date(year=yearnum, month=12, day=31) # watch there be an exception to that somehow...
+    return datetime.date(year=yearnum, month=12, day=31)
 
 
 def date_first_day_in_month(yearnum: int = None, monthnum: int = None):
-    """@param yearnum: the year you want the first day of, e.g. 2024.  If not given, defaults to the current year.
-    @param monthnum: the year you want the first day of, e.g. 2024.  If not given, defaults to the current month. 
-    (note that if you don't give month but do give year, you might get some behaviour you did not expect)
+    """@param yearnum: the year you want the first day of, e.g. 2024.  
+    If not given, defaults to the current year.
+    @param monthnum: the year you want the first day of, e.g. 2024.  
+    If not given, defaults to the current month. 
+    (note that if you don't give month but do give year, 
+    you might get some behaviour you did not expect)
     @return: The first day of the month in the given year, as a datetime.date"""
     if yearnum is None:
         yearnum = datetime.date.today().year
@@ -252,14 +268,20 @@ def date_first_day_in_month(yearnum: int = None, monthnum: int = None):
 
 
 def yyyy_mm_dd(day: datetime.date):
-    "Given a datetime or date like datetime.date(2024, 1, 1), returns a string like '2024-01-01' (strftime('%Y-%m-%d')"
+    """Given a datetime or date like datetime.date(2024, 1, 1), returns...
+    @return: a string like '2024-01-01' (strftime('%Y-%m-%d')
+    """
     return day.strftime("%Y-%m-%d")
 
 
 def days_in_range(from_date, to_date, strftime_format=None):
     """
-    Given a start and end date, returns a list of all individual days in that range (including the last), as a datetime.date object.
-    (Note that if you want something like this for pandas, it has its own date_range that may be nicer)
+    Given a start and end date, 
+    returns a list of all individual days in that range (including the last), 
+    as a datetime.date object.
+    
+    (Note that if you want something like this for pandas, 
+    it has its own date_range that may be nicer)
 
     For example: ::
         date_range( datetime.date(2022, 1, 29),   datetime.date(2022, 2, 2)  )
@@ -272,8 +294,9 @@ def days_in_range(from_date, to_date, strftime_format=None):
           datetime.date(2022, 2, 1),
           datetime.date(2022, 2, 2)  ]
 
-    @param from_date: start of range, as a date object, datetime object, or string to parse (using dateutil library)
-    (please do not use formats like 02/02/11 and also expect the output to do what you want)
+    @param from_date: start of range, as a date object, datetime object, 
+    or string to parse (using dateutil library)
+    (please do not use formats like 02/02/11 and expect the output to do what you want)
     @param to_date:   end of range, inclusive
     @return:          a list of datetime.date objects
     """
@@ -291,11 +314,13 @@ def days_in_range(from_date, to_date, strftime_format=None):
 
 
 def date_ranges(from_date, to_date, increment_days, strftime_format=None):
-    """Given a larger interval, return a series of shorter intervals no larger than increment_days long.
+    """Given a larger interval, return a series of shorter intervals 
+    no larger than increment_days long.
     (currently first and last days overlap; TODO: parameter to control that)
 
     @param from_date:      start of range.
-    Takes a date object, a datetime object, or string to parse (using dateutil library; please do not use ambiguous formats like 02/02/11)
+    Takes a date object, a datetime object, or string to parse
+    (using dateutil library; please do not use ambiguous formats like 02/02/11)
     @param to_date:        end of range, inclusive
     @param increment_days: size of each range
 
