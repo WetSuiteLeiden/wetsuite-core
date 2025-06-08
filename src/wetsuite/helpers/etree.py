@@ -2,11 +2,11 @@
 Helpers to deal with XML data, largely a wrapper around lxml and its ElementTree interface.
 
 TODO: minimize the amount of "will break because we use the lxml flavour of ElementTree", and add more tests for that.
-    
-Some general helpers.    
+
+Some general helpers.
 ...including some helper functions shared by some debug scripts.
 
-CONSIDER: 
+CONSIDER:
   - A "turn tree into nested dicts" function - see e.g. https://lxml.de/FAQ.html#how-can-i-map-an-xml-tree-into-a-dict-of-dicts
   - have a fromstring() as a thin wrapper but with strip_namespace in there? (saves a lines but might be a confusing API change)
 """
@@ -118,10 +118,10 @@ SOME_NS_PREFIXES = {  # CONSIDER: renaming to something like _some_ns_prefixes_p
     #'www.kadaster.nl/schemas/lvbag/gem-wpl-rel/gwr-deelbestand-lvc/v20200601':'bag-o',
     #'http://www.kadaster.nl/schemas/lvbag/extract-selecties/v20200601':'bag-s',
 }
-""" some readable XML prefixes, for friendlier display.  
+""" some readable XML prefixes, for friendlier display.
     This is ONLY for consistent pretty-printing in debug,
-    and WILL NOT BE CORRECT according to the document definition. 
-    (It is not used by the rest of this code, just one of our CLI utilities).
+    and WILL NOT BE CORRECT according to the document definition.
+    (It is not used by code in this module, just one of our CLI utilities).
 """
 # It might be useful to find namespaces from many XML files, with something like:
 #   locate .xml | tr '\n' '\0' | xargs -0 grep -oh 'xmlns:[^ >]*'
@@ -263,7 +263,7 @@ def indent(tree, strip_whitespace: bool = True):
     This may change the meaning of the document, so this output should _only_ be used for presentation of the debugging sort.
 
     See also L{_indent_inplace}
-    
+
     @param tree:             tree to copy and reindent
     @param strip_whitespace: make contents that contain a lot of newlines look cleaner, but changes the stored data even more.
     """
@@ -422,7 +422,7 @@ def debug_pretty(tree, reindent=True, strip_namespaces=True, encoding="unicode")
 
 
 class debug_color:
-    """Takes XML, parses, reindents, strip_namespaces, 
+    """Takes XML, parses, reindents, strip_namespaces,
     returns a class that will render it in color in a jupyter notebook (using pygments).
 
     Relies on pygments; CONSIDER: removing that dependency,
@@ -486,14 +486,14 @@ def all_text_fragments(
 ):
     """Returns all fragments of text contained in a subtree, as a list of strings.
 
-    For the simplest uses, you may just want to use 
+    For the simplest uses, you may just want to use
 
     Note that for simpler uses, this is itertext() with extra steps. You may not need this.
 
     For example,  all_text_fragments( fromstring('<a>foo<b>bar</b></a>') ) == ['foo', 'bar']
 
     Note that:
-      - If your source is XML, 
+      - If your source is XML,
       - this is a convenience function that lets you be pragmatic with creative HTML-like nesting,
         and perhaps should not be used for things that are strictly data.
 
@@ -504,7 +504,7 @@ def all_text_fragments(
     that element should be considered to split a word (e.g. p in HTML) or
     that element probably doesn't split a word (e.g. em, sup in HTML)
     The idea would be that you can specify which elements get spaces inserted and which do not.
-    Probably with defaults for us, which are creative and not necessarily correct, 
+    Probably with defaults for us, which are creative and not necessarily correct,
     but on average makes fewer weird mistakes (would need to figure that out from the various schemas)
 
     @param under_node: an etree node to work under
@@ -517,13 +517,13 @@ def all_text_fragments(
 
     @param ignore_tags: ignores direct/first .text content of named tags (does not ignore .tail, does not ignore the subtree)
 
-    @param join: if None, return a list of text fragments; if a string, we return a single tring, joined on that 
+    @param join: if None, return a list of text fragments; if a string, we return a single tring, joined on that
 
     @param stop_at: should be None or a list of tag names.
     If a tag name is in this sequence, we stop walking the tree entirely.
     (note that it would still include that tag's tail; CONSIDER: changing that)
 
-    @return: if join==None (the default), a list of text fragments. 
+    @return: if join==None (the default), a list of text fragments.
     If join is a string, a single string (joined on that string)
     """
     ret = []
@@ -556,19 +556,19 @@ def all_text_fragments(
 
 
 def parse_html(htmlbytes:bytes):
-    """ Parses HTML into an etree. 
+    """ Parses HTML into an etree.
         NOTE: This is *NOT* what you would use for XML - fromstring() is for XML.
 
         this parse_html() differs from C{etree.fromstring}
           - in that we use a parser more aware of HTML and deals with minor incorrectness
           - and creates lxml.html-based objects, which have more functions compared to their XML node counterparts
-        
-        If you are doing this, consider also 
+
+        If you are doing this, consider also
           - BeautifulSoup, as slightly more HTML-aware parse, and an alternative API you might prefer to etree's (or specifically not; using both can be confusing)
           - ElementSoup, to take more broken html into etree via beautifulsoup
 
         See also https://lxml.de/lxmlhtml.html
-        
+
         @param htmlbytes: a HTML file as a bytestring
 
         @return: an etree object
@@ -576,7 +576,7 @@ def parse_html(htmlbytes:bytes):
     parser = lxml.html.HTMLParser(recover=True, encoding='utf8')
     return lxml.etree.fromstring(htmlbytes, parser=parser) # pylint: disable=c-extension-no-member
 
-
+# CONSIDER: augmenting this with "main content or not" information that split can use
 _html_text_knowledge = { #  usecontents prepend append removesubtree
     ## HTML
     'html':                   ( False, None, None,   False ),
@@ -600,29 +600,29 @@ _html_text_knowledge = { #  usecontents prepend append removesubtree
     'link':                   ( True,  None, ' ',    False ),
 
     'img':                    ( False, None, None,   True  ),
-    'caption':                ( True,  None, '\n',   False ), 
+    'caption':                ( True,  None, '\n',   False ),
 
-    'object':                 ( False, None, ' ',    True  ), 
+    'object':                 ( False, None, ' ',    True  ),
 
     'abbr':                   ( True,  None, None,   False ),
     'main':                   ( True,  '\n', '\n',   False ),
-    'article':                ( True,  '\n', '\n',   False ), 
-    'nav':                    ( False, '\n', '\n',   True  ), 
-    'aside':                  ( True,  None, '\n',   False ), 
-    'section':                ( True,  None, '\n',   False ), 
-    'time':                   ( True,  None, None,   False ), 
+    'article':                ( True,  '\n', '\n',   False ),
+    'nav':                    ( False, '\n', '\n',   True  ),
+    'aside':                  ( True,  None, '\n',   False ),
+    'section':                ( True,  None, '\n',   False ),
+    'time':                   ( True,  None, None,   False ),
 
-    'details':                ( True,  None, '\n',   False ), 
-    'footer':                 ( True,  None, '\n',   True  ), # arguable on the remove 
-    'header':                 ( True,  None, '\n',   True  ), # arguable on the remove 
-    'br':                     ( True,  None, '\n',   False ), 
-    'nobr':                   ( True,  None, None,   False ), 
-    'dd':                     ( True,  None, '\n',   False ), 
-    'dt':                     ( True,  None, '\n',   False ), 
+    'details':                ( True,  None, '\n',   False ),
+    'footer':                 ( True,  None, '\n',   True  ), # arguable on the remove
+    'header':                 ( True,  None, '\n',   True  ), # arguable on the remove
+    'br':                     ( True,  None, '\n',   False ),
+    'nobr':                   ( True,  None, None,   False ),
+    'dd':                     ( True,  None, '\n',   False ),
+    'dt':                     ( True,  None, '\n',   False ),
     'fieldset':               ( True,  None, '\n',   False ),
-    'figcaption':             ( True,  None, '\n',   False ), 
-    'hr':                     ( True,  None, '\n',   False ), 
-    'legend':                 ( True,  None, '\n',   False ), 
+    'figcaption':             ( True,  None, '\n',   False ),
+    'hr':                     ( True,  None, '\n',   False ),
+    'legend':                 ( True,  None, '\n',   False ),
     'table':                  ( True,  '\n', '\n',   False ),
     'tbody':                  ( True,  None, None,   False ),
     'thead':                  ( True,  None, None,   False ),
@@ -651,22 +651,24 @@ _html_text_knowledge = { #  usecontents prepend append removesubtree
     'blockquote':             ( True,  None, '\n\n', False ),
     'pre':                    ( True,  None, '\n\n', False ),
     'code':                   ( True,  ' ',  None,   False ), # inline, but CONSIDER whether it should have the space(s) or not
-    'a':                      ( True,  None, None,   False ), 
-    'small':                  ( True,  None, None,   False ), 
+    'a':                      ( True,  None, None,   False ),
+    'small':                  ( True,  None, None,   False ),
     's':                      ( True,  None, None,   False ), # strikethrough - could decide not to take text from this?
-    'b':                      ( True,  None, None,   False ), 
-    'u':                      ( True,  None, None,   False ), 
-    'strong':                 ( True,  None, None,   False ), 
-    'i':                      ( True,  None, None,   False ), 
-    'sup':                    ( True,  None, None,   False ), 
-    'sub':                    ( True,  None, None,   False ), 
-    'em':                     ( True,  None, None,   False ), 
-    'tt':                     ( True,  None, None,   False ), 
+    'b':                      ( True,  None, None,   False ),
+    'u':                      ( True,  None, None,   False ),
+    'strong':                 ( True,  None, None,   False ),
+    'i':                      ( True,  None, None,   False ),
+    'sup':                    ( True,  None, None,   False ),
+    'sub':                    ( True,  None, None,   False ),
+    'em':                     ( True,  None, None,   False ),
+    'tt':                     ( True,  None, None,   False ),
     'cite':                   ( True,  None, ' ',    False ), # arguable
 
-    ## Some BWB, CVDR node names. You wouldn't use this for structured output, but it's arguably a nice alternative for just plain text, better than just getting out the text fragments, and simpler than using our splitter
-    'nadruk':                 ( True,   None,None,   False ), 
-    'marquee':                ( True,   None,None,   False ), 
+    ## Some BWB, CVDR, OP node names.
+    # You wouldn't use this for structured output, but it's arguably a nice alternative for just plain text,
+    # better than just fetching getting out the text fragments, and simpler than using wetsuite.split directly.
+    'nadruk':                 ( True,   None,None,   False ),
+    'marquee':                ( True,   None,None,   False ),
 
     'meta-data':              ( False,  ' ',' ',      True ),
     'bwb-inputbestand':       ( False,  ' ',' ',      True ),
@@ -674,7 +676,8 @@ _html_text_knowledge = { #  usecontents prepend append removesubtree
     'redactionele-correcties':( False,  ' ',' ',      True ),
     'redactie':               ( False,  ' ',' ',      True ),
 
-    'aanhef':                 ( True,   ' ',' ',     False ), 
+    # less interesting as main content
+    'aanhef':                 ( True,   ' ',' ',     False ),
     'wij':                    ( False,  '\n','\n',   False ),
     'koning':                 ( False,  ' ',' ',      True ),
 
@@ -708,7 +711,7 @@ _html_text_knowledge = { #  usecontents prepend append removesubtree
     'nr':                     ( True,   None, ' ',   False ),
     'lid':                    ( True,   None, ' ',   False ),
     'lidnr':                  ( True,   None, ' ',   False ),
-    'kop':                    ( True,   ' ',' ',     False ),
+    'kop':                    ( True,   ' ','\n',    False ),
     'tussenkop':              ( True,   ' ',' ',     False ),
 
     'tgroup':                 ( True,   None,None,   False ),
@@ -716,9 +719,9 @@ _html_text_knowledge = { #  usecontents prepend append removesubtree
     'row':                    ( True,   ' ','\n',    False ),
     'entry':                  ( True,   ' ',' ',     False ),
 
-    'lijst':                  ( True,   None,'\n',   False ), 
-    'li':                     ( True,   None,'\n',   False ), 
-    'li.nr':                  ( True,   None,' ' ,   False ), 
+    'lijst':                  ( True,   None,'\n',   False ),
+    'li':                     ( True,   None,'\n',   False ),
+    'li.nr':                  ( True,   None,' ' ,   False ),
 
     'definitielijst':         ( True,   None,'\n',   False ),
     'definitie-item':         ( True,   None,'\n',   False ),
@@ -752,19 +755,427 @@ _html_text_knowledge = { #  usecontents prepend append removesubtree
 
     'tekstcorrectie':         ( True,   None,None,   False ),  # TODO: look at
 
-    'wetsluiting':            ( False,   None,None,  False ), 
-    'slotformulering':        ( True,    ' ',' ',    False ), 
-    'naam':                   ( True,    None,None,  False ), 
-    'voornaam':               ( True,    None,None,  False ), 
-    'functie':                ( True,    None,None,  False ), 
-    'achternaam':             ( True,    None,None,  False ), 
-    'ondertekening':          ( False,   None,None,  True  ), 
-    'plaats':                 ( False,   None,None,  True  ), 
-    'datum':                  ( False,   None,None,  True  ), 
+    'wetsluiting':            ( False,   None,None,  False ),
+    'slotformulering':        ( True,    ' ',' ',    False ),
+    'naam':                   ( True,    None,None,  False ),
+    'voornaam':               ( True,    None,None,  False ),
+    'functie':                ( True,    None,None,  False ),
+    'achternaam':             ( True,    None,None,  False ),
+    'ondertekening':          ( False,   None,None,  True  ),
+    'plaats':                 ( False,   None,'\n',  True  ),
+    'datum':                  ( False,   None,'\n',  True  ),
 
-    'uitgifte':               ( False,   None,None,  True  ), 
-    'dagtekening':            ( False,   None,None,  True  ), 
-    'gegeven':                ( False,   None,None,  True  ), 
+    'uitgifte':               ( False,   None,None,  True  ),
+    'dagtekening':            ( False,   None,None,  True  ),
+    'gegeven':                ( False,   None,None,  True  ),
+
+
+    # note that a lot are strucure elements with no direct contents,
+    #   so most of these do nothing and are just acknowledgment they exist
+    # Everything below could use some polishing
+    'officiele-publicatie':         ( False,  None,None,   False ),
+    'metadata':                     ( False,  None,None,   False ),
+    'meta':                         ( False,  None,None,   False ),
+
+    'gemeenteblad':                 ( False,  None,None,   False ),
+    'provincieblad':                ( False,  None,None,   False ),
+    'circulaire':                   ( False,  None,None,   False ),
+    'provinciaalblad':              ( False,  None,None,   False ),
+    'staatscourant':                ( False,  None,None,   False ),
+    'waterschapsblad':              ( False,  None,None,   False ),
+    'bladgemeenschappelijkeregeling':(False,  None,None,   False ),
+    'regeling':                     ( False,  None,None,   False ),
+    'regeling-tekst':               ( False,  None,None,   False ),
+    'zakelijke-mededeling-tekst':   ( False,  None,None,   False ),
+    'zakelijke-mededeling-sluiting':( False,  None,None,   False ),
+    'nota-toelichting':             ( False,  None,None,   False ),
+    'zakelijke-mededeling':         ( False,  None,None,   False ),
+    'niet-dossier-stuk':            ( False,  None,None,   False ),
+    'regeling-sluiting':            ( False,  None,None,   False ), # may have signature, useful for NER
+    'circulaire-tekst':             ( False,  None,None,   False ),
+    'bijlage-sluiting':             ( False,  None,None,   False ),
+    'circulaire.divisie':           ( False,  None,None,   False ),
+    'voorstel-wet':                 ( False,  None,None,   False ),
+    'voorstel-sluiting':            ( False,  None,None,   False ),
+    'circulaire-sluiting':          ( False,  None,None,   False ),
+
+    'preambule':                    ( False,  None,None,   False ),
+    'bezwaarschrift':               ( False,  None,None,   False ),
+    'kamerwrk':                     ( False,  None,None,   False ),
+    'handelingen':                  ( False,  None,None,   False ),
+
+    'algemeen':                     ( False,  None,None,   False ),
+    'vrije-tekst':                  ( False,  None,None,   False ),
+    'tekst-sluiting':               ( False,  None,None,   False ),
+    'kamerstuk':                    ( False,  None,None,   False ),
+    'kamerstukkop':                 ( False,  None,None,   False ),
+    'tekstregel':                   ( False,  None,None,   False ),
+    'dossier':                      ( False,  None,None,   False ),
+    'dossiernummer':                ( False,  None,None,   False ),
+    'dossiernr':                    ( False,  None,None,   False ),
+    'begrotingshoofdstuk':          ( False,  None,None,   False ),
+
+    'stuk':                         ( True,   None,None,   False ),
+    'stuknr':                       ( True,   None,None,   False ),
+    'ondernummer':                  ( True,   None,None,   False ),
+    'datumtekst':                   ( True,   None,None,   False ),
+    'amendement':                   ( True,   None,None,   False ),
+    'wijziging':                    ( True,   None,None,   False ),
+    'wat':                          ( True,   None,None,   False ),
+    'wie':                          ( False,  None,None,   False ),
+    'notatoe':                      ( False,  None,None,   False ),
+    'tuskop':                       ( True,   None,'\n',   False ),
+
+    'al-groep':                     ( True,   None,'\n',   False ),
+
+    'subtitel':                     ( True,   None,'\n',   False ),
+    'tekst':                        ( True,   None,None,   False ),
+    'nds-nr':                       ( True,   None,None,   False ),
+    'nds-stuk':                     ( True,   None,None,   False ),
+    'margetekst':                   ( True,   None,None,   False ),
+    'amendement-lid':               ( True,   None,None,   False ),
+    'frontm':                       ( True,   None,None,   False ),
+    'versie':                       ( True,   None,None,   False ),
+    'ordernr':                      ( True,   None,None,   False ),
+    'vergjaar':                     ( True,   None,None,   False ),
+    'onderw':                       ( True,   None,None,   False ),
+    'nummer':                       ( True,   None,None,   False ),
+    'ltrlabel':                     ( True,   None,None,   False ),
+    'witreg':                       ( True,   None,'\n',   False ),
+    'ondtek':                       ( True,   None,'\n',   False ),
+    'agendapunt':                   ( True,   None,None,   False ),
+    'item-titel':                   ( True,   None,None,   False ),
+    'onderwerp':                    ( True,   None,None,   False ),
+    'spreekbeurt':                  ( True,   None,'\n',   False ),
+    'spreker':                      ( True,   None,'\n',   False ),
+    'voorvoegsels':                 ( True,   None,None,   False ),
+    'politiek':                     ( True,   None,None,   False ),
+    'motie':                        ( True,   None,None,   False ),
+    'motie-info':                   ( True,   None,None,   False ),
+    'organisatie':                  ( True,   None,None,   False ),
+    'kamervragen':                  ( True,   None,None,   False ),
+    'kamervraagkop':                ( True,   None,None,   False ),
+    'kamervraagnummer':             ( True,   None,None,   False ),
+    'kamervraagomschrijving':       ( True,   None,None,   False ),
+    'kamervraagonderwerp':          ( True,   None,None,   False ),
+    'vraag':                        ( True,   None,None,   False ),
+    'antwoord':                     ( True,   None,None,   False ),
+
+    'vervangt':                     ( True,   None,None,   False ),
+    'voetref':                      ( True,   None,None,   False ),
+    'voetnoot':                     ( True,   None,None,   False ),
+    'structuurtekst':               ( True,   None,None,   False ),
+    'wijzig-artikel':               ( True,   None,None,   False ),
+    'artikeltekst':                 ( True,   None,None,   False ),
+    'vraagdoc':                     ( True,   None,None,   False ),
+    'vragen':                       ( True,   None,None,   False ),
+    'omschr':                       ( True,   None,None,   False ),
+    'ondw':                         ( True,   None,None,   False ),
+    'reactie':                      ( True,   None,None,   False ),
+
+    'handeling':                    ( True,   None,None,   False ),
+    'volgnr':                       ( True,   None,None,   False ),
+    'part':                         ( True,   None,None,   False ),
+    'item':                         ( True,   None,None,   False ),
+    'itemnaam':                     ( True,   None,None,   False ),
+    'itemkop':                      ( True,   None,None,   False ),
+    'actie':                        ( True,   None,None,   False ),
+    'motienm':                      ( True,   None,None,   False ),
+    'vetnr':                        ( True,   None,None,   False ),
+    'draad':                        ( True,   None,None,   False ),
+    'voorz':                        ( True,   None,None,   False ),
+    'opschr':                       ( True,   None,None,   False ),
+    'blwstuk':                      ( True,   None,None,   False ),
+    'letter':                       ( True,   None,None,   False ),
+    'naderrap':                     ( True,   None,None,   False ),
+    'voorwerk':                     ( True,   None,None,   False ),
+    'raadnr':                       ( True,   None,None,   False ),
+    'box':                          ( True,   None,None,   False ),
+    'paragraaf':                    ( True,   None,None,   False ),
+    'adviesrvs':                    ( True,   None,None,   False ),
+    'nader-rapport':                ( True,   None,None,   False ),
+    'advies':                       ( True,   None,None,   False ),
+    'object_van_advies':            ( True,   None,None,   False ),
+    'boek':                         ( True,   None,None,   False ),
+    'aanhangsel':                   ( True,   None,None,   False ),
+    'stcart':                       ( True,   None,None,   False ),
+    'artcode':                      ( True,   None,'\n',   False ),
+    'stcgeg':                       ( True,   None,'\n',   False ),
+    'dag':                          ( True,   None,'\n',   False ),
+    'chapeau':                      ( True,   None,None,   False ),
+    'mincodes':                     ( True,   None,'\n',   False ),
+    'kenmerk':                      ( True,   None,None,   False ),
+    'afd':                          ( True,   None,None,   False ),
+    'backm':                        ( True,   None,None,   False ),
+    'nl':                           ( True,   None,None,   False ),
+    'context':                      ( True,   None,None,   False ),
+    'context.al':                   ( True,   None,None,   False ),
+    'staatsbl':                     ( True,   None,None,   False ),
+    'stb':                          ( True,   None,None,   False ),
+    'jaargang':                     ( True,   None,None,   False ),
+    'stbjaar':                      ( True,   None,None,   False ),
+    'stbnr':                        ( True,   None,None,   False ),
+    'soort':                        ( True,   None,None,   False ),
+    'consider':                     ( True,   None,None,   False ),
+    'grslag':                       ( True,   None,None,   False ),
+    'afkondig':                     ( True,   None,None,   False ),
+    'art':                          ( True,   None,None,   False ),
+    'nawerk':                       ( True,   None,None,   False ),
+    'slotform':                     ( True,   None,None,   False ),
+    'ondertek':                     ( True,   None,None,   False ),
+    'ondplts':                      ( True,   None,None,   False ),
+    'onddatum':                     ( True,   None,'\n',   False ),
+    'minister':                     ( True,   None,None,   False ),
+    'minvan':                       ( True,   None,None,   False ),
+    'gtxt':                         ( True,   None,None,   False ),
+    'rijksnr':                      ( True,   None,None,   False ),
+    'vraagnummer':                  ( True,   None,None,   False ),
+    'trblad':                       ( True,   None,None,   False ),
+    'sysnr':                        ( True,   None,None,   False ),
+    'dosnr':                        ( True,   None,None,   False ),
+    'dosjaar':                      ( True,   None,None,   False ),
+    'hfdsta':                       ( True,   None,None,   False ),
+    'hfdst':                        ( True,   None,None,   False ),
+    'onddat':                       ( True,   None,None,   False ),
+    'maand':                        ( True,   None,None,   False ),
+    'jaar':                         ( True,   None,None,   False ),
+    'min':                          ( True,   None,None,   False ),
+    'kamervraagopmerking':          ( True,   None,None,   False ),
+    'tractatenblad':                ( True,   None,None,   False ),
+    'sys.gegevens':                 ( False,  None,None,   False ),
+    'considerans.lijst':            ( True,   None,None,   False ),
+    'wijzig-lid':                   ( True,   None,None,   False ),
+    'staatsblad':                   ( True,   None,None,   False ),
+    'histnoot':                     ( True,   None,None,   False ),
+    'intro':                        ( True,   None,None,   False ),
+    'tijd':                         ( True,   None,None,   False ),
+    'aanvang':                      ( True,   None,None,   False ),
+    'vrzlabel':                     ( True,   None,None,   False ),
+    'vrznaam':                      ( True,   None,None,   False ),
+    'aanw':                         ( True,   None,None,   False ),
+    'ontwerp-besluit':              ( True,   None,None,   False ),
+    'toelicht':                     ( True,   None,None,   False ),
+    'vergadering':                  ( True,   None,None,   False ),
+    'vergadering-nummer':           ( True,   None,None,   False ),
+    'vergaderdatum':                ( True,   None,None,   False ),
+    'vergadertijd':                 ( True,   None,None,   False ),
+    'opening':                      ( True,   None,None,   False ),
+    'bijschrift':                   ( True,   None,None,   False ),
+    'ondertekenaar':                ( True,   None,None,   False ),
+    'wart':                         ( True,   None,None,   False ),
+    'cao':                          ( True,   None,None,   False ),
+    'sector':                       ( True,   None,None,   False ),
+    'cao-type':                     ( True,   None,None,   False ),
+    'ministerie':                   ( True,   None,None,   False ),
+    'dictum':                       ( True,   None,None,   False ),
+    'wijzig-cao-tekst':             ( True,   None,None,   False ),
+    'wijzig-cao-lid':               ( True,   None,None,   False ),
+    'cao-wijziging':                ( True,   None,None,   False ),
+    'cao-sluiting':                 ( True,   None,None,   False ),
+    'wlid':                         ( True,   None,None,   False ),
+    'wond':                         ( True,   None,None,   False ),
+    'arttkst':                      ( True,   None,None,   False ),
+    'officiele-inhoudsopgave':      ( True,   None,None,   False ),
+    'minfinref':                    ( True,   None,None,   False ),
+    'wet':                          ( True,   None,None,   False ),
+    'artikelkop':                   ( True,   None,None,   False ),
+    'wijzig-divisie':               ( True,   None,None,   False ),
+    'avvcao':                       ( True,   None,None,   False ),
+    'branche':                      ( True,   None,None,   False ),
+    'inzake':                       ( True,   None,None,   False ),
+    'caonr':                        ( True,   None,None,   False ),
+    'bronregel':                    ( True,   None,None,   False ),
+    'stcdat':                       ( True,   None,None,   False ),
+    'stcnr':                        ( True,   None,None,   False ),
+    'besluit':                      ( True,   None,None,   False ),
+    'aionder':                      ( True,   None,None,   False ),
+    'lijn':                         ( True,   None,None,   False ),
+    'handeling_bijlage':            ( True,   None,None,   False ),
+    'officielepublicatie':          ( True,   None,None,   False ),
+    'expressionidentificatie':      ( True,   None,None,   False ),
+    'frbrwork':                     ( True,   None,None,   False ),
+    'frbrexpression':               ( True,   None,None,   False ),
+    'soortwork':                    ( True,   None,None,   False ),
+    'officielepublicatieversiemetadata':( True,   None,None,   False ),
+    'gepubliceerdop':               ( True,   None,None,   False ),
+    'officielepublicatiemetadata':  ( True,   None,None,   False ),
+    'eindverantwoordelijke':        ( True,   None,None,   False ),
+    'maker':                        ( True,   None,None,   False ),
+    'officieletitel':               ( True,   None,None,   False ),
+    'onderwerpen':                  ( True,   None,None,   False ),
+    'publicatieidentifier':         ( True,   None,None,   False ),
+    'publicatienaam':               ( True,   None,None,   False ),
+    'publicatieblad':               ( True,   None,None,   False ),
+    'publicatienummer':             ( True,   None,None,   False ),
+    'publiceert':                   ( True,   None,None,   False ),
+    'uitgever':                     ( True,   None,None,   False ),
+    'soortpublicatie':              ( True,   None,None,   False ),
+    'bladaanduiding':               ( True,   None,None,   False ),
+    'titelregel':                   ( True,   None,None,   False ),
+    'kennisgeving':                 ( True,   None,None,   False ),
+    'regelingopschrift':            ( True,   None,None,   False ),
+    'lichaam':                      ( True,   None,None,   False ),
+    'divisietekst':                 ( True,   None,None,   False ),
+    'inhoud':                       ( True,   None,None,   False ),
+    'opschrift':                    ( True,   None,None,   False ),
+    'inspring':                     ( True,   None,None,   False ),
+    'eindref':                      ( True,   None,None,   False ),
+    'eindnoot':                     ( True,   None,None,   False ),
+    'citaat':                       ( True,   None,None,   False ),
+    'hfdkop':                       ( True,   None,None,   False ),
+    'artkop':                       ( True,   None,None,   False ),
+    'bijkop':                       ( True,   None,None,   False ),
+    'iszwonder':                    ( True,   None,None,   False ),
+    'wlichaam':                     ( True,   None,None,   False ),
+    'informatieobjectrefs':         ( True,   None,None,   False ),
+    'informatieobjectref':          ( True,   None,None,   False ),
+    'rechtsgebieden':               ( True,   None,None,   False ),
+    'rechtsgebied':                 ( True,   None,None,   False ),
+    'besluitcompact':               ( True,   None,None,   False ),
+    'wijzigartikel':                ( True,   None,None,   False ),
+    'sluiting':                     ( True,   None,None,   False ),
+    'wijzigbijlage':                ( True,   None,None,   False ),
+    'regelingmutatie':              ( True,   None,None,   False ),
+    'vervangregeling':              ( True,   None,None,   False ),
+    'regelingcompact':              ( True,   None,None,   False ),
+    'lidnummer':                    ( True,   None,None,   False ),
+    'gereserveerd':                 ( True,   None,None,   False ),
+    'afdeling':                     ( True,   None,None,   False ),
+    'linummer':                     ( True,   None,None,   False ),
+    'subparagraaf':                 ( True,   None,None,   False ),
+    'begrippenlijst':               ( True,   None,None,   False ),
+    'begrip':                       ( True,   None,None,   False ),
+    'toelichting':                  ( True,   None,None,   False ),
+    'algemenetoelichting':          ( True,   None,None,   False ),
+    'artikelgewijzetoelichting':    ( True,   None,None,   False ),
+    'wartref':                      ( True,   None,None,   False ),
+    'verklaringen':                 ( True,   None,None,   False ),
+    'titeldeel':                    ( True,   None,None,   False ),
+    'cao-divisie':                  ( True,   None,None,   False ),
+    'iszwnr':                       ( True,   None,None,   False ),
+    'scheidingsteken':              ( True,   None,None,   False ),
+    'verdrag':                      ( True,   None,None,   False ),
+    'verdragtekst':                 ( True,   None,None,   False ),
+    'bezwaar':                      ( True,   None,None,   False ),
+    'taal':                         ( True,   None,None,   False ),
+    'landlst':                      ( True,   None,None,   False ),
+    'land':                         ( True,   None,None,   False ),
+    'aanspr':                       ( True,   None,None,   False ),
+    'partij':                       ( True,   None,None,   False ),
+    'agenda':                       ( True,   None,None,   False ),
+    'agendakop':                    ( True,   None,None,   False ),
+    'agenda-uitgifte':              ( True,   None,None,   False ),
+    'agenda-divisie':               ( True,   None,None,   False ),
+    'wetv':                         ( True,   None,None,   False ),
+    'herdruk':                      ( True,   None,None,   False ),
+    'deel':                         ( True,   None,None,   False ),
+    'rijkswetnr':                   ( True,   None,None,   False ),
+    'mo':                           ( True,   None,None,   False ),
+    'mbody':                        ( True,   None,None,   False ),
+    'ondtit':                       ( True,   None,None,   False ),
+    'cao-tekst':                    ( True,   None,None,   False ),
+    'cao-bijlage':                  ( True,   None,None,   False ),
+    'stukken':                      ( True,   None,None,   False ),
+    'toestnd':                      ( True,   None,None,   False ),
+    'circulaire.aanhef':            ( True,   None,None,   False ),
+    'mtekst':                       ( True,   None,None,   False ),
+    'verbeterblad':                 ( True,   None,None,   False ),
+    'par':                          ( True,   None,None,   False ),
+    'subbranche':                   ( True,   None,None,   False ),
+    'kol1':                         ( True,   None,None,   False ),
+    'kol2':                         ( True,   None,None,   False ),
+    'regelingvrijetekst':           ( True,   None,None,   False ),
+    'nootnummer':                   ( True,   None,None,   False ),
+    'kadertekst':                   ( True,   None,None,   False ),
+    'nootnr':                       ( True,   None,None,   False ),
+    'noottkst':                     ( True,   None,None,   False ),
+    'besllst':                      ( True,   None,None,   False ),
+    'tussennummer':                 ( True,   None,None,   False ),
+    'wetvlst':                      ( True,   None,None,   False ),
+    'tekstpl':                      ( True,   None,None,   False ),
+    'goedkeuring':                  ( True,   None,None,   False ),
+    'ondertekendop':                ( True,   None,None,   False ),
+    'motivering':                   ( True,   None,None,   False ),
+    'vblad':                        ( True,   None,None,   False ),
+    'marge-groep':                  ( True,   None,None,   False ),
+    'context.lijst':                ( True,   None,None,   False ),
+    'lijstaanhef':                  ( True,   None,None,   False ),
+    'noten':                        ( True,   None,None,   False ),
+    'nootlabel':                    ( True,   None,None,   False ),
+    'refop':                        ( True,   None,None,   False ),
+    'grondslagen':                  ( True,   None,None,   False ),
+    'grondslag':                    ( True,   None,None,   False ),
+    'tekstreferentie':              ( True,   None,None,   False ),
+    'uri':                          ( True,   None,None,   False ),
+    'soortref':                     ( True,   None,None,   False ),
+    'groep':                        ( True,   None,None,   False ),
+    'opdracht':                     ( True,   None,None,   False ),
+    'definitievepublicatiedatum':   ( True,   None,None,   False ),
+    'slm':                          ( True,   None,None,   False ),
+    'opmerkingen':                  ( True,   None,None,   False ),
+    'kamervraagbijlage':            ( True,   None,None,   False ),
+    'subsubparagraaf':              ( True,   None,None,   False ),
+    'regelingtijdelijkdeel':        ( True,   None,None,   False ),
+    'conditie':                     ( True,   None,None,   False ),
+    'onderwerpbrief':               ( True,   None,None,   False ),
+    'contact':                      ( True,   None,None,   False ),
+    'inlinetekstafbeelding':        ( True,   None,None,   False ),
+    'basiswet':                     ( True,   None,None,   False ),
+    'inleidendetekst':              ( True,   None,None,   False ),
+    'commissie':                    ( True,   None,None,   False ),
+    'opmerking':                    ( True,   None,None,   False ),
+    'gewijzigd-verdrag':            ( True,   None,None,   False ),
+    'brieftekst':                   ( True,   None,None,   False ),
+    'afzender':                     ( True,   None,None,   False ),
+    'geadresseerde':                ( True,   None,None,   False ),
+    'adres':                        ( True,   None,None,   False ),
+    'adresregel':                   ( True,   None,None,   False ),
+    'deze':                         ( True,   None,None,   False ),
+    'ondtekst':                     ( True,   None,None,   False ),
+    'tekstplaatsing':               ( True,   None,None,   False ),
+    'heeftciteertitelinformatie':   ( True,   None,None,   False ),
+    'citeertitelinformatie':        ( True,   None,None,   False ),
+    'isofficieel':                  ( True,   None,None,   False ),
+    'vervangkop':                   ( True,   None,None,   False ),
+    'verwijderdetekst':             ( True,   None,None,   False ),
+    'nieuwetekst':                  ( True,   None,None,   False ),
+    'vervang':                      ( True,   None,None,   False ),
+    'verwijder':                    ( True,   None,None,   False ),
+    'vervallen':                    ( True,   None,None,   False ),
+    'titeldl':                      ( True,   None,None,   False ),
+    'figuur':                       ( True,   None,None,   False ),
+    'intioref':                     ( True,   None,None,   False ),
+    'extioref':                     ( True,   None,None,   False ),
+    'subpar':                       ( True,   None,None,   False ),
+    'briefaanhef':                  ( False,  None,None,   False ),
+    'rectificatietekst':            ( True,   None,None,   False ),
+    'subart':                       ( True,   None,None,   False ),
+    'voegtoe':                      ( True,   None,None,   False ),
+    'sub-paragraaf':                ( True,   None,'\n',   False ),
+    'cao-wijziging-groep':          ( True,   None,None,   False ),
+    'koptekst':                     ( True,   None,None,   False ),
+    'afkortingen':                  ( True,   None,None,   False ),
+    'afkorting':                    ( True,   None,None,   False ),
+    'besluitklassiek':              ( True,   None,None,   False ),
+    'regelingklassiek':             ( True,   None,None,   False ),
+    'wijziginstructies':            ( True,   None,None,   False ),
+    'instructie':                   ( True,   None,None,   False ),
+    'wijziglid':                    ( True,   None,None,   False ),
+    'inhopg':                       ( True,   None,None,   False ),
+    'stcrt-titel':                  ( True,   None,None,   False ),
+    'brongegevens':                 ( True,   None,None,   False ),
+    'artikelsgewijs':               ( True,   None,None,   False ),
+    'nota-toelichting-sluiting':    ( True,   None,None,   False ),
+    'ovl':                          ( True,   None,None,   False ),
+    'wijzigingen':                  ( True,   None,None,   False ),
+    'plotlines':                    ( True,   None,None,   False ),
+    'plotline':                     ( True,   None,None,   False ),
+    'alternatievetitels':           ( True,   None,None,   False ),
+    'alternatievetitel':            ( True,   None,None,   False ),
+    'lijstsluiting':                ( True,   None,None,   False ),
+    'raad-van-state':               ( True,   None,None,   False ),
+    'wetwijziging':                 ( True,   None,None,   False ),
+    
 }
 " The data that html_text works from; we might make this a parameter so you can control that "
 
@@ -773,60 +1184,62 @@ _html_text_knowledge = { #  usecontents prepend append removesubtree
 # CONSIDER: moving this to its own module, this has little to do with etree anymore
 def html_text(etree, join=True, bodynodename='body'):
     '''
-    Take an etree presumed to contain elements with HTML names,
+    Take an etree (will also take a bytestring) 
+    presumed to contain elements with HTML names,
     extract the plain text as a single string.
 
-    Yes, you can get basic text extraction using C{"".join(elem.itertext())}, 
-    or with a _little_ more control using C{all_text_fragments()} in this module.
+    What this adds over basic text extraction using C{"".join(elem.itertext())},
+    (or C{all_text_fragments()} in this module) is awareness of which HTML elements
+    should be considered to split words and to split paragraphs.
 
-    What this function adds is awarenesss of which HTML elements should be
-    considered to split words and to split paragraphs.
     It will selectively insert spaces and newlines,
-    as to not smash text together in ways unlikely to how a browser would do it. 
-    
-    The downside is that this becomes more creative than some might like, 
+    as to not smash text together in ways unlikely to how a browser would do it.
+    The downside is that this becomes more creative than some might like,
     so if you want precise control, take the code and refine your own.
-
     (Inspiration was taken from the html-text module. While we're being creative anyway,
     we might _also_ consider taking inspiration from jusText, to remove boilerplate content based on a few heuristics.)
 
+    While this will also take most of the more structured XML seen in BWB, CVDR, and OP,
+    it mostly just passes the text through. 
+    If you care about structure, now or later, you may prefer C{wetsuite.helpers.split}.
+    
     @param etree: Can be one of
     * etree object (but there is little point as most node names will not be known.
     * a bytes or str object - will be assumed to be HTML that isn't parsed yet. (bytes suggests properly storing file data, str that you might be more fiddly with encodings)
     * a bs4 object - this is a stretch, but could save you some time.
 
     @param bodynodename: start at the node with this name - defaults to 'body'. Use None to start at the root of what you handed in.
-    
+
     @param join: If True, returns a single string (with a little more polishing, of spaces after newlines)
     If False, returns the fragments it collected and added.   Due to the insertion and handing of whitespace, this bears only limited relation to the parts.
     '''
 
+    # also accept unparsed HTML / XML
     if isinstance( etree, (str, bytes) ):
         etree = parse_html(etree)
-    # CONSIDER also taking bs4 objects? It would mostly just amount to a str()
 
-    try: # also accept bs4 objects. It's a stretch for something in an etree module, yes,
-         # but it's also rather useful as it is at least as likely you're using it to parse HTML
+    # also accept bs4 objects . It's a stretch for something in an etree module, yes,
+    #   but it can be cooperative if you like bs4 to parse HTML
+    try: # we don't fail on bs4 not being installed
         from bs4 import Tag
         if isinstance(etree, Tag):
             etree = parse_html( str(etree) ) # bs4 to string, string to etree.html
-    except ImportError: # if bs4 isn't installed, this code block isn't relevant at all
+    except ImportError:
         pass
 
     etree = strip_namespace( etree )
 
-    ## Go through the tree to remove what is requested.
-    # (yes, it would be more efficient to do that in the same treewalk, but that would require some rewrite)
-    #etree.remove_nodes_by_name(self.etree, tuple( tagname  for tagname, (_,_,_,rem) in _html_text_knowledge.items()  if rem==True  ))
+    ## Go through the tree to remove what _html_text_knowledge requests to remove.
+    #   yes, it would be more efficient to do skip it in the main treewalk, but that would require some rewrite
+    # Note: el.drop_tree() is more correct than a plain el.getparent().remove(el)  due to its handing of tail (joined to the previous element, or parent).
+    #   but drop_tree exists only in [lxml.html](https://lxml.de/lxmlhtml.html), not bare lxml, so to ensure this also works on bare lxml objects
+    #   that our parse_html return, the toremove part is roughly the contents of drop_tree() implementation
     toremove = []
     for element in etree.iter():
         if element.tag in _html_text_knowledge  and  _html_text_knowledge[element.tag][3]:
             toremove.append( element )
             #print('removing %r from %r'%(element.tag, element.getparent().tag))
     for el in toremove:
-        # el.drop_tree() is more correct than a plain el.getparent().remove(el)  due to its handing of tail (joined to the previous element, or parent).
-        # but drop_tree exists only in lxml.html, not bare lxml  https://lxml.de/lxmlhtml.html so to ensure this also works on bare lxml objects,
-        # the following is roughly the contents of drop_tree() implementation:
         parent = el.getparent()
         assert parent is not None
         if el.tail:
@@ -837,9 +1250,7 @@ def html_text(etree, join=True, bodynodename='body'):
                 previous.tail = (previous.tail or '') + el.tail
         parent.remove(el)
 
-
     collect = []
-
     def add_text(tagtext, tagname):
         if tagname in _html_text_knowledge:
             if tagtext is not None:
