@@ -13,7 +13,7 @@ import wetsuite.extras.pdf
 import wetsuite.extras.ocr
 
 
-def pdf_embedded_text(pdfbytes, page_join='\n\n'):
+def pdf_embedded_text(pdfbytes:bytes, page_join='\n\n'):
     """Given PDF (as a bytestring), 
         Returns the plain text t reports to have inside it.
 
@@ -29,7 +29,7 @@ def pdf_embedded_text(pdfbytes, page_join='\n\n'):
     ) ).strip() # the strip mostly because there are some documents made entirely of newlines
 
 
-def pdf_text_ocr(pdfbytes):
+def pdf_text_ocr(pdfbytes:bytes):
     """Given PDF as a bytestring, OCRs it and report the text in that.
         Expect this to not be the cleanest.
         @param pdfbytes: PDF document, as bytes object
@@ -43,12 +43,19 @@ def pdf_text_ocr(pdfbytes):
     return "\n\n".join(pages_text)
 
 
-#CONSIDER moving pdf.embedded_or_ocr_perpage here
+#CONSIDER moving pdf.embedded_or_ocr_perpage here / aliasing
+
+#CONSIDER aliasing feeling_lucky
+
+# def urls_for_identifier():
+#    'html'
+#    'xml'
 
 
-def etree(xmlbytes, strip_namespace=True):
+
+def etree(xmlbytes:bytes, strip_namespace=True):
     """ Parse XML in a bytestring to an ET object.
-        Mostly just ET.fromstring() with namespace stripping (that you can turn off)
+        Mostly just ET's fromstring() plus namespace stripping (that you can turn off)
         @param xmlbytes: XML document, as bytes object
         @return: etree root node
     """
@@ -58,47 +65,16 @@ def etree(xmlbytes, strip_namespace=True):
     return tree
 
 
-# def urls_for_identifier():
-#    'html'
-#    'xml'
 
+def html_text(htmlbytes:bytes):
+    """ Takes a HTML file as a bytestring, returns its body text as a string.
+    This is primarily C{wetsuite.helpers.etree.html_text}.
 
-# def known_doc_split(cbytes):
-#     """
-#     """
-#     wetsuite.helpers.split
-
-
-def html_text(htmlbytes):
-    """ Takes a HTML file as a bytestring,
-    returns its body text as a string.
-
-    (note: this is also roughly the implementation of wetsuite.helpers.split.Fragments_HTML_Fallback)
+    Will have some use on XML documents, more so on the subset of XMLs used in Dutch government that it is informed of,
+    but if you care for some structure on top of that text, now or later, consider using wetsuite.split.feeling_lucky instead of this.
     """
     tree = wetsuite.helpers.etree.parse_html(htmlbytes)
     return wetsuite.helpers.etree.html_text(tree, join=True)
-
-
-#def xml_text(xmlbytes):
-#    """
-#    """
-
-
-# def xml_html_text(docbytes):
-#     """Given XML or HTML, try to give us the interesting text.
-#     Tries to guess whether it is XML or HTML.
-#
-#     Note that HTML gives _some_ indication of what is main text
-#     via how we typically use element names.
-#
-#     In XML we probably end up giving a lot more crud.
-#
-#     @param docbytes: HTML or XML document, as bytes object
-#     """
-#     if "<?xml" in docbytes[:100]:
-#         return xml_text(docbytes)
-#     else:
-#         return html_text(docbytes)
 
 
 
