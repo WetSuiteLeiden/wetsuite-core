@@ -80,8 +80,8 @@ class Collocation:
     def cleanup_ngrams(self, mincount=2, disqualify_func=None):
         """CONSIDER: allow different threshold for each length, e.g. via a list for mincount
            remove n-grams if either 
-           - they occur less than mincount
-           - func returns true for them (the function itself gets (the n-gram string tuple, the count) as a parameter)
+             - they occur less than mincount
+             - func returns true for them (the function itself gets (the n-gram string tuple, the count) as a parameter)
            Both can be None (though mincount==1 is functionally the same as None)
         """
         if mincount in (None,1) and disqualify_func is None:
