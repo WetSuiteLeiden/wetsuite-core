@@ -323,7 +323,7 @@ def find_artikel_references(
         #if len(details) > 1: # if it's more details than just "artikel 81"
         # Try to see if the text right after is a known name reference
         try:
-            # note that since we still use indices for overallmatch_en, 
+            # note that since we still use indices for overallmatch_en,
             #  if we want to use that for 'text' to include everything we match here,
             #  we should take care to ignore, not remove irrelevant things
             text_after = string[overallmatch_en : overallmatch_en+700]#.lstrip(',;. ')
@@ -547,7 +547,7 @@ def find_references(string:str,
             match["start"] = rematch.start()
             match["end"]   = rematch.end()
             match["text"]  = rematch.group(0)
-            # try: 
+            # try:
             #     # CONSIDER: we have to consider all the optional parts, so this would probably change
             #     groups = rematch.groups()
             #     match["details"] = {}
@@ -627,10 +627,13 @@ def find_references(string:str,
 
 def mark_references_spacy(doc, matches, # replace=True,
                           ):
-    ''' Takes a spacy Doc, and matches from you calling C{find_references}, marks it as entities. 
-
+    ''' Takes a spacy Doc, 
+        and matches from you calling C{find_references}, 
+        marks up those matches on the Document as entities. 
         *Replaces* the currently marked entities, to avoid overlap.
-        (CONSIDER: marking up in spans instead)
+
+        TODO: 
+        allow parameter to match it as spans instead
         (...also because char_span() with alignment_mode='expand' probably makes this easier.
         
         Bases this on the plain text, and then trying to find all the tokens necessary to cover that
@@ -693,23 +696,37 @@ def abbrev_find(string: str):
     Will both over- and under-accept, so if you want clean results, consider e.g. reporting only things present in multiple documents.
     see e.g. merge_results()
 
+    TODO:
+    
+
     CONSIDER:
       - how permissive to be with capitalization. Maybe make that a parameter?
-      - allow and ignore words like 'of', 'the'
       - rewrite to deal with cases like
-        - Autoriteit Consument en Markt (ACM)
-        - De Regeling werving, reclame en verslavingspreventie kansspelen (hierna: Rwrvk)
-        - Nationale Postcode Loterij N.V. (hierna: NPL)
-        - Edelmetaal Waarborg Nederland B.V. (EWN)
-        - College voor Toetsen en Examens (CvTE)
+        - (allow and ignore words like 'en', 'van', 'voor')
+          - Koninklijke Nederlandse Akademie van Wetenschappen
+          - Autoriteit Consument en Markt (ACM)
+          - Centraal Bureau voor de Statistiek (CBS)
+          - Nationale Postcode Loterij N.V. (hierna: NPL)
+          - Edelmetaal Waarborg Nederland B.V. (EWN)
+          - College voor Toetsen en Examens (CvTE)
         - (and maybe:)
-        - Pensioen- en Uitkeringsraad (PUR)
-        - Nederlandse Loodsencorporatie (NLC)
-        - Nederlandse Emissieautoriteit (NEa)
-        - Kamer voor de Binnenvisserij (Kabivi)
+          - (allow a number of non-capitalized words inbetween)
+          - De Regeling werving, reclame en verslavingspreventie kansspelen (hierna: Rwrvk)
+          - Kamer voor de Binnenvisserij (Kabivi)
+          - Economie, bedrijven en nationale rekeningen (EBN)
+
+        - Allow more fuzzines, e.g. based on repeated appearance, e.g. 
+          - Airport Coordination Netherlands (ACNL)
+          - Pensioen- en Uitkeringsraad (PUR)
+          - Nederlandse Loodsencorporatie (NLC)
+          - Nederlandse Emissieautoriteit (NEa)
+          - Waarderingskamer (WK)
+          - (note that we can try doing this fully with statistics)
+        
         - (and maybe not:)
-        - College van toezicht collectieve beheersorganisaties auteurs- en naburige rechten (College van Toezicht Auteursrechten (CvTA))
-        - Keurmerkinstituut jeugdzorg (KMI)
+          - College van toezicht collectieve beheersorganisaties auteurs- en naburige rechten (College van Toezicht Auteursrechten (CvTA))
+          - Keurmerkinstituut jeugdzorg (KMI)
+
       - listening to 'hierna: ', e.g.
         - "Wet Bevordering Integriteitbeoordelingen door het Openbaar Bestuur (hierna: Wet BIBOB)"
         - "Drank- en horecawet (hierna: DHW)"
@@ -778,9 +795,8 @@ def abbrev_find(string: str):
     # TODO: check how spacy tokenizes brackets
     for start_offset, tok in enumerate(toks):
         expansion = []
-        if tok.startswith("(") and not tok.endswith(
-            ")"
-        ):  # start of bracketed explanation (or parenthetical or other)
+        # start of bracketed explanation (or parenthetical or other)
+        if tok.startswith("(") and not tok.endswith( ")" ):
             end_offset = start_offset
             while end_offset < len(toks):
                 expansion.append(toks[end_offset])
