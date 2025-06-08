@@ -1,7 +1,8 @@
 #!/usr/bin/python3
 """ Make it easier to safely insert text into URLs, and HTML and XML data.
 
-    Should make code more readable (than combinations of cgi.escape(), urllib.quote(), ''.encode() and such)
+    Should make code more readable 
+    (...than combinations of cgi.escape(), urllib.quote(), ''.encode() and such)
 
     Note that in HTML, & should always be encoded (in node text, attributes and elsehwere),
     so it is a good idea to structurally use nodetext() and/or attr(). 
@@ -9,10 +10,10 @@
 
     uri() and uri_component() are like javascript's encodeURI and encodeURIcomponent.
 """
-# import html, re
+import re
 import urllib.parse
 
-__all__ = ["nodetext", "attr", "uri", "uri_component", "uri_dict"]
+__all__ = ["nodetext", "attr", "uri", "uri_component", "uri_dict", "regex_literal"]
 
 
 def nodetext(text, if_none=None):
@@ -51,13 +52,15 @@ def attr(text):
         but do if you wrap attributes in C{'}, which is valid in XML, and various HTML.
         Doesn't use C{&apos;} becase it's not defined in HTML4.
 
-    Note that to put URIs with unicode in attributes, what you want is often something roughly like ::
+    Note that to put URIs with unicode in attributes, 
+    what you want is often something roughly like ::
         '<a href="?q=%s">'%attr( uri_component(q)  )
     ...because C{uri()} handles the utf8 percent escaping of the unicode,
     C{attr()} the attribute escaping
     (technically you can get away without attr because uri_component escapes a _lot_)
 
-    Passes non-ascii through. It is expected that you want to apply that to the document as a whole, or to document writing/appending.
+    Passes non-ascii through. It is expected that you want to apply that to the document as a whole, 
+    or to document writing/appending.
 
     TODO: review how I want to deal with bytes / unicode in py3 now
 
@@ -109,11 +112,13 @@ def uri_component(text, same_type=True):
     including URIs, into URI query parameters.
 
     @param text: URI, as string or bytes object
-    (unicode in an input str is converted into url-encoded UTF8 bytes first (quote() defaults to encoding to UTF8))
+    (unicode in an input str is converted into url-encoded UTF8 bytes first 
+     (quote() defaults to encoding to UTF8))
 
     @param same_type: if you handed in bytes, we will return bytes (containing UTF-8 if necessary)
 
-    @returns: bytes if it was given bytes, str if given str. If same_type==false it gives it as a str always.
+    @returns: bytes if it was given bytes, str if given str. 
+    If same_type==false it gives it as a str always.
     """
     given_bytes: bool = isinstance(text, bytes)
 
@@ -137,7 +142,8 @@ def uri_dict(d, join="&", astype=str):
     join is there so that you could use ; as w3 suggests, but it defaults to &
     Internally works in str
 
-    (you could also abuse it to avoid an attr()/nodetext() by handing it &amp; but that gets confusing)
+    (you could also abuse it to avoid an attr()/nodetext() 
+    by handing it &amp; but that gets confusing)
     """
     if isinstance(join, bytes):
         join = join.decode("utf8")  # this function itself works in str, and
@@ -147,14 +153,20 @@ def uri_dict(d, join="&", astype=str):
         if not isinstance(
             var, str
         ):  # TODO: rethink   (this is _mostly_ intended for a bytes, but this code is too broad)
-            raise ValueError("uri_dict doesn't deal with type %r" % str(type(var)))
+            raise ValueError(f"uri_dict doesn't deal with type {str(type(var))}")
             # var = str(var)
         if not isinstance(
             val, str
         ):  # TODO: rethink: this may make sense for numbers, byte not e.g. bytes objects
-            raise ValueError("uri_dict doesn't deal with type %r" % str(type(val)))
+            raise ValueError(f"uri_dict doesn't deal with type {str(type(val))}")
             # val = str(val)
         parts.append("%s=%s" % (uri_component(var), uri_component(val)))
     if astype is bytes:
         return bytes(join.join(parts), encoding="ascii")
     return astype(join.join(parts))
+
+
+def regex_literal(string:str):
+    ''' Lets you dump a string into a regex. 
+    Note that this is just re.escape, which you might as well use directly'''
+    return re.escape(string)
