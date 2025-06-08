@@ -144,6 +144,7 @@ def _split_officielepublicaties_xml(tree, start_at):
         tree,
         start_at_path=start_at_path,
         alinea_elemnames=(
+            "titel",
             "al",
             "tussenkop",
             "dagtekening",
@@ -756,9 +757,7 @@ class Fragments_XML_OP_Gmb(Fragments):
     def suitableness(self):
         # may raise - maybe return very high score instead?
         self.tree = wetsuite.helpers.etree.fromstring(self.docbytes)
-        self.tree = wetsuite.helpers.etree.strip_namespace(
-            self.tree
-        )  # choice to remove namespaces unconditionally
+        self.tree = wetsuite.helpers.etree.strip_namespace( self.tree )  # choice to remove namespaces unconditionally
         for test_xpath, score in (
             # ('//gemeenteblad//regeling-tekst', 5),
             ("//gemeenteblad//zakelijke-mededeling", 10),  # -tekst/tekst
@@ -778,6 +777,7 @@ class Fragments_XML_OP_Gmb(Fragments):
 
     def fragments(self):
         ret = []
+        ret.extend(_split_officielepublicaties_xml(self.tree, '//gemeenteblad/kop')) # TODO: do this more robustly
         for sp in self.startpaths:
             ret.extend(_split_officielepublicaties_xml(self.tree, sp))
         return ret
@@ -823,6 +823,7 @@ class Fragments_XML_OP_Stcrt(Fragments):
 
     def fragments(self):
         ret = []
+        #ret.extend(_split_officielepublicaties_xml(self.tree, '//staatscourant/kop')) # TODO: do this more robustly
         for sp in self.startpaths:
             ret.extend(_split_officielepublicaties_xml(self.tree, sp))
         return ret
@@ -864,6 +865,7 @@ class Fragments_XML_OP_Stb(Fragments):
 
     def fragments(self):
         ret = []
+        #ret.extend(_split_officielepublicaties_xml(self.tree, '//staatsblad/kop')) # TODO: do this more robustly
         for sp in self.startpaths:
             ret.extend(_split_officielepublicaties_xml(self.tree, sp))
         return ret
@@ -986,6 +988,7 @@ class Fragments_XML_OP_Wsb(Fragments):
 
     def fragments(self):
         ret = []
+        #ret.extend(_split_officielepublicaties_xml(self.tree, '//waterschapsblad/kop')) # TODO: do this more robustly
         for sp in self.startpaths:
             ret.extend(_split_officielepublicaties_xml(self.tree, sp))
         return ret
