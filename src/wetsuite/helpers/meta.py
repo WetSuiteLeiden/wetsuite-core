@@ -556,10 +556,12 @@ def parse_bekendmaking_id(s):
     - C{ah-tk-20082009-2945}
     - C{stcrt-2009-9231}
 
-    TODO: give this function a better name, it's not just bekendmakingen.
+    TODO: give this function a better name, it's not just bekendmakingen. We're not sure it has a real name, though.
 
     Notes:
-    - as of this writing it still fails on ~ .01% of of keys I've seen, but most of those seem to be invalid (though almost all of those are kst-, so we may just not known an uncommon variant).
+    - as of this writing, this function still fails on ~.01% of of keys I've seen, 
+      but most of those seem to be invalid (and almost all of those are kst-, since improved in parse_kst_id), 
+      or perhaps a rare variant.
     - if you match on something like ([a-z-]+)[0-9A-Z], you get more than the below - but it depends on the documents you source. 
       - sometimes you get a bunch of ids that suggest a soft subcategory, e.g. nds-bzk0700034-b1
       - sometmies you get a capital you weren't expecting, e.g. Stcrt-2001-130-CAO1965
@@ -802,11 +804,11 @@ def parse_kst_id(string:str, debug:bool=False):
     dossierlike    = r'(?:[0-9][0-9][0-9][0-9][0-9][A-Z]?)'
     apnd_opt           = r'(?:-[nbh][0-9]+)?'
 
-    # the point of these patterns is 
-    #   to try to not over-accept and to list the distinct patterns we are matching (we could generalize it into less tha n half the cases but it would become more opaque),
-    #   to be descriptive of what we're matching in a way we can hope to understand and augment later.
-    # this list that the most common first, and is other ordered roughly to catch stricter cases first, and also roughly by how often they occur, for speed reasons.
-    #   ...the last handful are fairly rare.
+    # the point of these patterns is
+    # - to try to not over-accept and to list the distinct patterns we are matching (we could generalize it into less tha n half the cases but it would become more opaque),
+    # - to be descriptive of what we're matching in a way we can hope to understand and augment later.
+    # This list is ordered, roughly, to have the common first (for slight speed boost), as well as to have stricter cases first (for correctness).
+    # Note that the last handful are rare.
     ret = {}
 
     for pattern, assign, variant in (
@@ -865,5 +867,4 @@ def parse_kst_id(string:str, debug:bool=False):
             ret['variant'] = variant
             return ret
 
-    raise ValueError(f'Did not understand {string} as kst identifier')
-
+    raise ValueError(f'Did not understand {repr(string)} as kst identifier')
