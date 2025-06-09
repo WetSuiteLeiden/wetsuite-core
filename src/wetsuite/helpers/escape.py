@@ -167,6 +167,8 @@ def uri_dict(d, join="&", astype=str):
 
 
 def regex_literal(string:str):
-    ''' Lets you dump a string into a regex. 
-    Note that this is just re.escape, which you might as well use directly'''
+    ''' Lets you dump a string into a regex without worrying about interpretation.  
+        Note that this is just re.escape(), which you might as well use directly, 
+        it's just here for completeness.
+    '''
     return re.escape(string)
