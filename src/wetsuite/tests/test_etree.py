@@ -5,6 +5,8 @@ from wetsuite.helpers.etree import (
     tostring,
     strip_namespace,
     _strip_namespace_inplace,
+    strip_comment_pi,
+    _strip_comment_pi_inplace, 
     all_text_fragments,
     indent,
     path_count,
@@ -17,7 +19,7 @@ from wetsuite.helpers.etree import (
 )
 
 
-def test_strip():
+def test_strip_namespace():
     """Test some basic assumptions around strip_namespace() and strip_namespace_inplace()"""
     original = '<a xmlns:pre="foo"> <pre:b/> </a>'
     reserialized = '<a xmlns:ns0="foo"> <ns0:b /> </a>'
@@ -46,6 +48,35 @@ def test_strip():
 
     with pytest.raises(ValueError, match=r".*Handed None.*"):
         strip_namespace(None)
+
+
+def test_strip_comment_pi_inplace():
+    ' Test whether we can strip comments and/or processing instructions from lxml trees, in-place '
+    t = fromstring('<html><a/><!-- --><b/><?xml-stylesheet type="text/xsl" href="style.xsl"?></html>')
+    _strip_comment_pi_inplace(t, True, False)
+    assert tostring( t ) == b'<html><a/><b/><?xml-stylesheet type="text/xsl" href="style.xsl"?></html>'
+
+    t = fromstring('<html><a/><!-- --><b/><?xml-stylesheet type="text/xsl" href="style.xsl"?></html>')
+    _strip_comment_pi_inplace(t, False, True)
+    assert tostring( t ) == b'<html><a/><!-- --><b/></html>'
+
+    t = fromstring('<html><a/><!-- --><b/><?xml-stylesheet type="text/xsl" href="style.xsl"?></html>')
+    _strip_comment_pi_inplace(t, True, True)
+    assert tostring( t ) == b'<html><a/><b/></html>'
+
+
+def test_strip_comment_pi_copy():
+    ' Test whether we can strip comments and/or processing instructions from lxml trees '
+    t = fromstring('<html><a/><!-- --><b/><?xml-stylesheet type="text/xsl" href="style.xsl"?></html>')
+
+    assert tostring( strip_comment_pi(t, True, False) ) == b'<html><a/><b/><?xml-stylesheet type="text/xsl" href="style.xsl"?></html>'
+
+    assert tostring( strip_comment_pi(t, False, True) ) == b'<html><a/><!-- --><b/></html>'
+
+    assert tostring( strip_comment_pi(t, True, True) ) == b'<html><a/><b/></html>'
+
+    # check that original is untouched
+    assert tostring( t ) == b'<html><a/><!-- --><b/><?xml-stylesheet type="text/xsl" href="style.xsl"?></html>'
 
 
 def test_attribute_stripping():

@@ -164,6 +164,59 @@ def kvelements_to_dict(under_node, strip_text=True, ignore_tagnames=()) -> dict:
     return ret
 
 
+def _strip_comment_pi_inplace(tree, strip_comment=True, strip_pi=True):
+    """ Strip comments and processing instructions from existing tree
+
+        This can be handy in readout code, in that otherwise you have to isinstance-test for that in a lot of code.
+    """
+
+    remove_me = set()
+    for elem in tree.iter():
+        if strip_comment and isinstance(elem, _Comment):
+            remove_me.add( elem )
+        if strip_pi      and isinstance(elem, _ProcessingInstruction):
+            remove_me.add( elem )
+
+    for rm_elem in remove_me:
+        rm_elem.getparent().remove( rm_elem ) # note that getparent() only works on lxml style etrees, so maybe prefer strip_comment_pi() ?
+
+    return tree
+
+
+def strip_comment_pi(tree, strip_comment=True, strip_pi=True):
+    """ Returns a copy of a tree, that removes comments and processing instructions.
+        This can be handy in readout code, in that otherwise you have to isinstance-test for that in a lot of code.
+    """
+    tree = _copy(tree)
+    _strip_comment_pi_inplace(tree, strip_comment=strip_comment, strip_pi=strip_pi)
+    return tree
+
+    
+
+
+def _copy(tree):
+    """ Make independent copy of tree 
+        (also helps ensure it's lxml-style etree object) 
+    """
+    if not isinstance(tree, lxml.etree._Element): #  pylint: disable=protected-access,c-extension-no-member
+        # (we assume that means we're using a) non-lxml etree?  (and not that you handed in something completely unrelated)
+        warnings.warn(
+            "Trying to work around potential issues from non-lxml etrees by converting to it, which might be unnecessarily slow. "
+            "If you parse your XML yourself, please consider lxml.etree.fromstring() / wetsuite.helpers.etree.fromstring() instead of e.g. xml.etree.fromstring()."
+        )
+        try:
+            import xml.etree.ElementTree
+
+            if isinstance(tree, xml.etree.ElementTree.Element):
+                # We want a copy anyway, so this isn't too wasteful.   Maybe there is a faster way, though.
+                tree = lxml.etree.fromstring(xml.etree.ElementTree.tostring(tree)) # pylint: disable=c-extension-no-member
+            # implied else: we don't know what that was, and we hope for the best
+        except ImportError:
+            pass  # xml.etree is stdlib in py3 so this should never happen (in py3), but we can fall back to do nothing
+    else: # already an lxml-style etree
+        tree = copy.deepcopy( tree )  # assuming this is enough.  TODO: verify with lxml and etree implementation
+    return tree
+
 
 def strip_namespace(tree, remove_from_attr=True):
     """Returns a copy of a tree that has its namespaces stripped.
@@ -186,32 +239,9 @@ def strip_namespace(tree, remove_from_attr=True):
     We don't expect you to have a use for this most of the time,
     but in some debugging you want to know, and report them.
     """
-    if (
-        tree is None
-    ):  # avoid the below saying something silly when it's you who were silly
+    if tree is None:  # avoid the below saying something silly when it's you who were silly
         raise ValueError("Handed None to strip_namespace()")
-
-    # make copy, an check it's of the right type
-    if not isinstance(tree, lxml.etree._Element): # pylint: disable=protected-access,c-extension-no-member
-        # we assume that means we're using a non-lxml etree  (and not that you handed in something completely unrelated)
-        warnings.warn(
-            "Trying to work around potential issues from non-lxml etrees by converting to it, which might be unnecessarily slow. "
-            "If you parse your XML yourself, please consider lxml.etree.fromstring() / wetsuite.helpers.etree.fromstring() instead of e.g. xml.etree.fromstring()."
-        )
-        try:
-            import xml.etree.ElementTree
-
-            if isinstance(tree, xml.etree.ElementTree.Element):
-                # We want a copy anyway, so this isn't too wasteful.   Maybe there is a faster way, though.
-                tree = lxml.etree.fromstring(xml.etree.ElementTree.tostring(tree)) # pylint: disable=c-extension-no-member
-            # implied else: we don't know what that was, and we hope for the best
-        except ImportError:
-            pass  # xml.etree is stdlib in py3 so this should never happen, but we can fall back to do nothing
-    else:
-        tree = copy.deepcopy(
-            tree
-        )  # assuming this is enough.  TODO: verify with lxml and etree implementation
-
+    tree = _copy(tree)
     _strip_namespace_inplace(tree, remove_from_attr=remove_from_attr)
     return tree
 
@@ -576,6 +606,7 @@ def parse_html(htmlbytes:bytes):
     parser = lxml.html.HTMLParser(recover=True, encoding='utf8')
     return lxml.etree.fromstring(htmlbytes, parser=parser) # pylint: disable=c-extension-no-member
 
+
 # CONSIDER: augmenting this with "main content or not" information that split can use
 _html_text_knowledge = { #  usecontents prepend append removesubtree
     ## HTML
@@ -587,7 +618,7 @@ _html_text_knowledge = { #  usecontents prepend append removesubtree
     'style':                  ( False, None, None,   True  ),
     'iframe':                 ( False, None, None,   True  ), # probably doesn't contain anything anyway
     'svg':                    ( False, None, None,   True  ),
-    'font':                   ( False, None, None,   True  ),
+    'font':                   ( True,  None, None,   False ), # old-style styling - https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Elements/font
 
     'form':                   ( False, None, None,   False ),
     'input':                  ( False, None, None,   False ),
@@ -1176,6 +1207,46 @@ _html_text_knowledge = { #  usecontents prepend append removesubtree
     'raad-van-state':               ( True,   None,None,   False ),
     'wetwijziging':                 ( True,   None,None,   False ),
     
+    # TEI.2  though it conflicts somewhat
+    'front':                 ( False,   None,None,   True ), # https://tei-c.org/release/doc/tei-p5-doc/en/html/ref-front.html
+    'speaker':               ( True,   None,None,   False ), # https://tei-c.org/release/doc/tei-p5-doc/en/html/ref-speaker.html
+    'sp':                    ( True,   None,None,   False ), # https://tei-c.org/release/doc/tei-p5-doc/en/html/ref-sp.html
+    'stage':                 ( True,   None,None,   False ), # https://tei-c.org/release/doc/tei-p5-doc/en/html/ref-stage.html
+    'list':                  ( True,   None,None,   False ), # https://tei-c.org/release/doc/tei-p5-doc/en/html/ref-list.html
+    'note':                  ( True,   None,None,   False ), # https://tei-c.org/release/doc/tei-p5-doc/en/html/ref-note.html
+    'cf':                    ( True,   None,None,   False ), # 
+    'xptr':                  ( False,   None,None,  True ),  # I think? 
+    'xref':                  ( False,   None,None,   True ), # 
+    'interpgrp':             ( True,   None,None,   False ), # https://tei-c.org/release/doc/tei-p5-doc/en/html/ref-interpGrp.html
+    'interp':                ( True,   None,None,   False ), # 
+    'text':                  ( True,   None,None,   False ), # 
+    'pb':                    ( True,   None,None,   False ), # https://tei-c.org/release/doc/tei-p5-doc/en/html/ref-pb.html
+    'hi':                    ( True,   None,None,   False ), # https://tei-c.org/release/doc/tei-p5-doc/en/html/ref-hi.html
+    'lg':                    ( True,   None,'\n',   False ), # https://tei-c.org/release/doc/tei-p5-doc/en/html/ref-lg.html
+    'l':                     ( True,   None,'\n',   False ), # https://tei-c.org/release/doc/tei-p5-doc/en/html/ref-l.html 
+    'q':                     ( True,   None,None,   False ), # https://tei-c.org/release/doc/tei-p5-doc/en/html/ref-q.html
+    'cell':                  ( True,   None,'\n',   False ), # https://tei-c.org/release/doc/tei-p5-doc/en/html/ref-cell.html 
+    'lb':                    ( True,   None,None,   False ), # https://tei-c.org/release/doc/tei-p5-doc/en/html/ref-lb.html
+    'name':                  ( True,   None,None,   False ), # https://tei-c.org/release/doc/tei-p5-doc/en/html/ref-name.html
+    'figdesc':               ( False,   None,None,   False ), # https://www.tei-c.org/release/doc/tei-p5-doc/en/html/ref-figDesc.html
+    'cit':                   ( True,   None,None,   False ), # https://tei-c.org/release/doc/tei-p5-doc/en/html/ref-cit.html
+    'signed':                ( True,   None,None,   False ), # https://tei-c.org/release/doc/tei-p5-doc/en/html/ref-signed.html
+    'c':                     ( True,   None,None,   False ), # https://tei-c.org/release/doc/tei-p5-doc/en/html/ref-c.html
+    'seg':                   ( True,   None,None,   False ), # https://tei-c.org/release/doc/tei-p5-doc/en/html/ref-seg.html
+    'bibl':                  ( False,   None,None,   False ), # https://tei-c.org/release/doc/tei-p5-doc/en/html/ref-bibl.html
+    'hy':                    ( True,   None,None,   False ), # ?
+    'tune':                  ( True,   None,None,   False ), # ?
+    'reg':                   ( True,   None,None,   False ), # ?
+
+    'creator':               ( True,  None, '\n',   False ),
+    'publisher':             ( True,  None, '\n',   False ),
+    'contributor':           ( True,  None, '\n',   False ),
+    'description':           ( True,  None, '\n',   False ),
+    'date':                  ( True,  None, '\n',   False ),
+    'subject':               ( True,  None, '\n',   False ),
+    'language':              ( True,  None, '\n',   False ),
+    'identifier':            ( True,  None, '\n',   False ),
+                     #  usecontents prepend append removesubtree
 }
 " The data that html_text works from; we might make this a parameter so you can control that "
 
@@ -1205,7 +1276,7 @@ def html_text(etree, join=True, bodynodename='body'):
     
     @param etree: Can be one of
     * etree object (but there is little point as most node names will not be known.
-    * a bytes or str object - will be assumed to be HTML that isn't parsed yet. (bytes suggests properly storing file data, str that you might be more fiddly with encodings)
+    * a bytes or str object - will be assumed to be HTML that isn't parsed yet. (bytes suggests properly storing file data, str might be more fiddly with encodings)
     * a bs4 object - this is a stretch, but could save you some time.
 
     @param bodynodename: start at the node with this name - defaults to 'body'. Use None to start at the root of what you handed in.
@@ -1213,18 +1284,21 @@ def html_text(etree, join=True, bodynodename='body'):
     @param join: If True, returns a single string (with a little more polishing, of spaces after newlines)
     If False, returns the fragments it collected and added.   Due to the insertion and handing of whitespace, this bears only limited relation to the parts.
     '''
+    if etree is None:
+        raise ValueError( "You handed None into html_text()" )
 
     # also accept unparsed HTML / XML
     if isinstance( etree, (str, bytes) ):
         etree = parse_html(etree)
 
-    # also accept bs4 objects . It's a stretch for something in an etree module, yes,
+    # also accept bs4 objects. It's a stretch for something in an etree module, yes,
     #   but it can be cooperative if you like bs4 to parse HTML
     try: # we don't fail on bs4 not being installed
         from bs4 import Tag
         if isinstance(etree, Tag):
             etree = parse_html( str(etree) ) # bs4 to string, string to etree.html
     except ImportError:
+        warnings.warning('no bs4')
         pass
 
     etree = strip_namespace( etree )
@@ -1235,21 +1309,23 @@ def html_text(etree, join=True, bodynodename='body'):
     #   but drop_tree exists only in [lxml.html](https://lxml.de/lxmlhtml.html), not bare lxml, so to ensure this also works on bare lxml objects
     #   that our parse_html return, the toremove part is roughly the contents of drop_tree() implementation
     toremove = []
-    for element in etree.iter():
-        if element.tag in _html_text_knowledge  and  _html_text_knowledge[element.tag][3]:
+    for element in etree.iter(): 
+        if element.tag in _html_text_knowledge  and  _html_text_knowledge[element.tag][3]: #whether that tag is marked 'remove subtree'
             toremove.append( element )
-            #print('removing %r from %r'%(element.tag, element.getparent().tag))
+    
     for el in toremove:
         parent = el.getparent()
         assert parent is not None
-        if el.tail:
+        if el.tail:    # if the element we want to remove has .tail text
             previous = el.getprevious()
-            if previous is None:
+            if previous is None:                            # - if there isn't a previous sibling, append it to the parent's .text
                 parent.text = (parent.text or '') + el.tail
-            else:
+            else:                                           # - if there is a previous sibling, append it to ''its'' tail
                 previous.tail = (previous.tail or '') + el.tail
+        # and only then actually remove the element
         parent.remove(el)
 
+    ## Now augment and collect the fragments we want
     collect = []
     def add_text(tagtext, tagname):
         if tagname in _html_text_knowledge:
@@ -1260,7 +1336,7 @@ def html_text(etree, join=True, bodynodename='body'):
                     #print("adding %r"%(tagtext))
                     collect.append( tagtext )
         else:
-            warnings.warn('TODO: handle %r in html_text()'%tagname)
+            warnings.warn(f'TODO: handle {repr(tagname)} in html_text()')
 
     def add_ws_before(tag):
         if tag.tag in _html_text_knowledge:
@@ -1275,13 +1351,13 @@ def html_text(etree, join=True, bodynodename='body'):
                 #print("adding %r after %r"%(add_after, tag.tag))
                 collect.append( add_after )
 
-    body = etree
+    walkfrom = etree # if you hand in None, we do everything
     if bodynodename is not None:
         bf = etree.find( bodynodename )
         if bf is not None:
-            body = bf
+            walkfrom = bf
 
-    for event, el in lxml.etree.iterwalk(body, events=('start', 'end')):  # pylint: disable=c-extension-no-member
+    for event, el in lxml.etree.iterwalk(walkfrom, events=('start', 'end')):  # pylint: disable=c-extension-no-member
         # TODO: check that this block isn't wrong
         if event == 'start':
             add_ws_before(el)
@@ -1290,10 +1366,9 @@ def html_text(etree, join=True, bodynodename='body'):
             add_ws_after(el)
             add_text( el.tail, el.tag)
 
-
     ## Reduce whitespace from what we just collected
     # There are several possible reasons for a _lot_ of whitepace, such as
-    # the indentation in the document, and some of the stuff we add ourselves
+    # the indentation in the document, as well as what we just added
     def is_only_whitespace(s):
         if len(re.sub(r'[\r\n\t\s]','',s))==0:
             return True
