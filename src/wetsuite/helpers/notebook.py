@@ -22,51 +22,46 @@ def detect_env():
     """
     ret = {}
 
-    if (
-        "pytest" in sys.modules
-    ):  # pytest seems to mock IPython, which confuses the below
-        ret["ipython"] = False
+    if "pytest" in sys.modules:  # pytest seems to mock IPython, which confuses the below, so add it as a special case for tests
+        ret["ipython"]     = False
         ret["interactive"] = False
-        ret["notebook"] = False
+        ret["notebook"]    = False
         return ret
 
     try:  # probably slightly less nasty than by-classname below
         # pylint disable,  because it not being available or not is the thing under test, and the point
         import google.colab #   pylint: disable=unused-import
 
-        ret["ipython"] = True
+        ret["ipython"]     = True
         ret["interactive"] = True
-        ret["notebook"] = True
-        ret["colab"] = True
+        ret["notebook"]    = True
+        ret["colab"]       = True      # maybe remove?
         return ret
-    except ImportError:  # probably also further errrs?
+    except ImportError:  # probably also further errors?
         pass
 
     try:
-        import IPython  # pylint:disable=C0415
-
+        import IPython  # pylint:disable=import-outside-toplevel 
         ret["ipython"] = True
         ipyshell = IPython.get_ipython().__class__.__name__
         if ipyshell == "ZMQInteractiveShell":  # jupyter notebook or qtconsole
             ret["interactive"] = True
-            ret["notebook"] = True
+            ret["notebook"]    = True
         elif ipyshell == "TerminalInteractiveShell":  # interactive ipython shell
             ret["interactive"] = True
-            ret["notebook"] = False
+            ret["notebook"]    = False
         elif (
             ipyshell == "NoneType"
         ):  # ipython installed, but this is a regular interactive(?) python shell?  Possibly other cases?
             ret["interactive"] = True
-            ret["notebook"] = False
+            ret["notebook"]    = False
         else:
             raise ValueError("we probably want to understand %r" % ipyshell)
-
+        
     except ImportError:  # no IPython, no notebook, but possibly interactive
-        ret["ipython"] = False
-        ret["notebook"] = False
-        if hasattr(
-            sys, "ps1"
-        ):  # see https://stackoverflow.com/questions/2356399/tell-if-python-is-in-interactive-mode
+        ret["ipython"]         = False
+        ret["notebook"]        = False
+        if hasattr( sys, "ps1" ):  # see https://stackoverflow.com/questions/2356399/tell-if-python-is-in-interactive-mode
             ret["interactive"] = True  # regular python, interactive
         else:
             ret["interactive"] = False  # regular python, not interactive
@@ -74,18 +69,19 @@ def detect_env():
 
 
 def is_notebook():
-    "returns whether we are running in a notebook (see detect_env)"
+    "returns whether we are running in a notebook (see L{detect_env})"
     return detect_env()["notebook"]
 
 
 def is_ipython():
-    """returns whether IPython is available (see detect_env) - note that you might want to combine this with is_interactive
+    """returns whether IPython is available (see L{detect_env}).
+    Note that you can see ipython non-interactively, so you might might want to combine this with is_interactive
     (depending on what you are really testing )"""
     return detect_env()["ipython"]
 
 
 def is_interactive():
-    "returns whether we are using an interactive thing (see detect_env)"
+    "returns whether we are using an interactive thing (see L{detect_env})"
     return detect_env()["interactive"]
 
 
@@ -104,11 +100,13 @@ def progress_bar(maxval, description="", display=True):  # , **kwargs
 
     CONSIDER: parameter to force text mode
         
-    Compared to L{ProgressBar}, this one is more typing but also does a little more,
-    letting you set (and get) .value and .description on the fly,
+    Compared to L{ProgressBar} defined alongside, this one is more typing,
+    but also allows more control, e.g. letting you set (and get) .value and .description on the fly,
     so e.g. usable like::
-        prog = progress_bar( 10, 'overall' )
+        prog = progress_bar( 10 )
+        prog.description = 'starting up...'
         for i in range(10):
+            prog.description = f'working on item {i}'
             prog.value += 1
             time.sleep(1)
         prog.description = 'finished'
@@ -342,7 +340,7 @@ class etree_visualize_selection:
                 ) and element in selection:
                     ret.append(
                         '<span style="background-color:#faa; color:black">%s</span>'
-                        % element.text
+                        % element.text # TODO: check for injection
                     )
                 else:
                     ret.append(element.text)
@@ -374,10 +372,15 @@ class etree_visualize_selection:
 
 def set_proctitle(proctitle="wetsuite-notebook"):
     ''' 
-    Might throw an exception, e.g. an ImportError'
+    Uses the C{setproctitle} module to change the name of our process,
+    purely to make it more obvious to others who is using all the resources accidentally.
+
+    Might throw an exception, e.g. an ImportError
+
+    @param proctitle: the string to set it to, defaulting to 'wetsuite-notebook'
     '''
     import setproctitle
-    setproctitle.setproctitle( proctitle ) # pylint: disable=c-extension-no-member
+    setproctitle.setproctitle( str(proctitle) ) # pylint: disable=c-extension-no-member
 
 
 if is_notebook():
