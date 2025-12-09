@@ -52,31 +52,31 @@ def test_strip_namespace():
 
 def test_strip_comment_pi_inplace():
     ' Test whether we can strip comments and/or processing instructions from lxml trees, in-place '
-    t = fromstring('<html><a/><!-- --><b/><?xml-stylesheet type="text/xsl" href="style.xsl"?></html>')
+    t = fromstring('<html>1<a/>2<!-- -->3<b/>4<?xml-stylesheet type="text/xsl" href="style.xsl"?>5</html>')
     _strip_comment_pi_inplace(t, True, False)
-    assert tostring( t ) == b'<html><a/><b/><?xml-stylesheet type="text/xsl" href="style.xsl"?></html>'
+    assert tostring( t ) == b'<html>1<a/>23<b/>4<?xml-stylesheet type="text/xsl" href="style.xsl"?>5</html>'
 
-    t = fromstring('<html><a/><!-- --><b/><?xml-stylesheet type="text/xsl" href="style.xsl"?></html>')
+    t = fromstring('<html>1<a/>2<!-- -->3<b/>4<?xml-stylesheet type="text/xsl" href="style.xsl"?>5</html>')
     _strip_comment_pi_inplace(t, False, True)
-    assert tostring( t ) == b'<html><a/><!-- --><b/></html>'
+    assert tostring( t ) == b'<html>1<a/>2<!-- -->3<b/>45</html>'
 
-    t = fromstring('<html><a/><!-- --><b/><?xml-stylesheet type="text/xsl" href="style.xsl"?></html>')
+    t = fromstring('<html>1<a/>2<!-- -->3<b/>4<?xml-stylesheet type="text/xsl" href="style.xsl"?>5</html>')
     _strip_comment_pi_inplace(t, True, True)
-    assert tostring( t ) == b'<html><a/><b/></html>'
+    assert tostring( t ) == b'<html>1<a/>23<b/>45</html>'
 
 
 def test_strip_comment_pi_copy():
     ' Test whether we can strip comments and/or processing instructions from lxml trees '
-    t = fromstring('<html><a/><!-- --><b/><?xml-stylesheet type="text/xsl" href="style.xsl"?></html>')
+    t = fromstring('<html>1<a/>2<!-- -->3<b/>4<?xml-stylesheet type="text/xsl" href="style.xsl"?>5</html>')
 
-    assert tostring( strip_comment_pi(t, True, False) ) == b'<html><a/><b/><?xml-stylesheet type="text/xsl" href="style.xsl"?></html>'
+    assert tostring( strip_comment_pi(t, True, False) ) == b'<html>1<a/>23<b/>4<?xml-stylesheet type="text/xsl" href="style.xsl"?>5</html>'
 
-    assert tostring( strip_comment_pi(t, False, True) ) == b'<html><a/><!-- --><b/></html>'
+    assert tostring( strip_comment_pi(t, False, True) ) == b'<html>1<a/>2<!-- -->3<b/>45</html>'
 
-    assert tostring( strip_comment_pi(t, True, True) ) == b'<html><a/><b/></html>'
+    assert tostring( strip_comment_pi(t, True, True) ) == b'<html>1<a/>23<b/>45</html>'
 
     # check that original is untouched
-    assert tostring( t ) == b'<html><a/><!-- --><b/><?xml-stylesheet type="text/xsl" href="style.xsl"?></html>'
+    assert tostring( t ) == b'<html>1<a/>2<!-- -->3<b/>4<?xml-stylesheet type="text/xsl" href="style.xsl"?>5</html>'
 
 
 def test_attribute_stripping():

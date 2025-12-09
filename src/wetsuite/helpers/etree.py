@@ -177,8 +177,17 @@ def _strip_comment_pi_inplace(tree, strip_comment=True, strip_pi=True):
         if strip_pi      and isinstance(elem, _ProcessingInstruction):
             remove_me.add( elem )
 
-    for rm_elem in remove_me:
-        rm_elem.getparent().remove( rm_elem ) # note that getparent() only works on lxml style etrees, so maybe prefer strip_comment_pi() ?
+    for el in remove_me: # now also duplicated code (see below), maybe generalize this too?
+        parent = el.getparent()
+        assert parent is not None
+        if el.tail:    # if the element we want to remove has .tail text
+            previous = el.getprevious()
+            if previous is None:                            # - if there isn't a previous sibling, append it to the parent's .text
+                parent.text = (parent.text or '') + el.tail
+            else:                                           # - if there is a previous sibling, append it to ''its'' tail
+                previous.tail = (previous.tail or '') + el.tail
+        # and only then actually remove the element
+        parent.remove(el)
 
     return tree
 
