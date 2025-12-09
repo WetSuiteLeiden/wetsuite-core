@@ -165,11 +165,14 @@ def kvelements_to_dict(under_node, strip_text=True, ignore_tagnames=()) -> dict:
 
 
 def _strip_comment_pi_inplace(tree, strip_comment=True, strip_pi=True):
-    """ Strip comments and processing instructions from existing tree
+    """ Strip comments and processing instructions from existing tree.
 
         This can be handy in readout code, in that otherwise you have to isinstance-test for that in a lot of code.
-    """
 
+        @param tree: the lxml-style etree to alter.
+        @param strip_comment: Whether to strip comments (defaults to True)
+        @param strip_pi:      Whether to strip processing instructions (defaults to True)
+    """
     remove_me = set()
     for elem in tree.iter():
         if strip_comment and isinstance(elem, _Comment):
@@ -189,12 +192,16 @@ def _strip_comment_pi_inplace(tree, strip_comment=True, strip_pi=True):
         # and only then actually remove the element
         parent.remove(el)
 
-    return tree
-
 
 def strip_comment_pi(tree, strip_comment=True, strip_pi=True):
-    """ Returns a copy of a tree, that removes comments and processing instructions.
+    """ Returns a copy of a tree, that removes comments and processing instructions
+    
         This can be handy in readout code, in that otherwise you have to isinstance-test for that in a lot of code.
+
+        @param tree:          the etree object to alter.
+        @param strip_comment: Whether to strip comments (defaults to True)
+        @param strip_pi:      Whether to strip processing instructions (defaults to True)
+        @return:              a copy of the etree object, with the requested things removed.
     """
     tree = _copy(tree)
     _strip_comment_pi_inplace(tree, strip_comment=strip_comment, strip_pi=strip_pi)
